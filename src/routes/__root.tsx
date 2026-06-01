@@ -1,6 +1,7 @@
+import { ModeToggle } from "@components/mode-toggle";
+import { ThemeProvider } from "@components/theme-provider";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 
-import { ThemeToggle } from "@/components/theme-toggle";
 import { useTheme } from "@/use-theme";
 
 export const Route = createRootRoute({
@@ -11,7 +12,7 @@ function RootComponent() {
   useTheme();
 
   return (
-    <>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-stone-900 dark:text-stone-100">135ify</h1>
@@ -19,11 +20,11 @@ function RootComponent() {
             Give your digital images a filmic look
           </span>
         </div>
-        <ThemeToggle />
+        <ModeToggle />
       </div>
       <div className="text-stone-900 dark:text-stone-100">
         <Outlet />
       </div>
-    </>
+    </ThemeProvider>
   );
 }
