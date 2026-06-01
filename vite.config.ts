@@ -19,8 +19,8 @@ export default defineConfig({
     },
     sortImports: {
       printWidth: 80,
-      sortPackageJson: false,
       newlinesBetween: true,
+      sortSideEffects: true,
       groups: [
         "type-import",
         ["value-builtin", "value-external"],
@@ -28,6 +28,7 @@ export default defineConfig({
         "value-internal",
         ["type-parent", "type-sibling", "type-index"],
         ["value-parent", "value-sibling", "value-index"],
+        "side_effect_style",
         "unknown",
       ],
       order: "asc",
