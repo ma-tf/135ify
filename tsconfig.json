@@ -1,11 +1,15 @@
 {
   "compilerOptions": {
-    "jsx": "react",
+    "jsx": "react-jsx",
     "target": "es2023",
     "module": "esnext",
     "lib": ["ES2023", "DOM"],
     "types": ["vite-plus/client"],
     "skipLibCheck": true,
+    "paths": {
+      "@*": ["./src/*"],
+      "@routes/*": ["./src/routes/*"]
+    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",

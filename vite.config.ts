@@ -1,13 +1,37 @@
-import { defineConfig } from "vite-plus";
-import react from "@vitejs/plugin-react";
-import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import tailwindcss from "@tailwindcss/vite";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+import { defineConfig } from "vite-plus";
+
+const src = path.resolve(__dirname, "src");
 
 export default defineConfig({
   staged: {
     "*": "vp check --fix",
   },
   fmt: {
+    sortTailwindcss: {
+      stylesheet: "./src/styles.css",
+      functions: ["cn", "clsx"],
+      groups: ["base", "components", "utilities", "unknown"],
+      newlinesBetween: true,
+    },
+    sortImports: {
+      printWidth: 80,
+      sortPackageJson: false,
+      newlinesBetween: true,
+      groups: [
+        "type-import",
+        ["value-builtin", "value-external"],
+        "type-internal",
+        "value-internal",
+        ["type-parent", "type-sibling", "type-index"],
+        ["value-parent", "value-sibling", "value-index"],
+        "unknown",
+      ],
+      order: "asc",
+    },
     ignorePatterns: ["src/routeTree.gen.ts"],
   },
   lint: {
@@ -23,4 +47,10 @@ export default defineConfig({
     }),
     react(),
   ],
+  resolve: {
+    alias: {
+      "@": src,
+      "@routes": `${src}/routes`,
+    },
+  },
 });
