@@ -52,6 +52,11 @@ export default defineConfig({
     alias: {
       "@": src,
       "@routes": `${src}/routes`,
+      "@components": `${src}/components`,
+      "@utils": `${src}/lib/utils`,
+      "@ui": `${src}/components/ui`,
+      "@lib": `${src}/lib`,
+      "@hooks": `${src}/hooks`,
     },
   },
 });
