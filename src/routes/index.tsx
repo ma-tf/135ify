@@ -2,6 +2,7 @@ import { AspectRatio } from "@components/ui/aspect-ratio";
 import { Button } from "@components/ui/button";
 import { Field, FieldDescription, FieldTitle } from "@components/ui/field";
 import { Slider } from "@components/ui/slider";
+import { useFileUpload } from "@hooks/use-file-upload";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -21,7 +22,22 @@ function RouteComponent() {
 }
 
 function Dropzone() {
-  return <AspectRatio ratio={16 / 9} className="rounded-lg bg-orange-200"></AspectRatio>;
+  const [{ files }, { openFileDialog, getInputProps }] = useFileUpload({
+    accept: "image/*",
+    multiple: false,
+  });
+
+  return (
+    <AspectRatio ratio={16 / 9} className="rounded-lg bg-orange-200">
+      <div>
+        <Button onClick={openFileDialog}>Upload Image</Button>
+        <input {...getInputProps()} className="sr-only" />
+        {files.map((file) => (
+          <div key={file.id}>{file.file.name}</div>
+        ))}
+      </div>
+    </AspectRatio>
+  );
 }
 
 function ControlPanel() {
