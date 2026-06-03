@@ -67,6 +67,7 @@ export default defineConfig({
       "@lib": `${src}/lib`,
       "@hooks": `${src}/hooks`,
       "@features": `${src}/features`,
+      "@stores": `${src}/stores`,
     },
   },
 });

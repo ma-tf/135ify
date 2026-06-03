@@ -1,9 +1,11 @@
 import { Button } from "@components/ui/button";
+import { Drawer, DrawerContent, DrawerTrigger } from "@components/ui/drawer";
 import { Separator } from "@components/ui/separator";
 import { ParameterSlider } from "@features/process/parameter-slider";
 import { type ParametersState, type ParametersActions, useParameters } from "@hooks/use-parameters";
 import { cn } from "@lib/utils";
-import { RotateCcwIcon, DownloadIcon } from "lucide-react";
+import { useFileStore } from "@stores/file-store";
+import { ChevronUpIcon, DownloadIcon, RotateCcwIcon } from "lucide-react";
 
 interface ControlsPanelProps {
   className?: string;
@@ -12,9 +14,11 @@ interface ControlsPanelProps {
 function PanelContent({
   parameters,
   parameterActions,
+  hasFiles = false,
 }: {
   parameters: ParametersState;
   parameterActions: ParametersActions;
+  hasFiles?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-6 p-4">
@@ -56,7 +60,7 @@ function PanelContent({
           <RotateCcwIcon className="h-3.5 w-3.5" />
           Reset
         </Button>
-        <Button size="sm" className="flex-1 gap-1.5">
+        <Button disabled={!hasFiles} size="sm" className="flex-1 gap-1.5">
           <DownloadIcon className="h-3.5 w-3.5" />
           Download
         </Button>
@@ -67,6 +71,7 @@ function PanelContent({
 
 export function ControlsPanel({ className }: ControlsPanelProps) {
   const [parameters, parameterActions] = useParameters();
+  const hasFiles = useFileStore((s) => s.files.length > 0);
 
   return (
     <>
@@ -76,7 +81,33 @@ export function ControlsPanel({ className }: ControlsPanelProps) {
           className,
         )}
       >
-        <PanelContent parameters={parameters} parameterActions={parameterActions} />
+        <PanelContent
+          parameters={parameters}
+          parameterActions={parameterActions}
+          hasFiles={hasFiles}
+        />
+      </div>
+
+      {/* Mobile bottom drawer */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background lg:hidden">
+        <Drawer>
+          <DrawerTrigger asChild>
+            <button
+              type="button"
+              className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium"
+            >
+              Processing
+              <ChevronUpIcon className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <PanelContent
+              parameters={parameters}
+              parameterActions={parameterActions}
+              hasFiles={hasFiles}
+            />
+          </DrawerContent>
+        </Drawer>
       </div>
     </>
   );

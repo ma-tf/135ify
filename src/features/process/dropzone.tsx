@@ -1,7 +1,8 @@
 import { Button } from "@components/ui/button";
 import { Spinner } from "@components/ui/spinner";
-import { useFileUpload, formatBytes, type FileWithPreview } from "@hooks/use-file-upload";
+import { useFileUpload, formatBytes } from "@hooks/use-file-upload";
 import { cn } from "@lib/utils";
+import { useFileStore } from "@stores/file-store";
 import { ImageIcon, UploadIcon, XIcon } from "lucide-react";
 import { useState, type MouseEvent } from "react";
 
@@ -11,7 +12,6 @@ interface DropzoneProps {
   accept?: string;
   multiple?: boolean;
   className?: string;
-  onFilesChange?: (files: FileWithPreview[]) => void;
 }
 
 export function Dropzone({
@@ -20,9 +20,9 @@ export function Dropzone({
   accept = "image/*",
   multiple = false,
   className,
-  onFilesChange,
 }: DropzoneProps) {
   const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
+  const syncFiles = useFileStore((s) => s.setFiles);
 
   const [
     { files, isDragging },
@@ -40,7 +40,7 @@ export function Dropzone({
     multiple,
     maxSize,
     maxFiles,
-    onFilesChange,
+    onFilesChange: syncFiles,
   });
 
   return (

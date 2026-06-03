@@ -1,3 +1,5 @@
+import type { FileMetadata, FileWithPreview } from "@stores/file-store";
+
 import {
   useCallback,
   useRef,
@@ -6,20 +8,6 @@ import {
   type DragEvent,
   type InputHTMLAttributes,
 } from "react";
-
-export type FileMetadata = {
-  name: string;
-  size: number;
-  type: string;
-  url: string;
-  id: string;
-};
-
-export type FileWithPreview = {
-  file: File | FileMetadata;
-  id: string;
-  preview?: string;
-};
 
 export type FileUploadOptions = {
   maxFiles?: number; // Only used when multiple is true, defaults to Infinity

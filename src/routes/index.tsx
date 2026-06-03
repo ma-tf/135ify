@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
 function RouteComponent() {
   return (
     <main className="flex flex-1 flex-col lg:flex-row">
-      <PreviewArea className="flex-1" />
+      <PreviewArea className="flex-1 pb-16 lg:pb-0" />
       <ControlsPanel />
     </main>
   );
