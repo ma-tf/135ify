@@ -13,6 +13,9 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },
+  "[markdown]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
   "oxc.path.oxfmt": "./node_modules/.bin/oxfmt",
   "oxc.fmt.configPath": "./vite.config.ts",
   "editor.formatOnSave": true,

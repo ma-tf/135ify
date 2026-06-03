@@ -34,6 +34,15 @@ export default defineConfig({
       order: "asc",
     },
     ignorePatterns: ["src/routeTree.gen.ts"],
+    overrides: [
+      {
+        files: ["**/*.md"],
+        options: {
+          printWidth: 120,
+          proseWrap: "always",
+        },
+      },
+    ],
   },
   lint: {
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
