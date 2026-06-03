@@ -57,6 +57,7 @@ export default defineConfig({
       "@ui": `${src}/components/ui`,
       "@lib": `${src}/lib`,
       "@hooks": `${src}/hooks`,
+      "@features": `${src}/features`,
     },
   },
 });

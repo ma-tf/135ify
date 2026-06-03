@@ -1,10 +1,6 @@
-import { AspectRatio } from "@components/ui/aspect-ratio";
-import { Button } from "@components/ui/button";
-import { Field, FieldDescription, FieldTitle } from "@components/ui/field";
-import { Slider } from "@components/ui/slider";
-import { useFileUpload } from "@hooks/use-file-upload";
+import { ControlsPanel } from "@features/process/controls-panel";
+import { PreviewArea } from "@features/process/preview-area";
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
@@ -12,95 +8,9 @@ export const Route = createFileRoute("/")({
 
 function RouteComponent() {
   return (
-    <div className="flex w-full flex-col justify-center">
-      <div className="mx-auto w-2xl">
-        <Dropzone />
-        <ControlPanel />
-      </div>
-    </div>
-  );
-}
-
-function Dropzone() {
-  const [{ files }, { openFileDialog, getInputProps }] = useFileUpload({
-    accept: "image/*",
-    multiple: false,
-  });
-
-  return (
-    <AspectRatio ratio={16 / 9} className="rounded-lg bg-orange-200">
-      <div>
-        <Button onClick={openFileDialog}>Upload Image</Button>
-        <input {...getInputProps()} className="sr-only" />
-        {files.map((file) => (
-          <div key={file.id}>{file.file.name}</div>
-        ))}
-      </div>
-    </AspectRatio>
-  );
-}
-
-function ControlPanel() {
-  return (
-    <div className="flex flex-col gap-6">
-      <Vignette />
-      <Grain />
-      <Button className="w-full">Process</Button>
-    </div>
-  );
-}
-
-function Vignette() {
-  const [intensity, setIntensity] = useState([0, 100]);
-  const [feather, setFeather] = useState([0, 100]);
-
-  return (
-    <Field className="w-full max-w-xs">
-      <FieldTitle>Vignette</FieldTitle>
-      <div className="flex flex-col gap-2">
-        <FieldDescription>Set the intensity</FieldDescription>
-        <Slider
-          value={intensity}
-          onValueChange={(value) => setIntensity(value as [number, number])}
-          max={100}
-          min={0}
-          step={1}
-          className="mt-2 w-full"
-          aria-label="Vignette intensity"
-        />
-        <FieldDescription>Set the feather</FieldDescription>
-        <Slider
-          value={feather}
-          onValueChange={(value) => setFeather(value as [number, number])}
-          max={100}
-          min={0}
-          step={1}
-          className="mt-2 w-full"
-          aria-label="Vignette feather"
-        />
-      </div>
-    </Field>
-  );
-}
-
-function Grain() {
-  const [grain, setGrain] = useState([0, 100]);
-
-  return (
-    <Field className="w-full max-w-xs">
-      <FieldTitle>Vignette</FieldTitle>
-      <div className="flex flex-col gap-2">
-        <FieldDescription>Set the intensity</FieldDescription>
-        <Slider
-          value={grain}
-          onValueChange={(value) => setGrain(value as [number, number])}
-          max={100}
-          min={0}
-          step={1}
-          className="mt-2 w-full"
-          aria-label="Grain"
-        />
-      </div>
-    </Field>
+    <main className="flex flex-1 flex-col lg:flex-row">
+      <PreviewArea className="flex-1" />
+      <ControlsPanel />
+    </main>
   );
 }

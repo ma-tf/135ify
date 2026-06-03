@@ -9,8 +9,10 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <Header />
-      <Outlet />
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <Outlet />
+      </div>
     </ThemeProvider>
   );
 }
