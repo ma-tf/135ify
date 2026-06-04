@@ -2,7 +2,7 @@ import { Button } from "@components/ui/button";
 import { Spinner } from "@components/ui/spinner";
 import { cn } from "@lib/utils";
 import { useFileStore } from "@stores/file-store";
-import { ImageIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { useState, type MouseEvent } from "react";
 
 export function ImagePreviewer() {
@@ -19,33 +19,25 @@ export function ImagePreviewer() {
           key={fileItem.id}
           className="group/item relative aspect-video overflow-hidden rounded-lg border"
         >
-          {fileItem.preview ? (
-            <>
-              {loadingImages[fileItem.id] !== false && (
-                <div className="absolute inset-0 flex items-center justify-center rounded-lg border bg-muted/50">
-                  <Spinner className="size-6 text-muted-foreground" />
-                </div>
-              )}
-              <img
-                src={fileItem.preview}
-                alt={fileItem.file.name}
-                onLoad={() =>
-                  setLoadingImages((prev) => ({
-                    ...prev,
-                    [fileItem.id]: false,
-                  }))
-                }
-                className={cn(
-                  "h-full w-full rounded-lg border object-cover transition-all group-hover/item:scale-105",
-                  loadingImages[fileItem.id] !== false ? "opacity-0" : "opacity-100",
-                )}
-              />
-            </>
-          ) : (
-            <div className="flex h-full w-full items-center justify-center rounded-lg border bg-muted">
-              <ImageIcon className="h-8 w-8 text-muted-foreground" />
+          {loadingImages[fileItem.id] !== false && (
+            <div className="absolute inset-0 flex items-center justify-center rounded-lg border bg-muted/50">
+              <Spinner className="size-6 text-muted-foreground" />
             </div>
           )}
+          <img
+            src={fileItem.preview}
+            alt={fileItem.file.name}
+            onLoad={() =>
+              setLoadingImages((prev) => ({
+                ...prev,
+                [fileItem.id]: false,
+              }))
+            }
+            className={cn(
+              "h-full w-full rounded-lg border object-cover transition-all group-hover/item:scale-105",
+              loadingImages[fileItem.id] !== false ? "opacity-0" : "opacity-100",
+            )}
+          />
 
           <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity group-hover/item:opacity-100">
             <Button

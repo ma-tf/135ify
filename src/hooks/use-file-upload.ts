@@ -108,7 +108,7 @@ export const useFileUpload = (
     [accept, maxSize],
   );
 
-  const createPreview = useCallback((file: File | FileMetadata): string | undefined => {
+  const createPreview = useCallback((file: File | FileMetadata): string => {
     if (file instanceof File) {
       return URL.createObjectURL(file);
     }
