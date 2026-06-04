@@ -35,11 +35,12 @@ function DrawerOverlay({ className, ...props }: ComponentProps<typeof DrawerPrim
 function DrawerContent({
   className,
   children,
+  noOverlay,
   ...props
-}: ComponentProps<typeof DrawerPrimitive.Content>) {
+}: ComponentProps<typeof DrawerPrimitive.Content> & { noOverlay?: boolean }) {
   return (
     <DrawerPortal>
-      <DrawerOverlay />
+      {!noOverlay && <DrawerOverlay />}
       <DrawerPrimitive.Content
         data-slot="drawer-content"
         className={cn(

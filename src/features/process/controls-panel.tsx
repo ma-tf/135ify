@@ -88,9 +88,8 @@ export function ControlsPanel({ className }: ControlsPanelProps) {
         />
       </div>
 
-      {/* Mobile bottom drawer */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background lg:hidden">
-        <Drawer>
+        <Drawer shouldScaleBackground={false}>
           <DrawerTrigger asChild>
             <button
               type="button"
@@ -100,7 +99,7 @@ export function ControlsPanel({ className }: ControlsPanelProps) {
               <ChevronUpIcon className="h-4 w-4 text-muted-foreground" />
             </button>
           </DrawerTrigger>
-          <DrawerContent>
+          <DrawerContent noOverlay>
             <PanelContent
               parameters={parameters}
               parameterActions={parameterActions}
