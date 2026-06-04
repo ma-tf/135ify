@@ -1,42 +1,37 @@
+import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
 import { useFileUpload, formatBytes } from "@hooks/use-file-upload";
 import { cn } from "@lib/utils";
-import { useFileStore } from "@stores/file-store";
-import { ImageIcon, UploadIcon } from "lucide-react";
+import { CircleAlertIcon, CloudUploadIcon } from "lucide-react";
 
 interface DropzoneProps {
   maxFiles?: number;
   maxSize?: number;
   accept?: string;
-  multiple?: boolean;
   className?: string;
 }
 
 export function Dropzone({
-  maxFiles = 1,
-  maxSize = 5 * 1024 * 1024,
+  maxFiles = 10,
+  maxSize = 2 * 1024 * 1024,
   accept = "image/*",
-  multiple = false,
   className,
 }: DropzoneProps) {
-  const syncFiles = useFileStore((s) => s.setFiles);
-
   const [
-    { isDragging },
+    { isDragging, errors },
     { handleDragEnter, handleDragLeave, handleDragOver, handleDrop, openFileDialog, getInputProps },
   ] = useFileUpload({
     accept,
-    multiple,
+    multiple: true,
     maxSize,
     maxFiles,
-    onFilesChange: syncFiles,
   });
 
   return (
-    <div className={cn("flex flex-col gap-2", className)}>
+    <div className={cn("max-w-4xl", className)}>
       <div
         className={cn(
-          "flex aspect-video cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center transition-colors",
+          "flex cursor-pointer flex-col items-center rounded-md border-2 border-dashed p-8 text-center transition-colors",
           isDragging
             ? "border-primary bg-primary/5"
             : "border-muted-foreground/25 hover:border-muted-foreground/50",
@@ -49,31 +44,34 @@ export function Dropzone({
       >
         <input hidden {...getInputProps()} className="sr-only" />
         <div className="flex flex-col items-center gap-4">
-          <div
-            className={cn(
-              "flex h-16 w-16 items-center justify-center rounded-full",
-              isDragging ? "bg-primary/10" : "bg-muted",
-            )}
-          >
-            <ImageIcon
-              className={cn("h-5 w-5", isDragging ? "text-primary" : "text-muted-foreground")}
-            />
+          <div className="mx-auto flex size-8 items-center justify-center rounded-full border border-border">
+            <CloudUploadIcon className="size-4" />
           </div>
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Upload image to gallery</h3>
-            <p className="text-sm text-muted-foreground">
-              Drag and drop images here or click to browse
-            </p>
-            <p className="text-xs text-muted-foreground">
-              PNG, JPG, GIF up to {formatBytes(maxSize)} each (max {maxFiles} file)
+          <div className="space-y-0.5">
+            <h3 className="text-sm font-semibold text-foreground">
+              Choose a file or drag & drop here.
+            </h3>
+            <p className="text-xs text-secondary-foreground">
+              JPEG, PNG, up to {formatBytes(maxSize)}.
             </p>
           </div>
-          <Button>
-            <UploadIcon className="h-4 w-4" />
-            Select image
-          </Button>
+          <Button size="sm">Browse File</Button>
         </div>
       </div>
+
+      {errors.length > 0 && (
+        <Alert variant="destructive" className="mt-5">
+          <CircleAlertIcon />
+          <AlertTitle>File upload error(s)</AlertTitle>
+          <AlertDescription>
+            {errors.map((error, index) => (
+              <p key={index} className="last:mb-0">
+                {error}
+              </p>
+            ))}
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }
