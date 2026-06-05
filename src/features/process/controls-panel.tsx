@@ -73,6 +73,8 @@ export function ControlsPanel({ className }: ControlsPanelProps) {
   const [parameters, parameterActions] = useParameters();
   const hasFiles = useFileStore((s) => s.files.length > 0);
 
+  if (!hasFiles) return null;
+
   return (
     <>
       <div

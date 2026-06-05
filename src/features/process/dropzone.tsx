@@ -12,7 +12,7 @@ interface DropzoneProps {
 }
 
 export function Dropzone({
-  maxFiles = 10,
+  maxFiles = 1,
   maxSize = 2 * 1024 * 1024,
   accept = "image/*",
   className,
@@ -22,16 +22,16 @@ export function Dropzone({
     { handleDragEnter, handleDragLeave, handleDragOver, handleDrop, openFileDialog, getInputProps },
   ] = useFileUpload({
     accept,
-    multiple: true,
+    multiple: false,
     maxSize,
     maxFiles,
   });
 
   return (
-    <div className={cn("max-w-4xl", className)}>
+    <div className={cn("lg:m-w-4xl", className)}>
       <div
         className={cn(
-          "flex cursor-pointer flex-col items-center rounded-md border-2 border-dashed p-8 text-center transition-colors",
+          "flex cursor-pointer flex-col items-center rounded-md border-2 border-dashed p-16 text-center transition-colors",
           isDragging
             ? "border-primary bg-primary/5"
             : "border-muted-foreground/25 hover:border-muted-foreground/50",

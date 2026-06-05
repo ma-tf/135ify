@@ -19,7 +19,7 @@ export function ParameterSlider({
 } & Pick<ComponentProps<typeof Slider>, "min" | "max" | "step">) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
-      <span className="w-20 shrink-0 text-sm font-medium">{label}</span>
+      <span className="w-20 shrink-0 text-sm text-muted-foreground">{label}</span>
       <Slider
         value={[value]}
         onValueChange={([v]) => onValueChange(v)}

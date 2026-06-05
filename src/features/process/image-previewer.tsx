@@ -9,15 +9,15 @@ export function ImagePreviewer() {
   if (files.length === 0) return null;
 
   return (
-    <div className="grid w-full grid-cols-2 gap-2.5 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))]">
+    <div className="flex w-full items-center justify-center">
       {files.map((fileItem) => (
         <div
           key={fileItem.id}
-          className="group/item relative shrink-0 overflow-hidden rounded-md border"
+          className="group relative overflow-hidden rounded-md border"
         >
           <img
             src={fileItem.preview}
-            className="h-30 w-full object-cover"
+            className="max-h-[80dvh] w-auto max-w-full object-contain"
             alt={fileItem.file instanceof File ? fileItem.file.name : fileItem.file.name}
           />
           <Button
@@ -33,7 +33,7 @@ export function ImagePreviewer() {
             }}
             variant="outline"
             size="icon"
-            className="absolute end-1 top-1 size-6 rounded-full opacity-0 shadow-sm group-hover/item:opacity-100"
+            className="absolute inset-e-1 top-1 size-6 rounded-full opacity-0 shadow-sm group-hover/item:opacity-100"
           >
             <XIcon className="size-3.5" />
           </Button>

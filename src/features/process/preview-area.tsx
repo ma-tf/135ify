@@ -1,5 +1,6 @@
 import { Dropzone } from "@features/process/dropzone";
 import { ImagePreviewer } from "@features/process/image-previewer";
+import { useFileStore } from "@stores/file-store";
 import { cn } from "@lib/utils";
 
 interface PreviewAreaProps {
@@ -7,6 +8,8 @@ interface PreviewAreaProps {
 }
 
 export function PreviewArea({ className }: PreviewAreaProps) {
+  const hasFiles = useFileStore((s) => s.files.length > 0);
+
   return (
     <div
       className={cn(
@@ -14,8 +17,7 @@ export function PreviewArea({ className }: PreviewAreaProps) {
         className,
       )}
     >
-      <ImagePreviewer />
-      <Dropzone />
+      {hasFiles ? <ImagePreviewer /> : <Dropzone />}
     </div>
   );
 }
