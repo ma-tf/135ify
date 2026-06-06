@@ -1,7 +1,7 @@
 import { Dropzone } from "@features/process/dropzone";
 import { ImagePreviewer } from "@features/process/image-previewer";
-import { useFileStore } from "@stores/file-store";
 import { cn } from "@lib/utils";
+import { useFileStore } from "@stores/file-store";
 
 interface PreviewAreaProps {
   className?: string;

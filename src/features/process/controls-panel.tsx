@@ -1,25 +1,30 @@
 import { Button } from "@components/ui/button";
 import { Drawer, DrawerContent, DrawerTrigger } from "@components/ui/drawer";
 import { Separator } from "@components/ui/separator";
+import { Spinner } from "@components/ui/spinner";
 import { ParameterSlider } from "@features/process/parameter-slider";
-import { type ParametersState, type ParametersActions, useParameters } from "@hooks/use-parameters";
+import { useProcessImage } from "@features/process/use-process-image";
 import { cn } from "@lib/utils";
 import { useFileStore } from "@stores/file-store";
+import { useParameterStore } from "@stores/parameter-store";
+import { useRenderStore } from "@stores/render-store";
 import { ChevronUpIcon, DownloadIcon, RotateCcwIcon } from "lucide-react";
 
 interface ControlsPanelProps {
   className?: string;
 }
 
-function PanelContent({
-  parameters,
-  parameterActions,
-  hasFiles = false,
-}: {
-  parameters: ParametersState;
-  parameterActions: ParametersActions;
-  hasFiles?: boolean;
-}) {
+function PanelContent() {
+  const vignetteIntensity = useParameterStore((s) => s.vignetteIntensity);
+  const vignetteFeather = useParameterStore((s) => s.vignetteFeather);
+  const grainIntensity = useParameterStore((s) => s.grainIntensity);
+  const setVignetteIntensity = useParameterStore((s) => s.setVignetteIntensity);
+  const setVignetteFeather = useParameterStore((s) => s.setVignetteFeather);
+  const setGrainIntensity = useParameterStore((s) => s.setGrainIntensity);
+  const reset = useParameterStore((s) => s.reset);
+  const { processPreviewDebounced, processPreviewFlush, processDownload } = useProcessImage();
+  const isProcessing = useRenderStore((s) => s.isProcessing);
+
   return (
     <div className="flex flex-col gap-6 p-4">
       <h2 className="font-semibold text-foreground">Processing</h2>
@@ -27,13 +32,21 @@ function PanelContent({
         <h3 className="text-sm font-semibold text-foreground">Vignette</h3>
         <ParameterSlider
           label="Intensity"
-          value={parameters.vignetteIntensity}
-          onValueChange={parameterActions.setVignetteIntensity}
+          value={vignetteIntensity}
+          onValueChange={(v) => {
+            setVignetteIntensity(v);
+            processPreviewDebounced();
+          }}
+          onValueCommit={() => processPreviewFlush()}
         />
         <ParameterSlider
           label="Feather"
-          value={parameters.vignetteFeather}
-          onValueChange={parameterActions.setVignetteFeather}
+          value={vignetteFeather}
+          onValueChange={(v) => {
+            setVignetteFeather(v);
+            processPreviewDebounced();
+          }}
+          onValueCommit={() => processPreviewFlush()}
         />
       </div>
 
@@ -43,8 +56,12 @@ function PanelContent({
         <h3 className="text-sm font-semibold text-foreground">Grain</h3>
         <ParameterSlider
           label="Intensity"
-          value={parameters.grainIntensity}
-          onValueChange={parameterActions.setGrainIntensity}
+          value={grainIntensity}
+          onValueChange={(v) => {
+            setGrainIntensity(v);
+            processPreviewDebounced();
+          }}
+          onValueCommit={() => processPreviewFlush()}
         />
       </div>
 
@@ -55,13 +72,25 @@ function PanelContent({
           variant="outline"
           size="sm"
           className="flex-1 gap-1.5"
-          onClick={parameterActions.reset}
+          onClick={() => {
+            reset();
+            processPreviewFlush();
+          }}
         >
           <RotateCcwIcon className="h-3.5 w-3.5" />
           Reset
         </Button>
-        <Button disabled={!hasFiles} size="sm" className="flex-1 gap-1.5">
-          <DownloadIcon className="h-3.5 w-3.5" />
+        <Button
+          disabled={isProcessing}
+          size="sm"
+          className="flex-1 gap-1.5"
+          onClick={() => void processDownload()}
+        >
+          {isProcessing ? (
+            <Spinner className="h-3.5 w-3.5" />
+          ) : (
+            <DownloadIcon className="h-3.5 w-3.5" />
+          )}
           Download
         </Button>
       </div>
@@ -70,7 +99,6 @@ function PanelContent({
 }
 
 export function ControlsPanel({ className }: ControlsPanelProps) {
-  const [parameters, parameterActions] = useParameters();
   const hasFiles = useFileStore((s) => s.files.length > 0);
 
   if (!hasFiles) return null;
@@ -83,11 +111,7 @@ export function ControlsPanel({ className }: ControlsPanelProps) {
           className,
         )}
       >
-        <PanelContent
-          parameters={parameters}
-          parameterActions={parameterActions}
-          hasFiles={hasFiles}
-        />
+        <PanelContent />
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background lg:hidden">
@@ -102,11 +126,7 @@ export function ControlsPanel({ className }: ControlsPanelProps) {
             </button>
           </DrawerTrigger>
           <DrawerContent noOverlay>
-            <PanelContent
-              parameters={parameters}
-              parameterActions={parameterActions}
-              hasFiles={hasFiles}
-            />
+            <PanelContent />
           </DrawerContent>
         </Drawer>
       </div>

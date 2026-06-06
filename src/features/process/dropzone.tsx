@@ -1,5 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
+import { useProcessImage } from "@features/process/use-process-image";
 import { useFileUpload, formatBytes } from "@hooks/use-file-upload";
 import { cn } from "@lib/utils";
 import { CircleAlertIcon, CloudUploadIcon } from "lucide-react";
@@ -17,6 +18,7 @@ export function Dropzone({
   accept = "image/*",
   className,
 }: DropzoneProps) {
+  const { processPreviewFlush } = useProcessImage();
   const [
     { isDragging, errors },
     { handleDragEnter, handleDragLeave, handleDragOver, handleDrop, openFileDialog, getInputProps },
@@ -25,6 +27,7 @@ export function Dropzone({
     multiple: false,
     maxSize,
     maxFiles,
+    onFilesChange: () => processPreviewFlush(),
   });
 
   return (
