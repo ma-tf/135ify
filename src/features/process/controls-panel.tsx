@@ -2,6 +2,7 @@ import { Button } from "@components/ui/button";
 import { Drawer, DrawerContent, DrawerTrigger } from "@components/ui/drawer";
 import { Separator } from "@components/ui/separator";
 import { Spinner } from "@components/ui/spinner";
+import { FilmSelector } from "@features/process/film-selector";
 import { ParameterSlider } from "@features/process/parameter-slider";
 import { useProcessImage } from "@features/process/use-process-image";
 import { cn } from "@lib/utils";
@@ -28,6 +29,11 @@ function PanelContent() {
   return (
     <div className="flex flex-col gap-6 p-4">
       <h2 className="font-semibold text-foreground">Processing</h2>
+
+      <FilmSelector onValueChange={() => processPreviewFlush()} />
+
+      <Separator />
+
       <div className="flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-foreground">Vignette</h3>
         <ParameterSlider

@@ -1,7 +1,10 @@
+import { getFilmById, type FilmId } from "@features/process/films";
+
 export interface ProcessParams {
   vignetteIntensity: number;
   vignetteFeather: number;
   grainIntensity: number;
+  selectedFilmId: FilmId;
 }
 
 export interface ProcessOptions {
@@ -48,10 +51,34 @@ export async function processImage(
 
   ctx.drawImage(source, 0, 0, width, height);
 
+  applyFilmTint(ctx, width, height, params);
   applyVignette(ctx, width, height, params);
   applyGrain(ctx, width, height, grain, params);
 
   return canvas.convertToBlob({ type: "image/jpeg", quality: 0.92 });
+}
+
+function applyFilmTint(
+  ctx: OffscreenCanvasRenderingContext2D,
+  width: number,
+  height: number,
+  params: ProcessParams,
+) {
+  const film = getFilmById(params.selectedFilmId);
+  const [rm, gm, bm, ra, ga, ba] = film.tint;
+
+  if (rm === 1 && gm === 1 && bm === 1 && ra === 0 && ga === 0 && ba === 0) return;
+
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    data[i] = Math.min(255, Math.max(0, data[i] * rm + ra));
+    data[i + 1] = Math.min(255, Math.max(0, data[i + 1] * gm + ga));
+    data[i + 2] = Math.min(255, Math.max(0, data[i + 2] * bm + ba));
+  }
+
+  ctx.putImageData(imageData, 0, 0);
 }
 
 function applyVignette(
