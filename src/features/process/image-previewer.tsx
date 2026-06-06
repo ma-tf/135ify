@@ -11,10 +11,7 @@ export function ImagePreviewer() {
   return (
     <div className="flex w-full items-center justify-center">
       {files.map((fileItem) => (
-        <div
-          key={fileItem.id}
-          className="group relative overflow-hidden rounded-md border"
-        >
+        <div key={fileItem.id} className="group relative overflow-hidden rounded-md border">
           <img
             src={fileItem.preview}
             className="max-h-[80dvh] w-auto max-w-full object-contain"
@@ -33,7 +30,7 @@ export function ImagePreviewer() {
             }}
             variant="outline"
             size="icon"
-            className="absolute inset-e-1 top-1 size-6 rounded-full opacity-0 shadow-sm group-hover/item:opacity-100"
+            className="absolute inset-e-1 top-1 size-6 rounded-full opacity-0 shadow-sm group-hover:opacity-100"
           >
             <XIcon className="size-3.5" />
           </Button>
