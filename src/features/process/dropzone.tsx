@@ -14,7 +14,7 @@ interface DropzoneProps {
 
 export function Dropzone({
   maxFiles = 1,
-  maxSize = 2 * 1024 * 1024,
+  maxSize = 2097152, // 2MB
   accept = "image/*",
   className,
 }: DropzoneProps) {
