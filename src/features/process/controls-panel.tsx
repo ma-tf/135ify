@@ -1,6 +1,7 @@
 import { Button } from "@components/ui/button";
 import { Drawer, DrawerContent, DrawerTrigger } from "@components/ui/drawer";
 import { Spinner } from "@components/ui/spinner";
+import { ToggleGroup, ToggleGroupItem } from "@components/ui/toggle-group";
 import { FilmSelector } from "@features/process/film-selector";
 import { ParameterSlider } from "@features/process/parameter-slider";
 import { useProcessImage } from "@features/process/use-process-image";
@@ -9,6 +10,17 @@ import { useFileStore } from "@stores/file-store";
 import { useParameterStore } from "@stores/parameter-store";
 import { useRenderStore } from "@stores/render-store";
 import { ChevronUpIcon, DownloadIcon, RotateCcwIcon } from "lucide-react";
+
+const ISO_PRESETS = [
+  { iso: "100", intensity: 25 },
+  { iso: "200", intensity: 50 },
+  { iso: "400", intensity: 75 },
+  { iso: "800", intensity: 100 },
+] as const;
+
+const INTENSITY_TO_ISO: Record<number, string> = Object.fromEntries(
+  ISO_PRESETS.map((p) => [p.intensity, p.iso]),
+);
 
 interface ControlsPanelProps {
   className?: string;
@@ -55,15 +67,25 @@ function PanelContent() {
 
       <div className="flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-foreground">Grain</h3>
-        <ParameterSlider
-          label="Intensity"
-          value={grainIntensity}
-          onValueChange={(v) => {
-            setGrainIntensity(v);
-            processPreviewDebounced();
-          }}
-          onValueCommit={() => processPreviewFlush()}
-        />
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">ISO</span>
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            value={grainIntensity === 0 ? "" : (INTENSITY_TO_ISO[grainIntensity] ?? "")}
+            onValueChange={(value) => {
+              const selected = ISO_PRESETS.find((p) => p.iso === value);
+              setGrainIntensity(selected?.intensity ?? 0);
+              processPreviewDebounced();
+            }}
+          >
+            {ISO_PRESETS.map((p) => (
+              <ToggleGroupItem key={p.iso} value={p.iso}>
+                {p.iso}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
       </div>
 
       <div className="flex gap-2">
