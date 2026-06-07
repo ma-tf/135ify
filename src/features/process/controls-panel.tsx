@@ -1,6 +1,5 @@
 import { Button } from "@components/ui/button";
 import { Drawer, DrawerContent, DrawerTrigger } from "@components/ui/drawer";
-import { Separator } from "@components/ui/separator";
 import { Spinner } from "@components/ui/spinner";
 import { FilmSelector } from "@features/process/film-selector";
 import { ParameterSlider } from "@features/process/parameter-slider";
@@ -32,8 +31,6 @@ function PanelContent() {
 
       <FilmSelector onValueChange={() => processPreviewFlush()} />
 
-      <Separator />
-
       <div className="flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-foreground">Vignette</h3>
         <ParameterSlider
@@ -56,8 +53,6 @@ function PanelContent() {
         />
       </div>
 
-      <Separator />
-
       <div className="flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-foreground">Grain</h3>
         <ParameterSlider
@@ -70,8 +65,6 @@ function PanelContent() {
           onValueCommit={() => processPreviewFlush()}
         />
       </div>
-
-      <Separator />
 
       <div className="flex gap-2">
         <Button

@@ -17,7 +17,8 @@ export function PreviewArea({ className }: PreviewAreaProps) {
         className,
       )}
     >
-      {hasFiles ? <ImagePreviewer /> : <Dropzone />}
+      {hasFiles && <ImagePreviewer />}
+      <Dropzone />
     </div>
   );
 }
