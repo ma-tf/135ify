@@ -13,8 +13,8 @@ export function useProcessImage() {
   const run = useCallback(
     async (maxDimension?: number) => {
       const params = useParameterStore.getState();
-      const state = useFileStore.getState();
-      const file = state.files[0];
+      const { files, activeFileId } = useFileStore.getState();
+      const file = files.find((f) => f.id === activeFileId) ?? files.at(-1);
       if (!file?.preview) return;
 
       setIsProcessing(true);
@@ -51,18 +51,19 @@ export function useProcessImage() {
   const processPreview = useCallback(() => run(1200), [run]);
 
   const processDownload = useCallback(async () => {
-    const file = useFileStore.getState().files[0];
+    const { files, activeFileId } = useFileStore.getState();
+    const file = files.find((f) => f.id === activeFileId) ?? files.at(-1);
     if (!file?.preview) return;
 
     await run();
 
-    const state = useRenderStore.getState();
-    if (state.renderUrl && !state.renderError) {
+    const renderState = useRenderStore.getState();
+    if (renderState.renderUrl && !renderState.renderError) {
       const fileName = file.file instanceof File ? file.file.name : file.file.name;
       const downloadName = fileName.replace(/\.[^.]+$/, "") + ".jpg";
 
       const a = document.createElement("a");
-      a.href = state.renderUrl;
+      a.href = renderState.renderUrl;
       a.download = downloadName;
       a.click();
     }

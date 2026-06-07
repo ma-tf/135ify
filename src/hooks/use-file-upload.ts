@@ -43,6 +43,7 @@ export type FileUploadActions = {
   ) => InputHTMLAttributes<HTMLInputElement> & {
     ref: React.Ref<HTMLInputElement>;
   };
+  resetDragging: () => void;
 };
 
 export const useFileUpload = (
@@ -330,6 +331,10 @@ export const useFileUpload = (
     [accept, multiple, handleFileChange],
   );
 
+  const resetDragging = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
   return [
     { files: storeFiles, isDragging, errors },
     {
@@ -344,6 +349,7 @@ export const useFileUpload = (
       handleFileChange,
       openFileDialog,
       getInputProps,
+      resetDragging,
     },
   ];
 };

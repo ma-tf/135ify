@@ -1,19 +1,20 @@
+import type { DragEvent } from "react";
+
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
 import { useProcessImage } from "@features/process/use-process-image";
 import { useFileUpload, formatBytes } from "@hooks/use-file-upload";
 import { cn } from "@lib/utils";
+import { useFileStore } from "@stores/file-store";
 import { CircleAlertIcon, CloudUploadIcon } from "lucide-react";
 
 interface DropzoneProps {
-  maxFiles?: number;
   maxSize?: number;
   accept?: string;
   className?: string;
 }
 
 export function Dropzone({
-  maxFiles = 1,
   maxSize = 2097152, // 2MB
   accept = "image/*",
   className,
@@ -21,14 +22,33 @@ export function Dropzone({
   const { processPreviewFlush } = useProcessImage();
   const [
     { isDragging, errors },
-    { handleDragEnter, handleDragLeave, handleDragOver, handleDrop, openFileDialog, getInputProps },
+    {
+      handleDragEnter,
+      handleDragLeave,
+      handleDragOver,
+      openFileDialog,
+      getInputProps,
+      addFiles,
+      resetDragging,
+    },
   ] = useFileUpload({
     accept,
-    multiple: false,
+    multiple: true,
     maxSize,
-    maxFiles,
+    onFilesAdded: (files) => {
+      if (files.length > 0) useFileStore.getState().setActiveFileId(files[0].id);
+    },
     onFilesChange: () => processPreviewFlush(),
   });
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    resetDragging();
+    if (e.dataTransfer.files.length > 0) {
+      addFiles([e.dataTransfer.files[0]]);
+    }
+  };
 
   return (
     <div className={cn("lg:m-w-4xl", className)}>
@@ -45,7 +65,7 @@ export function Dropzone({
         onDrop={handleDrop}
         onClick={openFileDialog}
       >
-        <input hidden {...getInputProps()} className="sr-only" />
+        <input hidden {...getInputProps({ multiple: false })} className="sr-only" />
         <div className="flex flex-col items-center gap-4">
           <div className="mx-auto flex size-8 items-center justify-center rounded-full border border-border">
             <CloudUploadIcon className="size-4" />

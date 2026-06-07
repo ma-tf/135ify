@@ -1,5 +1,6 @@
 import { Dropzone } from "@features/process/dropzone";
 import { ImagePreviewer } from "@features/process/image-previewer";
+import { UploadHistory } from "@features/process/upload-history";
 import { cn } from "@lib/utils";
 import { useFileStore } from "@stores/file-store";
 
@@ -17,8 +18,13 @@ export function PreviewArea({ className }: PreviewAreaProps) {
         className,
       )}
     >
-      {hasFiles && <ImagePreviewer />}
       <Dropzone />
+      {hasFiles && (
+        <>
+          <ImagePreviewer />
+          <UploadHistory />
+        </>
+      )}
     </div>
   );
 }
