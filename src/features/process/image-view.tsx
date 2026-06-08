@@ -1,14 +1,13 @@
 import { Dropzone } from "@features/process/dropzone";
-import { ImagePreviewer } from "@features/process/image-previewer";
-import { UploadHistory } from "@features/process/upload-history";
+import { RenderCarousel2 } from "@features/process/render-carousel";
 import { cn } from "@lib/utils";
 import { useFileStore } from "@stores/file-store";
 
-interface PreviewAreaProps {
+interface ImageViewProps {
   className?: string;
 }
 
-export function PreviewArea({ className }: PreviewAreaProps) {
+export function ImageView({ className }: ImageViewProps) {
   const hasFiles = useFileStore((s) => s.files.length > 0);
 
   return (
@@ -19,12 +18,7 @@ export function PreviewArea({ className }: PreviewAreaProps) {
       )}
     >
       <Dropzone />
-      {hasFiles && (
-        <>
-          <ImagePreviewer />
-          <UploadHistory />
-        </>
-      )}
+      {hasFiles && <RenderCarousel2 />}
     </div>
   );
 }
