@@ -8,6 +8,9 @@ export interface ParameterState {
   vignetteFeather: number;
   grainIntensity: number;
   selectedFilmId: FilmId;
+  halationIntensity: number;
+  halationSpread: number;
+  halationThreshold: number;
 }
 
 interface ParameterActions {
@@ -15,6 +18,9 @@ interface ParameterActions {
   setVignetteFeather: (value: number) => void;
   setGrainIntensity: (value: number) => void;
   setSelectedFilmId: (value: FilmId) => void;
+  setHalationIntensity: (value: number) => void;
+  setHalationSpread: (value: number) => void;
+  setHalationThreshold: (value: number) => void;
   reset: () => void;
 }
 
@@ -25,6 +31,9 @@ export const DEFAULTS: ParameterState = {
   vignetteFeather: 50,
   grainIntensity: 25,
   selectedFilmId: DEFAULT_FILM_ID,
+  halationIntensity: 25,
+  halationSpread: 20,
+  halationThreshold: 85,
 };
 
 export const useParameterStore = create<ParameterStore>((set) => ({
@@ -33,5 +42,8 @@ export const useParameterStore = create<ParameterStore>((set) => ({
   setVignetteFeather: (vignetteFeather) => set({ vignetteFeather }),
   setGrainIntensity: (grainIntensity) => set({ grainIntensity }),
   setSelectedFilmId: (selectedFilmId) => set({ selectedFilmId }),
+  setHalationIntensity: (halationIntensity) => set({ halationIntensity }),
+  setHalationSpread: (halationSpread) => set({ halationSpread }),
+  setHalationThreshold: (halationThreshold) => set({ halationThreshold }),
   reset: () => set(DEFAULTS),
 }));

@@ -30,9 +30,15 @@ function PanelContent() {
   const vignetteIntensity = useParameterStore((s) => s.vignetteIntensity);
   const vignetteFeather = useParameterStore((s) => s.vignetteFeather);
   const grainIntensity = useParameterStore((s) => s.grainIntensity);
+  const halationIntensity = useParameterStore((s) => s.halationIntensity);
+  const halationSpread = useParameterStore((s) => s.halationSpread);
+  const halationThreshold = useParameterStore((s) => s.halationThreshold);
   const setVignetteIntensity = useParameterStore((s) => s.setVignetteIntensity);
   const setVignetteFeather = useParameterStore((s) => s.setVignetteFeather);
   const setGrainIntensity = useParameterStore((s) => s.setGrainIntensity);
+  const setHalationIntensity = useParameterStore((s) => s.setHalationIntensity);
+  const setHalationSpread = useParameterStore((s) => s.setHalationSpread);
+  const setHalationThreshold = useParameterStore((s) => s.setHalationThreshold);
   const reset = useParameterStore((s) => s.reset);
   const { processPreviewDebounced, processPreviewFlush, processDownload } = useProcessImage();
   const isProcessing = useRenderStore((s) => s.isProcessing);
@@ -42,6 +48,37 @@ function PanelContent() {
       <h2 className="font-semibold text-foreground">Processing</h2>
 
       <FilmSelector onValueChange={() => processPreviewFlush()} />
+
+      <div className="flex flex-col gap-3">
+        <h3 className="text-sm font-semibold text-foreground">Halation</h3>
+        <ParameterSlider
+          label="Intensity"
+          value={halationIntensity}
+          onValueChange={(v) => {
+            setHalationIntensity(v);
+            processPreviewDebounced();
+          }}
+          onValueCommit={() => processPreviewFlush()}
+        />
+        <ParameterSlider
+          label="Spread"
+          value={halationSpread}
+          onValueChange={(v) => {
+            setHalationSpread(v);
+            processPreviewDebounced();
+          }}
+          onValueCommit={() => processPreviewFlush()}
+        />
+        <ParameterSlider
+          label="Threshold"
+          value={halationThreshold}
+          onValueChange={(v) => {
+            setHalationThreshold(v);
+            processPreviewDebounced();
+          }}
+          onValueCommit={() => processPreviewFlush()}
+        />
+      </div>
 
       <div className="flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-foreground">Vignette</h3>

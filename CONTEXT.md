@@ -17,9 +17,15 @@ static asset, not uploaded by the user per session.
 **Vignette**: Parametric edge darkening applied during processing. Controlled by **intensity** (scalar: how dark the
 edges become) and **feather** (scalar: how gradually the darkening transitions from center to edge).
 
+**Halation**: A reddish glow around bright highlights, simulating light penetrating the film emulsion and reflecting off
+the camera pressure plate back into the red-sensitive layer. Controlled by **intensity** (scalar: opacity of the glow),
+**spread** (scalar: how far the glow bleeds), and **threshold** (scalar: minimum luminance required to trigger the
+glow).
+
 **Render**: The output image after processing. Displayed as a preview in the browser and available for download.
 
-**Process** (verb): The act of transforming a Source Image into a Render by applying Grain and Vignette.
+**Process** (verb): The act of transforming a Source Image into a Render by applying Halation, Film Tint, Vignette, and
+Grain.
 
 _Avoid_: Transform, filter, generate, "135ify" as a verb
 
@@ -28,6 +34,8 @@ _Avoid_: Transform, filter, generate, "135ify" as a verb
 - A **Source Image** is **processed** once to produce a **Render**.
 - **Grain** is applied using a **Grain Texture** as its pattern source.
 - **Vignette** is applied independently; **Grain** and **Vignette** compose into the **Render**.
+- **Halation** is derived from bright regions of the Source Image and composited into the Render.
+- Processing order: Halation (derived from source), Film Tint, Vignette, Grain (final).
 
 ## Deferred
 

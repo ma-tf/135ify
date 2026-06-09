@@ -9,6 +9,7 @@ import {
 } from "@components/ui/carousel";
 import { cn } from "@lib/utils";
 import { useFileStore, type FileWithPreview } from "@stores/file-store";
+import { useRenderStore } from "@stores/render-store";
 import { XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -44,20 +45,20 @@ export function RenderCarousel2() {
 }
 
 function RenderCard({ className, fileItem }: { className?: string; fileItem: FileWithPreview }) {
-  const files = useFileStore((s) => s.files);
+  const activeFileId = useFileStore((s) => s.activeFileId);
+  const renderUrl = useRenderStore((s) => s.renderUrl);
 
   return (
     <div className={cn(className, "group relative flex items-center justify-center")}>
       <img
-        src={fileItem.preview}
-        className="max-h-[80dvh] w-auto max-w-full rounded-md object-contain"
+        src={fileItem.id === activeFileId && renderUrl ? renderUrl : fileItem.preview}
+        className="max-h-[40dvh] w-auto max-w-full rounded-md object-contain"
         alt={fileItem.file.name}
       />
       <Button
         onClick={(e) => {
           e.stopPropagation();
-          const file = files.find((f) => f.id === fileItem.id);
-          if (file?.file instanceof File) URL.revokeObjectURL(file.preview);
+          if (fileItem.file instanceof File) URL.revokeObjectURL(fileItem.preview);
           useFileStore.getState().removeFile(fileItem.id);
         }}
         variant="outline"
