@@ -33,7 +33,7 @@ export function RenderCarousel() {
   const hasFiles = files.length > 0;
 
   return (
-    <Carousel setApi={setApi}>
+    <Carousel className="w-full" setApi={setApi}>
       <CarouselContent>
         <CarouselItem>
           <Dropzone />

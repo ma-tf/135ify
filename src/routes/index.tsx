@@ -1,5 +1,5 @@
 import { ControlsPanel } from "@features/process/controls-panel";
-import { ImageView } from "@features/process/image-view";
+import { RenderCarousel } from "@features/process/render-carousel";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
@@ -9,7 +9,9 @@ export const Route = createFileRoute("/")({
 function RouteComponent() {
   return (
     <main className="flex flex-1 flex-col lg:flex-row">
-      <ImageView className="flex-1 pb-16 lg:pb-0" />
+      <div className="mx-auto flex w-full max-w-xs flex-col items-center justify-center gap-6 lg:max-w-xl">
+        <RenderCarousel />
+      </div>
       <ControlsPanel />
     </main>
   );
