@@ -7,13 +7,14 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@components/ui/carousel";
+import { Dropzone } from "@features/process/dropzone";
 import { cn } from "@lib/utils";
 import { useFileStore, type FileWithPreview } from "@stores/file-store";
 import { useRenderStore } from "@stores/render-store";
 import { XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export function RenderCarousel2() {
+export function RenderCarousel() {
   const [api, setApi] = useState<CarouselApi>();
   const [_current, setCurrent] = useState(0);
   const files = useFileStore((s) => s.files);
@@ -29,17 +30,22 @@ export function RenderCarousel2() {
     });
   }, [api]);
 
+  const hasFiles = files.length > 0;
+
   return (
     <Carousel setApi={setApi}>
       <CarouselContent>
+        <CarouselItem>
+          <Dropzone />
+        </CarouselItem>
         {files.map((fileItem) => (
           <CarouselItem key={fileItem.id}>
             <RenderCard className="bg-muted" fileItem={fileItem}></RenderCard>
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
+      {hasFiles && <CarouselPrevious />}
+      {hasFiles && <CarouselNext />}
     </Carousel>
   );
 }

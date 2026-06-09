@@ -1,15 +1,11 @@
-import { Dropzone } from "@features/process/dropzone";
-import { RenderCarousel2 } from "@features/process/render-carousel";
+import { RenderCarousel } from "@features/process/render-carousel";
 import { cn } from "@lib/utils";
-import { useFileStore } from "@stores/file-store";
 
 interface ImageViewProps {
   className?: string;
 }
 
 export function ImageView({ className }: ImageViewProps) {
-  const hasFiles = useFileStore((s) => s.files.length > 0);
-
   return (
     <div
       className={cn(
@@ -17,8 +13,7 @@ export function ImageView({ className }: ImageViewProps) {
         className,
       )}
     >
-      <Dropzone />
-      {hasFiles && <RenderCarousel2 />}
+      <RenderCarousel />
     </div>
   );
 }
