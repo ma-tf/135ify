@@ -34,3 +34,7 @@ See `docs/agents/triage-labels.md`.
 ### Domain docs
 
 Single-context layout — `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+### Code conventions
+
+Rules for the codebase available. See `docs/agents/code-conventions.md`
