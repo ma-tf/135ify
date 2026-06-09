@@ -57,7 +57,7 @@ export async function processImage(
   applyHalation(ctx, width, height, params);
   applyFilmTint(ctx, width, height, params);
   applyVignette(ctx, width, height, params);
-  applyGrain(ctx, width, height, grain, params);
+  applyGrain(ctx, width, height, source.width, source.height, grain, params);
 
   return canvas.convertToBlob({ type: "image/jpeg", quality: 0.92 });
 }
@@ -162,6 +162,8 @@ function applyGrain(
   ctx: OffscreenCanvasRenderingContext2D,
   width: number,
   height: number,
+  sourceWidth: number,
+  sourceHeight: number,
   grain: ImageBitmap,
   params: ProcessParams,
 ) {
@@ -170,20 +172,30 @@ function applyGrain(
   const grainCanvas = new OffscreenCanvas(width, height);
   const grainCtx = grainCanvas.getContext("2d")!;
 
-  if (width <= grain.width && height <= grain.height) {
-    const sx = (grain.width - width) / 2;
-    const sy = (grain.height - height) / 2;
+  if (sourceWidth <= grain.width && sourceHeight <= grain.height) {
+    const sx = (grain.width - sourceWidth) / 2;
+    const sy = (grain.height - sourceHeight) / 2;
     grainCtx.filter = "saturate(0)";
-    grainCtx.drawImage(grain, sx, sy, width, height, 0, 0, width, height);
+    grainCtx.drawImage(grain, sx, sy, sourceWidth, sourceHeight, 0, 0, width, height);
     grainCtx.filter = "none";
   } else {
-    const scale = Math.max(width / grain.width, height / grain.height);
+    const scale = Math.max(sourceWidth / grain.width, sourceHeight / grain.height);
     const dw = Math.round(grain.width * scale);
     const dh = Math.round(grain.height * scale);
-    const dx = Math.round((width - dw) / 2);
-    const dy = Math.round((height - dh) / 2);
+    const dx = Math.round((sourceWidth - dw) / 2);
+    const dy = Math.round((sourceHeight - dh) / 2);
     grainCtx.filter = "saturate(0)";
-    grainCtx.drawImage(grain, 0, 0, grain.width, grain.height, dx, dy, dw, dh);
+    grainCtx.drawImage(
+      grain,
+      0,
+      0,
+      grain.width,
+      grain.height,
+      Math.round(dx * (width / sourceWidth)),
+      Math.round(dy * (height / sourceHeight)),
+      Math.round(dw * (width / sourceWidth)),
+      Math.round(dh * (height / sourceHeight)),
+    );
     grainCtx.filter = "none";
   }
 
