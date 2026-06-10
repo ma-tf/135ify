@@ -15,19 +15,21 @@ export function RenderCarousel() {
 
   return (
     <div className="w-full">
-      <Dropzone />
-      {hasFiles && (
-        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
-          {files.map((fileItem) => (
-            <RenderCard key={fileItem.id} fileItem={fileItem} />
-          ))}
-        </div>
-      )}
+      <div className="flex flex-row items-start gap-4">
+        <Dropzone />
+        {hasFiles && (
+          <div className="flex flex-1 flex-row gap-4 overflow-x-auto pb-2">
+            {files.map((fileItem) => (
+              <RenderCard key={fileItem.id} fileItem={fileItem} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-function RenderCard({ fileItem }: { fileItem: FileWithPreview }) {
+function RenderCard({ fileItem, className }: { fileItem: FileWithPreview; className?: string }) {
   const activeFileId = useFileStore((s) => s.activeFileId);
   const renderUrl = useRenderStore((s) => s.renderUrl);
   const { getFullSizeUrl } = useProcessImage();
@@ -64,7 +66,12 @@ function RenderCard({ fileItem }: { fileItem: FileWithPreview }) {
   const src = isActive && renderUrl ? renderUrl : fileItem.preview;
 
   return (
-    <div className="group relative aspect-square overflow-hidden rounded-md bg-muted">
+    <div
+      className={cn(
+        "group relative aspect-3/2 w-2xs shrink-0 overflow-hidden rounded-md bg-muted lg:w-md",
+        className,
+      )}
+    >
       {!imgLoaded && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="size-8 animate-pulse rounded-full bg-muted-foreground/20" />

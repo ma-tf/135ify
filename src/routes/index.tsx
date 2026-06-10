@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
 function RouteComponent() {
   return (
     <main className="flex flex-1 flex-col lg:flex-row">
-      <div className="mx-auto flex w-full max-w-2xl flex-col items-center justify-center gap-6 lg:max-w-3xl">
+      <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-center gap-6 lg:max-w-5xl">
         <RenderCarousel />
       </div>
       <ControlsPanel />

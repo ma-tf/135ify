@@ -56,10 +56,10 @@ export function Dropzone({
   };
 
   return (
-    <div className={cn("lg:m-w-4xl", className)}>
+    <div className={cn("shrink-0", className)}>
       <div
         className={cn(
-          "flex cursor-pointer flex-col items-center rounded-md border-2 border-dashed p-16 text-center transition-colors",
+          "flex aspect-3/2 w-2xs cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed text-center transition-colors lg:w-md",
           isDragging
             ? "border-primary bg-primary/5"
             : "border-muted-foreground/25 hover:border-muted-foreground/50",
@@ -71,7 +71,7 @@ export function Dropzone({
         onClick={openFileDialog}
       >
         <input hidden {...getInputProps({ multiple: false })} className="sr-only" />
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-1.5 px-3">
           <div className="mx-auto flex size-8 items-center justify-center rounded-full border border-border">
             <CloudUploadIcon className="size-4" />
           </div>
@@ -88,7 +88,7 @@ export function Dropzone({
       </div>
 
       {errors.length > 0 && (
-        <Alert variant="destructive" className="mt-5">
+        <Alert variant="destructive" className="mt-2">
           <CircleAlertIcon />
           <AlertTitle>File upload error(s)</AlertTitle>
           <AlertDescription>
