@@ -24,6 +24,12 @@ glow).
 
 **Render**: The output image after processing. Displayed as a preview in the browser and available for download.
 
+**Preview Render**: A Render downscaled to 1200px on its longest dimension for display in the carousel. Generated lazily
+after each parameter change.
+
+**Full Render**: A Render at the Source Image's original resolution. Generated on demand (download or magnifying glass
+inspection).
+
 **Process** (verb): The act of transforming a Source Image into a Render by applying Halation, Film Tint, Vignette, and
 Grain.
 

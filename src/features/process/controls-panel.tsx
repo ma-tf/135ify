@@ -40,8 +40,23 @@ function PanelContent() {
   const setHalationSpread = useParameterStore((s) => s.setHalationSpread);
   const setHalationThreshold = useParameterStore((s) => s.setHalationThreshold);
   const reset = useParameterStore((s) => s.reset);
-  const { processPreviewDebounced, processPreviewFlush, processDownload } = useProcessImage();
+  const { processPreviewDebounced, processPreviewFlush, getFullSizeUrl } = useProcessImage();
   const isProcessing = useRenderStore((s) => s.isProcessing);
+
+  const handleDownload = async () => {
+    const url = await getFullSizeUrl();
+    if (!url) return;
+
+    const { files, activeFileId } = useFileStore.getState();
+    const file = files.find((f) => f.id === activeFileId) ?? files.at(-1);
+    if (!file) return;
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.file.name.replace(/\.[^.]+$/, "") + ".jpg";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="flex flex-col gap-6 p-4">
@@ -142,7 +157,7 @@ function PanelContent() {
           disabled={isProcessing}
           size="sm"
           className="flex-1 gap-1.5"
-          onClick={() => void processDownload()}
+          onClick={handleDownload}
         >
           {isProcessing ? (
             <Spinner className="h-3.5 w-3.5" />

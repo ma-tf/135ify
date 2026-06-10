@@ -10,10 +10,6 @@ export interface ProcessParams {
   halationThreshold: number;
 }
 
-export interface ProcessOptions {
-  maxDimension?: number;
-}
-
 let grainBitmapPromise: Promise<ImageBitmap> | null = null;
 
 export function getGrainBitmap(): Promise<ImageBitmap> {
@@ -45,9 +41,9 @@ export async function processImage(
   source: ImageBitmap,
   grain: ImageBitmap,
   params: ProcessParams,
-  options?: ProcessOptions,
+  maxDimension?: number,
 ): Promise<Blob> {
-  const { width, height } = constrainDimensions(source.width, source.height, options?.maxDimension);
+  const { width, height } = constrainDimensions(source.width, source.height, maxDimension);
 
   const canvas = new OffscreenCanvas(width, height);
   const ctx = canvas.getContext("2d")!;
