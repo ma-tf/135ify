@@ -67,10 +67,7 @@ export function useProcessImage() {
     }
   }, []);
 
-  const { debounced: processPreviewDebounced, flush: processPreviewFlush } = useDebouncedCallback(
-    processPreview,
-    50,
-  );
+  const { debounced: processPreviewDebounced } = useDebouncedCallback(processPreview, 50);
 
-  return { processPreviewDebounced, processPreviewFlush, getFullSizeUrl };
+  return { processPreviewDebounced, getFullSizeUrl };
 }

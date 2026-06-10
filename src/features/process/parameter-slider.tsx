@@ -7,7 +7,6 @@ export function ParameterSlider({
   label,
   value,
   onValueChange,
-  onValueCommit,
   min = 0,
   max = 100,
   step = 1,
@@ -16,7 +15,6 @@ export function ParameterSlider({
   label: string;
   value: number;
   onValueChange: (value: number) => void;
-  onValueCommit: (value: number) => void;
   className?: string;
 } & Pick<ComponentProps<typeof Slider>, "min" | "max" | "step">) {
   return (
@@ -25,7 +23,6 @@ export function ParameterSlider({
       <Slider
         value={[value]}
         onValueChange={([v]) => onValueChange(v)}
-        onValueCommit={([v]) => onValueCommit(v)}
         min={min}
         max={max}
         step={step}

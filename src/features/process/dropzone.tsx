@@ -19,7 +19,7 @@ export function Dropzone({
   accept = "image/*",
   className,
 }: DropzoneProps) {
-  const { processPreviewFlush } = useProcessImage();
+  const { processPreviewDebounced } = useProcessImage();
   const [
     { isDragging, errors },
     {
@@ -38,7 +38,7 @@ export function Dropzone({
     onFilesAdded: (files) => {
       if (files.length > 0) useFileStore.getState().setActiveFileId(files[0].id);
     },
-    onFilesChange: () => processPreviewFlush(),
+    onFilesChange: () => processPreviewDebounced(),
   });
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
