@@ -14,31 +14,39 @@ import { cn } from "@lib/utils";
 import { useFileStore, type FileWithPreview } from "@stores/file-store";
 import { useRenderStore } from "@stores/render-store";
 import { SearchIcon, XIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 export function RenderCarousel() {
-  const [api, setApi] = useState<CarouselApi>();
-  const [_current, setCurrent] = useState(0);
+  const apiRef = useRef<CarouselApi>(null);
   const files = useFileStore((s) => s.files);
-
-  useEffect(() => {
-    if (!api) {
-      return;
-    }
-
-    setCurrent(api.selectedScrollSnap() + 1);
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap() + 1);
-    });
-  }, [api]);
+  const pendingScrollRef = useRef(false);
+  const reInitRegisteredRef = useRef(false);
 
   const hasFiles = files.length > 0;
 
   return (
-    <Carousel className="w-full" setApi={setApi}>
+    <Carousel
+      className="w-full"
+      setApi={(api) => {
+        apiRef.current = api;
+        if (api && !reInitRegisteredRef.current) {
+          reInitRegisteredRef.current = true;
+          api.on("reInit", () => {
+            if (pendingScrollRef.current) {
+              pendingScrollRef.current = false;
+              api.scrollTo(useFileStore.getState().files.length);
+            }
+          });
+        }
+      }}
+    >
       <CarouselContent>
         <CarouselItem>
-          <Dropzone />
+          <Dropzone
+            onFilesChange={() => {
+              pendingScrollRef.current = true;
+            }}
+          />
         </CarouselItem>
         {files.map((fileItem) => (
           <CarouselItem key={fileItem.id}>

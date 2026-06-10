@@ -5,19 +5,21 @@ import { Button } from "@components/ui/button";
 import { useProcessImage } from "@features/process/use-process-image";
 import { useFileUpload, formatBytes } from "@hooks/use-file-upload";
 import { cn } from "@lib/utils";
-import { useFileStore } from "@stores/file-store";
+import { useFileStore, type FileWithPreview } from "@stores/file-store";
 import { CircleAlertIcon, CloudUploadIcon } from "lucide-react";
 
 interface DropzoneProps {
   maxSize?: number;
   accept?: string;
   className?: string;
+  onFilesChange?: (files: FileWithPreview[]) => void;
 }
 
 export function Dropzone({
   maxSize = 2097152, // 2MB
   accept = "image/*",
   className,
+  onFilesChange: onFilesChangeProp,
 }: DropzoneProps) {
   const { processPreviewDebounced } = useProcessImage();
   const [
@@ -38,7 +40,10 @@ export function Dropzone({
     onFilesAdded: (files) => {
       if (files.length > 0) useFileStore.getState().setActiveFileId(files[0].id);
     },
-    onFilesChange: () => processPreviewDebounced(),
+    onFilesChange: (allFiles) => {
+      processPreviewDebounced();
+      onFilesChangeProp?.(allFiles);
+    },
   });
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
