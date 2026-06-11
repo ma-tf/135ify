@@ -14,19 +14,24 @@ export function RenderCarousel() {
   const { ref, isDragging } = useDragScroll();
 
   return (
-    <div
-      ref={ref}
-      className={cn(
-        "flex max-w-sm flex-row gap-4 overflow-x-auto p-4 lg:max-w-6xl",
-        "cursor-grab touch-pan-x select-none",
-        isDragging && "cursor-grabbing",
-      )}
-    >
-      <Dropzone />
-      {files.map((fileItem) => (
-        <RenderCard key={fileItem.id} fileItem={fileItem} />
-      ))}
-    </div>
+    <>
+      <div
+        id="render-carousel"
+        ref={ref}
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        className={cn(
+          "flex max-w-sm flex-row gap-4 overflow-x-auto p-4 lg:max-w-6xl",
+          "cursor-grab touch-pan-x select-none",
+          isDragging && "cursor-grabbing",
+        )}
+      >
+        <Dropzone />
+        {files.map((fileItem) => (
+          <RenderCard key={fileItem.id} fileItem={fileItem} />
+        ))}
+      </div>
+      <style>{`#render-carousel::-webkit-scrollbar { display: none }`}</style>
+    </>
   );
 }
 
@@ -37,6 +42,7 @@ function RenderCard({ fileItem, className }: { fileItem: FileWithPreview; classN
   const [fullSizeUrl, setFullSizeUrl] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [showActions, setShowActions] = useState(false);
 
   const handleOpenFullSize = useCallback(async () => {
     const url = await getFullSizeUrl();
@@ -72,6 +78,7 @@ function RenderCard({ fileItem, className }: { fileItem: FileWithPreview; classN
         "group relative aspect-3/2 w-2xs shrink-0 overflow-hidden rounded-md bg-muted lg:w-md",
         className,
       )}
+      onClick={() => setShowActions((v) => !v)}
     >
       {!imgLoaded && (
         <div className="absolute inset-0 flex items-center justify-center">
@@ -88,7 +95,12 @@ function RenderCard({ fileItem, className }: { fileItem: FileWithPreview; classN
         onLoad={() => setImgLoaded(true)}
       />
 
-      <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+      <div
+        className={cn(
+          "absolute inset-0 flex items-center justify-center gap-2 bg-black/40 transition-opacity",
+          showActions ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+        )}
+      >
         <Button
           onClick={(e) => {
             e.stopPropagation();
