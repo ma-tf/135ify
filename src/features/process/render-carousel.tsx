@@ -2,6 +2,7 @@ import { Button } from "@components/ui/button";
 import { Dialog, DialogContent } from "@components/ui/dialog";
 import { Dropzone } from "@features/process/dropzone";
 import { useProcessImage } from "@features/process/use-process-image";
+import { useDragScroll } from "@hooks/use-drag-scroll";
 import { cn } from "@lib/utils";
 import { useFileStore, type FileWithPreview } from "@stores/file-store";
 import { useRenderStore } from "@stores/render-store";
@@ -10,21 +11,21 @@ import { useCallback, useState } from "react";
 
 export function RenderCarousel() {
   const files = useFileStore((s) => s.files);
-
-  const hasFiles = files.length > 0;
+  const { ref, isDragging } = useDragScroll();
 
   return (
-    <div className="w-full">
-      <div className="flex flex-row items-start gap-4">
-        <Dropzone />
-        {hasFiles && (
-          <div className="flex flex-1 flex-row gap-4 overflow-x-auto pb-2">
-            {files.map((fileItem) => (
-              <RenderCard key={fileItem.id} fileItem={fileItem} />
-            ))}
-          </div>
-        )}
-      </div>
+    <div
+      ref={ref}
+      className={cn(
+        "flex max-w-sm flex-row gap-4 overflow-x-auto p-4 lg:max-w-6xl",
+        "cursor-grab touch-pan-x select-none",
+        isDragging && "cursor-grabbing",
+      )}
+    >
+      <Dropzone />
+      {files.map((fileItem) => (
+        <RenderCard key={fileItem.id} fileItem={fileItem} />
+      ))}
     </div>
   );
 }
