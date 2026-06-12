@@ -5,6 +5,12 @@ import { routeTree } from "./routeTree.gen";
 
 import "./styles.css";
 
+if (import.meta.env.DEV) {
+  void import("react-scan").then(({ scan }) => {
+    scan({ enabled: true });
+  });
+}
+
 // Set up a Router instance
 const router = createRouter({
   routeTree,

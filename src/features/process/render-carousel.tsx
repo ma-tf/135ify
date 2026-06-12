@@ -10,13 +10,13 @@ import { SearchIcon, XIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 
 const sharedFilmFrameClasses =
-  "relative overflow-visible flex w-2xs shrink-0 flex-col lg:w-md " +
-  "before:content-[''] before:block before:shrink-0 before:aspect-[72/11] before:bg-stone-700 before:pointer-events-none " +
+  "relative overflow-visible flex w-2xs shrink-0 flex-col lg:w-md bg-neutral-950 " +
+  "before:content-[''] before:block before:shrink-0 before:aspect-[72/11] before:bg-amber-700/40 before:pointer-events-none " +
   "before:[-webkit-mask-image:linear-gradient(180deg,#000_0_36.7%,transparent_36.7%_87.5%,#000_87.5%_100%),repeating-linear-gradient(90deg,#000_0_calc(100%/8*0.2915),transparent_calc(100%/8*0.2915)_calc(100%/8*0.7085),#000_calc(100%/8*0.7085)_calc(100%/8))] " +
   "before:[mask-image:linear-gradient(180deg,#000_0_36.7%,transparent_36.7%_87.5%,#000_87.5%_100%),repeating-linear-gradient(90deg,#000_0_calc(100%/8*0.2915),transparent_calc(100%/8*0.2915)_calc(100%/8*0.7085),#000_calc(100%/8*0.7085)_calc(100%/8))] " +
-  "after:content-[''] after:block after:shrink-0 after:aspect-[72/11] after:bg-stone-700 after:pointer-events-none " +
-  "after:[-webkit-mask-image:linear-gradient(180deg,#000_0_36.7%,transparent_36.7%_87.5%,#000_87.5%_100%),repeating-linear-gradient(90deg,#000_0_calc(100%/8*0.2915),transparent_calc(100%/8*0.2915)_calc(100%/8*0.7085),#000_calc(100%/8*0.7085)_calc(100%/8))] " +
-  "after:[mask-image:linear-gradient(180deg,#000_0_36.7%,transparent_36.7%_87.5%,#000_87.5%_100%),repeating-linear-gradient(90deg,#000_0_calc(100%/8*0.2915),transparent_calc(100%/8*0.2915)_calc(100%/8*0.7085),#000_calc(100%/8*0.7085)_calc(100%/8))]";
+  "after:content-[''] after:block after:shrink-0 after:aspect-[72/11] after:bg-amber-700/40 after:pointer-events-none " +
+  "after:[-webkit-mask-image:linear-gradient(180deg,#000_0_12.5%,transparent_12.5%_63.3%,#000_63.3%_100%),repeating-linear-gradient(90deg,#000_0_calc(100%/8*0.2915),transparent_calc(100%/8*0.2915)_calc(100%/8*0.7085),#000_calc(100%/8*0.7085)_calc(100%/8))] " +
+  "after:[mask-image:linear-gradient(180deg,#000_0_12.5%,transparent_12.5%_63.3%,#000_63.3%_100%),repeating-linear-gradient(90deg,#000_0_calc(100%/8*0.2915),transparent_calc(100%/8*0.2915)_calc(100%/8*0.7085),#000_calc(100%/8*0.7085)_calc(100%/8))]";
 
 const filmFrameClasses = cn(sharedFilmFrameClasses, "[counter-increment:frame-counter]");
 const dropzoneFrameClasses = cn(sharedFilmFrameClasses, "[counter-increment:none]");
@@ -31,13 +31,13 @@ export function RenderCarousel() {
       ref={ref}
       style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       className={cn(
-        "flex-rowoverflow-x-auto flex w-full bg-neutral-950 px-3 py-3 [&::-webkit-scrollbar]:hidden",
+        "flex max-w-full flex-row gap-1 overflow-x-auto bg-amber-700/40 px-3 [&::-webkit-scrollbar]:hidden",
         "cursor-grab touch-pan-x select-none",
         isDragging && "cursor-grabbing",
       )}
     >
       <div className={dropzoneFrameClasses}>
-        <Dropzone />
+        <Dropzone className="bg-amber-700/10" />
       </div>
       {files.map((fileItem) => (
         <div key={fileItem.id} className={filmFrameClasses}>
