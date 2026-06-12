@@ -9,29 +9,43 @@ import { useRenderStore } from "@stores/render-store";
 import { SearchIcon, XIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 
+const sharedFilmFrameClasses =
+  "relative overflow-visible flex w-2xs shrink-0 flex-col lg:w-md " +
+  "before:content-[''] before:block before:shrink-0 before:aspect-[72/11] before:bg-stone-700 before:pointer-events-none " +
+  "before:[-webkit-mask-image:linear-gradient(180deg,#000_0_36.7%,transparent_36.7%_87.5%,#000_87.5%_100%),repeating-linear-gradient(90deg,#000_0_calc(100%/8*0.2915),transparent_calc(100%/8*0.2915)_calc(100%/8*0.7085),#000_calc(100%/8*0.7085)_calc(100%/8))] " +
+  "before:[mask-image:linear-gradient(180deg,#000_0_36.7%,transparent_36.7%_87.5%,#000_87.5%_100%),repeating-linear-gradient(90deg,#000_0_calc(100%/8*0.2915),transparent_calc(100%/8*0.2915)_calc(100%/8*0.7085),#000_calc(100%/8*0.7085)_calc(100%/8))] " +
+  "after:content-[''] after:block after:shrink-0 after:aspect-[72/11] after:bg-stone-700 after:pointer-events-none " +
+  "after:[-webkit-mask-image:linear-gradient(180deg,#000_0_36.7%,transparent_36.7%_87.5%,#000_87.5%_100%),repeating-linear-gradient(90deg,#000_0_calc(100%/8*0.2915),transparent_calc(100%/8*0.2915)_calc(100%/8*0.7085),#000_calc(100%/8*0.7085)_calc(100%/8))] " +
+  "after:[mask-image:linear-gradient(180deg,#000_0_36.7%,transparent_36.7%_87.5%,#000_87.5%_100%),repeating-linear-gradient(90deg,#000_0_calc(100%/8*0.2915),transparent_calc(100%/8*0.2915)_calc(100%/8*0.7085),#000_calc(100%/8*0.7085)_calc(100%/8))]";
+
+const filmFrameClasses = cn(sharedFilmFrameClasses, "[counter-increment:frame-counter]");
+const dropzoneFrameClasses = cn(sharedFilmFrameClasses, "[counter-increment:none]");
+
 export function RenderCarousel() {
   const files = useFileStore((s) => s.files);
   const { ref, isDragging } = useDragScroll();
 
   return (
-    <>
-      <div
-        id="render-carousel"
-        ref={ref}
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        className={cn(
-          "flex max-w-sm flex-row gap-4 overflow-x-auto p-4 lg:max-w-6xl",
-          "cursor-grab touch-pan-x select-none",
-          isDragging && "cursor-grabbing",
-        )}
-      >
+    <div
+      id="render-carousel"
+      ref={ref}
+      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      className={cn(
+        "flex-rowoverflow-x-auto flex w-full bg-neutral-950 px-3 py-3 [&::-webkit-scrollbar]:hidden",
+        "cursor-grab touch-pan-x select-none",
+        isDragging && "cursor-grabbing",
+      )}
+    >
+      <div className={dropzoneFrameClasses}>
         <Dropzone />
-        {files.map((fileItem) => (
-          <RenderCard key={fileItem.id} fileItem={fileItem} />
-        ))}
       </div>
-      <style>{`#render-carousel::-webkit-scrollbar { display: none }`}</style>
-    </>
+      {files.map((fileItem) => (
+        <div key={fileItem.id} className={filmFrameClasses}>
+          <RenderCard fileItem={fileItem} />
+          <span className="pointer-events-none absolute top-px left-1/2 z-1 -translate-x-1/2 font-mono text-[8px] leading-2.5 text-black/40 before:content-[counter(frame-counter)]" />
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -74,10 +88,7 @@ function RenderCard({ fileItem, className }: { fileItem: FileWithPreview; classN
 
   return (
     <div
-      className={cn(
-        "group relative aspect-3/2 w-2xs shrink-0 overflow-hidden rounded-md bg-muted lg:w-md",
-        className,
-      )}
+      className={cn("group relative aspect-3/2 overflow-hidden", className)}
       onClick={() => setShowActions((v) => !v)}
     >
       {!imgLoaded && (
@@ -124,12 +135,12 @@ function RenderCard({ fileItem, className }: { fileItem: FileWithPreview; classN
 
       <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
         <DialogContent
-          className="max-w-none border-0 bg-transparent p-0 shadow-none ring-0 sm:max-w-none"
+          className="flex items-center justify-center border-0 bg-transparent p-0 shadow-none ring-0"
           overlayClassName="bg-black/80"
         >
           <img
             src={fullSizeUrl ?? undefined}
-            className="max-h-screen max-w-full object-contain p-4"
+            className="max-h-screen w-auto object-contain p-4"
             alt={fileItem.file.name}
           />
         </DialogContent>

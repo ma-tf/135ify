@@ -59,7 +59,7 @@ export function Dropzone({
     <div className={cn("shrink-0", className)}>
       <div
         className={cn(
-          "flex aspect-3/2 w-2xs cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed text-center transition-colors lg:w-md",
+          "flex aspect-3/2 cursor-pointer flex-col items-center justify-center border-2 border-dashed text-center transition-colors",
           isDragging
             ? "border-primary bg-primary/5"
             : "border-muted-foreground/25 hover:border-muted-foreground/50",
