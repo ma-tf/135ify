@@ -201,7 +201,7 @@ export function ControlsPanel({ className }: { className?: string }) {
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background lg:hidden">
-        <Drawer shouldScaleBackground={false}>
+        <Drawer shouldScaleBackground={false} modal={false} defaultOpen>
           <DrawerTrigger asChild>
             <button
               type="button"

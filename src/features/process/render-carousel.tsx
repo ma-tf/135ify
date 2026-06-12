@@ -10,13 +10,9 @@ import { SearchIcon, XIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 
 const sharedFilmFrameClasses =
-  "relative overflow-visible flex w-2xs shrink-0 flex-col lg:w-md bg-neutral-950 " +
+  "relative overflow-visible flex w-2xs shrink-0 flex-col lg:w-md bg-neutral-950 carousel-sprocket " +
   "before:content-[''] before:block before:shrink-0 before:aspect-[72/11] before:bg-amber-700/40 before:pointer-events-none " +
-  "before:[-webkit-mask-image:linear-gradient(180deg,#000_0_36.7%,transparent_36.7%_87.5%,#000_87.5%_100%),repeating-linear-gradient(90deg,#000_0_calc(100%/8*0.2915),transparent_calc(100%/8*0.2915)_calc(100%/8*0.7085),#000_calc(100%/8*0.7085)_calc(100%/8))] " +
-  "before:[mask-image:linear-gradient(180deg,#000_0_36.7%,transparent_36.7%_87.5%,#000_87.5%_100%),repeating-linear-gradient(90deg,#000_0_calc(100%/8*0.2915),transparent_calc(100%/8*0.2915)_calc(100%/8*0.7085),#000_calc(100%/8*0.7085)_calc(100%/8))] " +
-  "after:content-[''] after:block after:shrink-0 after:aspect-[72/11] after:bg-amber-700/40 after:pointer-events-none " +
-  "after:[-webkit-mask-image:linear-gradient(180deg,#000_0_12.5%,transparent_12.5%_63.3%,#000_63.3%_100%),repeating-linear-gradient(90deg,#000_0_calc(100%/8*0.2915),transparent_calc(100%/8*0.2915)_calc(100%/8*0.7085),#000_calc(100%/8*0.7085)_calc(100%/8))] " +
-  "after:[mask-image:linear-gradient(180deg,#000_0_12.5%,transparent_12.5%_63.3%,#000_63.3%_100%),repeating-linear-gradient(90deg,#000_0_calc(100%/8*0.2915),transparent_calc(100%/8*0.2915)_calc(100%/8*0.7085),#000_calc(100%/8*0.7085)_calc(100%/8))]";
+  "after:content-[''] after:block after:shrink-0 after:aspect-[72/11] after:bg-amber-700/40 after:pointer-events-none";
 
 const filmFrameClasses = cn(sharedFilmFrameClasses, "[counter-increment:frame-counter]");
 const dropzoneFrameClasses = cn(sharedFilmFrameClasses, "[counter-increment:none]");
