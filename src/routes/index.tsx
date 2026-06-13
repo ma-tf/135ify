@@ -1,4 +1,3 @@
-import { ControlsPanel } from "@features/process/controls-panel";
 import { RenderCarousel } from "@features/process/render-carousel";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -12,7 +11,6 @@ function RouteComponent() {
       <div className="mx-auto flex w-full min-w-0 flex-col items-center justify-center px-8">
         <RenderCarousel />
       </div>
-      <ControlsPanel />
     </main>
   );
 }

@@ -6,75 +6,71 @@ import { FilmSelector } from "@features/process/film-selector";
 import { ParameterSlider } from "@features/process/parameter-slider";
 import { useProcessImage } from "@features/process/use-process-image";
 import { cn } from "@lib/utils";
-import { useFileStore } from "@stores/file-store";
-import { useParameterStore } from "@stores/parameter-store";
-import { useRenderStore } from "@stores/render-store";
-import { ChevronUpIcon, DownloadIcon, RotateCcwIcon } from "lucide-react";
+import { DEFAULT_PARAMS, useFileStore } from "@stores/file-store";
+import { ChevronUpIcon, DownloadIcon, RotateCcwIcon, SlidersHorizontalIcon } from "lucide-react";
 
-function HalationControls() {
+function HalationControls({ fileId }: { fileId: string }) {
+  const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
+  const updateFileParams = useFileStore((s) => s.updateFileParams);
   const { processPreviewDebounced } = useProcessImage();
-  const intensity = useParameterStore((s) => s.halationIntensity);
-  const setIntensity = useParameterStore((s) => s.setHalationIntensity);
-  const spread = useParameterStore((s) => s.halationSpread);
-  const setSpread = useParameterStore((s) => s.setHalationSpread);
-  const threshold = useParameterStore((s) => s.halationThreshold);
-  const setThreshold = useParameterStore((s) => s.setHalationThreshold);
+
+  if (!params) return null;
 
   return (
     <div className="flex flex-col gap-3">
       <h3 className="text-sm font-semibold text-foreground">Halation</h3>
       <ParameterSlider
         label="Intensity"
-        value={intensity}
+        value={params.halationIntensity}
         onValueChange={(v) => {
-          setIntensity(v);
-          processPreviewDebounced();
+          updateFileParams(fileId, { halationIntensity: v });
+          processPreviewDebounced(fileId);
         }}
       />
       <ParameterSlider
         label="Spread"
-        value={spread}
+        value={params.halationSpread}
         onValueChange={(v) => {
-          setSpread(v);
-          processPreviewDebounced();
+          updateFileParams(fileId, { halationSpread: v });
+          processPreviewDebounced(fileId);
         }}
       />
       <ParameterSlider
         label="Threshold"
-        value={threshold}
+        value={params.halationThreshold}
         onValueChange={(v) => {
-          setThreshold(v);
-          processPreviewDebounced();
+          updateFileParams(fileId, { halationThreshold: v });
+          processPreviewDebounced(fileId);
         }}
       />
     </div>
   );
 }
 
-function VignetteControls() {
+function VignetteControls({ fileId }: { fileId: string }) {
+  const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
+  const updateFileParams = useFileStore((s) => s.updateFileParams);
   const { processPreviewDebounced } = useProcessImage();
-  const intensity = useParameterStore((s) => s.vignetteIntensity);
-  const setIntensity = useParameterStore((s) => s.setVignetteIntensity);
-  const feather = useParameterStore((s) => s.vignetteFeather);
-  const setFeather = useParameterStore((s) => s.setVignetteFeather);
+
+  if (!params) return null;
 
   return (
     <div className="flex flex-col gap-3">
       <h3 className="text-sm font-semibold text-foreground">Vignette</h3>
       <ParameterSlider
         label="Intensity"
-        value={intensity}
+        value={params.vignetteIntensity}
         onValueChange={(v) => {
-          setIntensity(v);
-          processPreviewDebounced();
+          updateFileParams(fileId, { vignetteIntensity: v });
+          processPreviewDebounced(fileId);
         }}
       />
       <ParameterSlider
         label="Feather"
-        value={feather}
+        value={params.vignetteFeather}
         onValueChange={(v) => {
-          setFeather(v);
-          processPreviewDebounced();
+          updateFileParams(fileId, { vignetteFeather: v });
+          processPreviewDebounced(fileId);
         }}
       />
     </div>
@@ -92,10 +88,12 @@ const INTENSITY_TO_ISO: Record<number, string> = Object.fromEntries(
   ISO_PRESETS.map((p) => [p.intensity, p.iso]),
 );
 
-function GrainControls() {
+function GrainControls({ fileId }: { fileId: string }) {
+  const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
+  const updateFileParams = useFileStore((s) => s.updateFileParams);
   const { processPreviewDebounced } = useProcessImage();
-  const intensity = useParameterStore((s) => s.grainIntensity);
-  const setIntensity = useParameterStore((s) => s.setGrainIntensity);
+
+  if (!params) return null;
 
   return (
     <div className="flex flex-col gap-3">
@@ -105,11 +103,11 @@ function GrainControls() {
         <ToggleGroup
           type="single"
           variant="outline"
-          value={intensity === 0 ? "" : (INTENSITY_TO_ISO[intensity] ?? "")}
+          value={params.grainIntensity === 0 ? "" : (INTENSITY_TO_ISO[params.grainIntensity] ?? "")}
           onValueChange={(value) => {
             const selected = ISO_PRESETS.find((p) => p.iso === value);
-            setIntensity(selected?.intensity ?? 0);
-            processPreviewDebounced();
+            updateFileParams(fileId, { grainIntensity: selected?.intensity ?? 0 });
+            processPreviewDebounced(fileId);
           }}
         >
           {ISO_PRESETS.map((p) => (
@@ -123,18 +121,31 @@ function GrainControls() {
   );
 }
 
-function PanelContent() {
-  const reset = useParameterStore((s) => s.reset);
-  const { processPreviewDebounced, getFullSizeUrl } = useProcessImage();
-  const isProcessing = useRenderStore((s) => s.isProcessing);
+export function EditPanel({
+  fileId,
+  showOriginal,
+  onShowOriginalChange,
+}: {
+  fileId: string;
+  showOriginal: boolean;
+  onShowOriginalChange: (v: boolean) => void;
+}) {
+  const file = useFileStore((s) => s.files.find((f) => f.id === fileId));
+  const updateFileParams = useFileStore((s) => s.updateFileParams);
+  const { getFullSizeUrl, processPreviewDebounced } = useProcessImage();
+  const setRenderResult = useFileStore((s) => s.setRenderResult);
+
+  if (!file) return null;
+
+  const handleReset = () => {
+    if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
+    updateFileParams(fileId, DEFAULT_PARAMS);
+    setRenderResult(fileId, null, null);
+  };
 
   const handleDownload = async () => {
-    const url = await getFullSizeUrl();
+    const url = await getFullSizeUrl(fileId);
     if (!url) return;
-
-    const { files, activeFileId } = useFileStore.getState();
-    const file = files.find((f) => f.id === activeFileId) ?? files.at(-1);
-    if (!file) return;
 
     const a = document.createElement("a");
     a.href = url;
@@ -145,34 +156,60 @@ function PanelContent() {
 
   return (
     <div className="flex flex-col gap-6 p-4">
-      <h2 className="font-semibold text-foreground">Processing</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="font-semibold text-foreground">Processing</h2>
+        <div className="flex rounded-lg border bg-muted p-0.5">
+          <button
+            type="button"
+            onClick={() => onShowOriginalChange(true)}
+            className={cn(
+              "rounded-md px-3 py-1 text-xs font-medium transition-colors",
+              showOriginal
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            Original
+          </button>
+          <button
+            type="button"
+            onClick={() => onShowOriginalChange(false)}
+            className={cn(
+              "rounded-md px-3 py-1 text-xs font-medium transition-colors",
+              !showOriginal
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            Processed
+          </button>
+        </div>
+      </div>
 
-      <FilmSelector onValueChange={() => processPreviewDebounced()} />
+      <FilmSelector
+        value={file.params.selectedFilmId}
+        onValueChange={(v) => {
+          updateFileParams(fileId, { selectedFilmId: v });
+          processPreviewDebounced(fileId);
+        }}
+      />
 
-      <HalationControls />
-      <VignetteControls />
-      <GrainControls />
+      <HalationControls fileId={fileId} />
+      <VignetteControls fileId={fileId} />
+      <GrainControls fileId={fileId} />
 
       <div className="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="flex-1 gap-1.5"
-          onClick={() => {
-            reset();
-            processPreviewDebounced();
-          }}
-        >
+        <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={handleReset}>
           <RotateCcwIcon className="h-3.5 w-3.5" />
           Reset
         </Button>
         <Button
-          disabled={isProcessing}
+          disabled={file.isProcessing}
           size="sm"
           className="flex-1 gap-1.5"
           onClick={handleDownload}
         >
-          {isProcessing ? (
+          {file.isProcessing ? (
             <Spinner className="h-3.5 w-3.5" />
           ) : (
             <DownloadIcon className="h-3.5 w-3.5" />
@@ -184,38 +221,38 @@ function PanelContent() {
   );
 }
 
-export function ControlsPanel({ className }: { className?: string }) {
-  const hasFiles = useFileStore((s) => s.files.length > 0);
-
-  if (!hasFiles) return null;
-
+export function ControlsPanel({
+  fileId,
+  showOriginal,
+  onShowOriginalChange,
+}: {
+  fileId: string;
+  showOriginal: boolean;
+  onShowOriginalChange: (v: boolean) => void;
+}) {
   return (
-    <>
-      <div
-        className={cn(
-          "hidden overflow-y-auto border-l bg-background lg:flex lg:w-80 lg:flex-col",
-          className,
-        )}
-      >
-        <PanelContent />
-      </div>
-
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background lg:hidden">
-        <Drawer shouldScaleBackground={false} modal={false} defaultOpen>
-          <DrawerTrigger asChild>
-            <button
-              type="button"
-              className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium"
-            >
-              Processing
-              <ChevronUpIcon className="h-4 w-4 text-muted-foreground" />
-            </button>
-          </DrawerTrigger>
-          <DrawerContent noOverlay>
-            <PanelContent />
-          </DrawerContent>
-        </Drawer>
-      </div>
-    </>
+    <div className="block border-t bg-background lg:hidden">
+      <Drawer shouldScaleBackground={false} modal={false}>
+        <DrawerTrigger asChild>
+          <button
+            type="button"
+            className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium"
+          >
+            <span className="flex items-center gap-2">
+              <SlidersHorizontalIcon className="h-4 w-4" />
+              Adjust
+            </span>
+            <ChevronUpIcon className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </DrawerTrigger>
+        <DrawerContent noOverlay>
+          <EditPanel
+            fileId={fileId}
+            showOriginal={showOriginal}
+            onShowOriginalChange={onShowOriginalChange}
+          />
+        </DrawerContent>
+      </Drawer>
+    </div>
   );
 }

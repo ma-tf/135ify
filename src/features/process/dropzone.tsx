@@ -2,17 +2,16 @@ import type { DragEvent } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
-import { useProcessImage } from "@features/process/use-process-image";
 import { useFileUpload, formatBytes } from "@hooks/use-file-upload";
 import { cn } from "@lib/utils";
-import { useFileStore, type FileWithPreview } from "@stores/file-store";
+import { useFileStore, type FileWithState } from "@stores/file-store";
 import { CircleAlertIcon, CloudUploadIcon } from "lucide-react";
 
 interface DropzoneProps {
   maxSize?: number;
   accept?: string;
   className?: string;
-  onFilesChange?: (files: FileWithPreview[]) => void;
+  onFilesChange?: (files: FileWithState[]) => void;
 }
 
 export function Dropzone({
@@ -21,7 +20,6 @@ export function Dropzone({
   className,
   onFilesChange: onFilesChangeProp,
 }: DropzoneProps) {
-  const { processPreviewDebounced } = useProcessImage();
   const [
     { isDragging, errors },
     {
@@ -41,7 +39,6 @@ export function Dropzone({
       if (files.length > 0) useFileStore.getState().setActiveFileId(files[0].id);
     },
     onFilesChange: (allFiles) => {
-      processPreviewDebounced();
       onFilesChangeProp?.(allFiles);
     },
   });

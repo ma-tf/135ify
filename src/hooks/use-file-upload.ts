@@ -1,6 +1,6 @@
-import type { FileMetadata, FileWithPreview } from "@stores/file-store";
+import type { FileMetadata, FileWithState } from "@stores/file-store";
 
-import { useFileStore } from "@stores/file-store";
+import { DEFAULT_PARAMS, useFileStore } from "@stores/file-store";
 import {
   useCallback,
   useRef,
@@ -16,13 +16,13 @@ export type FileUploadOptions = {
   accept?: string;
   multiple?: boolean; // Defaults to false
   initialFiles?: FileMetadata[];
-  onFilesChange?: (files: FileWithPreview[]) => void; // Callback when files change
-  onFilesAdded?: (addedFiles: FileWithPreview[]) => void; // Callback when new files are added
+  onFilesChange?: (files: FileWithState[]) => void; // Callback when files change
+  onFilesAdded?: (addedFiles: FileWithState[]) => void; // Callback when new files are added
   onError?: (errors: string[]) => void;
 };
 
 export type FileUploadState = {
-  files: FileWithPreview[];
+  files: FileWithState[];
   isDragging: boolean;
   errors: string[];
 };
@@ -160,7 +160,7 @@ export const useFileUpload = (
         return;
       }
 
-      const validFiles: FileWithPreview[] = [];
+      const validFiles: FileWithState[] = [];
 
       for (const file of newFilesArray) {
         // Only check for duplicates if multiple files are allowed
@@ -194,6 +194,10 @@ export const useFileUpload = (
             file,
             id: generateUniqueId(file),
             preview: createPreview(file),
+            params: { ...DEFAULT_PARAMS },
+            renderUrl: null,
+            isProcessing: false,
+            renderError: null,
           });
         }
       }

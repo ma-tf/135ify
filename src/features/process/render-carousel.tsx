@@ -1,12 +1,11 @@
 import { Button } from "@components/ui/button";
-import { Dialog, DialogContent } from "@components/ui/dialog";
+import { Sheet, SheetContent } from "@components/ui/sheet";
+import { EditPanel } from "@features/process/controls-panel";
 import { Dropzone } from "@features/process/dropzone";
-import { useProcessImage } from "@features/process/use-process-image";
 import { useDragScroll } from "@hooks/use-drag-scroll";
 import { cn } from "@lib/utils";
-import { useFileStore, type FileWithPreview } from "@stores/file-store";
-import { useRenderStore } from "@stores/render-store";
-import { SearchIcon, XIcon } from "lucide-react";
+import { useFileStore, type FileWithState } from "@stores/file-store";
+import { SlidersIcon, XIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 
 const sharedFilmFrameClasses =
@@ -45,42 +44,28 @@ export function RenderCarousel() {
   );
 }
 
-function RenderCard({ fileItem, className }: { fileItem: FileWithPreview; className?: string }) {
-  const activeFileId = useFileStore((s) => s.activeFileId);
-  const renderUrl = useRenderStore((s) => s.renderUrl);
-  const { getFullSizeUrl } = useProcessImage();
-  const [fullSizeUrl, setFullSizeUrl] = useState<string | null>(null);
+function RenderCard({ fileItem, className }: { fileItem: FileWithState; className?: string }) {
+  const file = useFileStore((s) => s.files.find((f) => f.id === fileItem.id)) ?? fileItem;
   const [open, setOpen] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showActions, setShowActions] = useState(false);
+  const [showOriginal, setShowOriginal] = useState(false);
 
-  const handleOpenFullSize = useCallback(async () => {
-    const url = await getFullSizeUrl();
-    if (url) {
-      setFullSizeUrl(url);
-      setOpen(true);
-    }
-  }, [getFullSizeUrl]);
-
-  const handleClose = useCallback(() => {
-    if (fullSizeUrl) {
-      URL.revokeObjectURL(fullSizeUrl);
-      setFullSizeUrl(null);
-    }
-    setOpen(false);
-  }, [fullSizeUrl]);
+  const handleOpenEdit = useCallback(() => {
+    setOpen(true);
+  }, []);
 
   const handleRemove = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
-      if (fileItem.file instanceof File) URL.revokeObjectURL(fileItem.preview);
-      useFileStore.getState().removeFile(fileItem.id);
+      if (file.file instanceof File) URL.revokeObjectURL(file.preview);
+      if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
+      useFileStore.getState().removeFile(file.id);
     },
-    [fileItem],
+    [file],
   );
 
-  const isActive = fileItem.id === activeFileId;
-  const src = isActive && renderUrl ? renderUrl : fileItem.preview;
+  const src = showOriginal || !file.renderUrl ? file.preview : file.renderUrl;
 
   return (
     <div
@@ -98,7 +83,7 @@ function RenderCard({ fileItem, className }: { fileItem: FileWithPreview; classN
           "h-full w-full object-cover transition-all group-hover:scale-105",
           imgLoaded ? "opacity-100" : "opacity-0",
         )}
-        alt={fileItem.file.name}
+        alt={file.file.name}
         onLoad={() => setImgLoaded(true)}
       />
 
@@ -111,13 +96,13 @@ function RenderCard({ fileItem, className }: { fileItem: FileWithPreview; classN
         <Button
           onClick={(e) => {
             e.stopPropagation();
-            void handleOpenFullSize();
+            handleOpenEdit();
           }}
           variant="secondary"
           size="icon"
           className="size-8 rounded-full shadow-sm"
         >
-          <SearchIcon className="size-4" />
+          <SlidersIcon className="size-4" />
         </Button>
         <Button
           onClick={handleRemove}
@@ -129,18 +114,22 @@ function RenderCard({ fileItem, className }: { fileItem: FileWithPreview; classN
         </Button>
       </div>
 
-      <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
-        <DialogContent
-          className="flex items-center justify-center border-0 bg-transparent p-0 shadow-none ring-0"
-          overlayClassName="bg-black/80"
-        >
-          <img
-            src={fullSizeUrl ?? undefined}
-            className="max-h-screen w-auto object-contain p-4"
-            alt={fileItem.file.name}
+      <Sheet
+        open={open}
+        onOpenChange={(v) => {
+          setOpen(v);
+          if (!v) setShowOriginal(false);
+        }}
+      >
+        <SheetContent side="right" showCloseButton>
+          <img src={src} alt={file.file.name} className="w-full rounded-md object-cover" />
+          <EditPanel
+            fileId={file.id}
+            showOriginal={showOriginal}
+            onShowOriginalChange={setShowOriginal}
           />
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

@@ -6,24 +6,20 @@ import {
   SelectValue,
 } from "@components/ui/select";
 import { FILMS, type FilmId } from "@features/process/films";
-import { useParameterStore } from "@stores/parameter-store";
 
 interface FilmSelectorProps {
-  onValueChange?: () => void;
+  value: FilmId;
+  onValueChange: (value: FilmId) => void;
 }
 
-export function FilmSelector({ onValueChange }: FilmSelectorProps) {
-  const selectedFilmId = useParameterStore((s) => s.selectedFilmId);
-  const setSelectedFilmId = useParameterStore((s) => s.setSelectedFilmId);
-
+export function FilmSelector({ value, onValueChange }: FilmSelectorProps) {
   return (
     <div className="flex flex-col gap-2">
       <label className="text-sm font-semibold text-foreground">Film</label>
       <Select
-        value={selectedFilmId}
+        value={value}
         onValueChange={(v: FilmId) => {
-          setSelectedFilmId(v);
-          onValueChange?.();
+          onValueChange(v);
         }}
       >
         <SelectTrigger className="w-full">
