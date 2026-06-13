@@ -64,11 +64,10 @@ function RenderCard({
   const file = useFileStore((s) => s.files.find((f) => f.id === fileItem.id)) ?? fileItem;
   const [open, setOpen] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [localShowActions, setLocalShowActions] = useState(false);
   const [showOriginal, setShowOriginal] = useState(false);
   const isDesktop = !useIsMobile(1024);
 
-  const showActions = isDesktop ? localShowActions : activeCardId === fileItem.id;
+  const showActions = activeCardId === fileItem.id;
 
   const handleOpenEdit = useCallback(() => {
     setOpen(true);
@@ -89,15 +88,11 @@ function RenderCard({
   return (
     <div
       className={cn(
-        "group relative aspect-3/2 overflow-hidden shadow-[4px_0_0_0_theme(colors.amber.700/0.4)]",
+        "group relative aspect-3/2 overflow-hidden bg-amber-700/40 shadow-[4px_0_0_0_--theme(--color-amber-700/0.4)]",
         className,
       )}
       onClick={() => {
-        if (isDesktop) {
-          setLocalShowActions((v) => !v);
-        } else {
-          setActiveCardId((prev) => (prev === fileItem.id ? null : fileItem.id));
-        }
+        setActiveCardId((prev) => (prev === fileItem.id ? null : fileItem.id));
       }}
     >
       {!imgLoaded && (
@@ -108,12 +103,21 @@ function RenderCard({
       <img
         src={src}
         className={cn(
-          "h-full w-full bg-amber-700/40 object-contain transition-all group-hover:scale-105 lg:object-cover",
+          "h-full w-full object-contain transition-all group-hover:scale-105",
           imgLoaded ? "opacity-100" : "opacity-0",
-          showActions ? "brightness-60" : "group-hover:brightness-60",
+          showActions
+            ? "brightness-75 saturate-75"
+            : "group-hover:brightness-85 group-hover:saturate-85",
         )}
         alt={file.file.name}
         onLoad={() => setImgLoaded(true)}
+      />
+
+      <div
+        className={cn(
+          "absolute inset-0 bg-black/25 transition-opacity",
+          showActions ? "opacity-100" : "opacity-0",
+        )}
       />
 
       <div

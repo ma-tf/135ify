@@ -206,7 +206,7 @@ export const useFileUpload = (
       if (validFiles.length > 0) {
         onFilesAdded?.(validFiles);
 
-        const newFilesResult = !multiple ? validFiles : [...storeFiles, ...validFiles];
+        const newFilesResult = !multiple ? validFiles : [...validFiles, ...storeFiles];
         setStoreFiles(newFilesResult);
         onFilesChange?.(newFilesResult);
         setErrors(newErrors);
