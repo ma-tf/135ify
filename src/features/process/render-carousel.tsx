@@ -174,6 +174,7 @@ function RenderCard({
                   src={src}
                   alt={file.file.name}
                   className="pointer-events-auto max-h-[70vh] rounded-md object-contain"
+                  onPointerDown={(e) => e.stopPropagation()}
                 />
               )}
             </>
