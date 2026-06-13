@@ -3,10 +3,11 @@ import { Sheet, SheetContent } from "@components/ui/sheet";
 import { EditPanel } from "@features/process/controls-panel";
 import { Dropzone } from "@features/process/dropzone";
 import { useDragScroll } from "@hooks/use-drag-scroll";
+import { useIsMobile } from "@hooks/use-mobile";
 import { cn } from "@lib/utils";
 import { useFileStore, type FileWithState } from "@stores/file-store";
 import { SlidersIcon, XIcon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
 
 const sharedFilmFrameClasses =
   "relative overflow-visible flex w-2xs shrink-0 flex-col lg:w-md bg-neutral-950 carousel-sprocket " +
@@ -19,6 +20,7 @@ const dropzoneFrameClasses = cn(sharedFilmFrameClasses, "[counter-increment:none
 export function RenderCarousel() {
   const files = useFileStore((s) => s.files);
   const { ref, isDragging } = useDragScroll();
+  const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
   return (
     <div
@@ -26,7 +28,7 @@ export function RenderCarousel() {
       ref={ref}
       style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       className={cn(
-        "flex max-w-full flex-row gap-1 overflow-x-auto bg-amber-700/40 px-3 [&::-webkit-scrollbar]:hidden",
+        "flex w-fit max-w-full flex-row gap-1 overflow-x-auto bg-amber-700/40 px-3 [&::-webkit-scrollbar]:hidden",
         "cursor-grab touch-pan-x select-none",
         isDragging && "cursor-grabbing",
       )}
@@ -36,7 +38,11 @@ export function RenderCarousel() {
       </div>
       {files.map((fileItem) => (
         <div key={fileItem.id} className={filmFrameClasses}>
-          <RenderCard fileItem={fileItem} />
+          <RenderCard
+            fileItem={fileItem}
+            activeCardId={activeCardId}
+            setActiveCardId={setActiveCardId}
+          />
           <span className="pointer-events-none absolute top-px left-1/2 z-1 -translate-x-1/2 font-mono text-[8px] leading-2.5 text-black/40 before:content-[counter(frame-counter)]" />
         </div>
       ))}
@@ -44,12 +50,25 @@ export function RenderCarousel() {
   );
 }
 
-function RenderCard({ fileItem, className }: { fileItem: FileWithState; className?: string }) {
+function RenderCard({
+  fileItem,
+  className,
+  activeCardId,
+  setActiveCardId,
+}: {
+  fileItem: FileWithState;
+  className?: string;
+  activeCardId: string | null;
+  setActiveCardId: Dispatch<SetStateAction<string | null>>;
+}) {
   const file = useFileStore((s) => s.files.find((f) => f.id === fileItem.id)) ?? fileItem;
   const [open, setOpen] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [showActions, setShowActions] = useState(false);
+  const [localShowActions, setLocalShowActions] = useState(false);
   const [showOriginal, setShowOriginal] = useState(false);
+  const isDesktop = !useIsMobile(1024);
+
+  const showActions = isDesktop ? localShowActions : activeCardId === fileItem.id;
 
   const handleOpenEdit = useCallback(() => {
     setOpen(true);
@@ -69,8 +88,14 @@ function RenderCard({ fileItem, className }: { fileItem: FileWithState; classNam
 
   return (
     <div
-      className={cn("group relative aspect-3/2 overflow-hidden", className)}
-      onClick={() => setShowActions((v) => !v)}
+      className={cn("group relative aspect-3/2 overflow-hidden bg-amber-700/40", className)}
+      onClick={() => {
+        if (isDesktop) {
+          setLocalShowActions((v) => !v);
+        } else {
+          setActiveCardId((prev) => (prev === fileItem.id ? null : fileItem.id));
+        }
+      }}
     >
       {!imgLoaded && (
         <div className="absolute inset-0 flex items-center justify-center">
@@ -80,7 +105,7 @@ function RenderCard({ fileItem, className }: { fileItem: FileWithState; classNam
       <img
         src={src}
         className={cn(
-          "h-full w-full object-cover transition-all group-hover:scale-105",
+          "h-full w-full object-contain transition-all group-hover:scale-105 lg:object-cover",
           imgLoaded ? "opacity-100" : "opacity-0",
         )}
         alt={file.file.name}
@@ -122,8 +147,8 @@ function RenderCard({ fileItem, className }: { fileItem: FileWithState; classNam
         }}
       >
         <SheetContent
-          side="right"
-          showCloseButton={false}
+          side={isDesktop ? "right" : "bottom"}
+          showCloseButton={isDesktop}
           overlayContent={
             <>
               <Button
@@ -135,14 +160,23 @@ function RenderCard({ fileItem, className }: { fileItem: FileWithState; classNam
                 <XIcon />
                 <span className="sr-only">Close</span>
               </Button>
-              <img
-                src={src}
-                alt={file.file.name}
-                className="max-h-[70vh] rounded-md object-contain"
-              />
+              {isDesktop && (
+                <img
+                  src={src}
+                  alt={file.file.name}
+                  className="max-h-[70vh] rounded-md object-contain"
+                />
+              )}
             </>
           }
         >
+          {!isDesktop && (
+            <img
+              src={src}
+              alt={file.file.name}
+              className="max-h-[50vh] w-full rounded-md object-contain"
+            />
+          )}
           <EditPanel
             fileId={file.id}
             showOriginal={showOriginal}
