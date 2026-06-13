@@ -10,9 +10,9 @@ import { SlidersIcon, XIcon } from "lucide-react";
 import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
 
 const sharedFilmFrameClasses =
-  "relative overflow-visible flex w-2xs shrink-0 flex-col lg:w-md bg-neutral-950 carousel-sprocket " +
-  "before:content-[''] before:block before:shrink-0 before:aspect-[72/11] before:bg-amber-700/40 before:pointer-events-none " +
-  "after:content-[''] after:block after:shrink-0 after:aspect-[72/11] after:bg-amber-700/40 after:pointer-events-none";
+  "relative overflow-visible flex w-2xs shrink-0 flex-col lg:w-md border-r-4 border-transparent carousel-sprocket " +
+  "before:content-[''] before:block before:shrink-0 before:w-[calc(100%+4px)] before:aspect-[72/11] before:bg-amber-700/40 before:pointer-events-none " +
+  "after:content-[''] after:block after:shrink-0 after:w-[calc(100%+4px)] after:aspect-[72/11] after:bg-amber-700/40 after:pointer-events-none";
 
 const filmFrameClasses = cn(sharedFilmFrameClasses, "[counter-increment:frame-counter]");
 const dropzoneFrameClasses = cn(sharedFilmFrameClasses, "[counter-increment:none]");
@@ -28,13 +28,13 @@ export function RenderCarousel() {
       ref={ref}
       style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       className={cn(
-        "flex w-fit max-w-full flex-row gap-1 overflow-x-auto bg-amber-700/40 px-3 [&::-webkit-scrollbar]:hidden",
+        "mx-auto flex w-fit max-w-full flex-row overflow-x-auto [&::-webkit-scrollbar]:hidden",
         "cursor-grab touch-pan-x select-none",
         isDragging && "cursor-grabbing",
       )}
     >
       <div className={dropzoneFrameClasses}>
-        <Dropzone className="bg-amber-700/10" />
+        <Dropzone className="bg-amber-700/10 shadow-[4px_0_0_0_theme(colors.amber.700/0.4)]" />
       </div>
       {files.map((fileItem) => (
         <div key={fileItem.id} className={filmFrameClasses}>
@@ -88,7 +88,10 @@ function RenderCard({
 
   return (
     <div
-      className={cn("group relative aspect-3/2 overflow-hidden bg-amber-700/40", className)}
+      className={cn(
+        "group relative aspect-3/2 overflow-hidden shadow-[4px_0_0_0_theme(colors.amber.700/0.4)]",
+        className,
+      )}
       onClick={() => {
         if (isDesktop) {
           setLocalShowActions((v) => !v);
@@ -105,7 +108,7 @@ function RenderCard({
       <img
         src={src}
         className={cn(
-          "h-full w-full bg-amber-800/30 object-contain transition-all group-hover:scale-105 lg:object-cover",
+          "h-full w-full bg-amber-700/40 object-contain transition-all group-hover:scale-105 lg:object-cover",
           imgLoaded ? "opacity-100" : "opacity-0",
           showActions ? "brightness-60" : "group-hover:brightness-60",
         )}
