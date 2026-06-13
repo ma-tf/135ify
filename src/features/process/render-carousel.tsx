@@ -192,6 +192,7 @@ function RenderCard({
             fileId={file.id}
             showOriginal={showOriginal}
             onShowOriginalChange={setShowOriginal}
+            onDownload={() => setOpen(false)}
           />
         </SheetContent>
       </Sheet>
