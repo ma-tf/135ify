@@ -105,8 +105,9 @@ function RenderCard({
       <img
         src={src}
         className={cn(
-          "h-full w-full object-contain transition-all group-hover:scale-105 lg:object-cover",
+          "h-full w-full bg-amber-800/30 object-contain transition-all group-hover:scale-105 lg:object-cover",
           imgLoaded ? "opacity-100" : "opacity-0",
+          showActions ? "brightness-60" : "group-hover:brightness-60",
         )}
         alt={file.file.name}
         onLoad={() => setImgLoaded(true)}
@@ -114,7 +115,7 @@ function RenderCard({
 
       <div
         className={cn(
-          "absolute inset-0 flex items-center justify-center gap-2 bg-black/40 transition-opacity",
+          "absolute inset-0 flex items-center justify-center gap-2 transition-opacity",
           showActions ? "opacity-100" : "opacity-0 group-hover:opacity-100",
         )}
       >
