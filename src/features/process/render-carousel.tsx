@@ -1,5 +1,5 @@
 import { Button } from "@components/ui/button";
-import { Sheet, SheetContent } from "@components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@components/ui/sheet";
 import { EditPanel } from "@features/process/controls-panel";
 import { Dropzone } from "@features/process/dropzone";
 import { useDragScroll } from "@hooks/use-drag-scroll";
@@ -34,7 +34,7 @@ export function RenderCarousel() {
       )}
     >
       <div className={dropzoneFrameClasses}>
-        <Dropzone className="bg-amber-700/10 shadow-[4px_0_0_0_theme(colors.amber.700/0.4)]" />
+        <Dropzone className="bg-amber-700/10 shadow-[4px_0_0_0_--theme(--color-amber-700/0.4)]" />
       </div>
       {files.map((fileItem) => (
         <div key={fileItem.id} className={filmFrameClasses}>
@@ -155,6 +155,7 @@ function RenderCard({
         }}
       >
         <SheetContent
+          className={!isDesktop ? "pt-8" : ""}
           side={isDesktop ? "right" : "bottom"}
           showCloseButton={isDesktop}
           overlayContent={
@@ -172,12 +173,14 @@ function RenderCard({
                 <img
                   src={src}
                   alt={file.file.name}
-                  className="max-h-[70vh] rounded-md object-contain"
+                  className="pointer-events-auto max-h-[70vh] rounded-md object-contain"
                 />
               )}
             </>
           }
         >
+          <SheetTitle className="sr-only">Edit Image</SheetTitle>
+          <SheetDescription className="sr-only">Edit image settings</SheetDescription>
           {!isDesktop && (
             <img
               src={src}

@@ -198,21 +198,16 @@ export function EditPanel({
       <VignetteControls fileId={fileId} />
       <GrainControls fileId={fileId} />
 
-      <div className="flex gap-2">
-        <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={handleReset}>
-          <RotateCcwIcon className="h-3.5 w-3.5" />
+      <div className="flex flex-col gap-2">
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={handleReset}>
+          <RotateCcwIcon className="size-3.5" />
           Reset
         </Button>
-        <Button
-          disabled={file.isProcessing}
-          size="sm"
-          className="flex-1 gap-1.5"
-          onClick={handleDownload}
-        >
+        <Button disabled={file.isProcessing} size="sm" className="gap-1.5" onClick={handleDownload}>
           {file.isProcessing ? (
-            <Spinner className="h-3.5 w-3.5" />
+            <Spinner className="size-3.5" />
           ) : (
-            <DownloadIcon className="h-3.5 w-3.5" />
+            <DownloadIcon className="size-3.5" />
           )}
           Download
         </Button>
