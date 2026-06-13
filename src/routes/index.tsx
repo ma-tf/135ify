@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
 
 function RouteComponent() {
   return (
-    <main className="flex flex-1 flex-col lg:flex-row">
+    <main className="flex flex-1 flex-row">
       <div className="mx-auto flex w-full min-w-0 flex-col items-center justify-center px-8">
         <RenderCarousel />
       </div>
