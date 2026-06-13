@@ -121,8 +121,28 @@ function RenderCard({ fileItem, className }: { fileItem: FileWithState; classNam
           if (!v) setShowOriginal(false);
         }}
       >
-        <SheetContent side="right" showCloseButton>
-          <img src={src} alt={file.file.name} className="w-full rounded-md object-cover" />
+        <SheetContent
+          side="right"
+          showCloseButton={false}
+          overlayContent={
+            <>
+              <Button
+                onClick={() => setOpen(false)}
+                variant="ghost"
+                size="icon-sm"
+                className="pointer-events-auto absolute top-3 left-3 cursor-pointer"
+              >
+                <XIcon />
+                <span className="sr-only">Close</span>
+              </Button>
+              <img
+                src={src}
+                alt={file.file.name}
+                className="max-h-[70vh] rounded-md object-contain"
+              />
+            </>
+          }
+        >
           <EditPanel
             fileId={file.id}
             showOriginal={showOriginal}

@@ -39,14 +39,28 @@ function SheetContent({
   children,
   side = "right",
   showCloseButton = true,
+  overlayContent,
   ...props
 }: ComponentProps<typeof SheetPrimitive.Content> & {
   side?: "top" | "right" | "bottom" | "left";
   showCloseButton?: boolean;
+  overlayContent?: React.ReactNode;
 }) {
   return (
     <SheetPortal>
       <SheetOverlay />
+      {overlayContent && (
+        <div
+          className={cn(
+            "pointer-events-none fixed z-50 flex items-center justify-center",
+            side === "right" && "inset-y-0 right-[min(75%,24rem)] left-0",
+            side === "left" && "inset-y-0 right-0 left-[min(75%,24rem)]",
+            (side === "top" || side === "bottom") && "inset-0",
+          )}
+        >
+          {overlayContent}
+        </div>
+      )}
       <SheetPrimitive.Content
         data-slot="sheet-content"
         data-side={side}
