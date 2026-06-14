@@ -5,6 +5,7 @@ import { EditPanel } from "@features/process/controls-panel";
 import { Dropzone } from "@features/process/dropzone";
 import { useDragScroll } from "@hooks/use-drag-scroll";
 import { useIsMobile } from "@hooks/use-mobile";
+import { FEATURE_3D_PHOTO } from "@lib/flags";
 import { cn } from "@lib/utils";
 import { useFileStore, type FileWithState } from "@stores/file-store";
 import { SlidersIcon, XIcon } from "lucide-react";
@@ -209,7 +210,11 @@ function RenderCard({
             onShowOriginalChange={setShowOriginal}
             onDownload={(url) => {
               setOpen(false);
-              setPreviewUrl(url);
+              if (FEATURE_3D_PHOTO) {
+                setPreviewUrl(url);
+              } else {
+                URL.revokeObjectURL(url);
+              }
             }}
           />
         </SheetContent>
