@@ -1,5 +1,4 @@
 import { Button } from "@components/ui/button";
-import { Drawer, DrawerContent, DrawerTrigger } from "@components/ui/drawer";
 import { Spinner } from "@components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@components/ui/toggle-group";
 import { FilmSelector } from "@features/process/film-selector";
@@ -7,7 +6,7 @@ import { ParameterSlider } from "@features/process/parameter-slider";
 import { useProcessImage } from "@features/process/use-process-image";
 import { cn } from "@lib/utils";
 import { DEFAULT_PARAMS, useFileStore } from "@stores/file-store";
-import { ChevronUpIcon, DownloadIcon, RotateCcwIcon, SlidersHorizontalIcon } from "lucide-react";
+import { DownloadIcon, RotateCcwIcon } from "lucide-react";
 
 function HalationControls({ fileId }: { fileId: string }) {
   const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
@@ -214,42 +213,6 @@ export function EditPanel({
           Download
         </Button>
       </div>
-    </div>
-  );
-}
-
-export function ControlsPanel({
-  fileId,
-  showOriginal,
-  onShowOriginalChange,
-}: {
-  fileId: string;
-  showOriginal: boolean;
-  onShowOriginalChange: (v: boolean) => void;
-}) {
-  return (
-    <div className="block border-t bg-background lg:hidden">
-      <Drawer shouldScaleBackground={false} modal={false}>
-        <DrawerTrigger asChild>
-          <button
-            type="button"
-            className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium"
-          >
-            <span className="flex items-center gap-2">
-              <SlidersHorizontalIcon className="h-4 w-4" />
-              Adjust
-            </span>
-            <ChevronUpIcon className="h-4 w-4 text-muted-foreground" />
-          </button>
-        </DrawerTrigger>
-        <DrawerContent noOverlay>
-          <EditPanel
-            fileId={fileId}
-            showOriginal={showOriginal}
-            onShowOriginalChange={onShowOriginalChange}
-          />
-        </DrawerContent>
-      </Drawer>
     </div>
   );
 }
