@@ -23,7 +23,7 @@ export function getGrainBitmap(): Promise<ImageBitmap> {
   return grainBitmapPromise;
 }
 
-function constrainDimensions(
+export function constrainDimensions(
   width: number,
   height: number,
   maxDimension?: number,
