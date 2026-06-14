@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   default:
+    vite:
+      specifier: npm:@voidzero-dev/vite-plus-core@^0.1.24
+      version: 0.1.24
     vite-plus:
       specifier: ^0.1.24
       version: 0.1.24
@@ -62,8 +65,8 @@ importers:
         version: 5.0.14(@types/react@19.2.17)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7))
     devDependencies:
       '@ai-hero/sandcastle':
-        specifier: ^0.7.0
-        version: 0.7.0
+        specifier: ^0.8.0
+        version: 0.8.0
       '@commitlint/cli':
         specifier: ^21.0.2
         version: 21.0.2(@types/node@25.9.3)(conventional-commits-parser@6.4.0)(typescript@6.0.3)
@@ -98,7 +101,7 @@ importers:
         specifier: ~6.0.3
         version: 6.0.3
       vite:
-        specifier: npm:@voidzero-dev/vite-plus-core@latest
+        specifier: 'catalog:'
         version: '@voidzero-dev/vite-plus-core@0.1.24(@types/node@25.9.3)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
       vite-plus:
         specifier: 'catalog:'
@@ -109,8 +112,8 @@ importers:
 
 packages:
 
-  '@ai-hero/sandcastle@0.7.0':
-    resolution: {integrity: sha512-Rqb9FarzvtzDHqhBoofS7HqI1Tn5J/MuPoj+EVqO6F1jK1+Zzq+kT8Zl1K8Rs9ftLcLS0VKtQoPldn3UsSsGJw==}
+  '@ai-hero/sandcastle@0.8.0':
+    resolution: {integrity: sha512-B3uNOfBu46MXB1sh5m08FD4Zg7joUUFMoEzt1QsBi5E/Q69J7PsR4w6xTdxeCIQuHH/z73ogQmInB+3SscD/4g==}
     hasBin: true
     peerDependencies:
       '@daytona/sdk': ^0.164.0
@@ -4309,7 +4312,7 @@ packages:
 
 snapshots:
 
-  '@ai-hero/sandcastle@0.7.0':
+  '@ai-hero/sandcastle@0.8.0':
     dependencies:
       '@clack/prompts': 1.5.1
 
