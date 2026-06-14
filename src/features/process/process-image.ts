@@ -15,7 +15,7 @@ let grainBitmapPromise: Promise<ImageBitmap> | null = null;
 export function getGrainBitmap(): Promise<ImageBitmap> {
   if (!grainBitmapPromise) {
     grainBitmapPromise = (async () => {
-      const res = await fetch("/grain.jpg");
+      const res = await fetch(`${import.meta.env.BASE_URL}grain.jpg`);
       const blob = await res.blob();
       return createImageBitmap(blob);
     })();

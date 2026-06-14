@@ -107,7 +107,7 @@ function RenderCard({
         className,
       )}
       onClick={() => {
-        setActiveCardId((prev) => (prev === fileItem.id ? null : fileItem.id));
+        if (!open) setActiveCardId((prev) => (prev === fileItem.id ? null : fileItem.id));
       }}
     >
       {!imgLoaded && (
@@ -172,7 +172,7 @@ function RenderCard({
         <SheetContent
           className={!isDesktop ? "pt-8" : ""}
           side={isDesktop ? "right" : "bottom"}
-          showCloseButton={isDesktop}
+          showCloseButton={false}
           overlayContent={
             <>
               <Button

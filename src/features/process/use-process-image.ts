@@ -42,6 +42,7 @@ export function useProcessImage() {
       store.setRenderResult(fileId, url, null);
       return url;
     } catch (err) {
+      console.error("Image processing failed:", err);
       const msg = err instanceof Error ? err.message : "Processing failed";
       store.setRenderResult(fileId, null, msg);
       return null;
