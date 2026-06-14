@@ -42,7 +42,7 @@
     "react-scan": "^0.5.7",
     "shadcn": "^4.11.0",
     "typescript": "~6.0.3",
-    "vite": "catalog:",
+    "vite": "npm:@voidzero-dev/vite-plus-core@^0.1.24",
     "vite-plus": "catalog:",
     "zod": "^4.4.3"
   },
