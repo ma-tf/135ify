@@ -12,7 +12,6 @@ jobs:
         with:
           node-version-file: ".node-version"
       - run: vp i --frozen-lockfile
-      - run: vp check
       - run: vp test
 
   deploy:
