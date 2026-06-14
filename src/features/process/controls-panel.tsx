@@ -130,7 +130,7 @@ export function EditPanel({
   fileId: string;
   showOriginal: boolean;
   onShowOriginalChange: (v: boolean) => void;
-  onDownload?: () => void;
+  onDownload?: (url: string) => void;
 }) {
   const file = useFileStore((s) => s.files.find((f) => f.id === fileId));
   const updateFileParams = useFileStore((s) => s.updateFileParams);
@@ -153,8 +153,7 @@ export function EditPanel({
     a.href = url;
     a.download = file.file.name.replace(/\.[^.]+$/, "") + ".jpg";
     a.click();
-    URL.revokeObjectURL(url);
-    onDownload?.();
+    onDownload?.(url);
   };
 
   return (

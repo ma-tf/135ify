@@ -1,4 +1,5 @@
 import { Button } from "@components/ui/button";
+import { Dialog, DialogOverlay, DialogPortal } from "@components/ui/dialog";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@components/ui/sheet";
 import { EditPanel } from "@features/process/controls-panel";
 import { Dropzone } from "@features/process/dropzone";
@@ -7,7 +8,7 @@ import { useIsMobile } from "@hooks/use-mobile";
 import { cn } from "@lib/utils";
 import { useFileStore, type FileWithState } from "@stores/file-store";
 import { SlidersIcon, XIcon } from "lucide-react";
-import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 const sharedFilmFrameClasses =
   "relative overflow-visible flex w-2xs shrink-0 flex-col lg:w-md border-r-4 border-transparent carousel-sprocket " +
@@ -65,6 +66,7 @@ function RenderCard({
   const [open, setOpen] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showOriginal, setShowOriginal] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const isDesktop = !useIsMobile(1024);
 
   const showActions = activeCardId === fileItem.id;
@@ -72,6 +74,18 @@ function RenderCard({
   const handleOpenEdit = useCallback(() => {
     setOpen(true);
   }, []);
+
+  useEffect(() => {
+    if (!previewUrl) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [previewUrl]);
 
   const handleRemove = useCallback(
     (e: React.MouseEvent) => {
@@ -193,10 +207,40 @@ function RenderCard({
             fileId={file.id}
             showOriginal={showOriginal}
             onShowOriginalChange={setShowOriginal}
-            onDownload={() => setOpen(false)}
+            onDownload={(url) => {
+              setOpen(false);
+              setPreviewUrl(url);
+            }}
           />
         </SheetContent>
       </Sheet>
+
+      <Dialog open={!!previewUrl}>
+        <DialogPortal>
+          <DialogOverlay className="backdrop-blur-lg" />
+          {previewUrl && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+              <img
+                src={previewUrl}
+                alt={file.file.name}
+                className="max-h-[85vh] max-w-[90vw] cursor-pointer border-[1cm] border-white object-contain shadow-lg"
+              />
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="fixed top-3 left-3 z-60 cursor-pointer"
+                onClick={() => {
+                  if (previewUrl) URL.revokeObjectURL(previewUrl);
+                  setPreviewUrl(null);
+                }}
+              >
+                <XIcon />
+                <span className="sr-only">Close</span>
+              </Button>
+            </div>
+          )}
+        </DialogPortal>
+      </Dialog>
     </div>
   );
 }
