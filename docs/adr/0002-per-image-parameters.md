@@ -1,4 +1,4 @@
-# 0003: Per-image processing state
+# 0002: Per-image processing state
 
 ## Status
 

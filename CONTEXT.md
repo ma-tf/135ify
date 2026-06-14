@@ -24,8 +24,8 @@ glow).
 
 **Render**: The output image after processing. Displayed as a preview in the browser and available for download.
 
-**Preview Render**: A Render downscaled to 1200px on its longest dimension for display in the carousel. Generated lazily
-after each parameter change.
+**Preview Render**: A Render downscaled to 1200px on its longest dimension for display in the Film Strip. Generated
+lazily after each parameter change.
 
 **Full Render**: A Render at the Source Image's original resolution. Generated on demand (download or magnifying glass
 inspection).
@@ -35,18 +35,24 @@ Grain.
 
 _Avoid_: Transform, filter, generate, "135ify" as a verb
 
+**Film Stock**: A named tint preset (e.g., Natural, Golden Hour, Seabreeze, Faded, Whisper) that applies a specific
+colour shift to the Source Image during processing.
+
+_Avoid_: Film preset, tint preset
+
+**Film Strip**: The horizontal row of rendered images, styled with sprocket-hole decoration, through which the user
+navigates Source Images and their Renders.
+
+_Avoid_: Carousel, gallery, film strip
+
 ## Relationships
 
+- Each **Source Image** carries its own independent processing parameters and **Render**.
 - A **Source Image** is **processed** once to produce a **Render**.
 - **Grain** is applied using a **Grain Texture** as its pattern source.
 - **Vignette** is applied independently; **Grain** and **Vignette** compose into the **Render**.
 - **Halation** is derived from bright regions of the Source Image and composited into the Render.
 - Processing order: Halation (derived from source), Film Tint, Vignette, Grain (final).
-
-## Deferred
-
-**Film Stock**: A named preset of Grain and Vignette parameters. Deferred until named stocks exist beyond the MVP
-unnamed default.
 
 ## Example dialogue
 
