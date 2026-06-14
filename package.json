@@ -8,7 +8,10 @@
     "build": "tsc && vp build",
     "preview": "vp preview",
     "prepare": "vp config",
-    "commitlint": "commitlint --edit"
+    "commitlint": "commitlint --edit",
+    "fmt": "oxfmt",
+    "lint": "oxlint",
+    "sbom:gen": "scripts/licenses-to-md.sh"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.9",
