@@ -1,6 +1,7 @@
 import type { DragEvent } from "react";
 
 import { Button } from "@components/ui/button";
+import { FILE_SIZE_LIMIT_BYTES } from "@config";
 import { useFileUpload, formatBytes } from "@hooks/use-file-upload";
 import { cn } from "@lib/utils";
 import { useFileStore, type FileWithState } from "@stores/file-store";
@@ -14,7 +15,7 @@ interface DropzoneProps {
 }
 
 export function Dropzone({
-  maxSize = 2097152, // 2MB
+  maxSize = FILE_SIZE_LIMIT_BYTES,
   accept = "image/*",
   className,
   onFilesChange: onFilesChangeProp,
