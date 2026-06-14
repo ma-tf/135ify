@@ -1,11 +1,11 @@
 import { Button } from "@components/ui/button";
 import { Dialog, DialogOverlay, DialogPortal } from "@components/ui/dialog";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@components/ui/sheet";
+import { FEATURE_3D_PHOTO } from "@config";
 import { EditPanel } from "@features/process/controls-panel";
 import { Dropzone } from "@features/process/dropzone";
 import { useDragScroll } from "@hooks/use-drag-scroll";
 import { useIsMobile } from "@hooks/use-mobile";
-import { FEATURE_3D_PHOTO } from "@lib/flags";
 import { cn } from "@lib/utils";
 import { useFileStore, type FileWithState } from "@stores/file-store";
 import { SlidersIcon, XIcon } from "lucide-react";

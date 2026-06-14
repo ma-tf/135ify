@@ -7,7 +7,7 @@ import { defineConfig } from "vite-plus";
 const src = path.resolve(__dirname, "src");
 
 export default defineConfig({
-  base: process.env.BASE_PATH ?? "/",
+  base: process.env.VITE_BASE_PATH ?? "/",
   staged: {
     "*": "vp check --fix",
   },
@@ -61,6 +61,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": src,
+      "@config": `${src}/config`,
       "@routes": `${src}/routes`,
       "@components": `${src}/components`,
       "@utils": `${src}/lib/utils`,

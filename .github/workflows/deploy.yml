@@ -34,7 +34,7 @@ jobs:
       - run: vp i --frozen-lockfile
       - run: vp build
         env:
-          BASE_PATH: /135ify/
+          VITE_BASE_PATH: /135ify/
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
