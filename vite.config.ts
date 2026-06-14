@@ -7,6 +7,7 @@ import { defineConfig } from "vite-plus";
 const src = path.resolve(__dirname, "src");
 
 export default defineConfig({
+  base: process.env.BASE_PATH ?? "/",
   staged: {
     "*": "vp check --fix",
   },
