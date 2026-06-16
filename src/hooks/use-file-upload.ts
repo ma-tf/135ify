@@ -1,6 +1,7 @@
 import type { FileMetadata, FileWithState } from "@stores/file-store";
 
-import { DEFAULT_PARAMS, useFileStore } from "@stores/file-store";
+import { DEFAULT_PARAMS } from "@features/process/process-image";
+import { useFileStore } from "@stores/file-store";
 import {
   useCallback,
   useRef,

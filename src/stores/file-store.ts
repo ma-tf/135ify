@@ -1,6 +1,5 @@
-import type { FilmId } from "@features/process/films";
+import type { ProcessParams } from "@features/process/process-image";
 
-import { DEFAULT_FILM_ID } from "@features/process/films";
 import { create } from "zustand";
 
 export type FileMetadata = {
@@ -11,31 +10,11 @@ export type FileMetadata = {
   id: string;
 };
 
-export interface FileParams {
-  selectedFilmId: FilmId;
-  halationIntensity: number;
-  halationSpread: number;
-  halationThreshold: number;
-  vignetteIntensity: number;
-  vignetteFeather: number;
-  grainIntensity: number;
-}
-
-export const DEFAULT_PARAMS: FileParams = {
-  selectedFilmId: DEFAULT_FILM_ID,
-  halationIntensity: 0,
-  halationSpread: 0,
-  halationThreshold: 0,
-  vignetteIntensity: 0,
-  vignetteFeather: 0,
-  grainIntensity: 0,
-};
-
 export type FileWithState = {
   file: File | FileMetadata;
   id: string;
   preview: string;
-  params: FileParams;
+  params: ProcessParams;
   renderUrl: string | null;
   isProcessing: boolean;
   renderError: string | null;
@@ -47,7 +26,7 @@ interface FileStore {
   setFiles: (files: FileWithState[]) => void;
   setActiveFileId: (id: string | null) => void;
   removeFile: (id: string) => void;
-  updateFileParams: (id: string, params: Partial<FileParams>) => void;
+  updateProcessParams: (id: string, params: Partial<ProcessParams>) => void;
   setRenderResult: (id: string, renderUrl: string | null, renderError: string | null) => void;
   setProcessing: (id: string, isProcessing: boolean) => void;
 }
@@ -64,7 +43,7 @@ export const useFileStore = create<FileStore>((set) => ({
         state.activeFileId === id ? (newFiles.at(-1)?.id ?? null) : state.activeFileId;
       return { files: newFiles, activeFileId };
     }),
-  updateFileParams: (id, params) =>
+  updateProcessParams: (id, params) =>
     set((state) => ({
       files: state.files.map((f) =>
         f.id === id ? { ...f, params: { ...f.params, ...params } } : f,

@@ -1,4 +1,6 @@
-import { processImage, getGrainBitmap, type ProcessParams } from "@features/process/process-image";
+import { GRAIN_URL } from "@config";
+import { getGrainBitmap } from "@features/process/grain-texture";
+import { processImage, type ProcessParams } from "@features/process/process-image";
 import { useDebouncedCallback } from "@hooks/use-debounced-callback";
 import { useFileStore } from "@stores/file-store";
 import { useCallback } from "react";
@@ -22,7 +24,7 @@ async function processFile(
   params: ProcessParams,
   maxDimension?: number,
 ): Promise<string> {
-  const grain = await getGrainBitmap();
+  const grain = await getGrainBitmap(GRAIN_URL);
   return processFileToUrl(previewUrl, grain, params, maxDimension);
 }
 

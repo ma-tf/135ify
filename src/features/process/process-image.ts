@@ -1,4 +1,4 @@
-import { getFilmById, type FilmId } from "@features/process/films";
+import { DEFAULT_FILM_ID, getFilmById, type FilmId } from "@features/process/films";
 
 export interface ProcessParams {
   vignetteIntensity: number;
@@ -10,18 +10,15 @@ export interface ProcessParams {
   halationThreshold: number;
 }
 
-let grainBitmapPromise: Promise<ImageBitmap> | null = null;
-
-export function getGrainBitmap(): Promise<ImageBitmap> {
-  if (!grainBitmapPromise) {
-    grainBitmapPromise = (async () => {
-      const res = await fetch(`${import.meta.env.BASE_URL}grain.jpg`);
-      const blob = await res.blob();
-      return createImageBitmap(blob);
-    })();
-  }
-  return grainBitmapPromise;
-}
+export const DEFAULT_PARAMS: ProcessParams = {
+  selectedFilmId: DEFAULT_FILM_ID,
+  halationIntensity: 0,
+  halationSpread: 0,
+  halationThreshold: 0,
+  vignetteIntensity: 0,
+  vignetteFeather: 0,
+  grainIntensity: 0,
+};
 
 export function constrainDimensions(
   width: number,

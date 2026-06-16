@@ -16,6 +16,8 @@ Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all op
   with appropriate `--label` and `--state` filters.
 
 - **Comment on an issue**: `gh issue comment <number> --body "..."`
+  - **Do not use backticks in the body** — zsh interprets backtick-enclosed text as command substitution, silently
+    stripping it. Use plain names or single quotes for inline code.
 - **Apply / remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
 - **Set parent issue**: `gh issue edit <number> --parent <parent-number>`
 - **Add sub-issues**: `gh issue edit <number> --add-sub-issue <child-number>`

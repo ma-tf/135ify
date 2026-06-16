@@ -3,14 +3,15 @@ import { Spinner } from "@components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@components/ui/toggle-group";
 import { FilmSelector } from "@features/process/film-selector";
 import { ParameterSlider } from "@features/process/parameter-slider";
+import { DEFAULT_PARAMS } from "@features/process/process-image";
 import { useProcessImage } from "@features/process/use-process-image";
 import { cn } from "@lib/utils";
-import { DEFAULT_PARAMS, useFileStore } from "@stores/file-store";
+import { useFileStore } from "@stores/file-store";
 import { DownloadIcon, RotateCcwIcon } from "lucide-react";
 
 function HalationControls({ fileId }: { fileId: string }) {
   const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
-  const updateFileParams = useFileStore((s) => s.updateFileParams);
+  const updateProcessParams = useFileStore((s) => s.updateProcessParams);
   const { processPreviewDebounced } = useProcessImage();
 
   if (!params) return null;
@@ -22,7 +23,7 @@ function HalationControls({ fileId }: { fileId: string }) {
         label="Intensity"
         value={params.halationIntensity}
         onValueChange={(v) => {
-          updateFileParams(fileId, { halationIntensity: v });
+          updateProcessParams(fileId, { halationIntensity: v });
           processPreviewDebounced(fileId);
         }}
       />
@@ -30,7 +31,7 @@ function HalationControls({ fileId }: { fileId: string }) {
         label="Spread"
         value={params.halationSpread}
         onValueChange={(v) => {
-          updateFileParams(fileId, { halationSpread: v });
+          updateProcessParams(fileId, { halationSpread: v });
           processPreviewDebounced(fileId);
         }}
       />
@@ -38,7 +39,7 @@ function HalationControls({ fileId }: { fileId: string }) {
         label="Threshold"
         value={params.halationThreshold}
         onValueChange={(v) => {
-          updateFileParams(fileId, { halationThreshold: v });
+          updateProcessParams(fileId, { halationThreshold: v });
           processPreviewDebounced(fileId);
         }}
       />
@@ -48,7 +49,7 @@ function HalationControls({ fileId }: { fileId: string }) {
 
 function VignetteControls({ fileId }: { fileId: string }) {
   const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
-  const updateFileParams = useFileStore((s) => s.updateFileParams);
+  const updateProcessParams = useFileStore((s) => s.updateProcessParams);
   const { processPreviewDebounced } = useProcessImage();
 
   if (!params) return null;
@@ -60,7 +61,7 @@ function VignetteControls({ fileId }: { fileId: string }) {
         label="Intensity"
         value={params.vignetteIntensity}
         onValueChange={(v) => {
-          updateFileParams(fileId, { vignetteIntensity: v });
+          updateProcessParams(fileId, { vignetteIntensity: v });
           processPreviewDebounced(fileId);
         }}
       />
@@ -68,7 +69,7 @@ function VignetteControls({ fileId }: { fileId: string }) {
         label="Feather"
         value={params.vignetteFeather}
         onValueChange={(v) => {
-          updateFileParams(fileId, { vignetteFeather: v });
+          updateProcessParams(fileId, { vignetteFeather: v });
           processPreviewDebounced(fileId);
         }}
       />
@@ -89,7 +90,7 @@ const INTENSITY_TO_ISO: Record<number, string> = Object.fromEntries(
 
 function GrainControls({ fileId }: { fileId: string }) {
   const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
-  const updateFileParams = useFileStore((s) => s.updateFileParams);
+  const updateProcessParams = useFileStore((s) => s.updateProcessParams);
   const { processPreviewDebounced } = useProcessImage();
 
   if (!params) return null;
@@ -105,7 +106,7 @@ function GrainControls({ fileId }: { fileId: string }) {
           value={params.grainIntensity === 0 ? "" : (INTENSITY_TO_ISO[params.grainIntensity] ?? "")}
           onValueChange={(value) => {
             const selected = ISO_PRESETS.find((p) => p.iso === value);
-            updateFileParams(fileId, { grainIntensity: selected?.intensity ?? 0 });
+            updateProcessParams(fileId, { grainIntensity: selected?.intensity ?? 0 });
             processPreviewDebounced(fileId);
           }}
         >
@@ -132,7 +133,7 @@ export function EditPanel({
   onDownload?: (url: string) => void;
 }) {
   const file = useFileStore((s) => s.files.find((f) => f.id === fileId));
-  const updateFileParams = useFileStore((s) => s.updateFileParams);
+  const updateProcessParams = useFileStore((s) => s.updateProcessParams);
   const { getFullSizeUrl, processPreviewDebounced } = useProcessImage();
   const setRenderResult = useFileStore((s) => s.setRenderResult);
 
@@ -140,7 +141,7 @@ export function EditPanel({
 
   const handleReset = () => {
     if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
-    updateFileParams(fileId, DEFAULT_PARAMS);
+    updateProcessParams(fileId, DEFAULT_PARAMS);
     setRenderResult(fileId, null, null);
   };
 
@@ -190,7 +191,7 @@ export function EditPanel({
       <FilmSelector
         value={file.params.selectedFilmId}
         onValueChange={(v) => {
-          updateFileParams(fileId, { selectedFilmId: v });
+          updateProcessParams(fileId, { selectedFilmId: v });
           processPreviewDebounced(fileId);
         }}
       />
