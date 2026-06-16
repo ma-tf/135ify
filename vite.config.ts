@@ -70,6 +70,7 @@ export default defineConfig({
       "@hooks": `${src}/hooks`,
       "@features": `${src}/features`,
       "@stores": `${src}/stores`,
+      "@providers": `${src}/providers`,
     },
   },
 });
