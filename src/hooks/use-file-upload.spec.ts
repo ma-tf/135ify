@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { formatBytes } from "./use-file-upload";
+import { formatBytes } from "../lib/utils";
 
 describe("formatBytes", () => {
   it("returns '0 Bytes' for zero", () => {
