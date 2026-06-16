@@ -45,6 +45,20 @@ navigates Source Images and their Renders.
 
 _Avoid_: Carousel, gallery, film strip
 
+**Account**: An authenticated user identity, linked to a History. Required for server-side persistence of Source Images
+and processing parameters.
+
+_Avoid_: User, profile
+
+**History**: The persistent collection of a user's saved Source Images and their processing parameters, stored
+server-side. Accessible only when authenticated. Each Source Image in History is identified by a unique document ID and
+can be loaded back into the Film Strip for re-editing.
+
+_Avoid_: Gallery, library, collection
+
+**Session**: The authenticated state of a user within a browser tab. Determines whether auto-save is active and whether
+History is accessible. Sessions are managed by Convex Auth and are independent across browser tabs.
+
 ## Relationships
 
 - Each **Source Image** carries its own independent processing parameters and **Render**.
@@ -53,6 +67,10 @@ _Avoid_: Carousel, gallery, film strip
 - **Vignette** is applied independently; **Grain** and **Vignette** compose into the **Render**.
 - **Halation** is derived from bright regions of the Source Image and composited into the Render.
 - Processing order: Halation (derived from source), Film Tint, Vignette, Grain (final).
+- An **Account** owns a **History** containing multiple Source Images and their parameters.
+- A **Session** determines whether an **Account**'s **History** is accessible and whether auto-save is active.
+- Source Images in **History** are re-processed client-side on load using stored parameters; Render output is not
+  persisted server-side.
 
 ## Example dialogue
 
