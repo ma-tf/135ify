@@ -9,7 +9,7 @@ import { useIsMobile } from "@hooks/use-mobile";
 import { cn } from "@lib/utils";
 import { useFileStore, type FileWithState } from "@stores/file-store";
 import { SlidersIcon, XIcon } from "lucide-react";
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
 
 const sharedFilmFrameClasses =
   "relative overflow-visible flex w-2xs shrink-0 flex-col lg:w-md border-r-4 border-transparent carousel-sprocket " +
@@ -52,6 +52,37 @@ export function RenderCarousel() {
   );
 }
 
+function useEditActions(fileId: string) {
+  const [open, setOpen] = useState(false);
+  const [showOriginal, setShowOriginal] = useState(false);
+  const [previewUrl, setPreviewUrlState] = useState<string | null>(null);
+
+  const setPreviewUrl = useCallback((url: string | null) => {
+    setPreviewUrlState((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return url;
+    });
+  }, []);
+
+  const handleRemove = useCallback(() => {
+    const file = useFileStore.getState().files.find((f) => f.id === fileId);
+    if (!file) return;
+    if (file.file instanceof File) URL.revokeObjectURL(file.preview);
+    if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
+    useFileStore.getState().removeFile(fileId);
+  }, [fileId]);
+
+  return {
+    open,
+    setOpen,
+    showOriginal,
+    setShowOriginal,
+    previewUrl,
+    setPreviewUrl,
+    handleRemove,
+  };
+}
+
 function RenderCard({
   fileItem,
   className,
@@ -64,40 +95,13 @@ function RenderCard({
   setActiveCardId: Dispatch<SetStateAction<string | null>>;
 }) {
   const file = useFileStore((s) => s.files.find((f) => f.id === fileItem.id)) ?? fileItem;
-  const [open, setOpen] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [showOriginal, setShowOriginal] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const isDesktop = !useIsMobile(1024);
 
+  const { open, setOpen, showOriginal, setShowOriginal, previewUrl, setPreviewUrl, handleRemove } =
+    useEditActions(fileItem.id);
+
   const showActions = activeCardId === fileItem.id;
-
-  const handleOpenEdit = useCallback(() => {
-    setOpen(true);
-  }, []);
-
-  useEffect(() => {
-    if (!previewUrl) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [previewUrl]);
-
-  const handleRemove = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (file.file instanceof File) URL.revokeObjectURL(file.preview);
-      if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
-      useFileStore.getState().removeFile(file.id);
-    },
-    [file],
-  );
-
   const src = showOriginal || !file.renderUrl ? file.preview : file.renderUrl;
 
   return (
@@ -144,7 +148,7 @@ function RenderCard({
         <Button
           onClick={(e) => {
             e.stopPropagation();
-            handleOpenEdit();
+            setOpen(true);
           }}
           variant="secondary"
           size="icon"
@@ -153,7 +157,10 @@ function RenderCard({
           <SlidersIcon className="size-4" />
         </Button>
         <Button
-          onClick={handleRemove}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRemove();
+          }}
           variant="secondary"
           size="icon"
           className="size-8 rounded-full shadow-sm"
@@ -234,10 +241,7 @@ function RenderCard({
                 variant="ghost"
                 size="icon-sm"
                 className="fixed top-3 left-3 z-60 cursor-pointer"
-                onClick={() => {
-                  if (previewUrl) URL.revokeObjectURL(previewUrl);
-                  setPreviewUrl(null);
-                }}
+                onClick={() => setPreviewUrl(null)}
               >
                 <XIcon />
                 <span className="sr-only">Close</span>
