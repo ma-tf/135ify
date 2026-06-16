@@ -1,6 +1,7 @@
 {
   "ignorePatterns": ["src/components/ui/**"],
   "ignoreDependencies": [
+    "@components/ui",
     "shadcn",
     "class-variance-authority",
     "radix-ui",
