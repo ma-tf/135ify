@@ -1,5 +1,6 @@
 import { ModeToggle } from "@components/mode-toggle";
 import { ThemeProvider } from "@components/theme-provider";
+import { ZustandStorageProvider } from "@providers/zustand-storage";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 
 export const Route = createRootRoute({
@@ -9,10 +10,12 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <div className="flex min-h-screen flex-col">
-        <Header />
-        <Outlet />
-      </div>
+      <ZustandStorageProvider>
+        <div className="flex min-h-screen flex-col">
+          <Header />
+          <Outlet />
+        </div>
+      </ZustandStorageProvider>
     </ThemeProvider>
   );
 }

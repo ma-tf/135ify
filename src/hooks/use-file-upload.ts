@@ -1,7 +1,7 @@
-import type { FileMetadata, FileWithState } from "@stores/file-store";
+import type { FileWithState } from "@stores/file-store";
 
 import { prepareFiles } from "@features/process/prepare-files";
-import { useFileStore } from "@stores/file-store";
+import { useStorage } from "@providers/storage-context";
 import {
   useCallback,
   useRef,
@@ -12,14 +12,10 @@ import {
 } from "react";
 
 export type FileUploadOptions = {
-  maxFiles?: number; // Only used when multiple is true, defaults to Infinity
-  maxSize?: number; // in bytes
+  maxSize?: number;
   accept?: string;
-  multiple?: boolean; // Defaults to false
-  initialFiles?: FileMetadata[];
-  onFilesChange?: (files: FileWithState[]) => void; // Callback when files change
-  onFilesAdded?: (addedFiles: FileWithState[]) => void; // Callback when new files are added
-  onError?: (errors: string[]) => void;
+  onFilesChange?: (files: FileWithState[]) => void;
+  onFilesAdded?: (addedFiles: FileWithState[]) => void;
 };
 
 export type FileUploadState = {
@@ -50,16 +46,9 @@ export type FileUploadActions = {
 export const useFileUpload = (
   options: FileUploadOptions = {},
 ): [FileUploadState, FileUploadActions] => {
-  const {
-    maxFiles = Number.POSITIVE_INFINITY,
-    multiple = false,
-    onFilesChange,
-    onFilesAdded,
-    onError,
-  } = options;
+  const { onFilesChange, onFilesAdded } = options;
 
-  const storeFiles = useFileStore((s) => s.files);
-  const setStoreFiles = useFileStore((s) => s.setFiles);
+  const { files: storeFiles, setFiles } = useStorage();
   const [isDragging, setIsDragging] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -76,10 +65,10 @@ export const useFileUpload = (
       inputRef.current.value = "";
     }
 
-    setStoreFiles([]);
+    setFiles([]);
     setErrors([]);
     onFilesChange?.([]);
-  }, [storeFiles, onFilesChange, setStoreFiles]);
+  }, [storeFiles, onFilesChange, setFiles]);
 
   const addFiles = useCallback(
     (newFiles: FileList | File[]) => {
@@ -89,32 +78,16 @@ export const useFileUpload = (
 
       setErrors([]);
 
-      if (!multiple) {
-        clearFiles();
-      }
-
-      if (
-        multiple &&
-        maxFiles !== Number.POSITIVE_INFINITY &&
-        storeFiles.length + newFilesArray.length > maxFiles
-      ) {
-        const newErrors = [`You can only upload a maximum of ${maxFiles} files.`];
-        onError?.(newErrors);
-        setErrors(newErrors);
-        return;
-      }
-
       const { valid, errors: prepErrors } = prepareFiles(newFilesArray);
 
       if (valid.length > 0) {
         onFilesAdded?.(valid);
 
-        const newFilesResult = !multiple ? valid : [...valid, ...storeFiles];
-        setStoreFiles(newFilesResult);
+        const newFilesResult = [...valid, ...storeFiles];
+        setFiles(newFilesResult);
         onFilesChange?.(newFilesResult);
         setErrors(prepErrors);
       } else if (prepErrors.length > 0) {
-        onError?.(prepErrors);
         setErrors(prepErrors);
       }
 
@@ -122,16 +95,7 @@ export const useFileUpload = (
         inputRef.current.value = "";
       }
     },
-    [
-      storeFiles,
-      maxFiles,
-      multiple,
-      clearFiles,
-      onFilesChange,
-      onFilesAdded,
-      onError,
-      setStoreFiles,
-    ],
+    [storeFiles, clearFiles, onFilesChange, onFilesAdded, setFiles],
   );
 
   const removeFile = useCallback(
@@ -147,11 +111,11 @@ export const useFileUpload = (
       }
 
       const newFiles = storeFiles.filter((file) => file.id !== id);
-      setStoreFiles(newFiles);
+      setFiles(newFiles);
       setErrors([]);
       onFilesChange?.(newFiles);
     },
-    [storeFiles, onFilesChange, setStoreFiles],
+    [storeFiles, onFilesChange, setFiles],
   );
 
   const clearErrors = useCallback(() => {
@@ -191,15 +155,10 @@ export const useFileUpload = (
       }
 
       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        if (!multiple) {
-          const file = e.dataTransfer.files[0];
-          addFiles([file]);
-        } else {
-          addFiles(e.dataTransfer.files);
-        }
+        addFiles(e.dataTransfer.files);
       }
     },
-    [addFiles, multiple],
+    [addFiles],
   );
 
   const handleFileChange = useCallback(
@@ -224,11 +183,11 @@ export const useFileUpload = (
         type: "file" as const,
         onChange: handleFileChange,
         accept: props.accept || "*",
-        multiple: props.multiple !== undefined ? props.multiple : multiple,
+        multiple: props.multiple !== undefined ? props.multiple : true,
         ref: inputRef,
       };
     },
-    [multiple, handleFileChange],
+    [handleFileChange],
   );
 
   const resetDragging = useCallback(() => {

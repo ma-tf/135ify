@@ -33,8 +33,6 @@ export function Dropzone({
     },
   ] = useFileUpload({
     accept,
-    multiple: true,
-    maxSize,
     onFilesAdded: (files) => {
       if (files.length > 0) useFileStore.getState().setActiveFileId(files[0].id);
     },
@@ -69,7 +67,7 @@ export function Dropzone({
         onDrop={handleDrop}
         onClick={openFileDialog}
       >
-        <input hidden {...getInputProps({ multiple: false })} className="sr-only" />
+        <input hidden {...getInputProps()} className="sr-only" />
         {errors.length > 0 ? (
           <div className="flex flex-col items-center gap-1.5 px-3 text-destructive">
             <CircleAlertIcon className="size-6" />
