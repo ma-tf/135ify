@@ -1,71 +1,54 @@
-import { GRAIN_URL } from "@config";
-import { getGrainBitmap } from "@features/process/grain-texture";
-import { processImage, type ProcessParams } from "@features/process/process-image";
+import type { ProcessParams } from "@features/process/process-image";
+
+import { processToBlobUrl } from "@features/process/process-image";
 import { useDebouncedCallback } from "@hooks/use-debounced-callback";
 import { useFileStore } from "@stores/file-store";
 import { useCallback } from "react";
 
-async function processFileToUrl(
-  previewUrl: string,
-  grain: ImageBitmap,
-  params: ProcessParams,
-  maxDimension?: number,
-): Promise<string> {
-  const res = await fetch(previewUrl);
-  const blob = await res.blob();
-  const source = await createImageBitmap(blob);
-  const resultBlob = await processImage(source, grain, params, maxDimension);
-  source.close();
-  return URL.createObjectURL(resultBlob);
-}
+export function useFileProcessing(fileId: string) {
+  const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
+  const setRenderResult = useFileStore((s) => s.setRenderResult);
+  const setProcessing = useFileStore((s) => s.setProcessing);
 
-async function processFile(
-  previewUrl: string,
-  params: ProcessParams,
-  maxDimension?: number,
-): Promise<string> {
-  const grain = await getGrainBitmap(GRAIN_URL);
-  return processFileToUrl(previewUrl, grain, params, maxDimension);
-}
+  const reprocess = useCallback(
+    async (params: ProcessParams) => {
+      const file = useFileStore.getState().files.find((f) => f.id === fileId);
+      if (!file) return;
 
-export function useProcessImage() {
-  const process = useCallback(async (fileId: string, maxDimension?: number) => {
-    const store = useFileStore.getState();
-    const file = store.files.find((f) => f.id === fileId);
+      const prevUrl = file.renderUrl;
+      setProcessing(fileId, true);
+      setRenderResult(fileId, null, null);
+      if (prevUrl) URL.revokeObjectURL(prevUrl);
+
+      try {
+        const url = await processToBlobUrl(file.preview, params);
+        setRenderResult(fileId, url, null);
+      } catch (err) {
+        console.error("Image processing failed:", err);
+        const msg = err instanceof Error ? err.message : "Processing failed";
+        setRenderResult(fileId, null, msg);
+      }
+    },
+    [fileId, setRenderResult, setProcessing],
+  );
+
+  const { debounced: reprocessDebounced } = useDebouncedCallback(reprocess, 50);
+
+  const setParam = useCallback(
+    (partial: Partial<ProcessParams>) => {
+      const current = useFileStore.getState().files.find((f) => f.id === fileId)!.params;
+      const merged = { ...current, ...partial };
+      useFileStore.getState().updateProcessParams(fileId, partial);
+      reprocessDebounced(merged);
+    },
+    [fileId, reprocessDebounced],
+  );
+
+  const downloadFullSize = useCallback(async () => {
+    const file = useFileStore.getState().files.find((f) => f.id === fileId);
     if (!file) return null;
+    return processToBlobUrl(file.preview, file.params);
+  }, [fileId]);
 
-    const prevUrl = file.renderUrl;
-    store.setProcessing(fileId, true);
-    store.setRenderResult(fileId, null, null);
-    if (prevUrl) URL.revokeObjectURL(prevUrl);
-
-    try {
-      const url = await processFile(file.preview, file.params, maxDimension);
-      store.setRenderResult(fileId, url, null);
-      return url;
-    } catch (err) {
-      console.error("Image processing failed:", err);
-      const msg = err instanceof Error ? err.message : "Processing failed";
-      store.setRenderResult(fileId, null, msg);
-      return null;
-    }
-  }, []);
-
-  const processPreview = useCallback((fileId: string) => process(fileId, 1200), [process]);
-
-  const getFullSizeUrl = useCallback(async (fileId: string) => {
-    try {
-      const { files } = useFileStore.getState();
-      const file = files.find((f) => f.id === fileId);
-      if (!file) return null;
-      return await processFile(file.preview, file.params);
-    } catch (err) {
-      console.error(err);
-      return null;
-    }
-  }, []);
-
-  const { debounced: processPreviewDebounced } = useDebouncedCallback(processPreview, 50);
-
-  return { processPreviewDebounced, getFullSizeUrl };
+  return { params, setParam, downloadFullSize };
 }

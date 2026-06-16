@@ -1,4 +1,6 @@
+import { GRAIN_URL } from "@config";
 import { DEFAULT_FILM_ID, getFilmById, type FilmId } from "@features/process/films";
+import { getGrainBitmap } from "@features/process/grain-texture";
 
 export interface ProcessParams {
   vignetteIntensity: number;
@@ -20,6 +22,20 @@ export const DEFAULT_PARAMS: ProcessParams = {
   grainIntensity: 0,
 };
 
+export async function processToBlobUrl(
+  sourceUrl: string,
+  params: ProcessParams,
+  maxDimension?: number,
+): Promise<string> {
+  const grain = await getGrainBitmap(GRAIN_URL);
+  const res = await fetch(sourceUrl);
+  const blob = await res.blob();
+  const source = await createImageBitmap(blob);
+  const resultBlob = await processImage(source, grain, params, maxDimension);
+  source.close();
+  return URL.createObjectURL(resultBlob);
+}
+
 export function constrainDimensions(
   width: number,
   height: number,
@@ -34,7 +50,7 @@ export function constrainDimensions(
   return { width: Math.round(width * (maxDimension / height)), height: maxDimension };
 }
 
-export async function processImage(
+async function processImage(
   source: ImageBitmap,
   grain: ImageBitmap,
   params: ProcessParams,

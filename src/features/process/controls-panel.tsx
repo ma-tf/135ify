@@ -4,15 +4,14 @@ import { ToggleGroup, ToggleGroupItem } from "@components/ui/toggle-group";
 import { FilmSelector } from "@features/process/film-selector";
 import { ParameterSlider } from "@features/process/parameter-slider";
 import { DEFAULT_PARAMS } from "@features/process/process-image";
-import { useProcessImage } from "@features/process/use-process-image";
+import { useFileProcessing } from "@features/process/use-process-image";
 import { cn } from "@lib/utils";
 import { useFileStore } from "@stores/file-store";
 import { DownloadIcon, RotateCcwIcon } from "lucide-react";
 
 function HalationControls({ fileId }: { fileId: string }) {
   const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
-  const updateProcessParams = useFileStore((s) => s.updateProcessParams);
-  const { processPreviewDebounced } = useProcessImage();
+  const { setParam } = useFileProcessing(fileId);
 
   if (!params) return null;
 
@@ -22,26 +21,17 @@ function HalationControls({ fileId }: { fileId: string }) {
       <ParameterSlider
         label="Intensity"
         value={params.halationIntensity}
-        onValueChange={(v) => {
-          updateProcessParams(fileId, { halationIntensity: v });
-          processPreviewDebounced(fileId);
-        }}
+        onValueChange={(v) => setParam({ halationIntensity: v })}
       />
       <ParameterSlider
         label="Spread"
         value={params.halationSpread}
-        onValueChange={(v) => {
-          updateProcessParams(fileId, { halationSpread: v });
-          processPreviewDebounced(fileId);
-        }}
+        onValueChange={(v) => setParam({ halationSpread: v })}
       />
       <ParameterSlider
         label="Threshold"
         value={params.halationThreshold}
-        onValueChange={(v) => {
-          updateProcessParams(fileId, { halationThreshold: v });
-          processPreviewDebounced(fileId);
-        }}
+        onValueChange={(v) => setParam({ halationThreshold: v })}
       />
     </div>
   );
@@ -49,8 +39,7 @@ function HalationControls({ fileId }: { fileId: string }) {
 
 function VignetteControls({ fileId }: { fileId: string }) {
   const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
-  const updateProcessParams = useFileStore((s) => s.updateProcessParams);
-  const { processPreviewDebounced } = useProcessImage();
+  const { setParam } = useFileProcessing(fileId);
 
   if (!params) return null;
 
@@ -60,18 +49,12 @@ function VignetteControls({ fileId }: { fileId: string }) {
       <ParameterSlider
         label="Intensity"
         value={params.vignetteIntensity}
-        onValueChange={(v) => {
-          updateProcessParams(fileId, { vignetteIntensity: v });
-          processPreviewDebounced(fileId);
-        }}
+        onValueChange={(v) => setParam({ vignetteIntensity: v })}
       />
       <ParameterSlider
         label="Feather"
         value={params.vignetteFeather}
-        onValueChange={(v) => {
-          updateProcessParams(fileId, { vignetteFeather: v });
-          processPreviewDebounced(fileId);
-        }}
+        onValueChange={(v) => setParam({ vignetteFeather: v })}
       />
     </div>
   );
@@ -90,8 +73,7 @@ const INTENSITY_TO_ISO: Record<number, string> = Object.fromEntries(
 
 function GrainControls({ fileId }: { fileId: string }) {
   const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
-  const updateProcessParams = useFileStore((s) => s.updateProcessParams);
-  const { processPreviewDebounced } = useProcessImage();
+  const { setParam } = useFileProcessing(fileId);
 
   if (!params) return null;
 
@@ -106,8 +88,7 @@ function GrainControls({ fileId }: { fileId: string }) {
           value={params.grainIntensity === 0 ? "" : (INTENSITY_TO_ISO[params.grainIntensity] ?? "")}
           onValueChange={(value) => {
             const selected = ISO_PRESETS.find((p) => p.iso === value);
-            updateProcessParams(fileId, { grainIntensity: selected?.intensity ?? 0 });
-            processPreviewDebounced(fileId);
+            setParam({ grainIntensity: selected?.intensity ?? 0 });
           }}
         >
           {ISO_PRESETS.map((p) => (
@@ -133,20 +114,19 @@ export function EditPanel({
   onDownload?: (url: string) => void;
 }) {
   const file = useFileStore((s) => s.files.find((f) => f.id === fileId));
-  const updateProcessParams = useFileStore((s) => s.updateProcessParams);
-  const { getFullSizeUrl, processPreviewDebounced } = useProcessImage();
+  const { setParam, downloadFullSize } = useFileProcessing(fileId);
   const setRenderResult = useFileStore((s) => s.setRenderResult);
 
   if (!file) return null;
 
   const handleReset = () => {
     if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
-    updateProcessParams(fileId, DEFAULT_PARAMS);
+    setParam(DEFAULT_PARAMS);
     setRenderResult(fileId, null, null);
   };
 
   const handleDownload = async () => {
-    const url = await getFullSizeUrl(fileId);
+    const url = await downloadFullSize();
     if (!url) return;
 
     const a = document.createElement("a");
@@ -190,10 +170,7 @@ export function EditPanel({
 
       <FilmSelector
         value={file.params.selectedFilmId}
-        onValueChange={(v) => {
-          updateProcessParams(fileId, { selectedFilmId: v });
-          processPreviewDebounced(fileId);
-        }}
+        onValueChange={(v) => setParam({ selectedFilmId: v })}
       />
 
       <HalationControls fileId={fileId} />
