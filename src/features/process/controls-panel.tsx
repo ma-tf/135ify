@@ -9,10 +9,14 @@ import { cn } from "@lib/utils";
 import { useFileStore } from "@stores/file-store";
 import { DownloadIcon, RotateCcwIcon } from "lucide-react";
 
-function HalationControls({ fileId }: { fileId: string }) {
+function useParameterSection(fileId: string) {
   const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
   const { setParam } = useFileProcessing(fileId);
+  return { params, setParam };
+}
 
+function HalationControls({ fileId }: { fileId: string }) {
+  const { params, setParam } = useParameterSection(fileId);
   if (!params) return null;
 
   return (
@@ -38,9 +42,7 @@ function HalationControls({ fileId }: { fileId: string }) {
 }
 
 function VignetteControls({ fileId }: { fileId: string }) {
-  const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
-  const { setParam } = useFileProcessing(fileId);
-
+  const { params, setParam } = useParameterSection(fileId);
   if (!params) return null;
 
   return (
@@ -72,9 +74,7 @@ const INTENSITY_TO_ISO: Record<number, string> = Object.fromEntries(
 );
 
 function GrainControls({ fileId }: { fileId: string }) {
-  const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
-  const { setParam } = useFileProcessing(fileId);
-
+  const { params, setParam } = useParameterSection(fileId);
   if (!params) return null;
 
   return (

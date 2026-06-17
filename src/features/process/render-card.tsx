@@ -1,10 +1,10 @@
 import { CardActions } from "@features/process/card-actions";
 import { EditSheet } from "@features/process/edit-sheet";
 import { PreviewDialog } from "@features/process/preview-dialog";
-import { useEditActions } from "@features/process/use-edit-actions";
 import { cn } from "@lib/utils";
+import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { type FileWithState, useFileStore } from "@stores/file-store";
-import { type Dispatch, type SetStateAction, useState } from "react";
+import { type Dispatch, type SetStateAction, useCallback, useState } from "react";
 
 export function RenderCard({
   fileItem,
@@ -19,9 +19,17 @@ export function RenderCard({
 }) {
   const file = useFileStore((s) => s.files.find((f) => f.id === fileItem.id)) ?? fileItem;
   const [imgLoaded, setImgLoaded] = useState(false);
-
-  const { open, setOpen, showOriginal, handleRemove } = useEditActions(fileItem.id);
-
+  const openSheetId = useEditSheetStore((s) => s.openSheetId);
+  const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
+  const showOriginal = useEditSheetStore((s) => s.showOriginal[fileItem.id] ?? false);
+  const open = openSheetId === fileItem.id;
+  const handleRemove = useCallback(() => {
+    const f = useFileStore.getState().files.find((x) => x.id === fileItem.id);
+    if (!f) return;
+    if (f.file instanceof File) URL.revokeObjectURL(f.preview);
+    if (f.renderUrl) URL.revokeObjectURL(f.renderUrl);
+    useFileStore.getState().removeFile(fileItem.id);
+  }, [fileItem.id]);
   const showActions = activeCardId === fileItem.id;
   const src = showOriginal || !file.renderUrl ? file.preview : file.renderUrl;
 
@@ -62,7 +70,7 @@ export function RenderCard({
 
       <CardActions
         showActions={showActions}
-        onEdit={() => setOpen(true)}
+        onEdit={() => setOpenSheetId(fileItem.id)}
         onRemove={() => handleRemove()}
       />
 

@@ -1,12 +1,13 @@
 import { Button } from "@components/ui/button";
 import { DialogPortal, DialogOverlay, Dialog } from "@components/ui/dialog";
-import { useEditActions } from "@features/process/use-edit-actions";
+import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { type FileWithState, useFileStore } from "@stores/file-store";
 import { XIcon } from "lucide-react";
 
 export function PreviewDialog({ fileItem }: { fileItem: FileWithState }) {
   const file = useFileStore((s) => s.files.find((f) => f.id === fileItem.id)) ?? fileItem;
-  const { previewUrl, setPreviewUrl } = useEditActions(fileItem.id);
+  const previewUrl = useEditSheetStore((s) => s.previewUrl);
+  const setPreviewUrl = useEditSheetStore((s) => s.setPreviewUrl);
 
   return (
     <Dialog open={!!previewUrl}>
