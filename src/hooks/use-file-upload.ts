@@ -1,15 +1,10 @@
 import type { FileWithState } from "@stores/file-store";
 
 import { prepareFiles } from "@features/process/prepare-files";
+import { useDragDrop } from "@hooks/use-drag-drop";
+import { useFileInput } from "@hooks/use-file-input";
 import { useStorage } from "@providers/storage-context";
-import {
-  useCallback,
-  useRef,
-  useState,
-  type ChangeEvent,
-  type DragEvent,
-  type InputHTMLAttributes,
-} from "react";
+import { useCallback, useState, type InputHTMLAttributes } from "react";
 
 export type FileUploadOptions = {
   maxSize?: number;
@@ -29,11 +24,11 @@ export type FileUploadActions = {
   removeFile: (id: string) => void;
   clearFiles: () => void;
   clearErrors: () => void;
-  handleDragEnter: (e: DragEvent<HTMLElement>) => void;
-  handleDragLeave: (e: DragEvent<HTMLElement>) => void;
-  handleDragOver: (e: DragEvent<HTMLElement>) => void;
-  handleDrop: (e: DragEvent<HTMLElement>) => void;
-  handleFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleDragEnter: (e: React.DragEvent<HTMLElement>) => void;
+  handleDragLeave: (e: React.DragEvent<HTMLElement>) => void;
+  handleDragOver: (e: React.DragEvent<HTMLElement>) => void;
+  handleDrop: (e: React.DragEvent<HTMLElement>) => void;
+  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   openFileDialog: () => void;
   getInputProps: (
     props?: InputHTMLAttributes<HTMLInputElement>,
@@ -49,36 +44,15 @@ export const useFileUpload = (
   const { onFilesChange, onFilesAdded } = options;
 
   const { files: storeFiles, setFiles } = useStorage();
-  const [isDragging, setIsDragging] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const clearFiles = useCallback(() => {
-    for (const file of storeFiles) {
-      if (file.preview && file.file instanceof File && file.file.type.startsWith("image/")) {
-        URL.revokeObjectURL(file.preview);
-      }
-    }
-
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
-
-    setFiles([]);
-    setErrors([]);
-    onFilesChange?.([]);
-  }, [storeFiles, onFilesChange, setFiles]);
-
   const addFiles = useCallback(
-    (newFiles: FileList | File[]) => {
+    (newFiles: File[]) => {
       if (!newFiles || newFiles.length === 0) return;
-
-      const newFilesArray = Array.from(newFiles);
 
       setErrors([]);
 
-      const { valid, errors: prepErrors } = prepareFiles(newFilesArray);
+      const { valid, errors: prepErrors } = prepareFiles(newFiles);
 
       if (valid.length > 0) {
         onFilesAdded?.(valid);
@@ -90,13 +64,30 @@ export const useFileUpload = (
       } else if (prepErrors.length > 0) {
         setErrors(prepErrors);
       }
-
-      if (inputRef.current) {
-        inputRef.current.value = "";
-      }
     },
-    [storeFiles, clearFiles, onFilesChange, onFilesAdded, setFiles],
+    [storeFiles, onFilesChange, onFilesAdded, setFiles],
   );
+
+  const [dragState, dragActions] = useDragDrop({
+    onDrop: addFiles,
+  });
+
+  const fileInputActions = useFileInput({
+    accept: options.accept,
+    onFiles: addFiles,
+  });
+
+  const clearFiles = useCallback(() => {
+    for (const file of storeFiles) {
+      if (file.preview && file.file instanceof File && file.file.type.startsWith("image/")) {
+        URL.revokeObjectURL(file.preview);
+      }
+    }
+
+    setFiles([]);
+    setErrors([]);
+    onFilesChange?.([]);
+  }, [storeFiles, onFilesChange, setFiles]);
 
   const removeFile = useCallback(
     (id: string) => {
@@ -122,93 +113,21 @@ export const useFileUpload = (
     setErrors([]);
   }, []);
 
-  const handleDragEnter = useCallback((e: DragEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: DragEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (e.currentTarget.contains(e.relatedTarget as Node)) {
-      return;
-    }
-
-    setIsDragging(false);
-  }, []);
-
-  const handleDragOver = useCallback((e: DragEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
-
-  const handleDrop = useCallback(
-    (e: DragEvent<HTMLElement>) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
-
-      if (inputRef.current?.disabled) {
-        return;
-      }
-
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        addFiles(e.dataTransfer.files);
-      }
-    },
-    [addFiles],
-  );
-
-  const handleFileChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files.length > 0) {
-        addFiles(e.target.files);
-      }
-    },
-    [addFiles],
-  );
-
-  const openFileDialog = useCallback(() => {
-    if (inputRef.current) {
-      inputRef.current.click();
-    }
-  }, []);
-
-  const getInputProps = useCallback(
-    (props: InputHTMLAttributes<HTMLInputElement> = {}) => {
-      return {
-        ...props,
-        type: "file" as const,
-        onChange: handleFileChange,
-        accept: props.accept || "*",
-        multiple: props.multiple !== undefined ? props.multiple : true,
-        ref: inputRef,
-      };
-    },
-    [handleFileChange],
-  );
-
-  const resetDragging = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
   return [
-    { files: storeFiles, isDragging, errors },
+    { files: storeFiles, isDragging: dragState.isDragging, errors },
     {
-      addFiles,
+      addFiles: (files: FileList | File[]) => addFiles(Array.from(files)),
       removeFile,
       clearFiles,
       clearErrors,
-      handleDragEnter,
-      handleDragLeave,
-      handleDragOver,
-      handleDrop,
-      handleFileChange,
-      openFileDialog,
-      getInputProps,
-      resetDragging,
+      handleDragEnter: dragActions.handleDragEnter,
+      handleDragLeave: dragActions.handleDragLeave,
+      handleDragOver: dragActions.handleDragOver,
+      handleDrop: dragActions.handleDrop,
+      handleFileChange: fileInputActions.handleFileChange,
+      openFileDialog: fileInputActions.openFileDialog,
+      getInputProps: fileInputActions.getInputProps,
+      resetDragging: dragActions.resetDragging,
     },
   ];
 };
