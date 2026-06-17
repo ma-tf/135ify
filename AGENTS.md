@@ -37,4 +37,4 @@ Single-context layout — `CONTEXT.md` + `docs/adr/` at the repo root. See `docs
 
 ### Code conventions
 
-Rules for the codebase available. See `docs/agents/code-conventions.md`
+Must be consulted for all code changes. See `docs/agents/code-conventions.md`
