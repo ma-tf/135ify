@@ -1,18 +1,26 @@
-import type { MouseEvent } from "react";
-
 import { Button } from "@components/ui/button";
 import { cn } from "@lib/utils";
+import { useEditSheetStore } from "@stores/edit-sheet-store";
+import { type FileWithState, useFileStore } from "@stores/file-store";
 import { SlidersIcon, XIcon } from "lucide-react";
 
 export function CardActions({
   showActions,
-  onEdit,
-  onRemove,
+  fileItem,
 }: {
   showActions: boolean;
-  onEdit: (e: MouseEvent) => void;
-  onRemove: (e: MouseEvent) => void;
+  fileItem: FileWithState;
 }) {
+  const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
+
+  const handleRemove = () => {
+    const f = useFileStore.getState().files.find((x) => x.id === fileItem.id);
+    if (!f) return;
+    if (f.file instanceof File) URL.revokeObjectURL(f.preview);
+    if (f.renderUrl) URL.revokeObjectURL(f.renderUrl);
+    useFileStore.getState().removeFile(fileItem.id);
+  };
+
   return (
     <div
       className={cn(
@@ -23,7 +31,7 @@ export function CardActions({
       <Button
         onClick={(e) => {
           e.stopPropagation();
-          onEdit(e);
+          setOpenSheetId(fileItem.id);
         }}
         variant="secondary"
         size="icon"
@@ -34,7 +42,7 @@ export function CardActions({
       <Button
         onClick={(e) => {
           e.stopPropagation();
-          onRemove(e);
+          handleRemove();
         }}
         variant="secondary"
         size="icon"

@@ -4,7 +4,7 @@ import { PreviewDialog } from "@features/process/preview-dialog";
 import { cn } from "@lib/utils";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { type FileWithState, useFileStore } from "@stores/file-store";
-import { type Dispatch, type SetStateAction, useCallback, useState } from "react";
+import { type Dispatch, type SetStateAction, useState } from "react";
 
 export function RenderCard({
   fileItem,
@@ -20,16 +20,7 @@ export function RenderCard({
   const file = useFileStore((s) => s.files.find((f) => f.id === fileItem.id)) ?? fileItem;
   const [imgLoaded, setImgLoaded] = useState(false);
   const openSheetId = useEditSheetStore((s) => s.openSheetId);
-  const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
   const showOriginal = useEditSheetStore((s) => s.showOriginal[fileItem.id] ?? false);
-  const open = openSheetId === fileItem.id;
-  const handleRemove = useCallback(() => {
-    const f = useFileStore.getState().files.find((x) => x.id === fileItem.id);
-    if (!f) return;
-    if (f.file instanceof File) URL.revokeObjectURL(f.preview);
-    if (f.renderUrl) URL.revokeObjectURL(f.renderUrl);
-    useFileStore.getState().removeFile(fileItem.id);
-  }, [fileItem.id]);
   const showActions = activeCardId === fileItem.id;
   const src = showOriginal || !file.renderUrl ? file.preview : file.renderUrl;
 
@@ -40,7 +31,8 @@ export function RenderCard({
         className,
       )}
       onClick={() => {
-        if (!open) setActiveCardId((prev) => (prev === fileItem.id ? null : fileItem.id));
+        if (openSheetId !== fileItem.id)
+          setActiveCardId((prev) => (prev === fileItem.id ? null : fileItem.id));
       }}
     >
       {!imgLoaded && (
@@ -68,11 +60,7 @@ export function RenderCard({
         )}
       />
 
-      <CardActions
-        showActions={showActions}
-        onEdit={() => setOpenSheetId(fileItem.id)}
-        onRemove={() => handleRemove()}
-      />
+      <CardActions showActions={showActions} fileItem={fileItem} />
 
       <EditSheet fileItem={fileItem} />
 
