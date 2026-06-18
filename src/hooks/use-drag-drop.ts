@@ -18,7 +18,7 @@ export type DragDropActions = {
 };
 
 export function useDragDrop(options: DragDropOptions = {}): [DragDropState, DragDropActions] {
-  const { onDrop, disabled = false } = options;
+  const { onDrop = () => {}, disabled = false } = options;
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragEnter = useCallback((e: DragEvent<HTMLElement>) => {
@@ -52,7 +52,7 @@ export function useDragDrop(options: DragDropOptions = {}): [DragDropState, Drag
       if (disabled) return;
 
       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        onDrop?.(Array.from(e.dataTransfer.files));
+        onDrop(Array.from(e.dataTransfer.files));
       }
     },
     [disabled, onDrop],

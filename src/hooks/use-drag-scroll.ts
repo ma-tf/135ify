@@ -26,16 +26,13 @@ export function useDragScroll() {
 
     const walk = e.clientX - state.current.startX;
 
-    if (!state.current.isDragging && Math.abs(walk) < 5) return;
-
     if (!state.current.isDragging) {
+      if (Math.abs(walk) < 5) return;
       state.current.isDragging = true;
       setIsDragging(true);
     }
 
-    if (ref.current) {
-      ref.current.scrollLeft = state.current.scrollLeft - walk;
-    }
+    ref.current!.scrollLeft = state.current.scrollLeft - walk;
   }, []);
 
   const stopDragging = useCallback(() => {

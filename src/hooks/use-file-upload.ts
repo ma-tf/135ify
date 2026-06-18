@@ -41,7 +41,7 @@ export type FileUploadActions = {
 export const useFileUpload = (
   options: FileUploadOptions = {},
 ): [FileUploadState, FileUploadActions] => {
-  const { onFilesChange, onFilesAdded } = options;
+  const { onFilesChange = () => {}, onFilesAdded = () => {} } = options;
 
   const { files: storeFiles, setFiles } = useStorage();
   const revokeFileUrls = useFileStore((s) => s.revokeFileUrls);
@@ -49,22 +49,20 @@ export const useFileUpload = (
 
   const addFiles = useCallback(
     (newFiles: File[]) => {
-      if (!newFiles || newFiles.length === 0) return;
+      if (!newFiles.length) return;
 
       setErrors([]);
 
       const { valid, errors: prepErrors } = prepareFiles(newFiles);
 
       if (valid.length > 0) {
-        onFilesAdded?.(valid);
-
+        onFilesAdded(valid);
         const newFilesResult = [...valid, ...storeFiles];
         setFiles(newFilesResult);
-        onFilesChange?.(newFilesResult);
-        setErrors(prepErrors);
-      } else if (prepErrors.length > 0) {
-        setErrors(prepErrors);
+        onFilesChange(newFilesResult);
       }
+
+      setErrors(prepErrors);
     },
     [storeFiles, onFilesChange, onFilesAdded, setFiles],
   );
@@ -84,7 +82,7 @@ export const useFileUpload = (
       const newFiles = storeFiles.filter((file) => file.id !== id);
       setFiles(newFiles);
       setErrors([]);
-      onFilesChange?.(newFiles);
+      onFilesChange(newFiles);
     },
     [storeFiles, onFilesChange, setFiles, revokeFileUrls],
   );
