@@ -1,5 +1,6 @@
 import { ActiveCardProvider } from "@features/process/active-card-context";
 import { Dropzone } from "@features/process/dropzone";
+import { FileProvider } from "@features/process/file-context";
 import { RenderCard } from "@features/process/render-card";
 import { useDragScroll } from "@hooks/use-drag-scroll";
 import { cn } from "@lib/utils";
@@ -34,7 +35,9 @@ export function RenderCarousel() {
       <ActiveCardProvider>
         {files.map((file) => (
           <div key={file.id} className={filmFrameClasses}>
-            <RenderCard fileItem={file} />
+            <FileProvider fileId={file.id}>
+              <RenderCard />
+            </FileProvider>
             <span className="pointer-events-none absolute top-px left-1/2 z-1 -translate-x-1/2 font-mono text-[8px] leading-2.5 text-black/40 before:content-[counter(frame-counter)]" />
           </div>
         ))}

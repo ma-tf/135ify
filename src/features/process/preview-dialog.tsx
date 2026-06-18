@@ -1,11 +1,13 @@
 import { Button } from "@components/ui/button";
 import { DialogPortal, DialogOverlay, Dialog } from "@components/ui/dialog";
+import { useFileId } from "@features/process/file-context";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
-import { type FileWithState, useFileStore } from "@stores/file-store";
+import { useFileStore } from "@stores/file-store";
 import { XIcon } from "lucide-react";
 
-export function PreviewDialog({ fileItem }: { fileItem: FileWithState }) {
-  const file = useFileStore((s) => s.files.find((f) => f.id === fileItem.id)) ?? fileItem;
+export function PreviewDialog() {
+  const fileId = useFileId();
+  const file = useFileStore((s) => s.files.find((f) => f.id === fileId));
   const previewUrl = useEditSheetStore((s) => s.previewUrl);
   const setPreviewUrl = useEditSheetStore((s) => s.setPreviewUrl);
 
@@ -17,7 +19,7 @@ export function PreviewDialog({ fileItem }: { fileItem: FileWithState }) {
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <img
               src={previewUrl}
-              alt={file.file.name}
+              alt={file?.file.name ?? ""}
               className="max-h-[85vh] max-w-[90vw] cursor-pointer border-[1cm] border-white object-contain shadow-lg"
             />
             <Button

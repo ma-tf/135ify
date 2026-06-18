@@ -1,17 +1,19 @@
 import { Button } from "@components/ui/button";
 import { useActiveCard } from "@features/process/active-card-context";
+import { useFileId } from "@features/process/file-context";
 import { cn } from "@lib/utils";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
-import { type FileWithState, useFileStore } from "@stores/file-store";
+import { useFileStore } from "@stores/file-store";
 import { SlidersIcon, XIcon } from "lucide-react";
 
-export function CardActions({ fileItem }: { fileItem: FileWithState }) {
+export function CardActions() {
   const { activeCardId } = useActiveCard();
   const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
   const files = useFileStore((s) => s.files);
   const setFiles = useFileStore((s) => s.setFiles);
   const revokeFileUrls = useFileStore((s) => s.revokeFileUrls);
-  const file = files.find((x) => x.id === fileItem.id);
+  const fileId = useFileId();
+  const file = files.find((x) => x.id === fileId);
 
   if (!file) return null;
 
@@ -19,13 +21,13 @@ export function CardActions({ fileItem }: { fileItem: FileWithState }) {
     <div
       className={cn(
         "absolute inset-0 flex items-center justify-center gap-2 transition-opacity",
-        activeCardId === fileItem.id ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+        activeCardId === fileId ? "opacity-100" : "opacity-0 group-hover:opacity-100",
       )}
     >
       <Button
         onClick={(e) => {
           e.stopPropagation();
-          setOpenSheetId(fileItem.id);
+          setOpenSheetId(fileId);
         }}
         variant="secondary"
         size="icon"
@@ -36,8 +38,8 @@ export function CardActions({ fileItem }: { fileItem: FileWithState }) {
       <Button
         onClick={(e) => {
           e.stopPropagation();
-          revokeFileUrls(fileItem.id);
-          setFiles(files.filter((x) => x.id !== fileItem.id));
+          revokeFileUrls(fileId);
+          setFiles(files.filter((x) => x.id !== fileId));
         }}
         variant="secondary"
         size="icon"

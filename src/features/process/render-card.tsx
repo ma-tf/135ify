@@ -1,26 +1,43 @@
 import { useActiveCard } from "@features/process/active-card-context";
 import { CardActions } from "@features/process/card-actions";
 import { EditSheet } from "@features/process/edit-sheet";
+import { useFileId } from "@features/process/file-context";
 import { PreviewDialog } from "@features/process/preview-dialog";
 import { cn } from "@lib/utils";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
-import { type FileWithState, useFileStore } from "@stores/file-store";
+import { useFileStore, type FileWithState } from "@stores/file-store";
 import { useState } from "react";
 
-export function RenderCard({
-  fileItem,
-  className,
-}: {
-  fileItem: FileWithState;
-  className?: string;
-}) {
-  const file = useFileStore((s) => s.files.find((f) => f.id === fileItem.id)) ?? fileItem;
+function CardImage({ file }: { file: FileWithState }) {
   const [imgLoaded, setImgLoaded] = useState(false);
+
+  return (
+    <>
+      {!imgLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="size-8 animate-pulse rounded-full bg-muted-foreground/20" />
+        </div>
+      )}
+      <img
+        src={file.renderUrl ?? file.preview}
+        className={cn(
+          "h-full w-full object-contain transition-opacity group-hover:scale-105",
+          imgLoaded ? "opacity-100" : "opacity-0",
+        )}
+        alt={file.file.name}
+        onLoad={() => setImgLoaded(true)}
+      />
+    </>
+  );
+}
+
+export function RenderCard({ className }: { className?: string }) {
+  const fileId = useFileId();
+  const file = useFileStore((s) => s.files.find((f) => f.id === fileId));
   const openSheetId = useEditSheetStore((s) => s.openSheetId);
-  const showOriginal = useEditSheetStore((s) => s.showOriginal[fileItem.id] ?? false);
   const { activeCardId, setActiveCardId } = useActiveCard();
-  const showActions = activeCardId === fileItem.id;
-  const src = showOriginal || !file.renderUrl ? file.preview : file.renderUrl;
+
+  if (!file) return null;
 
   return (
     <div
@@ -29,38 +46,19 @@ export function RenderCard({
         className,
       )}
       onClick={() => {
-        if (openSheetId !== fileItem.id)
-          setActiveCardId((prev) => (prev === fileItem.id ? null : fileItem.id));
+        if (openSheetId !== fileId) setActiveCardId((prev) => (prev === fileId ? null : fileId));
       }}
     >
-      {!imgLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="size-8 animate-pulse rounded-full bg-muted-foreground/20" />
-        </div>
-      )}
-      <img
-        src={src}
-        className={cn(
-          "h-full w-full object-contain transition-all group-hover:scale-105",
-          imgLoaded ? "opacity-100" : "opacity-0",
-          showActions
-            ? "brightness-75 saturate-75"
-            : "group-hover:brightness-85 group-hover:saturate-85",
-        )}
-        alt={file.file.name}
-        onLoad={() => setImgLoaded(true)}
-      />
-
+      <CardImage file={file} />
       <div
         className={cn(
           "absolute inset-0 bg-black/25 transition-opacity",
-          showActions ? "opacity-100" : "opacity-0",
+          activeCardId === fileId ? "opacity-100" : "opacity-0",
         )}
       />
-
-      <CardActions fileItem={fileItem} />
-      <EditSheet fileItem={fileItem} />
-      <PreviewDialog fileItem={fileItem} />
+      <CardActions />
+      <EditSheet />
+      <PreviewDialog />
     </div>
   );
 }

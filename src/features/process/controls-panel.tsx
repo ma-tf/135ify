@@ -1,6 +1,7 @@
 import { Button } from "@components/ui/button";
 import { Spinner } from "@components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@components/ui/toggle-group";
+import { useFileId } from "@features/process/file-context";
 import { FilmSelector } from "@features/process/film-selector";
 import { ParameterSlider } from "@features/process/parameter-slider";
 import { DEFAULT_PARAMS } from "@features/process/process-image";
@@ -9,14 +10,15 @@ import { cn } from "@lib/utils";
 import { useFileStore } from "@stores/file-store";
 import { DownloadIcon, RotateCcwIcon } from "lucide-react";
 
-function useParameterSection(fileId: string) {
+function useParameterSection() {
+  const fileId = useFileId();
   const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
   const { setParam } = useFileProcessing(fileId);
   return { params, setParam };
 }
 
-function HalationControls({ fileId }: { fileId: string }) {
-  const { params, setParam } = useParameterSection(fileId);
+function HalationControls() {
+  const { params, setParam } = useParameterSection();
   if (!params) return null;
 
   return (
@@ -41,8 +43,8 @@ function HalationControls({ fileId }: { fileId: string }) {
   );
 }
 
-function VignetteControls({ fileId }: { fileId: string }) {
-  const { params, setParam } = useParameterSection(fileId);
+function VignetteControls() {
+  const { params, setParam } = useParameterSection();
   if (!params) return null;
 
   return (
@@ -73,8 +75,8 @@ const INTENSITY_TO_ISO: Record<number, string> = Object.fromEntries(
   ISO_PRESETS.map((p) => [p.intensity, p.iso]),
 );
 
-function GrainControls({ fileId }: { fileId: string }) {
-  const { params, setParam } = useParameterSection(fileId);
+function GrainControls() {
+  const { params, setParam } = useParameterSection();
   if (!params) return null;
 
   return (
@@ -102,17 +104,8 @@ function GrainControls({ fileId }: { fileId: string }) {
   );
 }
 
-export function EditPanel({
-  fileId,
-  showOriginal,
-  onShowOriginalChange,
-  onDownload,
-}: {
-  fileId: string;
-  showOriginal: boolean;
-  onShowOriginalChange: (v: boolean) => void;
-  onDownload?: (url: string) => void;
-}) {
+function EditPanelButtons({ onDownload }: { onDownload?: (url: string) => void }) {
+  const fileId = useFileId();
   const files = useFileStore((s) => s.files);
   const file = files.find((f) => f.id === fileId);
   const { setParam, downloadFullSize } = useFileProcessing(fileId);
@@ -141,6 +134,41 @@ export function EditPanel({
     a.click();
     onDownload?.(url);
   };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Button variant="outline" size="sm" className="gap-1.5" onClick={handleReset}>
+        <RotateCcwIcon className="size-3.5" />
+        Reset
+      </Button>
+      <Button disabled={file.isProcessing} size="sm" className="gap-1.5" onClick={handleDownload}>
+        {file.isProcessing ? (
+          <Spinner className="size-3.5" />
+        ) : (
+          <DownloadIcon className="size-3.5" />
+        )}
+        Download
+      </Button>
+    </div>
+  );
+}
+
+export function EditPanel({
+  showOriginal,
+  onShowOriginalChange,
+  onDownload,
+}: {
+  showOriginal: boolean;
+  onShowOriginalChange: (v: boolean) => void;
+  onDownload?: (url: string) => void;
+}) {
+  const fileId = useFileId();
+  const file = useFileStore((s) => s.files.find((f) => f.id === fileId));
+  const { setParam } = useFileProcessing(fileId);
+
+  if (!file) return null;
+
+  const selectedFilmId = file.params.selectedFilmId;
 
   return (
     <div className="flex flex-col gap-6 p-4">
@@ -174,29 +202,13 @@ export function EditPanel({
         </div>
       </div>
 
-      <FilmSelector
-        value={file.params.selectedFilmId}
-        onValueChange={(v) => setParam({ selectedFilmId: v })}
-      />
+      <FilmSelector value={selectedFilmId} onValueChange={(v) => setParam({ selectedFilmId: v })} />
 
-      <HalationControls fileId={fileId} />
-      <VignetteControls fileId={fileId} />
-      <GrainControls fileId={fileId} />
+      <HalationControls />
+      <VignetteControls />
+      <GrainControls />
 
-      <div className="flex flex-col gap-2">
-        <Button variant="outline" size="sm" className="gap-1.5" onClick={handleReset}>
-          <RotateCcwIcon className="size-3.5" />
-          Reset
-        </Button>
-        <Button disabled={file.isProcessing} size="sm" className="gap-1.5" onClick={handleDownload}>
-          {file.isProcessing ? (
-            <Spinner className="size-3.5" />
-          ) : (
-            <DownloadIcon className="size-3.5" />
-          )}
-          Download
-        </Button>
-      </div>
+      <EditPanelButtons onDownload={onDownload} />
     </div>
   );
 }
