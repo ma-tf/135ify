@@ -1,26 +1,24 @@
+import { useActiveCard } from "@features/process/active-card-context";
 import { CardActions } from "@features/process/card-actions";
 import { EditSheet } from "@features/process/edit-sheet";
 import { PreviewDialog } from "@features/process/preview-dialog";
 import { cn } from "@lib/utils";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { type FileWithState, useFileStore } from "@stores/file-store";
-import { type Dispatch, type SetStateAction, useState } from "react";
+import { useState } from "react";
 
 export function RenderCard({
   fileItem,
   className,
-  activeCardId,
-  setActiveCardId,
 }: {
   fileItem: FileWithState;
   className?: string;
-  activeCardId: string | null;
-  setActiveCardId: Dispatch<SetStateAction<string | null>>;
 }) {
   const file = useFileStore((s) => s.files.find((f) => f.id === fileItem.id)) ?? fileItem;
   const [imgLoaded, setImgLoaded] = useState(false);
   const openSheetId = useEditSheetStore((s) => s.openSheetId);
   const showOriginal = useEditSheetStore((s) => s.showOriginal[fileItem.id] ?? false);
+  const { activeCardId, setActiveCardId } = useActiveCard();
   const showActions = activeCardId === fileItem.id;
   const src = showOriginal || !file.renderUrl ? file.preview : file.renderUrl;
 
@@ -60,7 +58,7 @@ export function RenderCard({
         )}
       />
 
-      <CardActions showActions={showActions} fileItem={fileItem} />
+      <CardActions fileItem={fileItem} />
       <EditSheet fileItem={fileItem} />
       <PreviewDialog fileItem={fileItem} />
     </div>

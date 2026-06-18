@@ -1,4 +1,3 @@
-import { GRAIN_URL } from "@config";
 import { DEFAULT_FILM_ID, getFilmById, type FilmId } from "@features/process/films";
 import { getGrainBitmap } from "@features/process/grain-texture";
 
@@ -27,7 +26,7 @@ export async function processToBlobUrl(
   params: ProcessParams,
   maxDimension?: number,
 ): Promise<string> {
-  const grain = await getGrainBitmap(GRAIN_URL);
+  const grain = await getGrainBitmap();
   const res = await fetch(sourceUrl);
   const blob = await res.blob();
   const source = await createImageBitmap(blob);

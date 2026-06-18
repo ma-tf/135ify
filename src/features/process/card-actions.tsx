@@ -1,16 +1,12 @@
 import { Button } from "@components/ui/button";
+import { useActiveCard } from "@features/process/active-card-context";
 import { cn } from "@lib/utils";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { type FileWithState, useFileStore } from "@stores/file-store";
 import { SlidersIcon, XIcon } from "lucide-react";
 
-export function CardActions({
-  showActions,
-  fileItem,
-}: {
-  showActions: boolean;
-  fileItem: FileWithState;
-}) {
+export function CardActions({ fileItem }: { fileItem: FileWithState }) {
+  const { activeCardId } = useActiveCard();
   const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
   const files = useFileStore((s) => s.files);
   const setFiles = useFileStore((s) => s.setFiles);
@@ -23,7 +19,7 @@ export function CardActions({
     <div
       className={cn(
         "absolute inset-0 flex items-center justify-center gap-2 transition-opacity",
-        showActions ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+        activeCardId === fileItem.id ? "opacity-100" : "opacity-0 group-hover:opacity-100",
       )}
     >
       <Button

@@ -1,9 +1,9 @@
+import { ActiveCardProvider } from "@features/process/active-card-context";
 import { Dropzone } from "@features/process/dropzone";
 import { RenderCard } from "@features/process/render-card";
 import { useDragScroll } from "@hooks/use-drag-scroll";
 import { cn } from "@lib/utils";
 import { useFileStore } from "@stores/file-store";
-import { useState } from "react";
 
 const sharedFilmFrameClasses =
   "relative overflow-visible flex w-2xs shrink-0 flex-col lg:w-md border-r-4 border-transparent carousel-sprocket " +
@@ -16,7 +16,6 @@ const dropzoneFrameClasses = cn(sharedFilmFrameClasses, "[counter-increment:none
 export function RenderCarousel() {
   const files = useFileStore((s) => s.files);
   const { ref, isDragging } = useDragScroll();
-  const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
   return (
     <div
@@ -32,16 +31,14 @@ export function RenderCarousel() {
       <div className={dropzoneFrameClasses}>
         <Dropzone className="bg-amber-700/10 shadow-[4px_0_0_0_--theme(--color-amber-700/0.4)]" />
       </div>
-      {files.map((fileItem) => (
-        <div key={fileItem.id} className={filmFrameClasses}>
-          <RenderCard
-            fileItem={fileItem}
-            activeCardId={activeCardId}
-            setActiveCardId={setActiveCardId}
-          />
-          <span className="pointer-events-none absolute top-px left-1/2 z-1 -translate-x-1/2 font-mono text-[8px] leading-2.5 text-black/40 before:content-[counter(frame-counter)]" />
-        </div>
-      ))}
+      <ActiveCardProvider>
+        {files.map((file) => (
+          <div key={file.id} className={filmFrameClasses}>
+            <RenderCard fileItem={file} />
+            <span className="pointer-events-none absolute top-px left-1/2 z-1 -translate-x-1/2 font-mono text-[8px] leading-2.5 text-black/40 before:content-[counter(frame-counter)]" />
+          </div>
+        ))}
+      </ActiveCardProvider>
     </div>
   );
 }
