@@ -12,14 +12,11 @@ export function CardActions({
   fileItem: FileWithState;
 }) {
   const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
+  const files = useFileStore((s) => s.files);
+  const setFiles = useFileStore((s) => s.setFiles);
+  const file = files.find((x) => x.id === fileItem.id);
 
-  const handleRemove = () => {
-    const f = useFileStore.getState().files.find((x) => x.id === fileItem.id);
-    if (!f) return;
-    if (f.file instanceof File) URL.revokeObjectURL(f.preview);
-    if (f.renderUrl) URL.revokeObjectURL(f.renderUrl);
-    useFileStore.getState().removeFile(fileItem.id);
-  };
+  if (!file) return null;
 
   return (
     <div
@@ -42,7 +39,11 @@ export function CardActions({
       <Button
         onClick={(e) => {
           e.stopPropagation();
-          handleRemove();
+          URL.revokeObjectURL(file.preview);
+          if (file.renderUrl) {
+            URL.revokeObjectURL(file.renderUrl);
+          }
+          setFiles(files.filter((x) => x.id !== fileItem.id));
         }}
         variant="secondary"
         size="icon"

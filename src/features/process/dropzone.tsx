@@ -1,3 +1,4 @@
+import type { FileWithState } from "@stores/file-store";
 import type { DragEvent } from "react";
 
 import { FILE_SIZE_LIMIT_BYTES } from "@config";
@@ -5,7 +6,6 @@ import { DropzoneError } from "@features/process/dropzone-error";
 import { DropzonePrompt } from "@features/process/dropzone-prompt";
 import { useFileUpload } from "@hooks/use-file-upload";
 import { cn } from "@lib/utils";
-import { useFileStore, type FileWithState } from "@stores/file-store";
 
 interface DropzoneProps {
   maxSize?: number;
@@ -33,9 +33,6 @@ export function Dropzone({
     },
   ] = useFileUpload({
     accept,
-    onFilesAdded: (files) => {
-      if (files.length > 0) useFileStore.getState().setActiveFileId(files[0].id);
-    },
     onFilesChange: (allFiles) => {
       onFilesChangeProp?.(allFiles);
     },

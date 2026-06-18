@@ -6,17 +6,19 @@ import { useFileStore } from "@stores/file-store";
 import { useCallback } from "react";
 
 export function useFileProcessing(fileId: string) {
-  const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
+  const files = useFileStore((s) => s.files);
+  const setFiles = useFileStore((s) => s.setFiles);
+  const updateProcessParams = useFileStore((s) => s.updateProcessParams);
   const setRenderResult = useFileStore((s) => s.setRenderResult);
-  const setProcessing = useFileStore((s) => s.setProcessing);
+
+  const file = files.find((f) => f.id === fileId);
 
   const reprocess = useCallback(
     async (params: ProcessParams) => {
-      const file = useFileStore.getState().files.find((f) => f.id === fileId);
       if (!file) return;
 
       const prevUrl = file.renderUrl;
-      setProcessing(fileId, true);
+      setFiles(files.map((f) => (f.id === fileId ? { ...f, isProcessing: true } : f)));
       setRenderResult(fileId, null, null);
       if (prevUrl) URL.revokeObjectURL(prevUrl);
 
@@ -29,26 +31,25 @@ export function useFileProcessing(fileId: string) {
         setRenderResult(fileId, null, msg);
       }
     },
-    [fileId, setRenderResult, setProcessing],
+    [fileId, file, files, setFiles, updateProcessParams, setRenderResult],
   );
 
   const { debounced: reprocessDebounced } = useDebouncedCallback(reprocess, 50);
 
   const setParam = useCallback(
     (partial: Partial<ProcessParams>) => {
-      const current = useFileStore.getState().files.find((f) => f.id === fileId)!.params;
-      const merged = { ...current, ...partial };
-      useFileStore.getState().updateProcessParams(fileId, partial);
+      if (!file) return;
+      const merged = { ...file.params, ...partial };
+      updateProcessParams(fileId, partial);
       reprocessDebounced(merged);
     },
-    [fileId, reprocessDebounced],
+    [fileId, file, updateProcessParams, reprocessDebounced],
   );
 
   const downloadFullSize = useCallback(async () => {
-    const file = useFileStore.getState().files.find((f) => f.id === fileId);
     if (!file) return null;
     return processToBlobUrl(file.preview, file.params);
-  }, [fileId]);
+  }, [file]);
 
-  return { params, setParam, downloadFullSize };
+  return { params: file?.params, setParam, downloadFullSize };
 }

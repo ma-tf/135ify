@@ -13,6 +13,7 @@
     "lint": "oxlint",
     "sbom:gen": "scripts/licenses-to-md.sh",
     "fallow:dc": "vpx fallow dead-code",
+    "fallow:d": "vpx fallow dupes",
     "fallow:hc": "vpx fallow health --score --hotspots --targets",
     "fallow:a": "vpx fallow audit"
   },
