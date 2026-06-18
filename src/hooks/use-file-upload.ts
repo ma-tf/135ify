@@ -4,6 +4,7 @@ import { prepareFiles } from "@features/process/prepare-files";
 import { useDragDrop } from "@hooks/use-drag-drop";
 import { useFileInput } from "@hooks/use-file-input";
 import { useStorage } from "@providers/storage-context";
+import { useFileStore } from "@stores/file-store";
 import { useCallback, useState, type InputHTMLAttributes } from "react";
 
 export type FileUploadOptions = {
@@ -22,7 +23,6 @@ export type FileUploadState = {
 export type FileUploadActions = {
   addFiles: (files: FileList | File[]) => void;
   removeFile: (id: string) => void;
-  clearFiles: () => void;
   clearErrors: () => void;
   handleDragEnter: (e: React.DragEvent<HTMLElement>) => void;
   handleDragLeave: (e: React.DragEvent<HTMLElement>) => void;
@@ -44,6 +44,7 @@ export const useFileUpload = (
   const { onFilesChange, onFilesAdded } = options;
 
   const { files: storeFiles, setFiles } = useStorage();
+  const revokeFileUrls = useFileStore((s) => s.revokeFileUrls);
   const [errors, setErrors] = useState<string[]>([]);
 
   const addFiles = useCallback(
@@ -77,36 +78,15 @@ export const useFileUpload = (
     onFiles: addFiles,
   });
 
-  const clearFiles = useCallback(() => {
-    for (const file of storeFiles) {
-      if (file.preview && file.file instanceof File && file.file.type.startsWith("image/")) {
-        URL.revokeObjectURL(file.preview);
-      }
-    }
-
-    setFiles([]);
-    setErrors([]);
-    onFilesChange?.([]);
-  }, [storeFiles, onFilesChange, setFiles]);
-
   const removeFile = useCallback(
     (id: string) => {
-      const fileToRemove = storeFiles.find((file) => file.id === id);
-      if (
-        fileToRemove &&
-        fileToRemove.preview &&
-        fileToRemove.file instanceof File &&
-        fileToRemove.file.type.startsWith("image/")
-      ) {
-        URL.revokeObjectURL(fileToRemove.preview);
-      }
-
+      revokeFileUrls(id);
       const newFiles = storeFiles.filter((file) => file.id !== id);
       setFiles(newFiles);
       setErrors([]);
       onFilesChange?.(newFiles);
     },
-    [storeFiles, onFilesChange, setFiles],
+    [storeFiles, onFilesChange, setFiles, revokeFileUrls],
   );
 
   const clearErrors = useCallback(() => {
@@ -118,7 +98,6 @@ export const useFileUpload = (
     {
       addFiles: (files: FileList | File[]) => addFiles(Array.from(files)),
       removeFile,
-      clearFiles,
       clearErrors,
       handleDragEnter: dragActions.handleDragEnter,
       handleDragLeave: dragActions.handleDragLeave,

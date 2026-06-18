@@ -113,16 +113,22 @@ export function EditPanel({
   onShowOriginalChange: (v: boolean) => void;
   onDownload?: (url: string) => void;
 }) {
-  const file = useFileStore((s) => s.files.find((f) => f.id === fileId));
+  const files = useFileStore((s) => s.files);
+  const file = files.find((f) => f.id === fileId);
   const { setParam, downloadFullSize } = useFileProcessing(fileId);
-  const setRenderResult = useFileStore((s) => s.setRenderResult);
+  const setFiles = useFileStore((s) => s.setFiles);
+  const revokeFileUrls = useFileStore((s) => s.revokeFileUrls);
 
   if (!file) return null;
 
   const handleReset = () => {
-    if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
+    revokeFileUrls(fileId);
     setParam(DEFAULT_PARAMS);
-    setRenderResult(fileId, null, null);
+    setFiles(
+      files.map((f) =>
+        f.id === fileId ? { ...f, renderUrl: null, renderError: null, isProcessing: false } : f,
+      ),
+    );
   };
 
   const handleDownload = async () => {

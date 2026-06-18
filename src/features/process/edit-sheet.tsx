@@ -13,14 +13,14 @@ export function EditSheet({ fileItem }: { fileItem: FileWithState }) {
   const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
   const showOriginal = useEditSheetStore((s) => s.showOriginal[fileItem.id] ?? false);
   const setShowOriginal = useEditSheetStore((s) => s.setShowOriginal);
-  const open = openSheetId === fileItem.id;
   const setPreviewUrl = useEditSheetStore((s) => s.setPreviewUrl);
+
   const file = useFileStore((s) => s.files.find((f) => f.id === fileItem.id)) ?? fileItem;
   const src = showOriginal || !file.renderUrl ? file.preview : file.renderUrl;
 
   return (
     <Sheet
-      open={open}
+      open={openSheetId === fileItem.id}
       onOpenChange={(v) => {
         setOpenSheetId(v ? fileItem.id : null);
         if (!v) setShowOriginal(fileItem.id, false);

@@ -9,7 +9,7 @@ export function useFileProcessing(fileId: string) {
   const files = useFileStore((s) => s.files);
   const setFiles = useFileStore((s) => s.setFiles);
   const updateProcessParams = useFileStore((s) => s.updateProcessParams);
-  const setRenderResult = useFileStore((s) => s.setRenderResult);
+  const revokeFileUrls = useFileStore((s) => s.revokeFileUrls);
 
   const file = files.find((f) => f.id === fileId);
 
@@ -17,21 +17,27 @@ export function useFileProcessing(fileId: string) {
     async (params: ProcessParams) => {
       if (!file) return;
 
-      const prevUrl = file.renderUrl;
-      setFiles(files.map((f) => (f.id === fileId ? { ...f, isProcessing: true } : f)));
-      setRenderResult(fileId, null, null);
-      if (prevUrl) URL.revokeObjectURL(prevUrl);
+      revokeFileUrls(fileId);
+      setFiles(
+        files.map((f) =>
+          f.id === fileId ? { ...f, isProcessing: true, renderUrl: null, renderError: null } : f,
+        ),
+      );
 
       try {
         const url = await processToBlobUrl(file.preview, params);
-        setRenderResult(fileId, url, null);
+        setFiles(
+          files.map((f) => (f.id === fileId ? { ...f, renderUrl: url, isProcessing: false } : f)),
+        );
       } catch (err) {
         console.error("Image processing failed:", err);
         const msg = err instanceof Error ? err.message : "Processing failed";
-        setRenderResult(fileId, null, msg);
+        setFiles(
+          files.map((f) => (f.id === fileId ? { ...f, renderError: msg, isProcessing: false } : f)),
+        );
       }
     },
-    [fileId, file, files, setFiles, updateProcessParams, setRenderResult],
+    [fileId, file, files, setFiles, revokeFileUrls],
   );
 
   const { debounced: reprocessDebounced } = useDebouncedCallback(reprocess, 50);

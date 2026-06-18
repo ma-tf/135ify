@@ -61,9 +61,7 @@ export function RenderCard({
       />
 
       <CardActions showActions={showActions} fileItem={fileItem} />
-
       <EditSheet fileItem={fileItem} />
-
       <PreviewDialog fileItem={fileItem} />
     </div>
   );

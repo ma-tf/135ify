@@ -16,7 +16,7 @@ interface FileStore {
   files: FileWithState[];
   setFiles: (files: FileWithState[]) => void;
   updateProcessParams: (id: string, params: Partial<ProcessParams>) => void;
-  setRenderResult: (id: string, renderUrl: string | null, renderError: string | null) => void;
+  revokeFileUrls: (id: string) => void;
 }
 
 export const useFileStore = create<FileStore>((set) => ({
@@ -28,10 +28,11 @@ export const useFileStore = create<FileStore>((set) => ({
         f.id === id ? { ...f, params: { ...f.params, ...params } } : f,
       ),
     })),
-  setRenderResult: (id, renderUrl, renderError) =>
-    set((state) => ({
-      files: state.files.map((f) =>
-        f.id === id ? { ...f, renderUrl, renderError, isProcessing: false } : f,
-      ),
-    })),
+  revokeFileUrls: (id) =>
+    set((state) => {
+      const file = state.files.find((f) => f.id === id);
+      if (file?.preview) URL.revokeObjectURL(file.preview);
+      if (file?.renderUrl) URL.revokeObjectURL(file.renderUrl);
+      return state;
+    }),
 }));

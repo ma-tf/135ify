@@ -14,6 +14,7 @@ export function CardActions({
   const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
   const files = useFileStore((s) => s.files);
   const setFiles = useFileStore((s) => s.setFiles);
+  const revokeFileUrls = useFileStore((s) => s.revokeFileUrls);
   const file = files.find((x) => x.id === fileItem.id);
 
   if (!file) return null;
@@ -39,10 +40,7 @@ export function CardActions({
       <Button
         onClick={(e) => {
           e.stopPropagation();
-          URL.revokeObjectURL(file.preview);
-          if (file.renderUrl) {
-            URL.revokeObjectURL(file.renderUrl);
-          }
+          revokeFileUrls(fileItem.id);
           setFiles(files.filter((x) => x.id !== fileItem.id));
         }}
         variant="secondary"
