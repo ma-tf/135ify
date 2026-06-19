@@ -3,24 +3,24 @@ import { create } from "zustand";
 type EditSheetStore = {
   openSheetId: string | null;
   showOriginal: Record<string, boolean>;
-  previewUrl: string | null;
+  inspectUrl: string | null;
   setOpenSheetId: (id: string | null) => void;
   setShowOriginal: (id: string, value: boolean) => void;
-  setPreviewUrl: (url: string | null) => void;
+  setInspectUrl: (url: string | null) => void;
 };
 
 export const useEditSheetStore = create<EditSheetStore>((set) => ({
   openSheetId: null,
   showOriginal: {},
-  previewUrl: null,
+  inspectUrl: null,
   setOpenSheetId: (openSheetId) => set({ openSheetId }),
   setShowOriginal: (id, value) =>
     set((state) => ({
       showOriginal: { ...state.showOriginal, [id]: value },
     })),
-  setPreviewUrl: (url) =>
+  setInspectUrl: (url) =>
     set((state) => {
-      if (state.previewUrl) URL.revokeObjectURL(state.previewUrl);
-      return { previewUrl: url };
+      if (state.inspectUrl) URL.revokeObjectURL(state.inspectUrl);
+      return { inspectUrl: url };
     }),
 }));

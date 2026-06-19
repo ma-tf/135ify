@@ -1,12 +1,14 @@
 import { Button } from "@components/ui/button";
 import { Spinner } from "@components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@components/ui/toggle-group";
+import { FEATURE_3D_PHOTO } from "@config";
 import { useFileId } from "@features/process/file-context";
 import { FilmSelector } from "@features/process/film-selector";
 import { ParameterSlider } from "@features/process/parameter-slider";
 import { DEFAULT_PARAMS } from "@features/process/process-image";
 import { useFileProcessing } from "@features/process/use-process-image";
 import { cn } from "@lib/utils";
+import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
 import { DownloadIcon, RotateCcwIcon } from "lucide-react";
 
@@ -104,13 +106,15 @@ function GrainControls() {
   );
 }
 
-function EditPanelButtons({ onDownload }: { onDownload?: (url: string) => void }) {
+function EditPanelButtons() {
   const fileId = useFileId();
   const files = useFileStore((s) => s.files);
   const file = files.find((f) => f.id === fileId);
   const { setParam, downloadFullSize } = useFileProcessing(fileId);
   const setFiles = useFileStore((s) => s.setFiles);
   const revokeFileUrls = useFileStore((s) => s.revokeFileUrls);
+  const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
+  const setInspectUrl = useEditSheetStore((s) => s.setInspectUrl);
 
   if (!file) return null;
 
@@ -132,7 +136,12 @@ function EditPanelButtons({ onDownload }: { onDownload?: (url: string) => void }
     a.href = url;
     a.download = file.file.name.replace(/\.[^.]+$/, "") + ".jpg";
     a.click();
-    onDownload?.(url);
+    setOpenSheetId(null);
+    if (FEATURE_3D_PHOTO) {
+      setInspectUrl(url);
+    } else {
+      URL.revokeObjectURL(url);
+    }
   };
 
   return (
@@ -153,16 +162,10 @@ function EditPanelButtons({ onDownload }: { onDownload?: (url: string) => void }
   );
 }
 
-export function EditPanel({
-  showOriginal,
-  onShowOriginalChange,
-  onDownload,
-}: {
-  showOriginal: boolean;
-  onShowOriginalChange: (v: boolean) => void;
-  onDownload?: (url: string) => void;
-}) {
+export function EditPanel() {
   const fileId = useFileId();
+  const showOriginal = useEditSheetStore((s) => s.showOriginal[fileId] ?? false);
+  const setShowOriginal = useEditSheetStore((s) => s.setShowOriginal);
   const file = useFileStore((s) => s.files.find((f) => f.id === fileId));
   const { setParam } = useFileProcessing(fileId);
 
@@ -177,7 +180,7 @@ export function EditPanel({
         <div className="flex rounded-lg border bg-muted p-0.5">
           <button
             type="button"
-            onClick={() => onShowOriginalChange(true)}
+            onClick={() => setShowOriginal(fileId, true)}
             className={cn(
               "rounded-md px-3 py-1 text-xs font-medium transition-colors",
               showOriginal
@@ -189,7 +192,7 @@ export function EditPanel({
           </button>
           <button
             type="button"
-            onClick={() => onShowOriginalChange(false)}
+            onClick={() => setShowOriginal(fileId, false)}
             className={cn(
               "rounded-md px-3 py-1 text-xs font-medium transition-colors",
               !showOriginal
@@ -208,7 +211,7 @@ export function EditPanel({
       <VignetteControls />
       <GrainControls />
 
-      <EditPanelButtons onDownload={onDownload} />
+      <EditPanelButtons />
     </div>
   );
 }
