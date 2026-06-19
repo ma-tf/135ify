@@ -37,6 +37,7 @@ export function CardActions() {
       <Button
         onClick={(e) => {
           e.stopPropagation();
+          URL.revokeObjectURL(file.preview);
           revokeFileUrls(file.id);
           setFiles(files.filter((x) => x.id !== file.id));
         }}

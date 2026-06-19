@@ -12,7 +12,10 @@ const sharedFilmFrameClasses =
   "after:content-[''] after:block after:shrink-0 after:w-[calc(100%+4px)] after:aspect-[72/11] after:bg-amber-700/40 after:pointer-events-none";
 
 const filmFrameClasses = cn(sharedFilmFrameClasses, "[counter-increment:frame-counter]");
-const dropzoneFrameClasses = cn(sharedFilmFrameClasses, "[counter-increment:none]");
+const dropzoneFrameClasses = cn(
+  sharedFilmFrameClasses,
+  "[counter-increment:none] [counter-reset:frame-counter]",
+);
 
 export function RenderCarousel() {
   const files = useFileStore((s) => s.files);
@@ -31,6 +34,7 @@ export function RenderCarousel() {
     >
       <div className={dropzoneFrameClasses}>
         <Dropzone className="bg-amber-700/10 shadow-[4px_0_0_0_--theme(--color-amber-700/0.4)]" />
+        <span className="pointer-events-none absolute top-px left-1/2 z-1 -translate-x-1/2 font-mono text-xs leading-4 text-black/40 before:content-[counter(frame-counter)]" />
       </div>
       <ActiveCardProvider>
         {files.map((file) => (
@@ -38,7 +42,7 @@ export function RenderCarousel() {
             <FileProvider fileId={file.id}>
               <RenderCard />
             </FileProvider>
-            <span className="pointer-events-none absolute top-px left-1/2 z-1 -translate-x-1/2 font-mono text-[8px] leading-2.5 text-black/40 before:content-[counter(frame-counter)]" />
+            <span className="pointer-events-none absolute top-px left-1/2 z-1 -translate-x-1/2 font-mono text-xs leading-4 text-black/40 before:content-[counter(frame-counter)]" />
           </div>
         ))}
       </ActiveCardProvider>

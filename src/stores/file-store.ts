@@ -32,7 +32,6 @@ export const useFileStore = create<FileStore>((set) => ({
     set((state) => {
       const file = state.files.find((f) => f.id === id);
       if (!file) return state;
-      if (file.preview) URL.revokeObjectURL(file.preview);
       if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
       return state;
     }),

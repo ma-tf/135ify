@@ -104,4 +104,12 @@ describe("RenderCarousel", () => {
     const container = document.getElementById("render-carousel")!;
     expect(container.className).toContain("cursor-grabbing");
   });
+
+  it("renders frame number 0 on dropzone", () => {
+    renderCarousel();
+    const dropzone = screen.getByTestId("dropzone");
+    const frameNumber = dropzone.parentElement!.querySelector("span");
+    expect(frameNumber).toBeDefined();
+    expect(frameNumber!.className).toContain("before:content-[counter(frame-counter)]");
+  });
 });
