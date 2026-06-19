@@ -1,0 +1,107 @@
+import type { FileWithState } from "@stores/file-store";
+
+import { DEFAULT_PARAMS } from "@features/process/process-image";
+import { RenderCarousel } from "@features/process/render-carousel";
+import { useFileStore } from "@stores/file-store";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+
+vi.mock("@hooks/use-drag-scroll", () => ({
+  useDragScroll: vi.fn(() => ({
+    ref: { current: null },
+    isDragging: false,
+  })),
+}));
+
+vi.mock("@features/process/dropzone", () => ({
+  Dropzone: () => <div data-testid="dropzone" />,
+}));
+
+vi.mock("@features/process/render-card", () => ({
+  RenderCard: () => <div data-testid="render-card" />,
+}));
+
+afterEach(cleanup);
+
+const TEST_FILE: FileWithState = {
+  file: new File(["test"], "test.jpg", { type: "image/jpeg" }),
+  id: "file-1",
+  preview: "blob:preview-url",
+  params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
+  renderUrl: null,
+  isProcessing: false,
+  renderError: null,
+};
+
+const TEST_FILE_2: FileWithState = {
+  ...TEST_FILE,
+  id: "file-2",
+  file: new File(["test2"], "test2.jpg", { type: "image/jpeg" }),
+  preview: "blob:preview-url-2",
+};
+
+function renderCarousel(files: FileWithState[] = []) {
+  useFileStore.setState({ files });
+  return render(<RenderCarousel />);
+}
+
+describe("RenderCarousel", () => {
+  it("renders container with id render-carousel", () => {
+    renderCarousel();
+    expect(document.getElementById("render-carousel")).toBeDefined();
+  });
+
+  it("renders Dropzone as the first frame", () => {
+    renderCarousel();
+    const dropzone = screen.getByTestId("dropzone");
+    const container = document.getElementById("render-carousel")!;
+    expect(container.firstElementChild).toBe(dropzone.parentElement);
+  });
+
+  it("renders zero RenderCard components when store is empty", () => {
+    renderCarousel([]);
+    expect(screen.queryAllByTestId("render-card")).toHaveLength(0);
+  });
+
+  it("renders one RenderCard per file in the store", () => {
+    renderCarousel([TEST_FILE, TEST_FILE_2]);
+    expect(screen.getAllByTestId("render-card")).toHaveLength(2);
+  });
+
+  it("wraps each card frame in FileProvider with correct fileId", () => {
+    renderCarousel([TEST_FILE, TEST_FILE_2]);
+    const cards = screen.getAllByTestId("render-card");
+    expect(cards[0].closest("[data-file-id]")).toBeNull();
+    expect(useFileStore.getState().files).toHaveLength(2);
+  });
+
+  it("wraps all card frames in a single ActiveCardProvider", () => {
+    renderCarousel([TEST_FILE, TEST_FILE_2]);
+    const container = document.getElementById("render-carousel")!;
+    const frames = Array.from(container.children);
+    const cardFrames = frames.filter((f) => f.querySelector("[data-testid='render-card']"));
+    expect(cardFrames.length).toBe(2);
+  });
+
+  it("applies cursor-grab when not dragging", async () => {
+    const { useDragScroll } = await import("@hooks/use-drag-scroll");
+    vi.mocked(useDragScroll).mockReturnValue({
+      ref: { current: null },
+      isDragging: false,
+    });
+    renderCarousel();
+    const container = document.getElementById("render-carousel")!;
+    expect(container.className).toContain("cursor-grab");
+  });
+
+  it("applies cursor-grabbing when dragging", async () => {
+    const { useDragScroll } = await import("@hooks/use-drag-scroll");
+    vi.mocked(useDragScroll).mockReturnValue({
+      ref: { current: null },
+      isDragging: true,
+    });
+    renderCarousel();
+    const container = document.getElementById("render-carousel")!;
+    expect(container.className).toContain("cursor-grabbing");
+  });
+});

@@ -64,15 +64,19 @@ describe("useFileProcessing", () => {
     vi.restoreAllMocks();
   });
 
+  async function renderAndSetParam(updates: Record<string, number> = { grainIntensity: 5 }) {
+    seedFile();
+    const { result } = renderHook(() => useFileProcessing("file-1"));
+    await act(async () => {
+      result.current.setParam(updates);
+      vi.advanceTimersByTime(50);
+    });
+    return result;
+  }
+
   describe("reprocess (via setParam)", () => {
     it("calls processToBlobUrl with the file preview and merged params", async () => {
-      seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"));
-
-      await act(async () => {
-        result.current.setParam({ grainIntensity: 5 });
-        vi.advanceTimersByTime(50);
-      });
+      await renderAndSetParam();
 
       expect(processToBlobUrl).toHaveBeenCalledWith("blob:preview-url", {
         ...DEFAULT_PARAMS,
@@ -94,13 +98,7 @@ describe("useFileProcessing", () => {
     });
 
     it("sets renderUrl and clears renderError on success", async () => {
-      seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"));
-
-      await act(async () => {
-        result.current.setParam({ grainIntensity: 5 });
-        vi.advanceTimersByTime(50);
-      });
+      await renderAndSetParam();
 
       const state = useFileStore.getState();
       expect(state.files[0].renderUrl).toBe("blob:processed-url");
@@ -109,25 +107,13 @@ describe("useFileProcessing", () => {
     });
 
     it("calls setImageSrc on success", async () => {
-      seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"));
-
-      await act(async () => {
-        result.current.setParam({ grainIntensity: 5 });
-        vi.advanceTimersByTime(50);
-      });
+      await renderAndSetParam();
 
       expect(useEditSheetStore.getState().imageSrc).toBe("blob:processed-url");
     });
 
     it("calls revokeFileUrls before processing", async () => {
-      seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"));
-
-      await act(async () => {
-        result.current.setParam({ grainIntensity: 5 });
-        vi.advanceTimersByTime(50);
-      });
+      await renderAndSetParam();
 
       const revokeSpy = vi.spyOn(useFileStore.getState(), "revokeFileUrls");
       expect(revokeSpy).toBeDefined();
@@ -135,13 +121,7 @@ describe("useFileProcessing", () => {
 
     it("sets renderError on processing failure", async () => {
       processToBlobUrl.mockRejectedValue(new Error("GPU unavailable"));
-      seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"));
-
-      await act(async () => {
-        result.current.setParam({ grainIntensity: 5 });
-        vi.advanceTimersByTime(50);
-      });
+      await renderAndSetParam();
 
       const state = useFileStore.getState();
       expect(state.files[0].renderError).toBe("GPU unavailable");
@@ -150,13 +130,7 @@ describe("useFileProcessing", () => {
 
     it("falls back to 'Processing failed' for non-Error throws", async () => {
       processToBlobUrl.mockRejectedValue("something bad");
-      seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"));
-
-      await act(async () => {
-        result.current.setParam({ grainIntensity: 5 });
-        vi.advanceTimersByTime(50);
-      });
+      await renderAndSetParam();
 
       const state = useFileStore.getState();
       expect(state.files[0].renderError).toBe("Processing failed");
