@@ -1,6 +1,7 @@
 # 135ify
 
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue)](https://github.com/ma-tf/135ify/blob/main/COPYING)
+[![fallow health](https://ma-tf.github.io/135ify/badge.svg)](https://fallow.tools)
 
 Give a digital image a more analogue appearance.
 
