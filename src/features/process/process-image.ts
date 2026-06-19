@@ -43,9 +43,11 @@ export function constrainDimensions(
   if (!maxDimension || (width <= maxDimension && height <= maxDimension)) {
     return { width, height };
   }
+
   if (width > height) {
     return { width: maxDimension, height: Math.round(height * (maxDimension / width)) };
   }
+
   return { width: Math.round(width * (maxDimension / height)), height: maxDimension };
 }
 
