@@ -1,7 +1,25 @@
 {
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
   "boundaries": {
-    "preset": "bulletproof"
+    "zones": [
+      { "name": "app", "patterns": ["src/routes/**"] },
+      { "name": "features/process", "patterns": ["src/features/process/**"] },
+      {
+        "name": "shared",
+        "patterns": [
+          "src/components/**",
+          "src/hooks/**",
+          "src/lib/**",
+          "src/providers/**",
+          "src/stores/**"
+        ]
+      }
+    ],
+    "rules": [
+      { "from": "app", "allow": ["features/process", "shared"] },
+      { "from": "features/process", "allow": ["shared"] },
+      { "from": "shared", "allow": [] }
+    ]
   },
   "ignorePatterns": ["src/components/ui/**"],
   "ignoreDependencies": [

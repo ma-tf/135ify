@@ -1,0 +1,252 @@
+import type { FileWithState } from "@stores/file-store";
+
+import { EditSheet } from "@features/process/edit-sheet";
+import { FileProvider } from "@features/process/file-context";
+import { DEFAULT_PARAMS } from "@features/process/process-image";
+import { useEditSheetStore } from "@stores/edit-sheet-store";
+import { useFileStore } from "@stores/file-store";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite-plus/test";
+
+vi.mock("@features/process/controls-panel", () => ({
+  EditPanel: () => <div data-testid="edit-panel" />,
+}));
+
+const mockUseIsMobile = vi.fn((_breakpoint?: number) => false);
+vi.mock("@hooks/use-mobile", () => ({
+  useIsMobile: (breakpoint: number) => mockUseIsMobile(breakpoint),
+}));
+
+afterEach(cleanup);
+
+beforeAll(() => {
+  Element.prototype.scrollIntoView = vi.fn();
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+});
+
+const TEST_FILE: FileWithState = {
+  file: new File(["test"], "photo.jpg", { type: "image/jpeg" }),
+  id: "file-1",
+  preview: "blob:preview-url",
+  params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
+  renderUrl: "blob:render-url",
+  isProcessing: false,
+  renderError: null,
+};
+
+const TEST_FILE_NO_RENDER: FileWithState = {
+  ...TEST_FILE,
+  id: "file-2",
+  renderUrl: null,
+};
+
+function renderSheetOpen(file = TEST_FILE, imageSrc?: string) {
+  useFileStore.setState({ files: [file] });
+  useEditSheetStore.setState({
+    openSheetId: file.id,
+    imageSrc: imageSrc ?? file.renderUrl ?? "",
+    showOriginal: {},
+    inspectUrl: null,
+  });
+
+  return render(
+    <FileProvider fileId={file.id}>
+      <EditSheet />
+    </FileProvider>,
+  );
+}
+
+function getCloseButton() {
+  const btn = document.body.querySelector("button[data-size='icon-sm']");
+  if (!btn) throw new Error("Close button not found");
+  return btn;
+}
+
+function getOverlayImage() {
+  const btn = getCloseButton();
+  const img = btn.nextElementSibling;
+  if (!img || img.tagName !== "IMG") throw new Error("Overlay image not found");
+  return img as HTMLImageElement;
+}
+
+function pressEscape() {
+  const dialog = document.body.querySelector("[data-slot='sheet-content']");
+  if (!dialog) throw new Error("Sheet content not found");
+  fireEvent.keyDown(dialog, { key: "Escape" });
+}
+
+describe("EditSheet", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseIsMobile.mockReturnValue(false);
+  });
+
+  it("renders sheet closed when openSheetId is null", () => {
+    useFileStore.setState({ files: [TEST_FILE] });
+    useEditSheetStore.setState({
+      openSheetId: null,
+      imageSrc: "",
+      showOriginal: {},
+      inspectUrl: null,
+    });
+
+    render(
+      <FileProvider fileId={TEST_FILE.id}>
+        <EditSheet />
+      </FileProvider>,
+    );
+
+    expect(screen.queryByTestId("edit-panel")).toBeNull();
+  });
+
+  it("renders sheet closed when openSheetId is different file", () => {
+    useFileStore.setState({ files: [TEST_FILE] });
+    useEditSheetStore.setState({ openSheetId: "other-file" });
+
+    render(
+      <FileProvider fileId={TEST_FILE.id}>
+        <EditSheet />
+      </FileProvider>,
+    );
+
+    expect(screen.queryByTestId("edit-panel")).toBeNull();
+  });
+
+  it("renders sheet open when openSheetId matches file id", () => {
+    renderSheetOpen();
+    expect(screen.getByTestId("edit-panel")).toBeDefined();
+  });
+
+  it("close button calls setOpenSheetId(null)", () => {
+    renderSheetOpen();
+
+    fireEvent.click(getCloseButton());
+
+    expect(useEditSheetStore.getState().openSheetId).toBeNull();
+  });
+
+  it("Escape closes sheet and resets imageSrc to renderUrl when available", () => {
+    useFileStore.setState({ files: [TEST_FILE] });
+    useEditSheetStore.setState({
+      openSheetId: TEST_FILE.id,
+      imageSrc: "blob:some-other-url",
+      showOriginal: {},
+      inspectUrl: null,
+    });
+
+    render(
+      <FileProvider fileId={TEST_FILE.id}>
+        <EditSheet />
+      </FileProvider>,
+    );
+
+    pressEscape();
+
+    expect(useEditSheetStore.getState().openSheetId).toBeNull();
+    expect(useEditSheetStore.getState().imageSrc).toBe(TEST_FILE.renderUrl);
+  });
+
+  it("Escape resets imageSrc to preview when renderUrl is null", () => {
+    useFileStore.setState({ files: [TEST_FILE_NO_RENDER] });
+    useEditSheetStore.setState({
+      openSheetId: TEST_FILE_NO_RENDER.id,
+      imageSrc: "blob:some-other-url",
+      showOriginal: {},
+      inspectUrl: null,
+    });
+
+    render(
+      <FileProvider fileId={TEST_FILE_NO_RENDER.id}>
+        <EditSheet />
+      </FileProvider>,
+    );
+
+    pressEscape();
+
+    expect(useEditSheetStore.getState().imageSrc).toBe(TEST_FILE_NO_RENDER.preview);
+  });
+
+  it("Escape resets showOriginal to false for this file", () => {
+    useFileStore.setState({ files: [TEST_FILE] });
+    useEditSheetStore.setState({
+      openSheetId: TEST_FILE.id,
+      imageSrc: TEST_FILE.renderUrl ?? "",
+      showOriginal: { [TEST_FILE.id]: true },
+      inspectUrl: null,
+    });
+
+    render(
+      <FileProvider fileId={TEST_FILE.id}>
+        <EditSheet />
+      </FileProvider>,
+    );
+
+    pressEscape();
+
+    expect(useEditSheetStore.getState().showOriginal[TEST_FILE.id]).toBe(false);
+  });
+
+  it("desktop renders image in overlay with correct src and alt", () => {
+    mockUseIsMobile.mockReturnValue(false);
+
+    renderSheetOpen();
+    const img = getOverlayImage();
+
+    expect(img.getAttribute("src")).toBe(TEST_FILE.renderUrl);
+    expect(img.getAttribute("alt")).toBe(TEST_FILE.file.name);
+  });
+
+  it("mobile renders image inline, not in overlay", () => {
+    mockUseIsMobile.mockReturnValue(true);
+
+    renderSheetOpen();
+
+    const btn = document.body.querySelector("button[data-size='icon-sm']");
+    const overlayImg = btn?.nextElementSibling;
+    expect(overlayImg?.tagName).not.toBe("IMG");
+
+    const allImgs = document.body.querySelectorAll("[data-slot='sheet-content'] img");
+    expect(allImgs.length).toBe(1);
+    expect(allImgs[0].getAttribute("src")).toBe(TEST_FILE.renderUrl);
+  });
+
+  it("desktop image onPointerDown stops propagation", () => {
+    mockUseIsMobile.mockReturnValue(false);
+
+    renderSheetOpen();
+    const img = getOverlayImage();
+
+    const stopSpy = vi.fn();
+    const pointerDownEvent = new PointerEvent("pointerdown", { bubbles: true });
+    Object.defineProperty(pointerDownEvent, "stopPropagation", { value: stopSpy });
+
+    fireEvent(img, pointerDownEvent);
+    expect(stopSpy).toHaveBeenCalled();
+  });
+
+  it("onOpenChange(false) sets openSheetId to null and triggers reset", () => {
+    useFileStore.setState({ files: [TEST_FILE] });
+    useEditSheetStore.setState({
+      openSheetId: TEST_FILE.id,
+      imageSrc: "blob:custom",
+      showOriginal: { [TEST_FILE.id]: true },
+      inspectUrl: null,
+    });
+
+    render(
+      <FileProvider fileId={TEST_FILE.id}>
+        <EditSheet />
+      </FileProvider>,
+    );
+
+    pressEscape();
+
+    expect(useEditSheetStore.getState().openSheetId).toBeNull();
+    expect(useEditSheetStore.getState().imageSrc).toBe(TEST_FILE.renderUrl);
+    expect(useEditSheetStore.getState().showOriginal[TEST_FILE.id]).toBe(false);
+  });
+});
