@@ -3,7 +3,7 @@ import type { DragEvent } from "react";
 
 import { Button } from "@components/ui/button";
 import { FILE_SIZE_LIMIT_BYTES } from "@config";
-import { useFileUpload } from "@hooks/use-file-upload";
+import { useFileUpload } from "@features/process/use-file-upload";
 import { cn, formatBytes } from "@lib/utils";
 import { CircleAlertIcon, CloudUploadIcon } from "lucide-react";
 

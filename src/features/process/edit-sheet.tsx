@@ -14,6 +14,7 @@ function EditSheetRoot({ children }: { children: ReactNode }) {
   const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
   const setImageSrc = useEditSheetStore((s) => s.setImageSrc);
   const setShowOriginal = useEditSheetStore((s) => s.setShowOriginal);
+
   return (
     <Sheet
       open={openSheetId === file.id}
