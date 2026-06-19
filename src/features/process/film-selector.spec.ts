@@ -1,6 +1,5 @@
+import { FILMS, getFilmById } from "@features/process/film-selector";
 import { describe, expect, it } from "vite-plus/test";
-
-import { FILMS, getFilmById } from "./film-selector";
 
 describe("getFilmById", () => {
   it('returns Natural with identity tint for "none"', () => {

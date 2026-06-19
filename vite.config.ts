@@ -50,6 +50,13 @@ export default defineConfig({
     rules: { "vite-plus/prefer-vite-plus-imports": "error" },
     options: { typeAware: true, typeCheck: true },
   },
+  test: {
+    coverage: {
+      enabled: true,
+      exclude: ["src/components/ui/**"],
+      reporter: ["lcov", "text"],
+    },
+  },
   plugins: [
     tailwindcss(),
     tanstackRouter({
