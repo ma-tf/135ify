@@ -11,6 +11,15 @@ beforeEach(() => {
   vi.useFakeTimers();
 });
 
+function renderLatestFn() {
+  const fn1 = vi.fn();
+  const fn2 = vi.fn();
+  const { result, rerender } = renderHook(({ fn }) => useDebouncedCallback(fn, 100), {
+    initialProps: { fn: fn1 },
+  });
+  return { fn1, fn2, result, rerender };
+}
+
 describe("useDebouncedCallback", () => {
   describe("debounced", () => {
     it("does not invoke fn immediately", () => {
@@ -58,12 +67,7 @@ describe("useDebouncedCallback", () => {
     });
 
     it("uses latest fn on each render", () => {
-      const fn1 = vi.fn();
-      const fn2 = vi.fn();
-
-      const { result, rerender } = renderHook(({ fn }) => useDebouncedCallback(fn, 100), {
-        initialProps: { fn: fn1 },
-      });
+      const { fn1, fn2, result, rerender } = renderLatestFn();
 
       result.current.debounced();
       rerender({ fn: fn2 });
@@ -141,12 +145,7 @@ describe("useDebouncedCallback", () => {
     });
 
     it("uses latest fn on each render", () => {
-      const fn1 = vi.fn();
-      const fn2 = vi.fn();
-
-      const { result, rerender } = renderHook(({ fn }) => useDebouncedCallback(fn, 100), {
-        initialProps: { fn: fn1 },
-      });
+      const { fn1, fn2, result, rerender } = renderLatestFn();
 
       rerender({ fn: fn2 });
 

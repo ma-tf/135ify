@@ -25,6 +25,11 @@ function makeDragEvent(
   } as unknown as import("react").DragEvent<HTMLElement>;
 }
 
+function setupDrag(result: { current: ReturnType<typeof useDragDrop> }) {
+  act(() => result.current[1].handleDragEnter(makeDragEvent()));
+  expect(result.current[0].isDragging).toBe(true);
+}
+
 describe("useDragDrop", () => {
   it("isDragging starts as false", () => {
     const { result } = renderHook(() => useDragDrop());
@@ -47,8 +52,7 @@ describe("useDragDrop", () => {
   it("handleDragLeave sets isDragging to false when relatedTarget is not a child", () => {
     const { result } = renderHook(() => useDragDrop());
 
-    act(() => result.current[1].handleDragEnter(makeDragEvent()));
-    expect(result.current[0].isDragging).toBe(true);
+    setupDrag(result);
 
     const preventDefault = vi.fn();
     const stopPropagation = vi.fn();
@@ -99,8 +103,7 @@ describe("useDragDrop", () => {
     const file = new File(["content"], "test.png", { type: "image/png" });
     const { result } = renderHook(() => useDragDrop({ onDrop }));
 
-    act(() => result.current[1].handleDragEnter(makeDragEvent()));
-    expect(result.current[0].isDragging).toBe(true);
+    setupDrag(result);
 
     const preventDefault = vi.fn();
     const stopPropagation = vi.fn();
@@ -157,8 +160,7 @@ describe("useDragDrop", () => {
   it("resetDragging sets isDragging to false", () => {
     const { result } = renderHook(() => useDragDrop());
 
-    act(() => result.current[1].handleDragEnter(makeDragEvent()));
-    expect(result.current[0].isDragging).toBe(true);
+    setupDrag(result);
 
     act(() => result.current[1].resetDragging());
 

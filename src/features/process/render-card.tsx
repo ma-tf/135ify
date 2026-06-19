@@ -50,8 +50,8 @@ export function RenderCard({ className }: { className?: string }) {
       <CardImage file={file} />
       <div
         className={cn(
-          "absolute inset-0 bg-black/25 transition-opacity",
-          activeCardId === file.id ? "opacity-100" : "opacity-0",
+          "absolute inset-0 bg-black/25 opacity-0 transition-opacity",
+          activeCardId === file.id ? "opacity-100" : "group-hover:opacity-100",
         )}
       />
       <CardActions />

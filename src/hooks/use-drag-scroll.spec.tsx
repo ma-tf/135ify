@@ -18,6 +18,18 @@ function container() {
   return document.querySelector("[data-dragging]") as HTMLElement;
 }
 
+function setupDrag(el: HTMLElement) {
+  fireEvent.mouseDown(el, { clientX: 100 });
+  fireEvent.mouseMove(window, { clientX: 110 });
+  expect(el.dataset.dragging).toBe("true");
+}
+
+function assertNotDragging(el: HTMLElement, initialScrollLeft: number) {
+  fireEvent.mouseMove(window, { clientX: 60 });
+  expect(el.dataset.dragging).toBe("false");
+  expect(el.scrollLeft).toBe(initialScrollLeft);
+}
+
 describe("useDragScroll", () => {
   afterEach(cleanup);
   it("isDragging starts as false", () => {
@@ -64,9 +76,7 @@ describe("useDragScroll", () => {
     render(<DragScrollTest />);
     const el = container();
 
-    fireEvent.mouseDown(el, { clientX: 100 });
-    fireEvent.mouseMove(window, { clientX: 110 });
-    expect(el.dataset.dragging).toBe("true");
+    setupDrag(el);
 
     fireEvent.mouseUp(window);
     expect(el.dataset.dragging).toBe("false");
@@ -76,9 +86,7 @@ describe("useDragScroll", () => {
     render(<DragScrollTest />);
     const el = container();
 
-    fireEvent.mouseDown(el, { clientX: 100 });
-    fireEvent.mouseMove(window, { clientX: 110 });
-    expect(el.dataset.dragging).toBe("true");
+    setupDrag(el);
 
     fireEvent.mouseLeave(el);
     expect(el.dataset.dragging).toBe("false");
@@ -95,10 +103,7 @@ describe("useDragScroll", () => {
     const initialScrollLeft = el.scrollLeft;
 
     fireEvent.mouseDown(button, { clientX: 100 });
-    fireEvent.mouseMove(window, { clientX: 60 });
-
-    expect(el.dataset.dragging).toBe("false");
-    expect(el.scrollLeft).toBe(initialScrollLeft);
+    assertNotDragging(el, initialScrollLeft);
   });
 
   it("ignores clicks on elements with data-no-drag", () => {
@@ -112,10 +117,7 @@ describe("useDragScroll", () => {
     const initialScrollLeft = el.scrollLeft;
 
     fireEvent.mouseDown(noDrag, { clientX: 100 });
-    fireEvent.mouseMove(window, { clientX: 60 });
-
-    expect(el.dataset.dragging).toBe("false");
-    expect(el.scrollLeft).toBe(initialScrollLeft);
+    assertNotDragging(el, initialScrollLeft);
   });
 
   it("window mousemove triggers scrolling", () => {

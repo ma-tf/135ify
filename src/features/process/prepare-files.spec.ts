@@ -15,6 +15,14 @@ const makeText = (name = "doc.txt") => new File(["hello"], name, { type: "text/p
 const makeOversized = (name = "big.jpg") =>
   new File([new Uint8Array(200)], name, { type: "image/jpeg" });
 
+function expectRejected(file: File, errorFragment: string) {
+  const { valid, errors } = prepareFiles([file]);
+  expect(valid).toEqual([]);
+  expect(errors).toHaveLength(1);
+  expect(errors[0]).toContain(errorFragment);
+  return errors;
+}
+
 describe("prepareFiles", () => {
   it("returns empty arrays for empty input", () => {
     const result = prepareFiles([]);
@@ -32,23 +40,13 @@ describe("prepareFiles", () => {
   });
 
   it("rejects a file exceeding the size limit", () => {
-    const file = makeOversized();
-    const { valid, errors } = prepareFiles([file]);
-
-    expect(valid).toEqual([]);
-    expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain("big.jpg");
-    expect(errors[0]).toContain("exceeds the maximum size");
+    const [error] = expectRejected(makeOversized(), "big.jpg");
+    expect(error).toContain("exceeds the maximum size");
   });
 
   it("rejects a non-image file", () => {
-    const file = makeText();
-    const { valid, errors } = prepareFiles([file]);
-
-    expect(valid).toEqual([]);
-    expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain("doc.txt");
-    expect(errors[0]).toContain("not an accepted file type");
+    const [error] = expectRejected(makeText(), "doc.txt");
+    expect(error).toContain("not an accepted file type");
   });
 
   it("splits mixed valid and invalid files", () => {

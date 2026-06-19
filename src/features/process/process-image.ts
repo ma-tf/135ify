@@ -1,6 +1,10 @@
 import { DEFAULT_FILM_ID, getFilmById, type FilmId } from "@features/process/film";
 import { getGrainBitmap } from "@features/process/grain-texture";
 
+function clamp(value: number): number {
+  return Math.min(255, Math.max(0, value));
+}
+
 export interface ProcessParams {
   vignetteIntensity: number;
   vignetteFeather: number;
@@ -35,7 +39,7 @@ export async function processToBlobUrl(
   return URL.createObjectURL(resultBlob);
 }
 
-export function constrainDimensions(
+function constrainDimensions(
   width: number,
   height: number,
   maxDimension?: number,
@@ -137,9 +141,9 @@ function applyFilmTint(
   const data = imageData.data;
 
   for (let i = 0; i < data.length; i += 4) {
-    data[i] = Math.min(255, Math.max(0, data[i] * rm + ra));
-    data[i + 1] = Math.min(255, Math.max(0, data[i + 1] * gm + ga));
-    data[i + 2] = Math.min(255, Math.max(0, data[i + 2] * bm + ba));
+    data[i] = clamp(data[i] * rm + ra);
+    data[i + 1] = clamp(data[i + 1] * gm + ga);
+    data[i + 2] = clamp(data[i + 2] * bm + ba);
   }
 
   ctx.putImageData(imageData, 0, 0);
