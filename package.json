@@ -15,7 +15,8 @@
     "fallow:dc": "vpx fallow dead-code",
     "fallow:d": "vpx fallow dupes",
     "fallow:hc": "vpx fallow health --score --hotspots --targets",
-    "fallow:a": "vpx fallow audit"
+    "fallow:a": "vpx fallow audit",
+    "fallow:p": "vp test && vpx fallow --production --coverage coverage/coverage-final.json"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.9",

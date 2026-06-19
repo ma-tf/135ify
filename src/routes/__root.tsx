@@ -23,7 +23,16 @@ function RootComponent() {
 function Header() {
   return (
     <div className="background flex items-center justify-between p-6 lg:p-8">
-      <h1 className="text-2xl text-foreground">135ify</h1>
+      <img
+        src="assets/icon-d.png"
+        alt="135ify"
+        className="hidden h-6 w-6 transition-all hover:brightness-125 dark:block"
+      />
+      <img
+        src="assets/icon-l.png"
+        alt="135ify"
+        className="h-6 w-6 transition-all hover:brightness-125 dark:hidden"
+      />
       <ModeToggle />
     </div>
   );
