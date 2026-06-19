@@ -1,4 +1,4 @@
-import { DEFAULT_FILM_ID, getFilmById, type FilmId } from "@features/process/films";
+import { DEFAULT_FILM_ID, getFilmById, type FilmId } from "@features/process/film-selector";
 import { getGrainBitmap } from "@features/process/grain-texture";
 
 export interface ProcessParams {
