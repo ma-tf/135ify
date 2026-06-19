@@ -1,11 +1,12 @@
+import type { FileWithState } from "@stores/file-store";
+
 import { useActiveCard } from "@features/process/active-card-context";
 import { CardActions } from "@features/process/card-actions";
 import { EditSheet } from "@features/process/edit-sheet";
-import { useFileId } from "@features/process/file-context";
+import { useFile } from "@features/process/file-context";
 import { PreviewDialog } from "@features/process/preview-dialog";
 import { cn } from "@lib/utils";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
-import { useFileStore, type FileWithState } from "@stores/file-store";
 import { useState } from "react";
 
 function CardImage({ file }: { file: FileWithState }) {
@@ -32,12 +33,9 @@ function CardImage({ file }: { file: FileWithState }) {
 }
 
 export function RenderCard({ className }: { className?: string }) {
-  const fileId = useFileId();
-  const file = useFileStore((s) => s.files.find((f) => f.id === fileId));
+  const file = useFile();
   const openSheetId = useEditSheetStore((s) => s.openSheetId);
   const { activeCardId, setActiveCardId } = useActiveCard();
-
-  if (!file) return null;
 
   return (
     <div
@@ -46,14 +44,14 @@ export function RenderCard({ className }: { className?: string }) {
         className,
       )}
       onClick={() => {
-        if (openSheetId !== fileId) setActiveCardId((prev) => (prev === fileId ? null : fileId));
+        if (openSheetId !== file.id) setActiveCardId((prev) => (prev === file.id ? null : file.id));
       }}
     >
       <CardImage file={file} />
       <div
         className={cn(
           "absolute inset-0 bg-black/25 transition-opacity",
-          activeCardId === fileId ? "opacity-100" : "opacity-0",
+          activeCardId === file.id ? "opacity-100" : "opacity-0",
         )}
       />
       <CardActions />

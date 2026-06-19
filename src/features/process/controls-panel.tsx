@@ -2,7 +2,7 @@ import { Button } from "@components/ui/button";
 import { Spinner } from "@components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@components/ui/toggle-group";
 import { FEATURE_3D_PHOTO } from "@config";
-import { useFileId } from "@features/process/file-context";
+import { useFile } from "@features/process/file-context";
 import { FilmSelector } from "@features/process/film-selector";
 import { ParameterSlider } from "@features/process/parameter-slider";
 import { DEFAULT_PARAMS } from "@features/process/process-image";
@@ -13,9 +13,9 @@ import { useFileStore } from "@stores/file-store";
 import { DownloadIcon, RotateCcwIcon } from "lucide-react";
 
 function useParameterSection() {
-  const fileId = useFileId();
-  const params = useFileStore((s) => s.files.find((f) => f.id === fileId)?.params);
-  const { setParam } = useFileProcessing(fileId);
+  const file = useFile();
+  const params = file.params;
+  const { setParam } = useFileProcessing(file.id);
   return { params, setParam };
 }
 
@@ -107,23 +107,20 @@ function GrainControls() {
 }
 
 function EditPanelButtons() {
-  const fileId = useFileId();
+  const file = useFile();
   const files = useFileStore((s) => s.files);
-  const file = files.find((f) => f.id === fileId);
-  const { setParam, downloadFullSize } = useFileProcessing(fileId);
+  const { setParam, downloadFullSize } = useFileProcessing(file.id);
   const setFiles = useFileStore((s) => s.setFiles);
   const revokeFileUrls = useFileStore((s) => s.revokeFileUrls);
   const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
   const setInspectUrl = useEditSheetStore((s) => s.setInspectUrl);
 
-  if (!file) return null;
-
   const handleReset = () => {
-    revokeFileUrls(fileId);
+    revokeFileUrls(file.id);
     setParam(DEFAULT_PARAMS);
     setFiles(
       files.map((f) =>
-        f.id === fileId ? { ...f, renderUrl: null, renderError: null, isProcessing: false } : f,
+        f.id === file.id ? { ...f, renderUrl: null, renderError: null, isProcessing: false } : f,
       ),
     );
   };
@@ -163,13 +160,10 @@ function EditPanelButtons() {
 }
 
 export function EditPanel() {
-  const fileId = useFileId();
-  const showOriginal = useEditSheetStore((s) => s.showOriginal[fileId] ?? false);
+  const file = useFile();
+  const showOriginal = useEditSheetStore((s) => s.showOriginal[file.id] ?? false);
   const setShowOriginal = useEditSheetStore((s) => s.setShowOriginal);
-  const file = useFileStore((s) => s.files.find((f) => f.id === fileId));
-  const { setParam } = useFileProcessing(fileId);
-
-  if (!file) return null;
+  const { setParam } = useFileProcessing(file.id);
 
   const selectedFilmId = file.params.selectedFilmId;
 
@@ -180,7 +174,7 @@ export function EditPanel() {
         <div className="flex rounded-lg border bg-muted p-0.5">
           <button
             type="button"
-            onClick={() => setShowOriginal(fileId, true)}
+            onClick={() => setShowOriginal(file.id, true)}
             className={cn(
               "rounded-md px-3 py-1 text-xs font-medium transition-colors",
               showOriginal
@@ -192,7 +186,7 @@ export function EditPanel() {
           </button>
           <button
             type="button"
-            onClick={() => setShowOriginal(fileId, false)}
+            onClick={() => setShowOriginal(file.id, false)}
             className={cn(
               "rounded-md px-3 py-1 text-xs font-medium transition-colors",
               !showOriginal

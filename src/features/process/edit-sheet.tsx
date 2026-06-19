@@ -3,23 +3,22 @@ import type { ReactNode } from "react";
 import { Button } from "@components/ui/button";
 import { SheetContent, SheetTitle, SheetDescription, Sheet } from "@components/ui/sheet";
 import { EditPanel } from "@features/process/controls-panel";
-import { useFileId } from "@features/process/file-context";
+import { useFile } from "@features/process/file-context";
 import { useIsMobile } from "@hooks/use-mobile";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
-import { useFileStore } from "@stores/file-store";
 import { XIcon } from "lucide-react";
 
 function EditSheetRoot({ children }: { children: ReactNode }) {
-  const fileId = useFileId();
+  const file = useFile();
   const openSheetId = useEditSheetStore((s) => s.openSheetId);
   const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
   const setShowOriginal = useEditSheetStore((s) => s.setShowOriginal);
   return (
     <Sheet
-      open={openSheetId === fileId}
+      open={openSheetId === file.id}
       onOpenChange={(v) => {
-        setOpenSheetId(v ? fileId : null);
-        if (!v) setShowOriginal(fileId, false);
+        setOpenSheetId(v ? file.id : null);
+        if (!v) setShowOriginal(file.id, false);
       }}
     >
       {children}
@@ -28,13 +27,12 @@ function EditSheetRoot({ children }: { children: ReactNode }) {
 }
 
 export function EditSheet() {
-  const fileId = useFileId();
-  const file = useFileStore((s) => s.files.find((f) => f.id === fileId));
+  const file = useFile();
   const isDesktop = !useIsMobile(1024);
   const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
-  const showOriginal = useEditSheetStore((s) => s.showOriginal[fileId] ?? false);
+  const showOriginal = useEditSheetStore((s) => s.showOriginal[file.id] ?? false);
 
-  const src = showOriginal || !file?.renderUrl ? (file?.preview ?? "") : file.renderUrl;
+  const src = showOriginal || !file.renderUrl ? file.preview : file.renderUrl;
 
   return (
     <EditSheetRoot>
@@ -53,7 +51,7 @@ export function EditSheet() {
               <XIcon />
               <span className="sr-only">Close</span>
             </Button>
-            {isDesktop && file && (
+            {isDesktop && (
               <img
                 src={src}
                 alt={file.file.name}
@@ -66,7 +64,7 @@ export function EditSheet() {
       >
         <SheetTitle className="sr-only">Edit Image</SheetTitle>
         <SheetDescription className="sr-only">Edit image settings</SheetDescription>
-        {!isDesktop && file && (
+        {!isDesktop && (
           <img
             src={src}
             alt={file.file.name}
