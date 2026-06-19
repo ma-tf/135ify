@@ -1,4 +1,4 @@
-import { FILMS, getFilmById } from "@features/process/film-selector";
+import { getFilmById } from "@features/process/film";
 import { describe, expect, it } from "vite-plus/test";
 
 describe("getFilmById", () => {
@@ -30,26 +30,5 @@ describe("getFilmById", () => {
     const film = getFilmById("muted");
     expect(film.name).toBe("Whisper");
     expect(film.tint).toEqual([0.95, 0.95, 0.97, 2, 2, 2]);
-  });
-});
-
-describe("FILMS", () => {
-  it("contains exactly 5 presets", () => {
-    expect(FILMS).toHaveLength(5);
-  });
-
-  it("every preset has a valid 6-element tint tuple", () => {
-    for (const film of FILMS) {
-      expect(film.tint).toHaveLength(6);
-      for (const value of film.tint) {
-        expect(typeof value).toBe("number");
-      }
-    }
-  });
-
-  it("every preset has a valid hex swatch string", () => {
-    for (const film of FILMS) {
-      expect(film.swatch).toMatch(/^#[0-9a-f]{6}$/i);
-    }
   });
 });

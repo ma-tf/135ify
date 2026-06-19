@@ -51,6 +51,7 @@ export default defineConfig({
     options: { typeAware: true, typeCheck: true },
   },
   test: {
+    environment: "jsdom",
     coverage: {
       enabled: true,
       exclude: ["src/components/ui/**"],
