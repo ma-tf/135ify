@@ -55,7 +55,7 @@ export default defineConfig({
     coverage: {
       enabled: true,
       exclude: ["src/components/ui/**"],
-      reporter: ["lcov", "text"],
+      reporter: ["lcov", "text", "json"],
     },
   },
   plugins: [

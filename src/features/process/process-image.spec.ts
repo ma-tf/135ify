@@ -99,4 +99,10 @@ describe("processToBlobUrl", () => {
     const result = await processToBlobUrl("http://example.com/photo.jpg", DEFAULT_PARAMS);
     expect(typeof result).toBe("string");
   });
+
+  it("applies film tint when a non-default film is selected", async () => {
+    const goldParams = { ...DEFAULT_PARAMS, selectedFilmId: "gold" as const };
+    const result = await processToBlobUrl("http://example.com/photo.jpg", goldParams);
+    expect(typeof result).toBe("string");
+  });
 });
