@@ -114,10 +114,12 @@ function EditPanelButtons() {
   const revokeFileUrls = useFileStore((s) => s.revokeFileUrls);
   const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
   const setInspectUrl = useEditSheetStore((s) => s.setInspectUrl);
+  const setImageSrc = useEditSheetStore((s) => s.setImageSrc);
 
   const handleReset = () => {
     revokeFileUrls(file.id);
     setParam(DEFAULT_PARAMS);
+    setImageSrc(file.preview);
     setFiles(
       files.map((f) =>
         f.id === file.id ? { ...f, renderUrl: null, renderError: null, isProcessing: false } : f,
@@ -163,6 +165,7 @@ export function EditPanel() {
   const file = useFile();
   const showOriginal = useEditSheetStore((s) => s.showOriginal[file.id] ?? false);
   const setShowOriginal = useEditSheetStore((s) => s.setShowOriginal);
+  const setImageSrc = useEditSheetStore((s) => s.setImageSrc);
   const { setParam } = useFileProcessing(file.id);
 
   const selectedFilmId = file.params.selectedFilmId;
@@ -174,7 +177,10 @@ export function EditPanel() {
         <div className="flex rounded-lg border bg-muted p-0.5">
           <button
             type="button"
-            onClick={() => setShowOriginal(file.id, true)}
+            onClick={() => {
+              setShowOriginal(file.id, true);
+              setImageSrc(file.preview);
+            }}
             className={cn(
               "rounded-md px-3 py-1 text-xs font-medium transition-colors",
               showOriginal
@@ -186,7 +192,10 @@ export function EditPanel() {
           </button>
           <button
             type="button"
-            onClick={() => setShowOriginal(file.id, false)}
+            onClick={() => {
+              setShowOriginal(file.id, false);
+              setImageSrc(file.renderUrl || file.preview);
+            }}
             className={cn(
               "rounded-md px-3 py-1 text-xs font-medium transition-colors",
               !showOriginal

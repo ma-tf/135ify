@@ -2,6 +2,7 @@ import type { ProcessParams } from "@features/process/process-image";
 
 import { processToBlobUrl } from "@features/process/process-image";
 import { useDebouncedCallback } from "@hooks/use-debounced-callback";
+import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
 import { useCallback } from "react";
 
@@ -10,6 +11,7 @@ export function useFileProcessing(fileId: string) {
   const setFiles = useFileStore((s) => s.setFiles);
   const updateProcessParams = useFileStore((s) => s.updateProcessParams);
   const revokeFileUrls = useFileStore((s) => s.revokeFileUrls);
+  const setImageSrc = useEditSheetStore((s) => s.setImageSrc);
 
   const file = files.find((f) => f.id === fileId);
 
@@ -18,6 +20,7 @@ export function useFileProcessing(fileId: string) {
       if (!file) return;
 
       revokeFileUrls(fileId);
+      setImageSrc(file.preview);
       setFiles(
         files.map((f) =>
           f.id === fileId ? { ...f, isProcessing: true, renderUrl: null, renderError: null } : f,
@@ -26,6 +29,7 @@ export function useFileProcessing(fileId: string) {
 
       try {
         const url = await processToBlobUrl(file.preview, params);
+        setImageSrc(url);
         setFiles(
           files.map((f) => (f.id === fileId ? { ...f, renderUrl: url, isProcessing: false } : f)),
         );
@@ -37,7 +41,7 @@ export function useFileProcessing(fileId: string) {
         );
       }
     },
-    [fileId, file, files, setFiles, revokeFileUrls],
+    [fileId, file, files, setFiles, revokeFileUrls, setImageSrc],
   );
 
   const { debounced: reprocessDebounced } = useDebouncedCallback(reprocess, 50);
