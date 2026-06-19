@@ -9,6 +9,7 @@ import { SlidersIcon, XIcon } from "lucide-react";
 export function CardActions() {
   const { activeCardId } = useActiveCard();
   const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
+  const setImageSrc = useEditSheetStore((s) => s.setImageSrc);
   const file = useFile();
   const files = useFileStore((s) => s.files);
   const setFiles = useFileStore((s) => s.setFiles);
@@ -24,6 +25,7 @@ export function CardActions() {
       <Button
         onClick={(e) => {
           e.stopPropagation();
+          setImageSrc(file.renderUrl || file.preview);
           setOpenSheetId(file.id);
         }}
         variant="secondary"

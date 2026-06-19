@@ -1,9 +1,10 @@
 import { BASE_PATH } from "@config";
-import { routeTree } from "@routeTree.gen";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
 
-import "@styles.css";
+import { routeTree } from "./routeTree.gen";
+
+import "./styles.css";
 
 if (import.meta.env.DEV) {
   void import("react-scan").then(({ scan }) => {
