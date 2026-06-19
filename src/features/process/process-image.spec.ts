@@ -1,6 +1,5 @@
+import { constrainDimensions, DEFAULT_PARAMS } from "@features/process/process-image";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
-
-import { constrainDimensions, DEFAULT_PARAMS } from "./process-image";
 
 describe("constrainDimensions", () => {
   it("returns original dimensions when no maxDimension", () => {

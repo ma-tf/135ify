@@ -1,9 +1,8 @@
 import type { FileWithState } from "@stores/file-store";
 
+import { StorageContext } from "@providers/storage-context";
 import { useFileStore } from "@stores/file-store";
 import { type ReactNode, useCallback } from "react";
-
-import { StorageContext } from "./storage-context";
 
 export function ZustandStorageProvider({ children }: { children: ReactNode }) {
   const files = useFileStore((s) => s.files);

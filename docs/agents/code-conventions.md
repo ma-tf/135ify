@@ -17,7 +17,9 @@ are constant for the component's lifetime.
 ## Other conventions
 
 - Use Zustand for state management; single-store pattern in `src/stores/`
-- Use path aliases for imports: `@/`, `@stores/`, `@features/`, `@hooks/`, `@components/`, `@ui/`, `@lib/`, `@utils/`
+- **No relative imports.** All imports must use path aliases (`@features/`, `@hooks/`, `@stores/`, `@components/`,
+  `@lib/`, `@providers/`, `@/`, etc.). The only exception is `routeTree.gen.ts`, which is auto-generated and excluded
+  from linting via `ignorePatterns`.
 - Vite+ toolchain: run `vp check` and `vp test` before committing
 - Never use `store.getState()` — always use the hook (`useStore(selector)`) to access store values. `getState()`
   bypasses React's reactivity and leads to stale reads.
