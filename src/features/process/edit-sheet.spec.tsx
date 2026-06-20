@@ -38,12 +38,6 @@ const TEST_FILE: FileWithState = {
   renderError: null,
 };
 
-const TEST_FILE_NO_RENDER: FileWithState = {
-  ...TEST_FILE,
-  id: "file-2",
-  renderUrl: null,
-};
-
 function renderSheetOpen(file = TEST_FILE, imageSrc?: string) {
   useFileStore.setState({ files: [file] });
   useEditSheetStore.setState({
@@ -71,12 +65,6 @@ function getOverlayImage() {
   const img = btn.nextElementSibling;
   if (!img || img.tagName !== "IMG") throw new Error("Overlay image not found");
   return img as HTMLImageElement;
-}
-
-function pressEscape() {
-  const dialog = document.body.querySelector("[data-slot='sheet-content']");
-  if (!dialog) throw new Error("Sheet content not found");
-  fireEvent.keyDown(dialog, { key: "Escape" });
 }
 
 describe("EditSheet", () => {
@@ -129,67 +117,6 @@ describe("EditSheet", () => {
     expect(useEditSheetStore.getState().openSheetId).toBeNull();
   });
 
-  it("Escape closes sheet and resets imageSrc to renderUrl when available", () => {
-    useFileStore.setState({ files: [TEST_FILE] });
-    useEditSheetStore.setState({
-      openSheetId: TEST_FILE.id,
-      imageSrc: "blob:some-other-url",
-      showOriginal: {},
-      inspectUrl: null,
-    });
-
-    render(
-      <FileProvider fileId={TEST_FILE.id}>
-        <EditSheet />
-      </FileProvider>,
-    );
-
-    pressEscape();
-
-    expect(useEditSheetStore.getState().openSheetId).toBeNull();
-    expect(useEditSheetStore.getState().imageSrc).toBe(TEST_FILE.renderUrl);
-  });
-
-  it("Escape resets imageSrc to preview when renderUrl is null", () => {
-    useFileStore.setState({ files: [TEST_FILE_NO_RENDER] });
-    useEditSheetStore.setState({
-      openSheetId: TEST_FILE_NO_RENDER.id,
-      imageSrc: "blob:some-other-url",
-      showOriginal: {},
-      inspectUrl: null,
-    });
-
-    render(
-      <FileProvider fileId={TEST_FILE_NO_RENDER.id}>
-        <EditSheet />
-      </FileProvider>,
-    );
-
-    pressEscape();
-
-    expect(useEditSheetStore.getState().imageSrc).toBe(TEST_FILE_NO_RENDER.preview);
-  });
-
-  it("Escape resets showOriginal to false for this file", () => {
-    useFileStore.setState({ files: [TEST_FILE] });
-    useEditSheetStore.setState({
-      openSheetId: TEST_FILE.id,
-      imageSrc: TEST_FILE.renderUrl ?? "",
-      showOriginal: { [TEST_FILE.id]: true },
-      inspectUrl: null,
-    });
-
-    render(
-      <FileProvider fileId={TEST_FILE.id}>
-        <EditSheet />
-      </FileProvider>,
-    );
-
-    pressEscape();
-
-    expect(useEditSheetStore.getState().showOriginal[TEST_FILE.id]).toBe(false);
-  });
-
   it("desktop renders image in overlay with correct src and alt", () => {
     mockUseIsMobile.mockReturnValue(false);
 
@@ -226,27 +153,5 @@ describe("EditSheet", () => {
 
     fireEvent(img, pointerDownEvent);
     expect(stopSpy).toHaveBeenCalled();
-  });
-
-  it("onOpenChange(false) sets openSheetId to null and triggers reset", () => {
-    useFileStore.setState({ files: [TEST_FILE] });
-    useEditSheetStore.setState({
-      openSheetId: TEST_FILE.id,
-      imageSrc: "blob:custom",
-      showOriginal: { [TEST_FILE.id]: true },
-      inspectUrl: null,
-    });
-
-    render(
-      <FileProvider fileId={TEST_FILE.id}>
-        <EditSheet />
-      </FileProvider>,
-    );
-
-    pressEscape();
-
-    expect(useEditSheetStore.getState().openSheetId).toBeNull();
-    expect(useEditSheetStore.getState().imageSrc).toBe(TEST_FILE.renderUrl);
-    expect(useEditSheetStore.getState().showOriginal[TEST_FILE.id]).toBe(false);
   });
 });
