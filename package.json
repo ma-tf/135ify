@@ -19,6 +19,8 @@
     "fallow:p": "vp test && vpx fallow --production --coverage coverage/coverage-final.json"
   },
   "dependencies": {
+    "@auth/core": "0.41.1",
+    "@convex-dev/auth": "^0.0.94",
     "@fontsource-variable/geist": "^5.2.9",
     "@tanstack/react-router": "^1.170.16",
     "class-variance-authority": "^0.7.1",

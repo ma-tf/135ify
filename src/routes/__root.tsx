@@ -1,9 +1,7 @@
 import { ModeToggle } from "@components/mode-toggle";
 import { ThemeProvider } from "@components/theme-provider";
-import { convex } from "@lib/convex";
 import { ZustandStorageProvider } from "@providers/zustand-storage";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
-import { ConvexProvider } from "convex/react";
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -11,16 +9,14 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <ConvexProvider client={convex}>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <ZustandStorageProvider>
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            <Outlet />
-          </div>
-        </ZustandStorageProvider>
-      </ThemeProvider>
-    </ConvexProvider>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <ZustandStorageProvider>
+        <div className="flex min-h-screen flex-col">
+          <Header />
+          <Outlet />
+        </div>
+      </ZustandStorageProvider>
+    </ThemeProvider>
   );
 }
 
