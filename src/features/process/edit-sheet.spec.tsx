@@ -2,8 +2,8 @@ import { EditSheet } from "@features/process/edit-sheet";
 import { FileProvider } from "@features/process/file-context";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
-import { setupTests } from "@test-utils/setup";
-import { TEST_FILE_PHOTO } from "@test-utils/test-fixtures";
+import { setupTests } from "@test-utils/setup.spec";
+import { TEST_FILE_PHOTO } from "@test-utils/test-fixtures.spec";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 

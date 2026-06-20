@@ -3,7 +3,7 @@ import { FileProvider } from "@features/process/file-context";
 import { RenderCard } from "@features/process/render-card";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
-import { TEST_FILE, TEST_FILE_WITH_RENDER } from "@test-utils/test-fixtures";
+import { TEST_FILE, TEST_FILE_WITH_RENDER } from "@test-utils/test-fixtures.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 

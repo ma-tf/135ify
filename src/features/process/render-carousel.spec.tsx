@@ -2,7 +2,7 @@ import type { FileWithState } from "@stores/file-store";
 
 import { RenderCarousel } from "@features/process/render-carousel";
 import { useFileStore } from "@stores/file-store";
-import { TEST_FILE, TEST_FILE_2 } from "@test-utils/test-fixtures";
+import { TEST_FILE, TEST_FILE_2 } from "@test-utils/test-fixtures.spec";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 

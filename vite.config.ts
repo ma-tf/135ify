@@ -52,6 +52,7 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    exclude: ["**/node_modules/**", "**/.git/**", "src/test-utils/**"],
     coverage: {
       enabled: true,
       exclude: ["src/components/ui/**"],

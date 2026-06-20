@@ -4,8 +4,8 @@ import { DEFAULT_PARAMS } from "@features/process/process-image";
 import * as useProcessImageModule from "@features/process/use-process-image";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
-import { setupTests } from "@test-utils/setup";
-import { TEST_FILE_PHOTO } from "@test-utils/test-fixtures";
+import { setupTests } from "@test-utils/setup.spec";
+import { TEST_FILE_PHOTO } from "@test-utils/test-fixtures.spec";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
