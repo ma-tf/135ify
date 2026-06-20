@@ -1,9 +1,16 @@
 import { ModeToggle } from "@components/mode-toggle";
-import { SignIn } from "@components/sign-in";
+import { SignInDialog } from "@components/sign-in-dialog";
 import { SignOut } from "@components/sign-out";
-import { Authenticated, Unauthenticated } from "convex/react";
+import { Button } from "@components/ui/button";
+import { FEATURE_SIGN_IN } from "@config";
+import { useConvexAuth } from "@convex-dev/auth/react";
+import { LogInIcon } from "lucide-react";
+import { useState } from "react";
 
 export function Header() {
+  const { isAuthenticated, isLoading } = useConvexAuth();
+  const [signInOpen, setSignInOpen] = useState(false);
+
   return (
     <div className="background flex items-center justify-between p-6 lg:p-8">
       <img
@@ -16,13 +23,17 @@ export function Header() {
         alt="135ify"
         className="h-6 w-6 transition-all hover:brightness-125 dark:hidden"
       />
-      <Unauthenticated>
-        <SignIn />
-      </Unauthenticated>
-      <Authenticated>
-        <SignOut />
-      </Authenticated>
-      <ModeToggle />
+      <div className="flex items-center gap-2">
+        {FEATURE_SIGN_IN && !isLoading && !isAuthenticated && (
+          <Button variant="outline" size="sm" onClick={() => setSignInOpen(true)}>
+            <LogInIcon className="mr-1.5 size-3.5" />
+            Sign in
+          </Button>
+        )}
+        {isAuthenticated && <SignOut />}
+        <ModeToggle />
+      </div>
+      {FEATURE_SIGN_IN && <SignInDialog open={signInOpen} onOpenChange={setSignInOpen} />}
     </div>
   );
 }
