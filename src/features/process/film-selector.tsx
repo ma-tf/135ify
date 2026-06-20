@@ -1,3 +1,5 @@
+import type { FilmId } from "@stores/file-store";
+
 import {
   Select,
   SelectContent,
@@ -5,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@components/ui/select";
-import { FILMS, type FilmId } from "@features/process/film";
+import { FILMS } from "@features/process/film";
 
 interface FilmSelectorProps {
   value: FilmId;
