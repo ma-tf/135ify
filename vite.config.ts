@@ -79,6 +79,7 @@ export default defineConfig({
       "@features": `${src}/features`,
       "@stores": `${src}/stores`,
       "@providers": `${src}/providers`,
+      "@test-utils": `${src}/test-utils`,
     },
   },
 });

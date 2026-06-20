@@ -25,6 +25,13 @@ function makeDragEvent(
   } as unknown as import("react").DragEvent<HTMLElement>;
 }
 
+function createTrackedEvent() {
+  const preventDefault = vi.fn();
+  const stopPropagation = vi.fn();
+  const e = makeDragEvent({ preventDefault, stopPropagation });
+  return { e, preventDefault, stopPropagation };
+}
+
 function setupDrag(result: { current: ReturnType<typeof useDragDrop> }) {
   act(() => result.current[1].handleDragEnter(makeDragEvent()));
   expect(result.current[0].isDragging).toBe(true);
@@ -38,9 +45,7 @@ describe("useDragDrop", () => {
 
   it("handleDragEnter sets isDragging to true", () => {
     const { result } = renderHook(() => useDragDrop());
-    const preventDefault = vi.fn();
-    const stopPropagation = vi.fn();
-    const e = makeDragEvent({ preventDefault, stopPropagation });
+    const { e, preventDefault, stopPropagation } = createTrackedEvent();
 
     act(() => result.current[1].handleDragEnter(e));
 
@@ -87,9 +92,7 @@ describe("useDragDrop", () => {
 
   it("handleDragOver calls preventDefault and stopPropagation without changing isDragging", () => {
     const { result } = renderHook(() => useDragDrop());
-    const preventDefault = vi.fn();
-    const stopPropagation = vi.fn();
-    const e = makeDragEvent({ preventDefault, stopPropagation });
+    const { e, preventDefault, stopPropagation } = createTrackedEvent();
 
     act(() => result.current[1].handleDragOver(e));
 

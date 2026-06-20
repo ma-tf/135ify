@@ -1,11 +1,9 @@
-import type { FileWithState } from "@stores/file-store";
-
 import { ActiveCardProvider } from "@features/process/active-card-context";
 import { FileProvider } from "@features/process/file-context";
-import { DEFAULT_PARAMS } from "@features/process/process-image";
 import { RenderCard } from "@features/process/render-card";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
+import { TEST_FILE, TEST_FILE_WITH_RENDER } from "@test-utils/test-fixtures";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -18,22 +16,6 @@ vi.mock("@features/process/preview-dialog", () => ({
 }));
 
 afterEach(cleanup);
-
-const TEST_FILE: FileWithState = {
-  file: new File(["test"], "test.jpg", { type: "image/jpeg" }),
-  id: "file-1",
-  preview: "blob:preview-url",
-  params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
-  renderUrl: null,
-  isProcessing: false,
-  renderError: null,
-};
-
-const TEST_FILE_WITH_RENDER: FileWithState = {
-  ...TEST_FILE,
-  id: "file-2",
-  renderUrl: "blob:render-url",
-};
 
 describe("RenderCard", () => {
   function renderCard(file = TEST_FILE) {
