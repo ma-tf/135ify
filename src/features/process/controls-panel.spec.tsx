@@ -3,30 +3,13 @@ import { FileProvider } from "@features/process/file-context";
 import { DEFAULT_PARAMS } from "@features/process/process-image";
 import * as useProcessImageModule from "@features/process/use-process-image";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
-import { useFileStore, type FileWithState } from "@stores/file-store";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { useFileStore } from "@stores/file-store";
+import { setupTests } from "@test-utils/setup";
+import { TEST_FILE_PHOTO } from "@test-utils/test-fixtures";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-afterEach(cleanup);
-
-beforeAll(() => {
-  Element.prototype.scrollIntoView = vi.fn();
-  globalThis.ResizeObserver = class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  };
-});
-
-const TEST_FILE: FileWithState = {
-  file: new File(["test"], "photo.jpg", { type: "image/jpeg" }),
-  id: "file-1",
-  preview: "blob:preview-url",
-  params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
-  renderUrl: "blob:render-url",
-  isProcessing: false,
-  renderError: null,
-};
+setupTests();
 
 const mockSetParam = vi.fn();
 const mockDownloadFullSize = vi.fn();
@@ -35,7 +18,7 @@ function mockUseFileProcessing(
   overrides: Partial<ReturnType<typeof useProcessImageModule.useFileProcessing>> = {},
 ) {
   return {
-    params: TEST_FILE.params,
+    params: TEST_FILE_PHOTO.params,
     setParam: mockSetParam,
     downloadFullSize: mockDownloadFullSize,
     ...overrides,
@@ -43,16 +26,16 @@ function mockUseFileProcessing(
 }
 
 function renderEditPanel() {
-  useFileStore.setState({ files: [TEST_FILE] });
+  useFileStore.setState({ files: [TEST_FILE_PHOTO] });
   useEditSheetStore.setState({
-    openSheetId: TEST_FILE.id,
-    imageSrc: TEST_FILE.renderUrl ?? "",
+    openSheetId: TEST_FILE_PHOTO.id,
+    imageSrc: TEST_FILE_PHOTO.renderUrl ?? "",
     showOriginal: {},
     inspectUrl: null,
   });
 
   return render(
-    <FileProvider fileId={TEST_FILE.id}>
+    <FileProvider fileId={TEST_FILE_PHOTO.id}>
       <EditPanel />
     </FileProvider>,
   );

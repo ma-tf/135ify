@@ -24,3 +24,13 @@ export const TEST_FILE_2: FileWithState = {
   file: new File(["test2"], "test2.jpg", { type: "image/jpeg" }),
   preview: "blob:preview-url-2",
 };
+
+export const TEST_FILE_PHOTO: FileWithState = {
+  file: new File(["test"], "photo.jpg", { type: "image/jpeg" }),
+  id: "file-1",
+  preview: "blob:preview-url",
+  params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
+  renderUrl: "blob:render-url",
+  isProcessing: false,
+  renderError: null,
+};

@@ -1,12 +1,11 @@
-import type { FileWithState } from "@stores/file-store";
-
 import { EditSheet } from "@features/process/edit-sheet";
 import { FileProvider } from "@features/process/file-context";
-import { DEFAULT_PARAMS } from "@features/process/process-image";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { setupTests } from "@test-utils/setup";
+import { TEST_FILE_PHOTO } from "@test-utils/test-fixtures";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 vi.mock("@features/process/controls-panel", () => ({
   EditPanel: () => <div data-testid="edit-panel" />,
@@ -17,28 +16,9 @@ vi.mock("@hooks/use-mobile", () => ({
   useIsMobile: (breakpoint: number) => mockUseIsMobile(breakpoint),
 }));
 
-afterEach(cleanup);
+setupTests();
 
-beforeAll(() => {
-  Element.prototype.scrollIntoView = vi.fn();
-  globalThis.ResizeObserver = class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  };
-});
-
-const TEST_FILE: FileWithState = {
-  file: new File(["test"], "photo.jpg", { type: "image/jpeg" }),
-  id: "file-1",
-  preview: "blob:preview-url",
-  params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
-  renderUrl: "blob:render-url",
-  isProcessing: false,
-  renderError: null,
-};
-
-function renderSheetOpen(file = TEST_FILE, imageSrc?: string) {
+function renderSheetOpen(file = TEST_FILE_PHOTO, imageSrc?: string) {
   useFileStore.setState({ files: [file] });
   useEditSheetStore.setState({
     openSheetId: file.id,
@@ -74,7 +54,7 @@ describe("EditSheet", () => {
   });
 
   it("renders sheet closed when openSheetId is null", () => {
-    useFileStore.setState({ files: [TEST_FILE] });
+    useFileStore.setState({ files: [TEST_FILE_PHOTO] });
     useEditSheetStore.setState({
       openSheetId: null,
       imageSrc: "",
@@ -83,7 +63,7 @@ describe("EditSheet", () => {
     });
 
     render(
-      <FileProvider fileId={TEST_FILE.id}>
+      <FileProvider fileId={TEST_FILE_PHOTO.id}>
         <EditSheet />
       </FileProvider>,
     );
@@ -92,11 +72,11 @@ describe("EditSheet", () => {
   });
 
   it("renders sheet closed when openSheetId is different file", () => {
-    useFileStore.setState({ files: [TEST_FILE] });
+    useFileStore.setState({ files: [TEST_FILE_PHOTO] });
     useEditSheetStore.setState({ openSheetId: "other-file" });
 
     render(
-      <FileProvider fileId={TEST_FILE.id}>
+      <FileProvider fileId={TEST_FILE_PHOTO.id}>
         <EditSheet />
       </FileProvider>,
     );
@@ -123,8 +103,8 @@ describe("EditSheet", () => {
     renderSheetOpen();
     const img = getOverlayImage();
 
-    expect(img.getAttribute("src")).toBe(TEST_FILE.renderUrl);
-    expect(img.getAttribute("alt")).toBe(TEST_FILE.file.name);
+    expect(img.getAttribute("src")).toBe(TEST_FILE_PHOTO.renderUrl);
+    expect(img.getAttribute("alt")).toBe(TEST_FILE_PHOTO.file.name);
   });
 
   it("mobile renders image inline, not in overlay", () => {
@@ -138,7 +118,7 @@ describe("EditSheet", () => {
 
     const allImgs = document.body.querySelectorAll("[data-slot='sheet-content'] img");
     expect(allImgs.length).toBe(1);
-    expect(allImgs[0].getAttribute("src")).toBe(TEST_FILE.renderUrl);
+    expect(allImgs[0].getAttribute("src")).toBe(TEST_FILE_PHOTO.renderUrl);
   });
 
   it("desktop image onPointerDown stops propagation", () => {
