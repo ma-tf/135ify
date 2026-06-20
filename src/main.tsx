@@ -1,4 +1,4 @@
-import { BASE_PATH, CONVEX_URL } from "@config";
+import { BASE_PATH, CONVEX_URL, FEATURE_SIGN_IN } from "@config";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { ConvexReactClient } from "convex/react";
@@ -14,7 +14,7 @@ if (import.meta.env.DEV) {
   });
 }
 
-const convex = new ConvexReactClient(CONVEX_URL);
+const convex = FEATURE_SIGN_IN ? new ConvexReactClient(CONVEX_URL) : undefined;
 
 // Set up a Router instance
 const router = createRouter({
@@ -36,9 +36,8 @@ const rootElement = document.getElementById("app")!;
 
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
+  const content = <RouterProvider router={router} />;
   root.render(
-    <ConvexAuthProvider client={convex}>
-      <RouterProvider router={router} />
-    </ConvexAuthProvider>,
+    convex ? <ConvexAuthProvider client={convex}>{content}</ConvexAuthProvider> : content,
   );
 }

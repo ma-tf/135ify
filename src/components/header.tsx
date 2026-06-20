@@ -7,10 +7,25 @@ import { useConvexAuth } from "@convex-dev/auth/react";
 import { LogInIcon } from "lucide-react";
 import { useState } from "react";
 
-export function Header() {
+function HeaderAuth() {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const [signInOpen, setSignInOpen] = useState(false);
 
+  return (
+    <>
+      {FEATURE_SIGN_IN && !isLoading && !isAuthenticated && (
+        <Button variant="outline" size="sm" onClick={() => setSignInOpen(true)}>
+          <LogInIcon className="mr-1.5 size-3.5" />
+          Sign in
+        </Button>
+      )}
+      {isAuthenticated && <SignOut />}
+      {FEATURE_SIGN_IN && <SignInDialog open={signInOpen} onOpenChange={setSignInOpen} />}
+    </>
+  );
+}
+
+export function Header() {
   return (
     <div className="background flex items-center justify-between p-6 lg:p-8">
       <img
@@ -24,16 +39,9 @@ export function Header() {
         className="h-6 w-6 transition-all hover:brightness-125 dark:hidden"
       />
       <div className="flex items-center gap-2">
-        {FEATURE_SIGN_IN && !isLoading && !isAuthenticated && (
-          <Button variant="outline" size="sm" onClick={() => setSignInOpen(true)}>
-            <LogInIcon className="mr-1.5 size-3.5" />
-            Sign in
-          </Button>
-        )}
-        {isAuthenticated && <SignOut />}
+        {FEATURE_SIGN_IN && <HeaderAuth />}
         <ModeToggle />
       </div>
-      {FEATURE_SIGN_IN && <SignInDialog open={signInOpen} onOpenChange={setSignInOpen} />}
     </div>
   );
 }
