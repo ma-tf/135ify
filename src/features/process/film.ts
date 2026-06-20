@@ -1,4 +1,4 @@
-export type FilmId = "none" | "gold" | "cool" | "vintage" | "muted";
+import type { FilmId } from "@stores/file-store";
 
 interface FilmPreset {
   id: FilmId;

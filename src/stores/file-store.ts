@@ -1,6 +1,16 @@
-import type { ProcessParams } from "@features/process/process-image";
-
 import { create } from "zustand";
+
+export type FilmId = "none" | "gold" | "cool" | "vintage" | "muted";
+
+export interface ProcessParams {
+  vignetteIntensity: number;
+  vignetteFeather: number;
+  grainIntensity: number;
+  selectedFilmId: FilmId;
+  halationIntensity: number;
+  halationSpread: number;
+  halationThreshold: number;
+}
 
 export type FileWithState = {
   file: File;

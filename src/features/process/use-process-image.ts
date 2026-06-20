@@ -1,4 +1,4 @@
-import type { ProcessParams } from "@features/process/process-image";
+import type { ProcessParams } from "@stores/file-store";
 
 import { processToBlobUrl } from "@features/process/process-image";
 import { useReprocessImage } from "@features/process/use-reprocess-image";

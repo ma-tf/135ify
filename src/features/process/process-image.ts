@@ -1,18 +1,10 @@
-import { DEFAULT_FILM_ID, getFilmById, type FilmId } from "@features/process/film";
+import type { ProcessParams } from "@stores/file-store";
+
+import { DEFAULT_FILM_ID, getFilmById } from "@features/process/film";
 import { getGrainBitmap } from "@features/process/grain-texture";
 
 function clamp(value: number): number {
   return Math.min(255, Math.max(0, value));
-}
-
-export interface ProcessParams {
-  vignetteIntensity: number;
-  vignetteFeather: number;
-  grainIntensity: number;
-  selectedFilmId: FilmId;
-  halationIntensity: number;
-  halationSpread: number;
-  halationThreshold: number;
 }
 
 export const DEFAULT_PARAMS: ProcessParams = {
