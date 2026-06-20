@@ -1,3 +1,4 @@
+import { Footer } from "@components/footer";
 import { Header } from "@components/header";
 import { ThemeProvider } from "@components/theme-provider";
 import { ZustandStorageProvider } from "@providers/zustand-storage";
@@ -14,6 +15,7 @@ function RootComponent() {
         <div className="flex min-h-screen flex-col">
           <Header />
           <Outlet />
+          <Footer />
         </div>
       </ZustandStorageProvider>
     </ThemeProvider>
