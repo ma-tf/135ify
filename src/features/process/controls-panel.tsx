@@ -10,7 +10,7 @@ import { useFileProcessing } from "@features/process/use-process-image";
 import { cn } from "@lib/utils";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
-import { DownloadIcon, RotateCcwIcon } from "lucide-react";
+import { DownloadIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
 
 function useParameterSection() {
   const file = useFile();
@@ -127,6 +127,13 @@ function EditPanelButtons() {
     );
   };
 
+  const handleDelete = () => {
+    URL.revokeObjectURL(file.preview);
+    revokeFileUrls(file.id);
+    setFiles(files.filter((x) => x.id !== file.id));
+    setOpenSheetId(null);
+  };
+
   const handleDownload = async () => {
     const url = await downloadFullSize();
     if (!url) return;
@@ -156,6 +163,10 @@ function EditPanelButtons() {
           <DownloadIcon className="size-3.5" />
         )}
         Download
+      </Button>
+      <Button variant="destructive" size="sm" className="gap-1.5" onClick={handleDelete}>
+        <Trash2Icon className="size-3.5" />
+        Delete
       </Button>
     </div>
   );

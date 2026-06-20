@@ -106,4 +106,12 @@ describe("EditPanel", () => {
     expect(screen.getByText("Vignette")).toBeDefined();
     expect(screen.getByText("Grain")).toBeDefined();
   });
+
+  it("delete handler revokes URLs, removes file, and closes sheet", () => {
+    renderEditPanel();
+    fireEvent.click(screen.getByText("Delete"));
+
+    expect(useFileStore.getState().files).toHaveLength(0);
+    expect(useEditSheetStore.getState().openSheetId).toBeNull();
+  });
 });
