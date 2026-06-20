@@ -1,25 +1,78 @@
 import { ModeToggle } from "@components/mode-toggle";
 import { SignInDialog } from "@components/sign-in-dialog";
-import { SignOut } from "@components/sign-out";
+import { Avatar, AvatarFallback, AvatarImage } from "@components/ui/avatar";
 import { Button } from "@components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@components/ui/dropdown-menu";
 import { FEATURE_SIGN_IN } from "@config";
-import { useConvexAuth } from "@convex-dev/auth/react";
-import { LogInIcon } from "lucide-react";
+import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
+import { useQuery } from "convex/react";
+import { LogOut, ImageIcon } from "lucide-react";
 import { useState } from "react";
+
+import { api } from "../../convex/_generated/api";
+
+function getInitials(name?: string | null, email?: string | null): string {
+  if (name) {
+    return name
+      .split(" ")
+      .map((part) => part[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+  }
+  if (email) return email[0].toUpperCase();
+  return "?";
+}
 
 function HeaderAuth() {
   const { isAuthenticated, isLoading } = useConvexAuth();
+  const { signOut } = useAuthActions();
+  const user = useQuery(api.users.current);
   const [signInOpen, setSignInOpen] = useState(false);
 
   return (
     <>
       {FEATURE_SIGN_IN && !isLoading && !isAuthenticated && (
-        <Button variant="outline" size="sm" onClick={() => setSignInOpen(true)}>
-          <LogInIcon className="mr-1.5 size-3.5" />
-          Sign in
-        </Button>
+        <>
+          <Button variant="outline" size="sm" onClick={() => setSignInOpen(true)}>
+            Sign in
+          </Button>
+          <Button variant="default" size="sm" onClick={() => setSignInOpen(true)}>
+            Sign up
+          </Button>
+        </>
       )}
-      {isAuthenticated && <SignOut />}
+      {isAuthenticated && user && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="relative size-8 rounded-full">
+              <Avatar size="sm">
+                <AvatarImage src={user.image ?? undefined} alt={user.name ?? "User"} />
+                <AvatarFallback>{getInitials(user.name, user.email)}</AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <a href="/images">
+                <ImageIcon className="mr-2 size-4" />
+                My Images
+              </a>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => void signOut()}>
+              <LogOut className="mr-2 size-4" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
       {FEATURE_SIGN_IN && <SignInDialog open={signInOpen} onOpenChange={setSignInOpen} />}
     </>
   );
