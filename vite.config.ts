@@ -34,7 +34,7 @@ export default defineConfig({
       ],
       order: "asc",
     },
-    ignorePatterns: ["src/routeTree.gen.ts"],
+    ignorePatterns: ["src/routeTree.gen.ts", "convex/_generated/"],
     overrides: [
       {
         files: ["**/*.md"],
