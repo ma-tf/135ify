@@ -21,6 +21,9 @@
       { "from": "shared", "allow": [] }
     ]
   },
+  "duplicates": {
+    "skipLocal": true
+  },
   "ignorePatterns": ["src/components/ui/**"],
   "ignoreDependencies": [
     "@components/ui",

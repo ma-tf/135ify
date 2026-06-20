@@ -76,13 +76,29 @@ describe("useFile", () => {
     expect(captured!.renderUrl).toBe("blob:new");
   });
 
-  it("throws for missing file id", () => {
-    expect(() => {
-      render(
-        <FileProvider fileId="nonexistent">
-          <UseFile onValue={() => {}} />
-        </FileProvider>,
-      );
-    }).toThrow("useFile must be used within FileProvider");
+  it("renders nothing when file is removed from store", () => {
+    const { container } = render(
+      <FileProvider fileId={TEST_FILE.id}>
+        <div data-testid="child" />
+      </FileProvider>,
+    );
+
+    expect(container.querySelector("[data-testid='child']")).not.toBeNull();
+
+    act(() => {
+      useFileStore.setState({ files: [] });
+    });
+
+    expect(container.querySelector("[data-testid='child']")).toBeNull();
+  });
+
+  it("renders nothing for missing file id", () => {
+    const { container } = render(
+      <FileProvider fileId="nonexistent">
+        <div data-testid="child" />
+      </FileProvider>,
+    );
+
+    expect(container.querySelector("[data-testid='child']")).toBeNull();
   });
 });
