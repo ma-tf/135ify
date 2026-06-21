@@ -1,5 +1,6 @@
 import type { FilmId } from "@stores/file-store";
 
+import { Label } from "@components/ui/label";
 import {
   Select,
   SelectContent,
@@ -17,14 +18,16 @@ interface FilmSelectorProps {
 export function FilmSelector({ value, onValueChange }: FilmSelectorProps) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-sm font-semibold text-foreground">Film</label>
+      <Label htmlFor="film-select" className="text-sm font-semibold text-foreground">
+        Film
+      </Label>
       <Select
         value={value}
         onValueChange={(v: FilmId) => {
           onValueChange(v);
         }}
       >
-        <SelectTrigger className="w-full">
+        <SelectTrigger id="film-select" className="w-full">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

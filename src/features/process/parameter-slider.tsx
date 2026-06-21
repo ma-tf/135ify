@@ -1,5 +1,6 @@
 import type { ComponentProps } from "react";
 
+import { Label } from "@components/ui/label";
 import { Slider } from "@components/ui/slider";
 import { cn } from "@lib/utils";
 
@@ -19,7 +20,7 @@ export function ParameterSlider({
 } & Pick<ComponentProps<typeof Slider>, "min" | "max" | "step">) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
-      <span className="w-20 shrink-0 text-sm text-muted-foreground">{label}</span>
+      <Label className="w-20 shrink-0 text-muted-foreground">{label}</Label>
       <Slider
         value={[value]}
         onValueChange={([v]) => onValueChange(v)}
