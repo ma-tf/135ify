@@ -39,7 +39,6 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
-    "@ai-hero/sandcastle": "^0.8.0",
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
     "@tailwindcss/vite": "^4.3.1",
@@ -55,8 +54,7 @@
     "shadcn": "^4.11.0",
     "typescript": "~6.0.3",
     "vite": "catalog:",
-    "vite-plus": "catalog:",
-    "zod": "^4.4.3"
+    "vite-plus": "catalog:"
   },
   "packageManager": "pnpm@11.8.0"
 }

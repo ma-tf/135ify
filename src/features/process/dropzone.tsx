@@ -74,7 +74,7 @@ export function Dropzone({
     },
   });
 
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
     resetDragging();
@@ -84,7 +84,8 @@ export function Dropzone({
   };
 
   return (
-    <div
+    <button
+      type="button"
       className={cn(
         "flex aspect-3/2 shrink-0 cursor-pointer flex-col items-center justify-center border-2 border-dashed text-center transition-colors",
         isDragging
@@ -99,17 +100,9 @@ export function Dropzone({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       onClick={openFileDialog}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          openFileDialog();
-        }
-      }}
-      role="button"
-      tabIndex={0}
     >
       <input hidden {...getInputProps()} className="sr-only" />
       {errors.length > 0 ? <DropzoneError errors={errors} /> : <DropzonePrompt maxSize={maxSize} />}
-    </div>
+    </button>
   );
 }

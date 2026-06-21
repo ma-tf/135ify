@@ -1,0 +1,10 @@
+{
+  "name": "@135ify/sandcastle-tools",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@ai-hero/sandcastle": "^0.8.0",
+    "zod": "^4.4.3"
+  }
+}

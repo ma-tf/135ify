@@ -18,6 +18,7 @@ function CardImage({ file }: { file: FileWithState }) {
         </div>
       )}
       <img
+        draggable={false}
         src={file.renderUrl ?? file.preview}
         className={cn(
           "h-full w-full object-contain transition-opacity group-hover:scale-105",
@@ -36,28 +37,20 @@ export function RenderCard({ className }: { className?: string }) {
   const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
 
   return (
-    <div
+    <button
+      type="button"
       className={cn(
-        "group relative aspect-3/2 overflow-hidden bg-amber-700/40 shadow-[4px_0_0_0_--theme(--color-amber-700/0.4)]",
+        "group relative aspect-3/2 cursor-pointer overflow-hidden bg-amber-700/30 p-0 shadow-[4px_0_0_0_--theme(--color-amber-700/0.4)]",
         className,
       )}
       onClick={() => {
         setImageSrc(file.renderUrl || file.preview);
         setOpenSheetId(file.id);
       }}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          setImageSrc(file.renderUrl || file.preview);
-          setOpenSheetId(file.id);
-        }
-      }}
-      role="button"
-      tabIndex={0}
     >
       <CardImage file={file} />
       <EditSheet />
       <PreviewDialog />
-    </div>
+    </button>
   );
 }

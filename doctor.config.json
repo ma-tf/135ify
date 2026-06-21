@@ -1,8 +1,13 @@
 {
   "$schema": "https://react.doctor/schema/config.json",
   "ignore": {
-    "files": ["convex/_generated/**", "sandcastle/**", "src/components/ui/**"],
-    "overrides": []
+    "files": ["convex/_generated/**", "src/components/ui/**"],
+    "overrides": [
+      {
+        "files": ["convex/**.ts"],
+        "rules": ["deslop/unused-file"]
+      }
+    ]
   },
   "rules": {},
   "categories": {}
