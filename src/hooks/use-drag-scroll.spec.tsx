@@ -95,14 +95,14 @@ describe("useDragScroll", () => {
   it("ignores clicks on interactive elements", () => {
     render(
       <DragScrollTest>
-        <button>Click me</button>
+        <a href="#test">Link</a>
       </DragScrollTest>,
     );
     const el = container();
-    const button = screen.getByText("Click me");
+    const link = screen.getByText("Link");
     const initialScrollLeft = el.scrollLeft;
 
-    fireEvent.mouseDown(button, { clientX: 100 });
+    fireEvent.mouseDown(link, { clientX: 100 });
     assertNotDragging(el, initialScrollLeft);
   });
 

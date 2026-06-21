@@ -52,7 +52,7 @@ export function UserMenu() {
   const { signOut } = useAuthActions();
 
   if (!isAuthenticated) {
-    return <UserAvatar />;
+    return null;
   }
 
   return (

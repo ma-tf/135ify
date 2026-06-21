@@ -49,7 +49,7 @@ export function SignInButtons() {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const [signInOpen, setSignInOpen] = useState(false);
 
-  if (!isLoading && !isAuthenticated) {
+  if (!isLoading && isAuthenticated) {
     return null;
   }
 
