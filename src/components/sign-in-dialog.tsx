@@ -7,9 +7,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@components/ui/dialog";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
+import { useState } from "react";
 
-export function SignInDialog({
+function SignInDialog({
   open,
   onOpenChange,
 }: {
@@ -39,5 +40,26 @@ export function SignInDialog({
         </Button>
       </DialogContent>
     </Dialog>
+  );
+}
+
+export function SignInButtons() {
+  const { isAuthenticated, isLoading } = useConvexAuth();
+  const [signInOpen, setSignInOpen] = useState(false);
+
+  if (!isLoading && !isAuthenticated) {
+    return null;
+  }
+
+  return (
+    <>
+      <Button variant="outline" size="sm" onClick={() => setSignInOpen(true)}>
+        Sign in
+      </Button>
+      <Button variant="default" size="sm" onClick={() => setSignInOpen(true)}>
+        Sign up
+      </Button>
+      <SignInDialog open={signInOpen} onOpenChange={setSignInOpen} />
+    </>
   );
 }

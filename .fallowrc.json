@@ -32,6 +32,7 @@
     "radix-ui",
     "vaul",
     "@ai-hero/sandcastle",
-    "zod"
+    "zod",
+    "@convex/_generated"
   ]
 }

@@ -4,6 +4,7 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import { defineConfig } from "vite-plus";
 
+const convex = path.resolve(__dirname, "convex");
 const src = path.resolve(__dirname, "src");
 
 export default defineConfig({
@@ -71,6 +72,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": src,
+      "@convex": convex,
       "@config": `${src}/config`,
       "@routes": `${src}/routes`,
       "@components": `${src}/components`,
