@@ -86,6 +86,7 @@ export function Dropzone({
   return (
     <button
       type="button"
+      data-no-drag
       className={cn(
         "flex aspect-3/2 shrink-0 cursor-pointer flex-col items-center justify-center border-2 border-dashed text-center transition-colors",
         isDragging

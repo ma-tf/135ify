@@ -43,7 +43,8 @@ export function RenderCard({ className }: { className?: string }) {
         "group relative aspect-3/2 cursor-pointer overflow-hidden bg-amber-700/30 p-0 shadow-[4px_0_0_0_--theme(--color-amber-700/0.4)]",
         className,
       )}
-      onClick={() => {
+      onClick={(e) => {
+        if (e.currentTarget.closest("[data-dragged]")) return;
         setImageSrc(file.renderUrl || file.preview);
         setOpenSheetId(file.id);
       }}

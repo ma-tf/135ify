@@ -12,8 +12,9 @@ export function useDragScroll() {
 
   const onMouseDown = useCallback((e: MouseEvent) => {
     const target = e.target as HTMLElement;
-    if (target.closest("button, a, input, [role='button'], [data-no-drag]")) return;
+    if (target.closest("a, input, [data-no-drag]")) return;
 
+    ref.current?.removeAttribute("data-dragged");
     state.current.isDown = true;
     state.current.startX = e.clientX;
     state.current.scrollLeft = ref.current?.scrollLeft ?? 0;
@@ -40,6 +41,7 @@ export function useDragScroll() {
     if (state.current.isDragging) {
       state.current.isDragging = false;
       setIsDragging(false);
+      ref.current?.setAttribute("data-dragged", "");
     }
   }, []);
 
