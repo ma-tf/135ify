@@ -1,4 +1,3 @@
-import { ActiveCardProvider } from "@features/process/active-card-context";
 import { FileProvider } from "@features/process/file-context";
 import { RenderCard } from "@features/process/render-card";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
@@ -28,11 +27,9 @@ describe("RenderCard", () => {
     });
 
     return render(
-      <ActiveCardProvider>
-        <FileProvider fileId={file.id}>
-          <RenderCard />
-        </FileProvider>
-      </ActiveCardProvider>,
+      <FileProvider fileId={file.id}>
+        <RenderCard />
+      </FileProvider>,
     );
   }
 
@@ -59,59 +56,11 @@ describe("RenderCard", () => {
     expect(screen.getByRole("img").className).toContain("opacity-100");
   });
 
-  it("click activates the card", () => {
+  it("click opens the edit sheet", () => {
     renderCard();
     const card = screen.getByRole("img").parentElement!;
     fireEvent.click(card);
-    const overlay = card.querySelector("[class*='bg-black']");
-    expect(overlay!.className).toContain("opacity-100");
-  });
-
-  it("click deactivates the card when already active", () => {
-    renderCard();
-    const card = screen.getByRole("img").parentElement!;
-    fireEvent.click(card);
-    fireEvent.click(card);
-    const overlay = card.querySelector("[class*='bg-black']");
-    expect(overlay!.className).toContain("opacity-0");
-  });
-
-  it("click does nothing when edit sheet is open for this card", () => {
-    useFileStore.setState({ files: [TEST_FILE] });
-    useEditSheetStore.setState({
-      openSheetId: TEST_FILE.id,
-      imageSrc: "",
-      showOriginal: {},
-      inspectUrl: null,
-    });
-
-    render(
-      <ActiveCardProvider>
-        <FileProvider fileId={TEST_FILE.id}>
-          <RenderCard />
-        </FileProvider>
-      </ActiveCardProvider>,
-    );
-
-    const card = screen.getByRole("img").parentElement!;
-    const overlay = card.querySelector("[class*='bg-black']");
-    expect(overlay!.className).toContain("opacity-0");
-
-    fireEvent.click(card);
-    expect(overlay!.className).toContain("opacity-0");
-  });
-
-  it("overlay is hidden when card is not active", () => {
-    renderCard();
-    const card = screen.getByRole("img").parentElement!;
-    const overlay = card.querySelector("[class*='bg-black']");
-    expect(overlay!.className).toContain("opacity-0");
-  });
-
-  it("renders CardActions", () => {
-    renderCard();
-    const buttons = screen.getAllByRole("button");
-    expect(buttons.length).toBe(3);
+    expect(useEditSheetStore.getState().openSheetId).toBe(TEST_FILE.id);
   });
 
   it("renders EditSheet and PreviewDialog", () => {
@@ -122,11 +71,9 @@ describe("RenderCard", () => {
 
   it("applies custom className", () => {
     render(
-      <ActiveCardProvider>
-        <FileProvider fileId={TEST_FILE.id}>
-          <RenderCard className="my-custom-class" />
-        </FileProvider>
-      </ActiveCardProvider>,
+      <FileProvider fileId={TEST_FILE.id}>
+        <RenderCard className="my-custom-class" />
+      </FileProvider>,
     );
     const card = screen.getByRole("img").parentElement!;
     expect(card.className).toContain("my-custom-class");

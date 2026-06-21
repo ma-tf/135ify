@@ -5,5 +5,4 @@ export const GRAIN_URL = `${import.meta.env.BASE_URL}grain.jpg`;
 
 export const CONVEX_URL = import.meta.env.VITE_CONVEX_URL;
 
-export const FILE_SIZE_LIMIT_BYTES =
-  (Number(import.meta.env.VITE_FILE_SIZE_LIMIT_MB) || 30) * 1024 * 1024;
+export const FILE_SIZE_LIMIT_BYTES = Number(import.meta.env.VITE_FILE_SIZE_LIMIT_MB) * 1024 * 1024;

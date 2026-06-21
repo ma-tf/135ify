@@ -1,7 +1,5 @@
 import type { FileWithState } from "@stores/file-store";
 
-import { useActiveCard } from "@features/process/active-card-context";
-import { CardActions } from "@features/process/card-actions";
 import { EditSheet } from "@features/process/edit-sheet";
 import { useFile } from "@features/process/file-context";
 import { PreviewDialog } from "@features/process/preview-dialog";
@@ -34,8 +32,8 @@ function CardImage({ file }: { file: FileWithState }) {
 
 export function RenderCard({ className }: { className?: string }) {
   const file = useFile();
-  const openSheetId = useEditSheetStore((s) => s.openSheetId);
-  const { activeCardId, setActiveCardId } = useActiveCard();
+  const setImageSrc = useEditSheetStore((s) => s.setImageSrc);
+  const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
 
   return (
     <div
@@ -44,26 +42,20 @@ export function RenderCard({ className }: { className?: string }) {
         className,
       )}
       onClick={() => {
-        if (openSheetId !== file.id) setActiveCardId((prev) => (prev === file.id ? null : file.id));
+        setImageSrc(file.renderUrl || file.preview);
+        setOpenSheetId(file.id);
       }}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          if (openSheetId !== file.id)
-            setActiveCardId((prev) => (prev === file.id ? null : file.id));
+          setImageSrc(file.renderUrl || file.preview);
+          setOpenSheetId(file.id);
         }
       }}
       role="button"
       tabIndex={0}
     >
       <CardImage file={file} />
-      <div
-        className={cn(
-          "absolute inset-0 bg-black/25 opacity-0 transition-opacity",
-          activeCardId === file.id ? "opacity-100" : "group-hover:opacity-100",
-        )}
-      />
-      <CardActions />
       <EditSheet />
       <PreviewDialog />
     </div>

@@ -58,14 +58,6 @@ describe("RenderCarousel", () => {
     expect(useFileStore.getState().files).toHaveLength(2);
   });
 
-  it("wraps all card frames in a single ActiveCardProvider", () => {
-    renderCarousel([TEST_FILE, TEST_FILE_2]);
-    const container = document.getElementById("render-carousel")!;
-    const frames = Array.from(container.children);
-    const cardFrames = frames.filter((f) => f.querySelector("[data-testid='render-card']"));
-    expect(cardFrames.length).toBe(2);
-  });
-
   it("applies cursor-grab when not dragging", async () => {
     const { useDragScroll } = await import("@hooks/use-drag-scroll");
     vi.mocked(useDragScroll).mockReturnValue({

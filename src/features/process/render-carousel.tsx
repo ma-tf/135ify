@@ -1,4 +1,3 @@
-import { ActiveCardProvider } from "@features/process/active-card-context";
 import { Dropzone } from "@features/process/dropzone";
 import { FileProvider } from "@features/process/file-context";
 import { RenderCard } from "@features/process/render-card";
@@ -36,16 +35,14 @@ export function RenderCarousel() {
         <Dropzone className="bg-amber-700/10 shadow-[4px_0_0_0_--theme(--color-amber-700/0.4)]" />
         <span className="pointer-events-none absolute top-px left-1/2 z-1 -translate-x-1/2 font-mono text-xs leading-4 text-black/40 before:content-[counter(frame-counter)]" />
       </div>
-      <ActiveCardProvider>
-        {files.map((file) => (
-          <div key={file.id} className={filmFrameClasses}>
-            <FileProvider fileId={file.id}>
-              <RenderCard />
-            </FileProvider>
-            <span className="pointer-events-none absolute top-px left-1/2 z-1 -translate-x-1/2 font-mono text-xs leading-4 text-black/40 before:content-[counter(frame-counter)]" />
-          </div>
-        ))}
-      </ActiveCardProvider>
+      {files.map((file) => (
+        <div key={file.id} className={filmFrameClasses}>
+          <FileProvider fileId={file.id}>
+            <RenderCard />
+          </FileProvider>
+          <span className="pointer-events-none absolute top-px left-1/2 z-1 -translate-x-1/2 font-mono text-xs leading-4 text-black/40 before:content-[counter(frame-counter)]" />
+        </div>
+      ))}
     </div>
   );
 }
