@@ -20,7 +20,7 @@ export function useOfflineToast() {
   const isFirstLoad = useRef(true);
 
   useEffect(() => {
-    if (isFirstLoad) {
+    if (isFirstLoad.current) {
       isFirstLoad.current = false;
       return;
     }
