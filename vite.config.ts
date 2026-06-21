@@ -34,7 +34,7 @@ export default defineConfig({
       ],
       order: "asc",
     },
-    ignorePatterns: ["src/routeTree.gen.ts", "convex/_generated/"],
+    ignorePatterns: ["src/routeTree.gen.ts", "convex/_generated/", ".agents/"],
     overrides: [
       {
         files: ["**/*.md"],
@@ -48,6 +48,7 @@ export default defineConfig({
   lint: {
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     rules: { "vite-plus/prefer-vite-plus-imports": "error" },
+    ignorePatterns: [".agents/"],
     options: { typeAware: true, typeCheck: true },
   },
   test: {
