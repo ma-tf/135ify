@@ -19,7 +19,7 @@ vi.mock("@components/ui/slider", () => ({
     return (
       <input
         type="range"
-        role="slider"
+        aria-valuenow={value?.[0] ?? 0}
         value={value?.[0] ?? 0}
         min={min}
         max={max}
@@ -45,14 +45,16 @@ describe("ParameterSlider", () => {
 
   it("calls onValueChange when slider changes", () => {
     const onValueChange = vi.fn();
-    render(<ParameterSlider label="Threshold" value={10} onValueChange={onValueChange} />);
-    const slider = screen.getByRole("slider") as HTMLInputElement;
+    const { container } = render(
+      <ParameterSlider label="Threshold" value={10} onValueChange={onValueChange} />,
+    );
+    const slider = container.querySelector('input[type="range"]') as HTMLInputElement;
     fireEvent.change(slider, { target: { value: "75" } });
     expect(onValueChange).toHaveBeenCalledWith(75);
   });
 
   it("forwards min, max, and step to Slider", () => {
-    render(
+    const { container } = render(
       <ParameterSlider
         label="Feather"
         value={5}
@@ -62,7 +64,7 @@ describe("ParameterSlider", () => {
         step={5}
       />,
     );
-    const slider = screen.getByRole("slider") as HTMLInputElement;
+    const slider = container.querySelector('input[type="range"]') as HTMLInputElement;
     expect(slider.min).toBe("1");
     expect(slider.max).toBe("200");
     expect(slider.step).toBe("5");
@@ -76,8 +78,8 @@ describe("ParameterSlider", () => {
   });
 
   it("uses default min, max, step when not provided", () => {
-    render(<ParameterSlider label="Y" value={0} onValueChange={vi.fn()} />);
-    const slider = screen.getByRole("slider") as HTMLInputElement;
+    const { container } = render(<ParameterSlider label="Y" value={0} onValueChange={vi.fn()} />);
+    const slider = container.querySelector('input[type="range"]') as HTMLInputElement;
     expect(slider.min).toBe("0");
     expect(slider.max).toBe("100");
     expect(slider.step).toBe("1");

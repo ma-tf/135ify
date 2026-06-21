@@ -1,7 +1,7 @@
 import type { FileWithState } from "@stores/file-store";
 
 import { useFileStore } from "@stores/file-store";
-import { createContext, useContext } from "react";
+import { createContext, use } from "react";
 
 const FileContext = createContext<FileWithState | null>(null);
 
@@ -12,7 +12,7 @@ export function FileProvider({ fileId, children }: { fileId: string; children: R
 }
 
 export function useFile() {
-  const ctx = useContext(FileContext);
+  const ctx = use(FileContext);
   if (!ctx) throw new Error("useFile must be used within FileProvider");
   return ctx;
 }

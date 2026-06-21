@@ -111,7 +111,7 @@ describe("RenderCard", () => {
   it("renders CardActions", () => {
     renderCard();
     const buttons = screen.getAllByRole("button");
-    expect(buttons.length).toBe(2);
+    expect(buttons.length).toBe(3);
   });
 
   it("renders EditSheet and PreviewDialog", () => {

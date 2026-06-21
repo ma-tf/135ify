@@ -46,6 +46,15 @@ export function RenderCard({ className }: { className?: string }) {
       onClick={() => {
         if (openSheetId !== file.id) setActiveCardId((prev) => (prev === file.id ? null : file.id));
       }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          if (openSheetId !== file.id)
+            setActiveCardId((prev) => (prev === file.id ? null : file.id));
+        }
+      }}
+      role="button"
+      tabIndex={0}
     >
       <CardImage file={file} />
       <div

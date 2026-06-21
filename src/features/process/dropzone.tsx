@@ -20,8 +20,8 @@ function DropzoneError({ errors }: { errors: string[] }) {
       <CircleAlertIcon className="size-6" />
       <div className="space-y-0.5">
         <h3 className="text-sm font-semibold">File upload error(s)</h3>
-        {errors.map((error, index) => (
-          <p key={index} className="text-xs last:mb-0">
+        {errors.map((error) => (
+          <p key={error} className="text-xs last:mb-0">
             {error}
           </p>
         ))}
@@ -99,6 +99,14 @@ export function Dropzone({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       onClick={openFileDialog}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openFileDialog();
+        }
+      }}
+      role="button"
+      tabIndex={0}
     >
       <input hidden {...getInputProps()} className="sr-only" />
       {errors.length > 0 ? <DropzoneError errors={errors} /> : <DropzonePrompt maxSize={maxSize} />}
