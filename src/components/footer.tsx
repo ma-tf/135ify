@@ -1,4 +1,4 @@
-import { GitHubIcon } from "@components/auth-icon";
+import { GitHubIcon } from "@components/github-icon";
 
 export function Footer() {
   return (

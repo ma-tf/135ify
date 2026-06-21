@@ -1,4 +1,5 @@
-import { GitHubIcon, GoogleIcon, XIcon } from "@components/auth-icon";
+import { GitHubIcon } from "@components/github-icon";
+import { GoogleIcon } from "@components/google-icon";
 import { Button } from "@components/ui/button";
 import {
   Dialog,
@@ -7,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@components/ui/dialog";
+import { XIcon } from "@components/x-icon";
 import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
 import { useState } from "react";
 
