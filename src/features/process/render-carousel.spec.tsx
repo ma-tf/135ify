@@ -1,8 +1,9 @@
-import type { FileWithState } from "@stores/file-store";
+import type { FileWithState } from "@stores/file-store-types";
 
 import { RenderCarousel } from "@features/process/render-carousel";
 import { useFileStore } from "@stores/file-store";
 import { TEST_FILE, TEST_FILE_2 } from "@test-utils/test-fixtures.spec";
+import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -25,7 +26,11 @@ afterEach(cleanup);
 
 function renderCarousel(files: FileWithState[] = []) {
   useFileStore.setState({ files });
-  return render(<RenderCarousel />);
+  return render(
+    <TestStorageProvider>
+      <RenderCarousel />
+    </TestStorageProvider>,
+  );
 }
 
 describe("RenderCarousel", () => {

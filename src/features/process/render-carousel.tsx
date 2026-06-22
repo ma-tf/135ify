@@ -3,7 +3,7 @@ import { FileProvider } from "@features/process/file-context";
 import { RenderCard } from "@features/process/render-card";
 import { useDragScroll } from "@hooks/use-drag-scroll";
 import { cn } from "@lib/utils";
-import { useFileStore } from "@stores/file-store";
+import { useStorage } from "@providers/storage-context";
 
 const sharedFilmFrameClasses =
   "relative overflow-visible flex w-2xs shrink-0 flex-col lg:w-md border-r-4 border-transparent carousel-sprocket " +
@@ -17,7 +17,7 @@ const dropzoneFrameClasses = cn(
 );
 
 export function RenderCarousel() {
-  const files = useFileStore((s) => s.files);
+  const { files } = useStorage();
   const { ref, isDragging } = useDragScroll();
 
   return (

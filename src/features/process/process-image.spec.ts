@@ -1,4 +1,4 @@
-import { DEFAULT_PARAMS } from "@features/process/process-image";
+import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 vi.mock("@features/process/grain-texture", () => ({

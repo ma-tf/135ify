@@ -3,6 +3,7 @@ import { RenderCard } from "@features/process/render-card";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
 import { TEST_FILE, TEST_FILE_WITH_RENDER } from "@test-utils/test-fixtures.spec";
+import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -27,9 +28,11 @@ describe("RenderCard", () => {
     });
 
     return render(
-      <FileProvider fileId={file.id}>
-        <RenderCard />
-      </FileProvider>,
+      <TestStorageProvider>
+        <FileProvider fileId={file.id}>
+          <RenderCard />
+        </FileProvider>
+      </TestStorageProvider>,
     );
   }
 
@@ -71,9 +74,11 @@ describe("RenderCard", () => {
 
   it("applies custom className", () => {
     render(
-      <FileProvider fileId={TEST_FILE.id}>
-        <RenderCard className="my-custom-class" />
-      </FileProvider>,
+      <TestStorageProvider>
+        <FileProvider fileId={TEST_FILE.id}>
+          <RenderCard className="my-custom-class" />
+        </FileProvider>
+      </TestStorageProvider>,
     );
     const card = screen.getByRole("img").parentElement!;
     expect(card.className).toContain("my-custom-class");

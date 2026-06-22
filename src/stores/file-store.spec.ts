@@ -1,11 +1,10 @@
+import { prepareFiles } from "@stores/file-store";
+import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { describe, expect, it, vi } from "vite-plus/test";
 
 vi.mock("@config", () => ({
   FILE_SIZE_LIMIT_BYTES: 100,
 }));
-
-import { prepareFiles } from "@features/process/prepare-files";
-import { DEFAULT_PARAMS } from "@features/process/process-image";
 
 const makeImage = (name = "photo.jpg", size = 50) =>
   new File([new Uint8Array(size)], name, { type: "image/jpeg" });

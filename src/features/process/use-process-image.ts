@@ -1,13 +1,12 @@
-import type { ProcessParams } from "@stores/file-store";
+import type { ProcessParams } from "@stores/file-store-types";
 
 import { processToBlobUrl } from "@features/process/process-image";
 import { useReprocessImage } from "@features/process/use-reprocess-image";
-import { useFileStore } from "@stores/file-store";
+import { useStorage } from "@providers/storage-context";
 import { useCallback } from "react";
 
 export function useFileProcessing(fileId: string) {
-  const files = useFileStore((s) => s.files);
-  const updateProcessParams = useFileStore((s) => s.updateProcessParams);
+  const { files, updateFile } = useStorage();
 
   const file = files.find((f) => f.id === fileId);
   const { reprocessDebounced } = useReprocessImage(fileId);
@@ -16,10 +15,10 @@ export function useFileProcessing(fileId: string) {
     (partial: Partial<ProcessParams>) => {
       if (!file) return;
       const merged = { ...file.params, ...partial };
-      updateProcessParams(fileId, partial);
+      updateFile(fileId, { params: merged });
       reprocessDebounced(merged);
     },
-    [fileId, file, updateProcessParams, reprocessDebounced],
+    [fileId, file, updateFile, reprocessDebounced],
   );
 
   const downloadFullSize = useCallback(async () => {

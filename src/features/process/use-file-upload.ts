@@ -1,10 +1,9 @@
-import type { FileWithState } from "@stores/file-store";
+import type { FileWithState } from "@stores/file-store-types";
 
-import { prepareFiles } from "@features/process/prepare-files";
 import { useDragDrop } from "@hooks/use-drag-drop";
 import { useFileInput } from "@hooks/use-file-input";
 import { useStorage } from "@providers/storage-context";
-import { useFileStore } from "@stores/file-store";
+import { prepareFiles } from "@stores/file-store";
 import { useCallback, useState, type InputHTMLAttributes } from "react";
 
 export type FileUploadOptions = {
@@ -43,8 +42,11 @@ export const useFileUpload = (
 ): [FileUploadState, FileUploadActions] => {
   const { onFilesChange = () => {}, onFilesAdded = () => {} } = options;
 
-  const { files: storeFiles, setFiles } = useStorage();
-  const revokeFileUrls = useFileStore((s) => s.revokeFileUrls);
+  const {
+    files: storeFiles,
+    addFiles: storageAddFiles,
+    removeFile: storageRemoveFile,
+  } = useStorage();
   const [errors, setErrors] = useState<string[]>([]);
 
   const addFiles = useCallback(
@@ -57,14 +59,13 @@ export const useFileUpload = (
 
       if (valid.length > 0) {
         onFilesAdded(valid);
-        const newFilesResult = [...valid, ...storeFiles];
-        setFiles(newFilesResult);
-        onFilesChange(newFilesResult);
+        storageAddFiles(valid.map((f) => f.file));
+        onFilesChange([...valid, ...storeFiles]);
       }
 
       setErrors(prepErrors);
     },
-    [storeFiles, onFilesChange, onFilesAdded, setFiles],
+    [storeFiles, onFilesChange, onFilesAdded, storageAddFiles],
   );
 
   const [dragState, dragActions] = useDragDrop({
@@ -78,13 +79,11 @@ export const useFileUpload = (
 
   const removeFile = useCallback(
     (id: string) => {
-      revokeFileUrls(id);
-      const newFiles = storeFiles.filter((file) => file.id !== id);
-      setFiles(newFiles);
+      storageRemoveFile(id);
       setErrors([]);
-      onFilesChange(newFiles);
+      onFilesChange(storeFiles.filter((f) => f.id !== id));
     },
-    [storeFiles, onFilesChange, setFiles, revokeFileUrls],
+    [storeFiles, onFilesChange, storageRemoveFile],
   );
 
   const clearErrors = useCallback(() => {

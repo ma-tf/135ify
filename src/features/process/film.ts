@@ -1,4 +1,4 @@
-import type { FilmId } from "@stores/file-store";
+import type { FilmId } from "@stores/file-store-types";
 
 interface FilmPreset {
   id: FilmId;
@@ -39,8 +39,6 @@ export const FILMS: FilmPreset[] = [
     swatch: "#8a8a94",
   },
 ];
-
-export const DEFAULT_FILM_ID: FilmId = "none";
 
 export function getFilmById(id: FilmId): FilmPreset {
   return FILMS.find((f) => f.id === id)!;

@@ -1,6 +1,6 @@
-import type { FileWithState } from "@stores/file-store";
+import type { FileWithState } from "@stores/file-store-types";
 
-import { DEFAULT_PARAMS } from "@features/process/process-image";
+import { DEFAULT_PARAMS } from "@stores/file-store-types";
 
 export const TEST_FILE: FileWithState = {
   file: new File(["test"], "test.jpg", { type: "image/jpeg" }),

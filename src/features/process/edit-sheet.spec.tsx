@@ -4,6 +4,7 @@ import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
 import { setupTests } from "@test-utils/setup.spec";
 import { TEST_FILE_PHOTO } from "@test-utils/test-fixtures.spec";
+import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -28,9 +29,11 @@ function renderSheetOpen(file = TEST_FILE_PHOTO, imageSrc?: string) {
   });
 
   return render(
-    <FileProvider fileId={file.id}>
-      <EditSheet />
-    </FileProvider>,
+    <TestStorageProvider>
+      <FileProvider fileId={file.id}>
+        <EditSheet />
+      </FileProvider>
+    </TestStorageProvider>,
   );
 }
 
@@ -63,9 +66,11 @@ describe("EditSheet", () => {
     });
 
     render(
-      <FileProvider fileId={TEST_FILE_PHOTO.id}>
-        <EditSheet />
-      </FileProvider>,
+      <TestStorageProvider>
+        <FileProvider fileId={TEST_FILE_PHOTO.id}>
+          <EditSheet />
+        </FileProvider>
+      </TestStorageProvider>,
     );
 
     expect(screen.queryByTestId("edit-panel")).toBeNull();
@@ -76,9 +81,11 @@ describe("EditSheet", () => {
     useEditSheetStore.setState({ openSheetId: "other-file" });
 
     render(
-      <FileProvider fileId={TEST_FILE_PHOTO.id}>
-        <EditSheet />
-      </FileProvider>,
+      <TestStorageProvider>
+        <FileProvider fileId={TEST_FILE_PHOTO.id}>
+          <EditSheet />
+        </FileProvider>
+      </TestStorageProvider>,
     );
 
     expect(screen.queryByTestId("edit-panel")).toBeNull();

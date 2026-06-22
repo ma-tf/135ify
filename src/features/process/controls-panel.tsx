@@ -5,11 +5,11 @@ import { FEATURE_3D_PHOTO } from "@config";
 import { useFile } from "@features/process/file-context";
 import { FilmSelector } from "@features/process/film-selector";
 import { ParameterSlider } from "@features/process/parameter-slider";
-import { DEFAULT_PARAMS } from "@features/process/process-image";
 import { useFileProcessing } from "@features/process/use-process-image";
 import { cn } from "@lib/utils";
+import { useStorage } from "@providers/storage-context";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
-import { useFileStore } from "@stores/file-store";
+import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { DownloadIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
 
 function useParameterSection() {
@@ -108,29 +108,20 @@ function GrainControls() {
 
 function EditPanelButtons() {
   const file = useFile();
-  const files = useFileStore((s) => s.files);
   const { setParam, downloadFullSize } = useFileProcessing(file.id);
-  const setFiles = useFileStore((s) => s.setFiles);
-  const revokeFileUrls = useFileStore((s) => s.revokeFileUrls);
+  const { updateFile, removeFile } = useStorage();
   const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
   const setInspectUrl = useEditSheetStore((s) => s.setInspectUrl);
   const setImageSrc = useEditSheetStore((s) => s.setImageSrc);
 
   const handleReset = () => {
-    revokeFileUrls(file.id);
     setParam(DEFAULT_PARAMS);
     setImageSrc(file.preview);
-    setFiles(
-      files.map((f) =>
-        f.id === file.id ? { ...f, renderUrl: null, renderError: null, isProcessing: false } : f,
-      ),
-    );
+    updateFile(file.id, { renderUrl: null, renderError: null, isProcessing: false });
   };
 
   const handleDelete = () => {
-    URL.revokeObjectURL(file.preview);
-    revokeFileUrls(file.id);
-    setFiles(files.filter((x) => x.id !== file.id));
+    removeFile(file.id);
     setOpenSheetId(null);
   };
 

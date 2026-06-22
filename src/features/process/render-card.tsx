@@ -1,4 +1,4 @@
-import type { FileWithState } from "@stores/file-store";
+import type { FileWithState } from "@stores/file-store-types";
 
 import { EditSheet } from "@features/process/edit-sheet";
 import { useFile } from "@features/process/file-context";

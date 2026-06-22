@@ -1,4 +1,4 @@
-import type { FileWithState } from "@stores/file-store";
+import type { FileWithState } from "@stores/file-store-types";
 import type { DragEvent } from "react";
 
 import { Button } from "@components/ui/button";

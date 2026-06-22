@@ -1,10 +1,12 @@
-import type { FileWithState } from "@stores/file-store";
+import type { FileWithState } from "@stores/file-store-types";
 
 import { createContext, useContext } from "react";
 
 export interface StorageContextValue {
   files: FileWithState[];
-  setFiles: (files: FileWithState[]) => void;
+  addFiles: (files: File[]) => void;
+  removeFile: (id: string) => void;
+  updateFile: (id: string, changes: Partial<FileWithState>) => void;
 }
 
 export const StorageContext = createContext<StorageContextValue | null>(null);

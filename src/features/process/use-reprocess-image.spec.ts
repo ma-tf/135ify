@@ -1,6 +1,6 @@
-import type { FileWithState } from "@stores/file-store";
+import type { FileWithState } from "@stores/file-store-types";
 
-import { DEFAULT_PARAMS } from "@features/process/process-image";
+import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -21,6 +21,7 @@ let processToBlobUrl: ReturnType<typeof vi.fn>;
 let useFileStore: typeof import("@stores/file-store").useFileStore;
 let useEditSheetStore: typeof import("@stores/edit-sheet-store").useEditSheetStore;
 let useReprocessImage: typeof import("./use-reprocess-image").useReprocessImage;
+let TestStorageProvider: typeof import("@test-utils/test-storage-provider.spec").TestStorageProvider;
 
 const fakeFile: FileWithState = {
   file: new File([""], "test.jpg", { type: "image/jpeg" }),
@@ -57,6 +58,9 @@ describe("useReprocessImage", () => {
 
     const hookMod = await import("./use-reprocess-image");
     useReprocessImage = hookMod.useReprocessImage;
+
+    const storageMod = await import("@test-utils/test-storage-provider.spec");
+    TestStorageProvider = storageMod.TestStorageProvider;
   });
 
   afterEach(() => {
@@ -67,7 +71,9 @@ describe("useReprocessImage", () => {
   describe("reprocess", () => {
     it("calls processToBlobUrl with file preview and params", async () => {
       seedFile();
-      const { result } = renderHook(() => useReprocessImage("file-1"));
+      const { result } = renderHook(() => useReprocessImage("file-1"), {
+        wrapper: TestStorageProvider,
+      });
 
       await act(async () => {
         await result.current.reprocess(DEFAULT_PARAMS);
@@ -85,7 +91,9 @@ describe("useReprocessImage", () => {
           }),
       );
       seedFile();
-      const { result } = renderHook(() => useReprocessImage("file-1"));
+      const { result } = renderHook(() => useReprocessImage("file-1"), {
+        wrapper: TestStorageProvider,
+      });
 
       act(() => {
         void result.current.reprocess(DEFAULT_PARAMS);
@@ -100,7 +108,9 @@ describe("useReprocessImage", () => {
 
     it("sets renderUrl and clears renderError on success", async () => {
       seedFile();
-      const { result } = renderHook(() => useReprocessImage("file-1"));
+      const { result } = renderHook(() => useReprocessImage("file-1"), {
+        wrapper: TestStorageProvider,
+      });
 
       await act(async () => {
         await result.current.reprocess(DEFAULT_PARAMS);
@@ -114,7 +124,9 @@ describe("useReprocessImage", () => {
 
     it("calls setImageSrc on success", async () => {
       seedFile();
-      const { result } = renderHook(() => useReprocessImage("file-1"));
+      const { result } = renderHook(() => useReprocessImage("file-1"), {
+        wrapper: TestStorageProvider,
+      });
 
       await act(async () => {
         await result.current.reprocess(DEFAULT_PARAMS);
@@ -126,7 +138,9 @@ describe("useReprocessImage", () => {
     it("sets renderError on processing failure", async () => {
       processToBlobUrl.mockRejectedValue(new Error("GPU unavailable"));
       seedFile();
-      const { result } = renderHook(() => useReprocessImage("file-1"));
+      const { result } = renderHook(() => useReprocessImage("file-1"), {
+        wrapper: TestStorageProvider,
+      });
 
       await act(async () => {
         await result.current.reprocess(DEFAULT_PARAMS);
@@ -140,7 +154,9 @@ describe("useReprocessImage", () => {
     it("falls back to 'Processing failed' for non-Error throws", async () => {
       processToBlobUrl.mockRejectedValue("something bad");
       seedFile();
-      const { result } = renderHook(() => useReprocessImage("file-1"));
+      const { result } = renderHook(() => useReprocessImage("file-1"), {
+        wrapper: TestStorageProvider,
+      });
 
       await act(async () => {
         await result.current.reprocess(DEFAULT_PARAMS);
@@ -150,7 +166,9 @@ describe("useReprocessImage", () => {
     });
 
     it("does not process when file not found", async () => {
-      const { result } = renderHook(() => useReprocessImage("nonexistent"));
+      const { result } = renderHook(() => useReprocessImage("nonexistent"), {
+        wrapper: TestStorageProvider,
+      });
 
       await act(async () => {
         await result.current.reprocess(DEFAULT_PARAMS);
@@ -163,7 +181,9 @@ describe("useReprocessImage", () => {
   describe("reprocessDebounced", () => {
     it("debounces reprocess calls", async () => {
       seedFile();
-      const { result } = renderHook(() => useReprocessImage("file-1"));
+      const { result } = renderHook(() => useReprocessImage("file-1"), {
+        wrapper: TestStorageProvider,
+      });
 
       act(() => {
         result.current.reprocessDebounced(DEFAULT_PARAMS);

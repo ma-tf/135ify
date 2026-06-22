@@ -1,4 +1,4 @@
-import type { FilmId } from "@stores/file-store";
+import type { FilmId } from "@stores/file-store-types";
 
 import { Label } from "@components/ui/label";
 import {

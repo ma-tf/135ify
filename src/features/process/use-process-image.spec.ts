@@ -1,6 +1,6 @@
-import type { FileWithState } from "@stores/file-store";
+import type { FileWithState } from "@stores/file-store-types";
 
-import { DEFAULT_PARAMS } from "@features/process/process-image";
+import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -21,6 +21,7 @@ let processToBlobUrl: ReturnType<typeof vi.fn>;
 let useFileStore: typeof import("@stores/file-store").useFileStore;
 let useEditSheetStore: typeof import("@stores/edit-sheet-store").useEditSheetStore;
 let useFileProcessing: typeof import("./use-process-image").useFileProcessing;
+let TestStorageProvider: typeof import("@test-utils/test-storage-provider.spec").TestStorageProvider;
 
 const fakeFile: FileWithState = {
   file: new File([""], "test.jpg", { type: "image/jpeg" }),
@@ -57,6 +58,9 @@ describe("useFileProcessing", () => {
 
     const hookMod = await import("./use-process-image");
     useFileProcessing = hookMod.useFileProcessing;
+
+    const storageMod = await import("@test-utils/test-storage-provider.spec");
+    TestStorageProvider = storageMod.TestStorageProvider;
   });
 
   afterEach(() => {
@@ -66,7 +70,9 @@ describe("useFileProcessing", () => {
 
   async function renderAndSetParam(updates: Record<string, number> = { grainIntensity: 5 }) {
     seedFile();
-    const { result } = renderHook(() => useFileProcessing("file-1"));
+    const { result } = renderHook(() => useFileProcessing("file-1"), {
+      wrapper: TestStorageProvider,
+    });
     await act(async () => {
       result.current.setParam(updates);
       vi.advanceTimersByTime(50);
@@ -86,7 +92,9 @@ describe("useFileProcessing", () => {
 
     it("sets isProcessing true while processing", async () => {
       seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"));
+      const { result } = renderHook(() => useFileProcessing("file-1"), {
+        wrapper: TestStorageProvider,
+      });
 
       act(() => {
         result.current.setParam({ grainIntensity: 5 });
@@ -137,7 +145,9 @@ describe("useFileProcessing", () => {
     });
 
     it("does not process when file not found", async () => {
-      const { result } = renderHook(() => useFileProcessing("nonexistent"));
+      const { result } = renderHook(() => useFileProcessing("nonexistent"), {
+        wrapper: TestStorageProvider,
+      });
 
       await act(async () => {
         result.current.setParam({ grainIntensity: 5 });
@@ -151,7 +161,9 @@ describe("useFileProcessing", () => {
   describe("setParam", () => {
     it("merges partial into file params via updateProcessParams", async () => {
       seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"));
+      const { result } = renderHook(() => useFileProcessing("file-1"), {
+        wrapper: TestStorageProvider,
+      });
 
       act(() => {
         result.current.setParam({ grainIntensity: 5 });
@@ -163,7 +175,9 @@ describe("useFileProcessing", () => {
 
     it("triggers debounced reprocess with merged params", async () => {
       seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"));
+      const { result } = renderHook(() => useFileProcessing("file-1"), {
+        wrapper: TestStorageProvider,
+      });
 
       act(() => {
         result.current.setParam({ grainIntensity: 5 });
@@ -179,7 +193,9 @@ describe("useFileProcessing", () => {
     });
 
     it("does nothing when file not found", async () => {
-      const { result } = renderHook(() => useFileProcessing("nonexistent"));
+      const { result } = renderHook(() => useFileProcessing("nonexistent"), {
+        wrapper: TestStorageProvider,
+      });
 
       act(() => {
         result.current.setParam({ grainIntensity: 5 });
@@ -192,7 +208,9 @@ describe("useFileProcessing", () => {
   describe("downloadFullSize", () => {
     it("returns processToBlobUrl result with file preview and params", async () => {
       seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"));
+      const { result } = renderHook(() => useFileProcessing("file-1"), {
+        wrapper: TestStorageProvider,
+      });
 
       const url = await result.current.downloadFullSize();
 
@@ -201,7 +219,9 @@ describe("useFileProcessing", () => {
     });
 
     it("returns null when file not found", async () => {
-      const { result } = renderHook(() => useFileProcessing("nonexistent"));
+      const { result } = renderHook(() => useFileProcessing("nonexistent"), {
+        wrapper: TestStorageProvider,
+      });
 
       const url = await result.current.downloadFullSize();
 
@@ -212,13 +232,17 @@ describe("useFileProcessing", () => {
   describe("params return value", () => {
     it("returns file params when file exists", () => {
       seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"));
+      const { result } = renderHook(() => useFileProcessing("file-1"), {
+        wrapper: TestStorageProvider,
+      });
 
       expect(result.current.params).toEqual(DEFAULT_PARAMS);
     });
 
     it("returns undefined when file not found", () => {
-      const { result } = renderHook(() => useFileProcessing("nonexistent"));
+      const { result } = renderHook(() => useFileProcessing("nonexistent"), {
+        wrapper: TestStorageProvider,
+      });
 
       expect(result.current.params).toBeUndefined();
     });

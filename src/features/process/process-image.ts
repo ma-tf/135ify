@@ -1,21 +1,11 @@
-import type { ProcessParams } from "@stores/file-store";
+import type { ProcessParams } from "@stores/file-store-types";
 
-import { DEFAULT_FILM_ID, getFilmById } from "@features/process/film";
+import { getFilmById } from "@features/process/film";
 import { getGrainBitmap } from "@features/process/grain-texture";
 
 function clamp(value: number): number {
   return Math.min(255, Math.max(0, value));
 }
-
-export const DEFAULT_PARAMS: ProcessParams = {
-  selectedFilmId: DEFAULT_FILM_ID,
-  halationIntensity: 0,
-  halationSpread: 0,
-  halationThreshold: 0,
-  vignetteIntensity: 0,
-  vignetteFeather: 0,
-  grainIntensity: 0,
-};
 
 export async function processToBlobUrl(
   sourceUrl: string,

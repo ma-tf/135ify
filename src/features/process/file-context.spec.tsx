@@ -1,8 +1,9 @@
-import type { FileWithState } from "@stores/file-store";
+import type { FileWithState } from "@stores/file-store-types";
 
 import { FileProvider, useFile } from "@features/process/file-context";
-import { DEFAULT_PARAMS } from "@features/process/process-image";
 import { useFileStore } from "@stores/file-store";
+import { DEFAULT_PARAMS } from "@stores/file-store-types";
+import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { act, cleanup, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
@@ -32,13 +33,15 @@ describe("useFile", () => {
     let captured: ReturnType<typeof useFile> | undefined;
 
     render(
-      <FileProvider fileId={TEST_FILE.id}>
-        <UseFile
-          onValue={(v) => {
-            captured = v;
-          }}
-        />
-      </FileProvider>,
+      <TestStorageProvider>
+        <FileProvider fileId={TEST_FILE.id}>
+          <UseFile
+            onValue={(v) => {
+              captured = v;
+            }}
+          />
+        </FileProvider>
+      </TestStorageProvider>,
     );
 
     expect(captured).toBeDefined();
@@ -56,13 +59,15 @@ describe("useFile", () => {
     let captured: ReturnType<typeof useFile> | undefined;
 
     render(
-      <FileProvider fileId={TEST_FILE.id}>
-        <UseFile
-          onValue={(v) => {
-            captured = v;
-          }}
-        />
-      </FileProvider>,
+      <TestStorageProvider>
+        <FileProvider fileId={TEST_FILE.id}>
+          <UseFile
+            onValue={(v) => {
+              captured = v;
+            }}
+          />
+        </FileProvider>
+      </TestStorageProvider>,
     );
 
     expect(captured!.renderUrl).toBeNull();
@@ -78,9 +83,11 @@ describe("useFile", () => {
 
   it("renders nothing when file is removed from store", () => {
     const { container } = render(
-      <FileProvider fileId={TEST_FILE.id}>
-        <div data-testid="child" />
-      </FileProvider>,
+      <TestStorageProvider>
+        <FileProvider fileId={TEST_FILE.id}>
+          <div data-testid="child" />
+        </FileProvider>
+      </TestStorageProvider>,
     );
 
     expect(container.querySelector("[data-testid='child']")).not.toBeNull();
@@ -94,9 +101,11 @@ describe("useFile", () => {
 
   it("renders nothing for missing file id", () => {
     const { container } = render(
-      <FileProvider fileId="nonexistent">
-        <div data-testid="child" />
-      </FileProvider>,
+      <TestStorageProvider>
+        <FileProvider fileId="nonexistent">
+          <div data-testid="child" />
+        </FileProvider>
+      </TestStorageProvider>,
     );
 
     expect(container.querySelector("[data-testid='child']")).toBeNull();

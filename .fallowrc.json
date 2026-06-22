@@ -26,13 +26,14 @@
   },
   "ignorePatterns": ["src/components/ui/**", "convex/**"],
   "ignoreDependencies": [
-    "@components/ui",
-    "shadcn",
-    "class-variance-authority",
-    "radix-ui",
-    "vaul",
     "@ai-hero/sandcastle",
-    "zod",
-    "@convex/_generated"
+    "@components/ui",
+    "@convex/_generated",
+    "class-variance-authority",
+    "next-themes",
+    "radix-ui",
+    "shadcn",
+    "vaul",
+    "zod"
   ]
 }

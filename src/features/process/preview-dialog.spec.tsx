@@ -1,10 +1,11 @@
-import type { FileWithState } from "@stores/file-store";
+import type { FileWithState } from "@stores/file-store-types";
 
 import { FileProvider } from "@features/process/file-context";
 import { PreviewDialog } from "@features/process/preview-dialog";
-import { DEFAULT_PARAMS } from "@features/process/process-image";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
+import { DEFAULT_PARAMS } from "@stores/file-store-types";
+import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -34,9 +35,11 @@ function renderDialog(inspectUrl: string | null = null) {
   });
 
   return render(
-    <FileProvider fileId={TEST_FILE.id}>
-      <PreviewDialog />
-    </FileProvider>,
+    <TestStorageProvider>
+      <FileProvider fileId={TEST_FILE.id}>
+        <PreviewDialog />
+      </FileProvider>
+    </TestStorageProvider>,
   );
 }
 

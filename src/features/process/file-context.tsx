@@ -1,12 +1,13 @@
-import type { FileWithState } from "@stores/file-store";
+import type { FileWithState } from "@stores/file-store-types";
 
-import { useFileStore } from "@stores/file-store";
+import { useStorage } from "@providers/storage-context";
 import { createContext, use } from "react";
 
 const FileContext = createContext<FileWithState | null>(null);
 
 export function FileProvider({ fileId, children }: { fileId: string; children: React.ReactNode }) {
-  const file = useFileStore((s) => s.files.find((f) => f.id === fileId) ?? null);
+  const { files } = useStorage();
+  const file = files.find((f) => f.id === fileId) ?? null;
   if (!file) return null;
   return <FileContext.Provider value={file}>{children}</FileContext.Provider>;
 }

@@ -1,26 +1,41 @@
+import { FILE_SIZE_LIMIT_BYTES } from "@config";
+import { formatBytes } from "@lib/utils";
 import { create } from "zustand";
 
-export type FilmId = "none" | "gold" | "cool" | "vintage" | "muted";
+import { DEFAULT_PARAMS, type FileWithState, type ProcessParams } from "./file-store-types";
 
-export interface ProcessParams {
-  vignetteIntensity: number;
-  vignetteFeather: number;
-  grainIntensity: number;
-  selectedFilmId: FilmId;
-  halationIntensity: number;
-  halationSpread: number;
-  halationThreshold: number;
+let nextId = 0;
+
+export function prepareFiles(files: File[]): { valid: FileWithState[]; errors: string[] } {
+  const valid: FileWithState[] = [];
+  const errors: string[] = [];
+
+  for (const file of files) {
+    if (file.size > FILE_SIZE_LIMIT_BYTES) {
+      errors.push(
+        `File "${file.name}" exceeds the maximum size of ${formatBytes(FILE_SIZE_LIMIT_BYTES)}.`,
+      );
+      continue;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      errors.push(`File "${file.name}" is not an accepted file type.`);
+      continue;
+    }
+
+    valid.push({
+      file,
+      id: `${file.name}-${++nextId}`,
+      preview: URL.createObjectURL(file),
+      params: { ...DEFAULT_PARAMS },
+      renderUrl: null,
+      isProcessing: false,
+      renderError: null,
+    });
+  }
+
+  return { valid, errors };
 }
-
-export type FileWithState = {
-  file: File;
-  id: string;
-  preview: string;
-  params: ProcessParams;
-  renderUrl: string | null;
-  isProcessing: boolean;
-  renderError: string | null;
-};
 
 interface FileStore {
   files: FileWithState[];

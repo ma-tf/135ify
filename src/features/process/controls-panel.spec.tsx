@@ -1,11 +1,12 @@
 import { EditPanel } from "@features/process/controls-panel";
 import { FileProvider } from "@features/process/file-context";
-import { DEFAULT_PARAMS } from "@features/process/process-image";
 import * as useProcessImageModule from "@features/process/use-process-image";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
+import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { setupTests } from "@test-utils/setup.spec";
 import { TEST_FILE_PHOTO } from "@test-utils/test-fixtures.spec";
+import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -35,9 +36,11 @@ function renderEditPanel() {
   });
 
   return render(
-    <FileProvider fileId={TEST_FILE_PHOTO.id}>
-      <EditPanel />
-    </FileProvider>,
+    <TestStorageProvider>
+      <FileProvider fileId={TEST_FILE_PHOTO.id}>
+        <EditPanel />
+      </FileProvider>
+    </TestStorageProvider>,
   );
 }
 
