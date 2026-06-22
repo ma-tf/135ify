@@ -99,7 +99,7 @@ describe("useDragScroll", () => {
       </DragScrollTest>,
     );
     const el = container();
-    const link = screen.getByText("Link");
+    const link = screen.getByText("Test link destination");
     const initialScrollLeft = el.scrollLeft;
 
     fireEvent.mouseDown(link, { clientX: 100 });

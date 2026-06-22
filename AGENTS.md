@@ -27,3 +27,4 @@ Vite+ toolchain + Convex backend. See `docs/agents/toolchain.md`.
 
 - Never use `store.getState()` — always use the hook (`useStore(selector)`) to access store values. `getState()`
   bypasses React's reactivity and leads to stale reads.
+- Use `vp`. Never use `npm` or `npx`
