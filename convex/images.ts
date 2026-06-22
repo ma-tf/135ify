@@ -27,18 +27,26 @@ export const getById = query({
     const identity = await requireAuth(ctx);
     const doc = await ctx.db.get("images", args.imageId);
     if (!doc || doc.userId !== identity.tokenIdentifier) return null;
-    return doc;
+    const sourceUrl = await ctx.storage.getUrl(doc.sourceStorageId);
+    return { ...doc, sourceUrl };
   },
 });
 
 export const listByUser = query({
   handler: async (ctx) => {
     const identity = await requireAuth(ctx);
-    return await ctx.db
+    const docs = await ctx.db
       .query("images")
       .withIndex("by_userId", (q) => q.eq("userId", identity.tokenIdentifier))
       .order("desc")
       .take(boundedLimit);
+
+    return Promise.all(
+      docs.map(async (doc) => {
+        const sourceUrl = await ctx.storage.getUrl(doc.sourceStorageId);
+        return { ...doc, sourceUrl };
+      }),
+    );
   },
 });
 

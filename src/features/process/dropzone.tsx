@@ -1,4 +1,4 @@
-import type { FileWithState } from "@stores/file-store-types";
+import type { FileRecord } from "@stores/file-store-types";
 import type { DragEvent } from "react";
 
 import { Button } from "@components/ui/button";
@@ -11,7 +11,7 @@ interface DropzoneProps {
   maxSize?: number;
   accept?: string;
   className?: string;
-  onFilesChange?: (files: FileWithState[]) => void;
+  onFilesChange?: (files: FileRecord[]) => void;
 }
 
 function DropzoneError({ errors }: { errors: string[] }) {

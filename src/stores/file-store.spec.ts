@@ -26,16 +26,19 @@ describe("prepareFiles", () => {
   it("returns empty arrays for empty input", () => {
     const result = prepareFiles([]);
     expect(result.valid).toEqual([]);
+    expect(result.records).toEqual([]);
     expect(result.errors).toEqual([]);
   });
 
   it("accepts a valid image file", () => {
     const file = makeImage();
-    const { valid, errors } = prepareFiles([file]);
+    const { valid, records, errors } = prepareFiles([file]);
 
     expect(errors).toEqual([]);
     expect(valid).toHaveLength(1);
-    expect(valid[0].file).toBe(file);
+    expect(valid[0]).toBe(file);
+    expect(records).toHaveLength(1);
+    expect(records[0].fileName).toBe("photo.jpg");
   });
 
   it("rejects a file exceeding the size limit", () => {
@@ -53,10 +56,11 @@ describe("prepareFiles", () => {
     const oversized = makeOversized("big.jpg");
     const text = makeText("nope.txt");
 
-    const { valid, errors } = prepareFiles([image, oversized, text]);
+    const { valid, records, errors } = prepareFiles([image, oversized, text]);
 
     expect(valid).toHaveLength(1);
-    expect(valid[0].file).toBe(image);
+    expect(valid[0]).toBe(image);
+    expect(records).toHaveLength(1);
     expect(errors).toHaveLength(2);
   });
 
@@ -83,11 +87,11 @@ describe("prepareFiles", () => {
   it("assigns unique incrementing IDs", () => {
     const a = makeImage("a.jpg");
     const b = makeImage("b.jpg");
-    const { valid } = prepareFiles([a, b]);
+    const { records } = prepareFiles([a, b]);
 
-    expect(valid[0].id).toMatch(/^a\.jpg-\d+$/);
-    expect(valid[1].id).toMatch(/^b\.jpg-\d+$/);
-    expect(valid[0].id).not.toBe(valid[1].id);
+    expect(records[0].id).toMatch(/^a\.jpg-\d+$/);
+    expect(records[1].id).toMatch(/^b\.jpg-\d+$/);
+    expect(records[0].id).not.toBe(records[1].id);
   });
 
   it("increments IDs across separate calls", () => {
@@ -95,29 +99,22 @@ describe("prepareFiles", () => {
     const r1 = prepareFiles([f1]);
     const r2 = prepareFiles([f1]);
 
-    expect(r2.valid[0].id).not.toBe(r1.valid[0].id);
+    expect(r2.records[0].id).not.toBe(r1.records[0].id);
   });
 
-  it("creates a preview object URL", () => {
-    const { valid } = prepareFiles([makeImage()]);
-    expect(typeof valid[0].preview).toBe("string");
-    expect(valid[0].preview).toMatch(/^blob:/);
+  it("creates a sourceUrl object URL", () => {
+    const { records } = prepareFiles([makeImage()]);
+    expect(typeof records[0].sourceUrl).toBe("string");
+    expect(records[0].sourceUrl).toMatch(/^blob:/);
   });
 
   it("spreads default params into each file", () => {
-    const { valid } = prepareFiles([makeImage()]);
-    expect(valid[0].params).toEqual(DEFAULT_PARAMS);
+    const { records } = prepareFiles([makeImage()]);
+    expect(records[0].params).toEqual(DEFAULT_PARAMS);
   });
 
   it("returns a new params object per file (not shared reference)", () => {
-    const { valid } = prepareFiles([makeImage(), makeImage()]);
-    expect(valid[0].params).not.toBe(valid[1].params);
-  });
-
-  it("initialises processing state fields", () => {
-    const { valid } = prepareFiles([makeImage()]);
-    expect(valid[0].renderUrl).toBeNull();
-    expect(valid[0].isProcessing).toBe(false);
-    expect(valid[0].renderError).toBeNull();
+    const { records } = prepareFiles([makeImage(), makeImage()]);
+    expect(records[0].params).not.toBe(records[1].params);
   });
 });

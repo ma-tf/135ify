@@ -1,26 +1,25 @@
-import type { FileWithState } from "@stores/file-store-types";
+import type { FileRecord } from "@stores/file-store-types";
 
 import { FileProvider, useFile } from "@features/process/file-context";
 import { useFileStore } from "@stores/file-store";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
+import { useRenderStateStore } from "@stores/render-state-store";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { act, cleanup, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 afterEach(cleanup);
 
-const TEST_FILE: FileWithState = {
-  file: new File(["test"], "test.jpg", { type: "image/jpeg" }),
+const TEST_FILE_RECORD: FileRecord = {
   id: "file-1",
-  preview: "blob:preview-url",
+  fileName: "test.jpg",
+  sourceUrl: "blob:preview-url",
   params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
-  renderUrl: null,
-  isProcessing: false,
-  renderError: null,
 };
 
 beforeEach(() => {
-  useFileStore.setState({ files: [TEST_FILE] });
+  useFileStore.setState({ files: [TEST_FILE_RECORD] });
+  useRenderStateStore.setState({ states: {} });
 });
 
 function UseFile({ onValue }: { onValue: (v: ReturnType<typeof useFile>) => void }) {
@@ -34,7 +33,7 @@ describe("useFile", () => {
 
     render(
       <TestStorageProvider>
-        <FileProvider fileId={TEST_FILE.id}>
+        <FileProvider fileId={TEST_FILE_RECORD.id}>
           <UseFile
             onValue={(v) => {
               captured = v;
@@ -45,8 +44,8 @@ describe("useFile", () => {
     );
 
     expect(captured).toBeDefined();
-    expect(captured!.id).toBe(TEST_FILE.id);
-    expect(captured!.preview).toBe(TEST_FILE.preview);
+    expect(captured!.id).toBe(TEST_FILE_RECORD.id);
+    expect(captured!.sourceUrl).toBe(TEST_FILE_RECORD.sourceUrl);
   });
 
   it("throws when used outside provider", () => {
@@ -55,12 +54,12 @@ describe("useFile", () => {
     }).toThrow("useFile must be used within FileProvider");
   });
 
-  it("reflects store updates", () => {
+  it("reflects render state updates", () => {
     let captured: ReturnType<typeof useFile> | undefined;
 
     render(
       <TestStorageProvider>
-        <FileProvider fileId={TEST_FILE.id}>
+        <FileProvider fileId={TEST_FILE_RECORD.id}>
           <UseFile
             onValue={(v) => {
               captured = v;
@@ -73,41 +72,37 @@ describe("useFile", () => {
     expect(captured!.renderUrl).toBeNull();
 
     act(() => {
-      useFileStore.setState((s) => ({
-        files: s.files.map((f) => (f.id === TEST_FILE.id ? { ...f, renderUrl: "blob:new" } : f)),
-      }));
+      useRenderStateStore.getState().set(TEST_FILE_RECORD.id, { renderUrl: "blob:new" });
     });
 
     expect(captured!.renderUrl).toBe("blob:new");
   });
 
-  it("renders nothing when file is removed from store", () => {
-    const { container } = render(
+  it("throws when file is removed from store", () => {
+    render(
       <TestStorageProvider>
-        <FileProvider fileId={TEST_FILE.id}>
-          <div data-testid="child" />
+        <FileProvider fileId={TEST_FILE_RECORD.id}>
+          <UseFile onValue={() => {}} />
         </FileProvider>
       </TestStorageProvider>,
     );
 
-    expect(container.querySelector("[data-testid='child']")).not.toBeNull();
-
-    act(() => {
-      useFileStore.setState({ files: [] });
-    });
-
-    expect(container.querySelector("[data-testid='child']")).toBeNull();
+    expect(() => {
+      act(() => {
+        useFileStore.setState({ files: [] });
+      });
+    }).toThrow();
   });
 
-  it("renders nothing for missing file id", () => {
-    const { container } = render(
-      <TestStorageProvider>
-        <FileProvider fileId="nonexistent">
-          <div data-testid="child" />
-        </FileProvider>
-      </TestStorageProvider>,
-    );
-
-    expect(container.querySelector("[data-testid='child']")).toBeNull();
+  it("throws for missing file id", () => {
+    expect(() => {
+      render(
+        <TestStorageProvider>
+          <FileProvider fileId="nonexistent">
+            <UseFile onValue={() => {}} />
+          </FileProvider>
+        </TestStorageProvider>,
+      );
+    }).toThrow('FileProvider: file not found for id "nonexistent"');
   });
 });

@@ -1,4 +1,4 @@
-import type { FileWithState } from "@stores/file-store-types";
+import type { FileRecord } from "@stores/file-store-types";
 
 import { useDragDrop } from "@hooks/use-drag-drop";
 import { useFileInput } from "@hooks/use-file-input";
@@ -9,12 +9,12 @@ import { useCallback, useState, type InputHTMLAttributes } from "react";
 export type FileUploadOptions = {
   maxSize?: number;
   accept?: string;
-  onFilesChange?: (files: FileWithState[]) => void;
-  onFilesAdded?: (addedFiles: FileWithState[]) => void;
+  onFilesChange?: (files: FileRecord[]) => void;
+  onFilesAdded?: (addedFiles: FileRecord[]) => void;
 };
 
 export type FileUploadState = {
-  files: FileWithState[];
+  files: FileRecord[];
   isDragging: boolean;
   errors: string[];
 };
@@ -55,12 +55,12 @@ export const useFileUpload = (
 
       setErrors([]);
 
-      const { valid, errors: prepErrors } = prepareFiles(newFiles);
+      const { valid, records, errors: prepErrors } = prepareFiles(newFiles);
 
       if (valid.length > 0) {
-        onFilesAdded(valid);
-        storageAddFiles(valid.map((f) => f.file));
-        onFilesChange([...valid, ...storeFiles]);
+        onFilesAdded(records);
+        storageAddFiles(valid);
+        onFilesChange([...records, ...storeFiles]);
       }
 
       setErrors(prepErrors);

@@ -21,7 +21,7 @@ function EditSheetRoot({ children }: { children: ReactNode }) {
       onOpenChange={(v) => {
         setOpenSheetId(v ? file.id : null);
         if (!v) {
-          setImageSrc(file.renderUrl || file.preview);
+          setImageSrc(file.renderUrl || file.sourceUrl);
           setShowOriginal(file.id, false);
         }
       }}
@@ -56,7 +56,7 @@ function EditSheetContent({ children }: { children: ReactNode }) {
           {isDesktop && (
             <img
               src={imageSrc}
-              alt={file.file.name}
+              alt={file.fileName}
               className="pointer-events-auto max-h-[70vh] rounded-md object-contain"
               onPointerDown={(e) => e.stopPropagation()}
             />
@@ -82,7 +82,7 @@ export function EditSheet() {
         {!isDesktop && (
           <img
             src={imageSrc}
-            alt={file.file.name}
+            alt={file.fileName}
             className="max-h-[50vh] w-full rounded-md object-contain"
           />
         )}

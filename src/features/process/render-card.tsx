@@ -19,12 +19,12 @@ function CardImage({ file }: { file: FileWithState }) {
       )}
       <img
         draggable={false}
-        src={file.renderUrl ?? file.preview}
+        src={file.renderUrl || file.sourceUrl}
         className={cn(
           "h-full w-full object-contain transition-opacity group-hover:scale-105",
           imgLoaded ? "opacity-100" : "opacity-0",
         )}
-        alt={file.file.name}
+        alt={file.fileName}
         onLoad={() => setImgLoaded(true)}
       />
     </>
@@ -45,7 +45,7 @@ export function RenderCard({ className }: { className?: string }) {
       )}
       onClick={(e) => {
         if (e.currentTarget.closest("[data-dragged]")) return;
-        setImageSrc(file.renderUrl || file.preview);
+        setImageSrc(file.renderUrl || file.sourceUrl);
         setOpenSheetId(file.id);
       }}
     >

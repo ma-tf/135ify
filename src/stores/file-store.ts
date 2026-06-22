@@ -2,12 +2,13 @@ import { FILE_SIZE_LIMIT_BYTES } from "@config";
 import { formatBytes } from "@lib/utils";
 import { create } from "zustand";
 
-import { DEFAULT_PARAMS, type FileWithState, type ProcessParams } from "./file-store-types";
+import { DEFAULT_PARAMS, type FileRecord, type ProcessParams } from "./file-store-types";
 
 let nextId = 0;
 
-export function prepareFiles(files: File[]): { valid: FileWithState[]; errors: string[] } {
-  const valid: FileWithState[] = [];
+export function prepareFiles(files: File[]) {
+  const valid: File[] = [];
+  const records: FileRecord[] = [];
   const errors: string[] = [];
 
   for (const file of files) {
@@ -23,41 +24,39 @@ export function prepareFiles(files: File[]): { valid: FileWithState[]; errors: s
       continue;
     }
 
-    valid.push({
-      file,
+    valid.push(file);
+    records.push({
       id: `${file.name}-${++nextId}`,
-      preview: URL.createObjectURL(file),
+      fileName: file.name,
+      sourceUrl: URL.createObjectURL(file),
       params: { ...DEFAULT_PARAMS },
-      renderUrl: null,
-      isProcessing: false,
-      renderError: null,
     });
   }
 
-  return { valid, errors };
+  return { valid, records, errors };
 }
 
 interface FileStore {
-  files: FileWithState[];
-  setFiles: (files: FileWithState[]) => void;
-  updateProcessParams: (id: string, params: Partial<ProcessParams>) => void;
-  revokeFileUrls: (id: string) => void;
+  files: FileRecord[];
+  addFiles: (records: FileRecord[]) => void;
+  updateParams: (id: string, params: Partial<ProcessParams>) => void;
+  removeFile: (id: string) => void;
 }
 
 export const useFileStore = create<FileStore>((set) => ({
   files: [],
-  setFiles: (files) => set({ files }),
-  updateProcessParams: (id, params) =>
+  addFiles: (records) => set((state) => ({ files: [...records, ...state.files] })),
+  updateParams: (id, params) =>
     set((state) => ({
       files: state.files.map((f) =>
         f.id === id ? { ...f, params: { ...f.params, ...params } } : f,
       ),
     })),
-  revokeFileUrls: (id) =>
+  removeFile: (id) =>
     set((state) => {
       const file = state.files.find((f) => f.id === id);
       if (!file) return state;
-      if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
-      return state;
+      URL.revokeObjectURL(file.sourceUrl);
+      return { files: state.files.filter((f) => f.id !== id) };
     }),
 }));

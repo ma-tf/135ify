@@ -5,18 +5,19 @@ import { FEATURE_3D_PHOTO } from "@config";
 import { useFile } from "@features/process/file-context";
 import { FilmSelector } from "@features/process/film-selector";
 import { ParameterSlider } from "@features/process/parameter-slider";
-import { useFileProcessing } from "@features/process/use-process-image";
+import { processToBlobUrl } from "@features/process/process-image";
+import { useSetParam } from "@features/process/use-set-param";
 import { cn } from "@lib/utils";
 import { useStorage } from "@providers/storage-context";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
+import { useRenderStateStore } from "@stores/render-state-store";
 import { DownloadIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
 
 function useParameterSection() {
   const file = useFile();
-  const params = file.params;
-  const { setParam } = useFileProcessing(file.id);
-  return { params, setParam };
+  const setParam = useSetParam(file.id, file.sourceUrl, file.params);
+  return { params: file.params, setParam };
 }
 
 function HalationControls() {
@@ -108,30 +109,31 @@ function GrainControls() {
 
 function EditPanelButtons() {
   const file = useFile();
-  const { setParam, downloadFullSize } = useFileProcessing(file.id);
-  const { updateFile, removeFile } = useStorage();
+  const setParam = useSetParam(file.id, file.sourceUrl, file.params);
+  const { removeFile } = useStorage();
+  const remove = useRenderStateStore((s) => s.remove);
   const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
   const setInspectUrl = useEditSheetStore((s) => s.setInspectUrl);
   const setImageSrc = useEditSheetStore((s) => s.setImageSrc);
 
   const handleReset = () => {
     setParam(DEFAULT_PARAMS);
-    setImageSrc(file.preview);
-    updateFile(file.id, { renderUrl: null, renderError: null, isProcessing: false });
+    setImageSrc(file.sourceUrl);
   };
 
   const handleDelete = () => {
     removeFile(file.id);
+    remove(file.id);
     setOpenSheetId(null);
   };
 
   const handleDownload = async () => {
-    const url = await downloadFullSize();
+    const url = await processToBlobUrl(file.sourceUrl, file.params);
     if (!url) return;
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = file.file.name.replace(/\.[^.]+$/, "") + ".jpg";
+    a.download = file.fileName.replace(/\.[^.]+$/, "") + ".jpg";
     a.click();
     setOpenSheetId(null);
     if (FEATURE_3D_PHOTO) {
@@ -168,7 +170,7 @@ export function EditPanel() {
   const showOriginal = useEditSheetStore((s) => s.showOriginal[file.id] ?? false);
   const setShowOriginal = useEditSheetStore((s) => s.setShowOriginal);
   const setImageSrc = useEditSheetStore((s) => s.setImageSrc);
-  const { setParam } = useFileProcessing(file.id);
+  const setParam = useSetParam(file.id, file.sourceUrl, file.params);
 
   const selectedFilmId = file.params.selectedFilmId;
 
@@ -181,7 +183,7 @@ export function EditPanel() {
             type="button"
             onClick={() => {
               setShowOriginal(file.id, true);
-              setImageSrc(file.preview);
+              setImageSrc(file.sourceUrl);
             }}
             className={cn(
               "rounded-md px-3 py-1 text-xs font-medium transition-colors",
@@ -196,7 +198,7 @@ export function EditPanel() {
             type="button"
             onClick={() => {
               setShowOriginal(file.id, false);
-              setImageSrc(file.renderUrl || file.preview);
+              setImageSrc(file.renderUrl || file.sourceUrl);
             }}
             className={cn(
               "rounded-md px-3 py-1 text-xs font-medium transition-colors",

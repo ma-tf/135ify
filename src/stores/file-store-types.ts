@@ -19,10 +19,17 @@ export const DEFAULT_PARAMS: ProcessParams = {
   grainIntensity: 0,
 };
 
-export type FileWithState = {
-  file: File;
+export interface FileRecord {
   id: string;
-  preview: string;
+  fileName: string;
+  sourceUrl: string;
+  params: ProcessParams;
+}
+
+export type FileWithState = {
+  id: string;
+  fileName: string;
+  sourceUrl: string;
   params: ProcessParams;
   renderUrl: string | null;
   isProcessing: boolean;

@@ -17,7 +17,7 @@ export function PreviewDialog() {
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <img
               src={inspectUrl}
-              alt={file.file.name}
+              alt={file.fileName}
               className="max-h-[85vh] max-w-[90vw] cursor-pointer border-[1cm] border-white object-contain shadow-lg"
             />
             <Button

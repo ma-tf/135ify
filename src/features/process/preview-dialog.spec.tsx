@@ -1,10 +1,9 @@
-import type { FileWithState } from "@stores/file-store-types";
-
 import { FileProvider } from "@features/process/file-context";
 import { PreviewDialog } from "@features/process/preview-dialog";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
-import { DEFAULT_PARAMS } from "@stores/file-store-types";
+import { useRenderStateStore } from "@stores/render-state-store";
+import { TEST_FILE_RECORD } from "@test-utils/test-fixtures.spec";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
@@ -15,18 +14,9 @@ beforeEach(() => {
   vi.stubGlobal("URL", { ...URL, revokeObjectURL: vi.fn() });
 });
 
-const TEST_FILE: FileWithState = {
-  file: new File(["test"], "test.jpg", { type: "image/jpeg" }),
-  id: "file-1",
-  preview: "blob:preview-url",
-  params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
-  renderUrl: null,
-  isProcessing: false,
-  renderError: null,
-};
-
 function renderDialog(inspectUrl: string | null = null) {
-  useFileStore.setState({ files: [TEST_FILE] });
+  useFileStore.setState({ files: [TEST_FILE_RECORD] });
+  useRenderStateStore.setState({ states: {} });
   useEditSheetStore.setState({
     openSheetId: null,
     imageSrc: "",
@@ -36,7 +26,7 @@ function renderDialog(inspectUrl: string | null = null) {
 
   return render(
     <TestStorageProvider>
-      <FileProvider fileId={TEST_FILE.id}>
+      <FileProvider fileId={TEST_FILE_RECORD.id}>
         <PreviewDialog />
       </FileProvider>
     </TestStorageProvider>,
@@ -58,7 +48,7 @@ describe("PreviewDialog", () => {
   it("renders image alt from file name", () => {
     renderDialog("blob:inspect-url");
     const img = screen.getByRole("img");
-    expect(img.getAttribute("alt")).toBe("test.jpg");
+    expect(img.getAttribute("alt")).toBe(TEST_FILE_RECORD.fileName);
   });
 
   it("close button calls setInspectUrl(null)", () => {

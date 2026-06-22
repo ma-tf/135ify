@@ -1,8 +1,9 @@
-import type { FileWithState } from "@stores/file-store-types";
+import type { FileRecord } from "@stores/file-store-types";
 
 import { RenderCarousel } from "@features/process/render-carousel";
 import { useFileStore } from "@stores/file-store";
-import { TEST_FILE, TEST_FILE_2 } from "@test-utils/test-fixtures.spec";
+import { useRenderStateStore } from "@stores/render-state-store";
+import { TEST_FILE_RECORD, TEST_FILE_RECORD_2 } from "@test-utils/test-fixtures.spec";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
@@ -24,8 +25,9 @@ vi.mock("@features/process/render-card", () => ({
 
 afterEach(cleanup);
 
-function renderCarousel(files: FileWithState[] = []) {
+function renderCarousel(files: FileRecord[] = []) {
   useFileStore.setState({ files });
+  useRenderStateStore.setState({ states: {} });
   return render(
     <TestStorageProvider>
       <RenderCarousel />
@@ -52,12 +54,12 @@ describe("RenderCarousel", () => {
   });
 
   it("renders one RenderCard per file in the store", () => {
-    renderCarousel([TEST_FILE, TEST_FILE_2]);
+    renderCarousel([TEST_FILE_RECORD, TEST_FILE_RECORD_2]);
     expect(screen.getAllByTestId("render-card")).toHaveLength(2);
   });
 
   it("wraps each card frame in FileProvider with correct fileId", () => {
-    renderCarousel([TEST_FILE, TEST_FILE_2]);
+    renderCarousel([TEST_FILE_RECORD, TEST_FILE_RECORD_2]);
     const cards = screen.getAllByTestId("render-card");
     expect(cards[0].closest("[data-file-id]")).toBeNull();
     expect(useFileStore.getState().files).toHaveLength(2);

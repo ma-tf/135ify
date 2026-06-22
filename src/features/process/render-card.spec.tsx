@@ -2,7 +2,8 @@ import { FileProvider } from "@features/process/file-context";
 import { RenderCard } from "@features/process/render-card";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
-import { TEST_FILE, TEST_FILE_WITH_RENDER } from "@test-utils/test-fixtures.spec";
+import { useRenderStateStore } from "@stores/render-state-store";
+import { TEST_FILE_RECORD, TEST_RENDER_STATE_WITH_URL } from "@test-utils/test-fixtures.spec";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
@@ -18,8 +19,11 @@ vi.mock("@features/process/preview-dialog", () => ({
 afterEach(cleanup);
 
 describe("RenderCard", () => {
-  function renderCard(file = TEST_FILE) {
-    useFileStore.setState({ files: [file] });
+  function renderCard(withRenderState = false) {
+    useFileStore.setState({ files: [TEST_FILE_RECORD] });
+    useRenderStateStore.setState({
+      states: withRenderState ? { [TEST_FILE_RECORD.id]: TEST_RENDER_STATE_WITH_URL } : {},
+    });
     useEditSheetStore.setState({
       openSheetId: null,
       imageSrc: "",
@@ -29,23 +33,23 @@ describe("RenderCard", () => {
 
     return render(
       <TestStorageProvider>
-        <FileProvider fileId={file.id}>
+        <FileProvider fileId={TEST_FILE_RECORD.id}>
           <RenderCard />
         </FileProvider>
       </TestStorageProvider>,
     );
   }
 
-  it("renders image with preview when renderUrl is null", () => {
+  it("renders image with sourceUrl when renderUrl is null", () => {
     renderCard();
     const img = screen.getByRole("img");
-    expect(img.getAttribute("src")).toBe(TEST_FILE.preview);
+    expect(img.getAttribute("src")).toBe(TEST_FILE_RECORD.sourceUrl);
   });
 
   it("renders image with renderUrl when available", () => {
-    renderCard(TEST_FILE_WITH_RENDER);
+    renderCard(true);
     const img = screen.getByRole("img");
-    expect(img.getAttribute("src")).toBe(TEST_FILE_WITH_RENDER.renderUrl);
+    expect(img.getAttribute("src")).toBe(TEST_RENDER_STATE_WITH_URL.renderUrl);
   });
 
   it("shows loading placeholder before image loads", () => {
@@ -63,7 +67,7 @@ describe("RenderCard", () => {
     renderCard();
     const card = screen.getByRole("img").parentElement!;
     fireEvent.click(card);
-    expect(useEditSheetStore.getState().openSheetId).toBe(TEST_FILE.id);
+    expect(useEditSheetStore.getState().openSheetId).toBe(TEST_FILE_RECORD.id);
   });
 
   it("renders EditSheet and PreviewDialog", () => {
@@ -75,7 +79,7 @@ describe("RenderCard", () => {
   it("applies custom className", () => {
     render(
       <TestStorageProvider>
-        <FileProvider fileId={TEST_FILE.id}>
+        <FileProvider fileId={TEST_FILE_RECORD.id}>
           <RenderCard className="my-custom-class" />
         </FileProvider>
       </TestStorageProvider>,

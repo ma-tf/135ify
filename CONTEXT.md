@@ -59,6 +59,21 @@ _Avoid_: Gallery, library, collection
 **Session**: The authenticated state of a user within a browser tab. Determines whether auto-save is active and whether
 History is accessible. Sessions are managed by Convex Auth and are independent across browser tabs.
 
+**FileRecord**: What the storage layer persists for each Source Image: identity (id, fileName, sourceUrl) and processing
+parameters (ProcessParams). Returned by the Storage Facade. Does not include ephemeral render state.
+
+_Avoid_: FileWithState (use FileRecord for storage-layer concerns)
+
+**RenderState**: Ephemeral client-side processing state for a Source Image: render URL, processing flag, and error
+message. Not persisted server-side. Managed by a separate Zustand store.
+
+_Avoid_: Mixing into FileRecord or Storage Facade
+
+**Storage Facade**: The interface (StorageContextValue) that both persistence implementations (Convex, Zustand) conform
+to. Provides file CRUD (add, remove) and parameter updates. Does not manage render state.
+
+_Aavoid_: StorageProvider, storage layer
+
 ## Relationships
 
 - Each **Source Image** carries its own independent processing parameters and **Render**.
@@ -71,6 +86,8 @@ History is accessible. Sessions are managed by Convex Auth and are independent a
 - A **Session** determines whether an **Account**'s **History** is accessible and whether auto-save is active.
 - Source Images in **History** are re-processed client-side on load using stored parameters; Render output is not
   persisted server-side.
+- A **FileRecord** is composed with a **RenderState** at the UI layer to produce the full view model for a Source Image.
+- The **Storage Facade** is independent of render state management; composition happens in FileProvider.
 
 ## Example dialogue
 

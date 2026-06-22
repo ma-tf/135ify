@@ -2,8 +2,9 @@ import { EditSheet } from "@features/process/edit-sheet";
 import { FileProvider } from "@features/process/file-context";
 import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
+import { useRenderStateStore } from "@stores/render-state-store";
 import { setupTests } from "@test-utils/setup.spec";
-import { TEST_FILE_PHOTO } from "@test-utils/test-fixtures.spec";
+import { TEST_FILE_RECORD_PHOTO } from "@test-utils/test-fixtures.spec";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
@@ -19,11 +20,17 @@ vi.mock("@hooks/use-mobile", () => ({
 
 setupTests();
 
-function renderSheetOpen(file = TEST_FILE_PHOTO, imageSrc?: string) {
+function renderSheetOpen(file = TEST_FILE_RECORD_PHOTO, renderUrl?: string | null) {
   useFileStore.setState({ files: [file] });
+  useRenderStateStore.setState({
+    states:
+      renderUrl !== undefined
+        ? { [file.id]: { renderUrl, isProcessing: false, renderError: null } }
+        : {},
+  });
   useEditSheetStore.setState({
     openSheetId: file.id,
-    imageSrc: imageSrc ?? file.renderUrl ?? "",
+    imageSrc: renderUrl ?? "",
     showOriginal: {},
     inspectUrl: null,
   });
@@ -57,7 +64,8 @@ describe("EditSheet", () => {
   });
 
   it("renders sheet closed when openSheetId is null", () => {
-    useFileStore.setState({ files: [TEST_FILE_PHOTO] });
+    useFileStore.setState({ files: [TEST_FILE_RECORD_PHOTO] });
+    useRenderStateStore.setState({ states: {} });
     useEditSheetStore.setState({
       openSheetId: null,
       imageSrc: "",
@@ -67,7 +75,7 @@ describe("EditSheet", () => {
 
     render(
       <TestStorageProvider>
-        <FileProvider fileId={TEST_FILE_PHOTO.id}>
+        <FileProvider fileId={TEST_FILE_RECORD_PHOTO.id}>
           <EditSheet />
         </FileProvider>
       </TestStorageProvider>,
@@ -77,12 +85,13 @@ describe("EditSheet", () => {
   });
 
   it("renders sheet closed when openSheetId is different file", () => {
-    useFileStore.setState({ files: [TEST_FILE_PHOTO] });
+    useFileStore.setState({ files: [TEST_FILE_RECORD_PHOTO] });
+    useRenderStateStore.setState({ states: {} });
     useEditSheetStore.setState({ openSheetId: "other-file" });
 
     render(
       <TestStorageProvider>
-        <FileProvider fileId={TEST_FILE_PHOTO.id}>
+        <FileProvider fileId={TEST_FILE_RECORD_PHOTO.id}>
           <EditSheet />
         </FileProvider>
       </TestStorageProvider>,
@@ -107,17 +116,17 @@ describe("EditSheet", () => {
   it("desktop renders image in overlay with correct src and alt", () => {
     mockUseIsMobile.mockReturnValue(false);
 
-    renderSheetOpen();
+    renderSheetOpen(TEST_FILE_RECORD_PHOTO, "blob:render-url");
     const img = getOverlayImage();
 
-    expect(img.getAttribute("src")).toBe(TEST_FILE_PHOTO.renderUrl);
-    expect(img.getAttribute("alt")).toBe(TEST_FILE_PHOTO.file.name);
+    expect(img.getAttribute("src")).toBe("blob:render-url");
+    expect(img.getAttribute("alt")).toBe(TEST_FILE_RECORD_PHOTO.fileName);
   });
 
   it("mobile renders image inline, not in overlay", () => {
     mockUseIsMobile.mockReturnValue(true);
 
-    renderSheetOpen();
+    renderSheetOpen(TEST_FILE_RECORD_PHOTO, "blob:render-url");
 
     const btn = document.body.querySelector("button[data-size='icon-sm']");
     const overlayImg = btn?.nextElementSibling;
@@ -125,13 +134,13 @@ describe("EditSheet", () => {
 
     const allImgs = document.body.querySelectorAll("[data-slot='sheet-content'] img");
     expect(allImgs.length).toBe(1);
-    expect(allImgs[0].getAttribute("src")).toBe(TEST_FILE_PHOTO.renderUrl);
+    expect(allImgs[0].getAttribute("src")).toBe("blob:render-url");
   });
 
   it("desktop image onPointerDown stops propagation", () => {
     mockUseIsMobile.mockReturnValue(false);
 
-    renderSheetOpen();
+    renderSheetOpen(TEST_FILE_RECORD_PHOTO, "blob:render-url");
     const img = getOverlayImage();
 
     const stopSpy = vi.fn();
