@@ -95,7 +95,7 @@ describe("useDragScroll", () => {
   it("ignores clicks on interactive elements", () => {
     render(
       <DragScrollTest>
-        <a href="#test">Link</a>
+        <a href="#test">Test link destination</a>
       </DragScrollTest>,
     );
     const el = container();

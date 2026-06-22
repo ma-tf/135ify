@@ -33,25 +33,27 @@ export function ConvexStorageProvider({ children }: { children: ReactNode }) {
 
   const addFiles = useCallback(
     async (newFiles: File[]) => {
-      for (const file of newFiles) {
-        try {
-          const uploadUrl = await generateUploadUrl();
-          const result = await fetch(uploadUrl, {
-            method: "POST",
-            headers: { "Content-Type": file.type },
-            body: file,
-          });
-          if (!result.ok) {
+      await Promise.all(
+        newFiles.map(async (file) => {
+          try {
+            const uploadUrl = await generateUploadUrl();
+            const result = await fetch(uploadUrl, {
+              method: "POST",
+              headers: { "Content-Type": file.type },
+              body: file,
+            });
+            if (!result.ok) {
+              toast.error(`Failed to save "${file.name}" to account`);
+              return;
+            }
+            const { storageId } = (await result.json()) as { storageId: string };
+            await createImage({ storageId: storageId as Id<"_storage">, fileName: file.name });
+          } catch (err) {
+            console.error("Convex upload failed:", err);
             toast.error(`Failed to save "${file.name}" to account`);
-            continue;
           }
-          const { storageId } = (await result.json()) as { storageId: string };
-          await createImage({ storageId: storageId as Id<"_storage">, fileName: file.name });
-        } catch (err) {
-          console.error("Convex upload failed:", err);
-          toast.error(`Failed to save "${file.name}" to account`);
-        }
-      }
+        }),
+      );
     },
     [generateUploadUrl, createImage],
   );
