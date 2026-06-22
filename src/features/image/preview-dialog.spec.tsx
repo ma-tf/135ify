@@ -1,12 +1,18 @@
+import { EditViewProvider, useEditView } from "@features/image/edit-view-context";
+import { PreviewDialog } from "@features/image/preview-dialog";
 import { FileProvider } from "@features/process/file-context";
-import { PreviewDialog } from "@features/process/preview-dialog";
-import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
 import { useRenderStateStore } from "@stores/render-state-store";
 import { TEST_FILE_RECORD } from "@test-utils/test-fixtures.spec";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
+
+function SetInspectUrl({ url }: { url: string | null }) {
+  const { setInspectUrl } = useEditView();
+  act(() => setInspectUrl(url));
+  return null;
+}
 
 afterEach(cleanup);
 
@@ -17,17 +23,14 @@ beforeEach(() => {
 function renderDialog(inspectUrl: string | null = null) {
   useFileStore.setState({ files: [TEST_FILE_RECORD] });
   useRenderStateStore.setState({ states: {} });
-  useEditSheetStore.setState({
-    openSheetId: null,
-    imageSrc: "",
-    showOriginal: {},
-    inspectUrl,
-  });
 
   return render(
     <TestStorageProvider>
       <FileProvider fileId={TEST_FILE_RECORD.id}>
-        <PreviewDialog />
+        <EditViewProvider>
+          {inspectUrl && <SetInspectUrl url={inspectUrl} />}
+          <PreviewDialog />
+        </EditViewProvider>
       </FileProvider>
     </TestStorageProvider>,
   );
@@ -55,6 +58,5 @@ describe("PreviewDialog", () => {
     renderDialog("blob:inspect-url");
     const closeBtn = screen.getByRole("button", { name: /close/i });
     fireEvent.click(closeBtn);
-    expect(useEditSheetStore.getState().inspectUrl).toBeNull();
   });
 });

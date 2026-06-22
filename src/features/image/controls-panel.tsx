@@ -2,21 +2,23 @@ import { Button } from "@components/ui/button";
 import { Spinner } from "@components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@components/ui/toggle-group";
 import { FEATURE_3D_PHOTO } from "@config";
+import { useEditView } from "@features/image/edit-view-context";
+import { FilmSelector } from "@features/image/film-selector";
+import { ParameterSlider } from "@features/image/parameter-slider";
+import { useSetParam } from "@features/image/use-set-param";
 import { useFile } from "@features/process/file-context";
-import { FilmSelector } from "@features/process/film-selector";
-import { ParameterSlider } from "@features/process/parameter-slider";
 import { processToBlobUrl } from "@features/process/process-image";
-import { useSetParam } from "@features/process/use-set-param";
 import { cn } from "@lib/utils";
 import { useStorage } from "@providers/storage-context";
-import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { useRenderStateStore } from "@stores/render-state-store";
+import { useNavigate } from "@tanstack/react-router";
 import { DownloadIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
 
 function useParameterSection() {
   const file = useFile();
-  const setParam = useSetParam(file.id, file.sourceUrl, file.params);
+  const { setImageSrc } = useEditView();
+  const setParam = useSetParam(file.id, file.sourceUrl, file.params, setImageSrc);
   return { params: file.params, setParam };
 }
 
@@ -109,12 +111,11 @@ function GrainControls() {
 
 function EditPanelButtons() {
   const file = useFile();
-  const setParam = useSetParam(file.id, file.sourceUrl, file.params);
+  const { setImageSrc, setInspectUrl } = useEditView();
+  const setParam = useSetParam(file.id, file.sourceUrl, file.params, setImageSrc);
   const { removeFile } = useStorage();
   const remove = useRenderStateStore((s) => s.remove);
-  const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
-  const setInspectUrl = useEditSheetStore((s) => s.setInspectUrl);
-  const setImageSrc = useEditSheetStore((s) => s.setImageSrc);
+  const navigate = useNavigate();
 
   const handleReset = () => {
     setParam(DEFAULT_PARAMS);
@@ -124,7 +125,7 @@ function EditPanelButtons() {
   const handleDelete = () => {
     removeFile(file.id);
     remove(file.id);
-    setOpenSheetId(null);
+    void navigate({ to: "/" });
   };
 
   const handleDownload = async () => {
@@ -135,7 +136,6 @@ function EditPanelButtons() {
     a.href = url;
     a.download = file.fileName.replace(/\.[^.]+$/, "") + ".jpg";
     a.click();
-    setOpenSheetId(null);
     if (FEATURE_3D_PHOTO) {
       setInspectUrl(url);
     } else {
@@ -167,10 +167,8 @@ function EditPanelButtons() {
 
 export function EditPanel() {
   const file = useFile();
-  const showOriginal = useEditSheetStore((s) => s.showOriginal[file.id] ?? false);
-  const setShowOriginal = useEditSheetStore((s) => s.setShowOriginal);
-  const setImageSrc = useEditSheetStore((s) => s.setImageSrc);
-  const setParam = useSetParam(file.id, file.sourceUrl, file.params);
+  const { showOriginal, setShowOriginal, setImageSrc } = useEditView();
+  const setParam = useSetParam(file.id, file.sourceUrl, file.params, setImageSrc);
 
   const selectedFilmId = file.params.selectedFilmId;
 
@@ -182,7 +180,7 @@ export function EditPanel() {
           <button
             type="button"
             onClick={() => {
-              setShowOriginal(file.id, true);
+              setShowOriginal(true);
               setImageSrc(file.sourceUrl);
             }}
             className={cn(
@@ -197,7 +195,7 @@ export function EditPanel() {
           <button
             type="button"
             onClick={() => {
-              setShowOriginal(file.id, false);
+              setShowOriginal(false);
               setImageSrc(file.renderUrl || file.sourceUrl);
             }}
             className={cn(

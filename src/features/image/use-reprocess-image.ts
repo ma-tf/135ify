@@ -2,13 +2,15 @@ import type { ProcessParams } from "@stores/file-store-types";
 
 import { processToBlobUrl } from "@features/process/process-image";
 import { useDebouncedCallback } from "@hooks/use-debounced-callback";
-import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useRenderStateStore } from "@stores/render-state-store";
 import { useCallback } from "react";
 
-export function useReprocessImage(fileId: string, sourceUrl: string) {
+export function useReprocessImage(
+  fileId: string,
+  sourceUrl: string,
+  setImageSrc: (url: string) => void,
+) {
   const renderStateStore = useRenderStateStore();
-  const setImageSrc = useEditSheetStore((s) => s.setImageSrc);
 
   const reprocess = useCallback(
     async (params: ProcessParams) => {

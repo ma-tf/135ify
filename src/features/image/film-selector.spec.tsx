@@ -1,5 +1,5 @@
+import { FilmSelector } from "@features/image/film-selector";
 import { FILMS } from "@features/process/film";
-import { FilmSelector } from "@features/process/film-selector";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vite-plus/test";
 

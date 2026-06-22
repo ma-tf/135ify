@@ -1,10 +1,8 @@
 import type { FileWithState } from "@stores/file-store-types";
 
-import { EditSheet } from "@features/process/edit-sheet";
 import { useFile } from "@features/process/file-context";
-import { PreviewDialog } from "@features/process/preview-dialog";
 import { cn } from "@lib/utils";
-import { useEditSheetStore } from "@stores/edit-sheet-store";
+import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 function CardImage({ file }: { file: FileWithState }) {
@@ -33,8 +31,7 @@ function CardImage({ file }: { file: FileWithState }) {
 
 export function RenderCard({ className }: { className?: string }) {
   const file = useFile();
-  const setImageSrc = useEditSheetStore((s) => s.setImageSrc);
-  const setOpenSheetId = useEditSheetStore((s) => s.setOpenSheetId);
+  const navigate = useNavigate();
 
   return (
     <button
@@ -45,13 +42,10 @@ export function RenderCard({ className }: { className?: string }) {
       )}
       onClick={(e) => {
         if (e.currentTarget.closest("[data-dragged]")) return;
-        setImageSrc(file.renderUrl || file.sourceUrl);
-        setOpenSheetId(file.id);
+        void navigate({ to: "/image/$fileId", params: { fileId: file.id } });
       }}
     >
       <CardImage file={file} />
-      <EditSheet />
-      <PreviewDialog />
     </button>
   );
 }

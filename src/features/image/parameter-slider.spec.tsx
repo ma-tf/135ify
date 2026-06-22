@@ -1,4 +1,4 @@
-import { ParameterSlider } from "@features/process/parameter-slider";
+import { ParameterSlider } from "@features/image/parameter-slider";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 

@@ -1,13 +1,12 @@
 import { Button } from "@components/ui/button";
 import { DialogPortal, DialogOverlay, Dialog } from "@components/ui/dialog";
+import { useEditView } from "@features/image/edit-view-context";
 import { useFile } from "@features/process/file-context";
-import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { XIcon } from "lucide-react";
 
 export function PreviewDialog() {
   const file = useFile();
-  const inspectUrl = useEditSheetStore((s) => s.inspectUrl);
-  const setInspectUrl = useEditSheetStore((s) => s.setInspectUrl);
+  const { inspectUrl, setInspectUrl } = useEditView();
 
   return (
     <Dialog open={!!inspectUrl}>

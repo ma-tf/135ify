@@ -1,6 +1,6 @@
-import { EditPanel } from "@features/process/controls-panel";
+import { EditPanel } from "@features/image/controls-panel";
+import { EditViewProvider } from "@features/image/edit-view-context";
 import { FileProvider } from "@features/process/file-context";
-import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { useRenderStateStore } from "@stores/render-state-store";
@@ -10,37 +10,38 @@ import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-vi.mock("@features/process/use-set-param", () => ({
+vi.mock("@features/image/use-set-param", () => ({
   useSetParam: vi.fn(() => vi.fn()),
 }));
 
+import { useSetParam } from "@features/image/use-set-param";
 import { processToBlobUrl } from "@features/process/process-image";
-import { useSetParam } from "@features/process/use-set-param";
 
 setupTests();
 
 const mockSetParam = vi.fn();
+const mockNavigate = vi.fn();
 
 vi.mock("@features/process/process-image", () => ({
   processToBlobUrl: vi.fn(),
 }));
 
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => mockNavigate,
+}));
+
 function renderEditPanel() {
   useFileStore.setState({ files: [TEST_FILE_RECORD_PHOTO] });
   useRenderStateStore.setState({ states: {} });
-  useEditSheetStore.setState({
-    openSheetId: TEST_FILE_RECORD_PHOTO.id,
-    imageSrc: "",
-    showOriginal: {},
-    inspectUrl: null,
-  });
 
   vi.mocked(useSetParam).mockReturnValue(mockSetParam);
 
   return render(
     <TestStorageProvider>
       <FileProvider fileId={TEST_FILE_RECORD_PHOTO.id}>
-        <EditPanel />
+        <EditViewProvider>
+          <EditPanel />
+        </EditViewProvider>
       </FileProvider>
     </TestStorageProvider>,
   );
@@ -88,7 +89,7 @@ describe("EditPanel", () => {
     });
   });
 
-  it("delete handler removes file and closes sheet", () => {
+  it("delete handler removes file and navigates home", () => {
     renderEditPanel();
 
     let caught: unknown;
@@ -102,7 +103,7 @@ describe("EditPanel", () => {
     expect(
       useFileStore.getState().files.find((f) => f.id === TEST_FILE_RECORD_PHOTO.id),
     ).toBeUndefined();
-    expect(useEditSheetStore.getState().openSheetId).toBeNull();
+    expect(mockNavigate).toHaveBeenCalledWith({ to: "/" });
   });
 
   it("renders Halation, Vignette, and Grain section headings", () => {

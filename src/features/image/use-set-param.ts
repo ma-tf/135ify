@@ -1,12 +1,17 @@
 import type { ProcessParams } from "@stores/file-store-types";
 
-import { useReprocessImage } from "@features/process/use-reprocess-image";
+import { useReprocessImage } from "@features/image/use-reprocess-image";
 import { useStorage } from "@providers/storage-context";
 import { useCallback } from "react";
 
-export function useSetParam(fileId: string, sourceUrl: string, params: ProcessParams) {
+export function useSetParam(
+  fileId: string,
+  sourceUrl: string,
+  params: ProcessParams,
+  setImageSrc: (url: string) => void,
+) {
   const { updateParams } = useStorage();
-  const { reprocessDebounced } = useReprocessImage(fileId, sourceUrl);
+  const { reprocessDebounced } = useReprocessImage(fileId, sourceUrl, setImageSrc);
 
   return useCallback(
     (partial: Partial<ProcessParams>) => {

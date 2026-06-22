@@ -2,6 +2,7 @@ import { Footer } from "@components/footer";
 import { Header } from "@components/header";
 import { ThemeProvider } from "@components/theme-provider";
 import { Toaster } from "@components/ui/sonner";
+import { RenderCarousel } from "@features/process/render-carousel";
 import { useOfflineToast } from "@hooks/use-offline-toast";
 import { StorageProvider } from "@providers/storage-provider";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
@@ -19,7 +20,10 @@ function RootComponent() {
       <StorageProvider>
         <div className="flex min-h-screen flex-col">
           <Header />
-          <Outlet />
+          <main className="relative flex flex-1 flex-col">
+            <RenderCarousel />
+            <Outlet />
+          </main>
           <Footer />
         </div>
         <Toaster />

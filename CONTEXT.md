@@ -41,9 +41,14 @@ colour shift to the Source Image during processing.
 _Avoid_: Film preset, tint preset
 
 **Film Strip**: The horizontal row of rendered images, styled with sprocket-hole decoration, through which the user
-navigates Source Images and their Renders.
+navigates Source Images and their Renders. Always rendered in the root layout.
 
 _Avoid_: Carousel, gallery, film strip
+
+**Edit View**: The route-based overlay at `/image/$fileId` where a user adjusts processing parameters for a Source
+Image. Replaces the former EditSheet component. Editing components live in `src/features/image/`.
+
+_Avoid_: EditSheet, edit modal
 
 **Account**: An authenticated user identity, linked to a History. Required for server-side persistence of Source Images
 and processing parameters.
@@ -88,6 +93,7 @@ _Aavoid_: StorageProvider, storage layer
   persisted server-side.
 - A **FileRecord** is composed with a **RenderState** at the UI layer to produce the full view model for a Source Image.
 - The **Storage Facade** is independent of render state management; composition happens in FileProvider.
+- The **Film Strip** is always rendered in the root layout. The **Edit View** opens as a Sheet overlay on top of it.
 
 ## Example dialogue
 

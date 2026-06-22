@@ -1,6 +1,5 @@
 import { FileProvider } from "@features/process/file-context";
 import { RenderCard } from "@features/process/render-card";
-import { useEditSheetStore } from "@stores/edit-sheet-store";
 import { useFileStore } from "@stores/file-store";
 import { useRenderStateStore } from "@stores/render-state-store";
 import { TEST_FILE_RECORD, TEST_RENDER_STATE_WITH_URL } from "@test-utils/test-fixtures.spec";
@@ -8,27 +7,21 @@ import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
-vi.mock("@features/process/edit-sheet", () => ({
-  EditSheet: () => <div data-testid="edit-sheet" />,
+const mockNavigate = vi.fn();
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => mockNavigate,
 }));
 
-vi.mock("@features/process/preview-dialog", () => ({
-  PreviewDialog: () => <div data-testid="preview-dialog" />,
-}));
-
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
 
 describe("RenderCard", () => {
   function renderCard(withRenderState = false) {
     useFileStore.setState({ files: [TEST_FILE_RECORD] });
     useRenderStateStore.setState({
       states: withRenderState ? { [TEST_FILE_RECORD.id]: TEST_RENDER_STATE_WITH_URL } : {},
-    });
-    useEditSheetStore.setState({
-      openSheetId: null,
-      imageSrc: "",
-      showOriginal: {},
-      inspectUrl: null,
     });
 
     return render(
@@ -63,17 +56,14 @@ describe("RenderCard", () => {
     expect(screen.getByRole("img").className).toContain("opacity-100");
   });
 
-  it("click opens the edit sheet", () => {
+  it("click navigates to edit view route", () => {
     renderCard();
     const card = screen.getByRole("img").parentElement!;
     fireEvent.click(card);
-    expect(useEditSheetStore.getState().openSheetId).toBe(TEST_FILE_RECORD.id);
-  });
-
-  it("renders EditSheet and PreviewDialog", () => {
-    renderCard();
-    expect(screen.getByTestId("edit-sheet")).toBeDefined();
-    expect(screen.getByTestId("preview-dialog")).toBeDefined();
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: "/image/$fileId",
+      params: { fileId: TEST_FILE_RECORD.id },
+    });
   });
 
   it("applies custom className", () => {
