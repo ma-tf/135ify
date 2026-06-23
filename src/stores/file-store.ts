@@ -18,7 +18,6 @@ export function prepareFiles(files: File[]) {
       );
       continue;
     }
-
     if (!file.type.startsWith("image/")) {
       errors.push(`File "${file.name}" is not an accepted file type.`);
       continue;
