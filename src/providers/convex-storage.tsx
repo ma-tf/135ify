@@ -7,7 +7,7 @@ import { useMutation, useQuery_experimental as useQuery } from "convex/react";
 import { type ReactNode, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 
-export function ConvexStorageProvider({ children }: { children: ReactNode }) {
+export default function ConvexStorageProvider({ children }: { children: ReactNode }) {
   const convexImages = useQuery({ query: api.images.listByUser, args: {} });
   const generateUploadUrl = useMutation(api.images.generateUploadUrl);
   const createImage = useMutation(api.images.create);

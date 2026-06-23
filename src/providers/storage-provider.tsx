@@ -1,14 +1,20 @@
+import type { ReactNode } from "react";
+
 import { FEATURE_SIGN_IN } from "@config";
-import { ConvexStorageProvider } from "@providers/convex-storage";
 import { ZustandStorageProvider } from "@providers/zustand-storage";
-import { useConvexAuth } from "convex/react";
+import React, { Suspense } from "react";
 
-export function StorageProvider({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useConvexAuth();
+const LazyConvexStorage = FEATURE_SIGN_IN
+  ? React.lazy(() => import("@providers/convex-storage"))
+  : null;
 
-  if (FEATURE_SIGN_IN && !isLoading && isAuthenticated) {
-    return <ConvexStorageProvider>{children}</ConvexStorageProvider>;
+export function StorageProvider({ children }: { children: ReactNode }) {
+  if (FEATURE_SIGN_IN && LazyConvexStorage) {
+    return (
+      <Suspense fallback={null}>
+        <LazyConvexStorage>{children}</LazyConvexStorage>
+      </Suspense>
+    );
   }
-
   return <ZustandStorageProvider>{children}</ZustandStorageProvider>;
 }
