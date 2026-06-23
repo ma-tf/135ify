@@ -2,11 +2,8 @@ import { useDragScroll } from "@hooks/use-drag-scroll";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
-let lastRef: ReturnType<typeof useDragScroll>["ref"];
-
 function DragScrollTest({ children }: { children?: React.ReactNode }) {
   const { ref, isDragging } = useDragScroll();
-  lastRef = ref;
   return (
     <div ref={ref} data-dragging={isDragging} style={{ overflowX: "auto", width: 200 }}>
       <div style={{ width: 1000, height: 50 }}>{children}</div>
@@ -39,7 +36,7 @@ describe("useDragScroll", () => {
 
   it("ref attaches to an HTMLDivElement", () => {
     render(<DragScrollTest />);
-    expect(lastRef.current).toBeInstanceOf(HTMLDivElement);
+    expect(container()).toBeInstanceOf(HTMLDivElement);
   });
 
   it("drag scrolls the container", () => {

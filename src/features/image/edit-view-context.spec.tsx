@@ -1,4 +1,9 @@
 import { EditViewProvider, useEditView } from "@features/image/edit-view-context";
+import { FileProvider } from "@providers/file-context";
+import { useFileStore } from "@stores/file-store";
+import { useRenderStateStore } from "@stores/render-state-store";
+import { TEST_FILE_RECORD } from "@test-utils/test-fixtures.spec";
+import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -14,10 +19,16 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function renderEditView(defaultImageSrc = "") {
+function renderEditView() {
+  useFileStore.setState({ files: [TEST_FILE_RECORD] });
+  useRenderStateStore.setState({ states: {} });
   return renderHook(() => useEditView(), {
     wrapper: ({ children }) => (
-      <EditViewProvider defaultImageSrc={defaultImageSrc}>{children}</EditViewProvider>
+      <TestStorageProvider>
+        <FileProvider fileId={TEST_FILE_RECORD.id}>
+          <EditViewProvider>{children}</EditViewProvider>
+        </FileProvider>
+      </TestStorageProvider>
     ),
   });
 }
@@ -25,14 +36,9 @@ function renderEditView(defaultImageSrc = "") {
 describe("EditViewProvider", () => {
   it("has correct initial state", () => {
     const { result } = renderEditView();
-    expect(result.current.imageSrc).toBe("");
+    expect(result.current.imageSrc).toBe(TEST_FILE_RECORD.sourceUrl);
     expect(result.current.showOriginal).toBe(false);
     expect(result.current.inspectUrl).toBeNull();
-  });
-
-  it("uses defaultImageSrc when provided", () => {
-    const { result } = renderEditView("blob:default");
-    expect(result.current.imageSrc).toBe("blob:default");
   });
 
   it("setImageSrc updates imageSrc", () => {

@@ -1,7 +1,8 @@
 import { v } from "convex/values";
 
-import { Doc } from "./_generated/dataModel";
-import { mutation, MutationCtx, query, QueryCtx } from "./_generated/server";
+import type { Doc } from "./_generated/dataModel";
+
+import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
 
 const boundedLimit = 100;
 const imageLimit = 20;

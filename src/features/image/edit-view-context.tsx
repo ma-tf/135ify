@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { useFile } from "@providers/file-context";
 import { createContext, use, useCallback, useEffect, useState } from "react";
 
 type EditViewContextValue = {
@@ -13,14 +14,9 @@ type EditViewContextValue = {
 
 const EditViewContext = createContext<EditViewContextValue | null>(null);
 
-export function EditViewProvider({
-  defaultImageSrc = "",
-  children,
-}: {
-  defaultImageSrc?: string;
-  children: ReactNode;
-}) {
-  const [imageSrc, setImageSrc] = useState(defaultImageSrc);
+export function EditViewProvider({ children }: { children: ReactNode }) {
+  const file = useFile();
+  const [imageSrc, setImageSrc] = useState(file.renderUrl ?? file.sourceUrl);
   const [showOriginal, setShowOriginal] = useState(false);
   const [inspectUrl, setInspectUrlState] = useState<string | null>(null);
 
