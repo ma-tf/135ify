@@ -11,6 +11,7 @@
     "commitlint": "commitlint --edit",
     "fmt": "oxfmt",
     "lint": "oxlint",
+    "typecheck": "tsc --noEmit",
     "sbom:gen": "scripts/licenses-to-md.sh",
     "fallow:dc": "vpx fallow dead-code",
     "fallow:d": "vpx fallow dupes",

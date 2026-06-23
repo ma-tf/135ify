@@ -14,6 +14,30 @@ A component must pull its own state. Never accept state as a prop solely to forw
 **Acceptable props:** UI primitives (label, className, children), user-initiated callbacks, or configuration values that
 are constant for the component's lifetime.
 
+## No consts after an if
+
+A `const` declaration must never follow an `if` guard. Move the declaration above the guard.
+
+Example — bad:
+
+```tsx
+function Profile() {
+  if (!user) return null;
+  const name = user.name;
+  return <div>{name}</div>;
+}
+```
+
+Example — good:
+
+```tsx
+function Profile() {
+  const name = user?.name;
+  if (!user) return null;
+  return <div>{name}</div>;
+}
+```
+
 ## Other conventions
 
 - Use Zustand for state management; single-store pattern in `src/stores/`

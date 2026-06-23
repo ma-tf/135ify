@@ -7,10 +7,8 @@ import { FileProvider } from "@features/process/file-context";
 import { useIsMobile } from "@hooks/use-mobile";
 import { useStorage } from "@providers/storage-context";
 import { useRenderStateStore } from "@stores/render-state-store";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { XIcon } from "lucide-react";
-import { useEffect } from "react";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/image/$fileId")({
   component: EditViewRoute,
@@ -24,16 +22,9 @@ function EditViewRoute() {
   const renderState = useRenderStateStore((s) => s.get(fileId));
   const file = files.find((f) => f.id === fileId);
 
-  useEffect(() => {
-    if (!file) {
-      toast("Image not found");
-      void navigate({ to: "/", replace: true });
-    }
-  }, [file, navigate]);
+  const defaultImageSrc = renderState?.renderUrl || file?.sourceUrl;
 
-  if (!file) return null;
-
-  const defaultImageSrc = renderState?.renderUrl || file.sourceUrl;
+  if (!file) throw redirect({ to: "/", replace: true });
 
   return (
     <EditViewProvider defaultImageSrc={defaultImageSrc}>
