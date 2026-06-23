@@ -12,6 +12,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "@convex/_generated/api";
 import { useConvexAuth, useQuery_experimental as useQuery } from "convex/react";
 import { ImageIcon, LogOut } from "lucide-react";
+import { type ComponentProps } from "react";
 
 function getInitials(name?: string | null, email?: string | null): string {
   if (name) {
@@ -26,7 +27,7 @@ function getInitials(name?: string | null, email?: string | null): string {
   return "?";
 }
 
-function UserAvatar() {
+function UserAvatar(props: ComponentProps<typeof Button>) {
   const user = useQuery({ query: api.users.current, args: {} });
 
   if (user.status === "pending") {
@@ -38,7 +39,7 @@ function UserAvatar() {
   }
 
   return (
-    <Button variant="ghost" size="sm" className="relative size-8 rounded-full">
+    <Button variant="ghost" size="sm" className="relative size-8 rounded-full" {...props}>
       <Avatar size="sm">
         <AvatarImage src={user.data.image} alt={user.data.name} />
         <AvatarFallback>{getInitials(user.data.name, user.data.email)}</AvatarFallback>
