@@ -1,6 +1,6 @@
 import type { FileRecord } from "@stores/file-store-types";
 
-import { FileProvider, useFile } from "@features/process/file-context";
+import { FileProvider, useFile } from "@providers/file-context";
 import { useFileStore } from "@stores/file-store";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { useRenderStateStore } from "@stores/render-state-store";

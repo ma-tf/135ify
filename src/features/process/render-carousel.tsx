@@ -1,8 +1,8 @@
 import { Dropzone } from "@features/process/dropzone";
-import { FileProvider } from "@features/process/file-context";
 import { RenderCard } from "@features/process/render-card";
 import { useDragScroll } from "@hooks/use-drag-scroll";
 import { cn } from "@lib/utils";
+import { FileProvider } from "@providers/file-context";
 import { useStorage } from "@providers/storage-context";
 
 const sharedFilmFrameClasses =

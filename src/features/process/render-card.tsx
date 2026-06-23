@@ -1,7 +1,7 @@
 import type { FileWithState } from "@stores/file-store-types";
 
-import { useFile } from "@features/process/file-context";
 import { cn } from "@lib/utils";
+import { useFile } from "@providers/file-context";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 

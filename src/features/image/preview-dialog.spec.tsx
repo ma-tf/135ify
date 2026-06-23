@@ -1,6 +1,6 @@
 import { EditViewProvider, useEditView } from "@features/image/edit-view-context";
 import { PreviewDialog } from "@features/image/preview-dialog";
-import { FileProvider } from "@features/process/file-context";
+import { FileProvider } from "@providers/file-context";
 import { useFileStore } from "@stores/file-store";
 import { useRenderStateStore } from "@stores/render-state-store";
 import { TEST_FILE_RECORD } from "@test-utils/test-fixtures.spec";

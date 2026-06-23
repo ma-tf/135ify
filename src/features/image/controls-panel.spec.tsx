@@ -1,6 +1,6 @@
 import { EditPanel } from "@features/image/controls-panel";
 import { EditViewProvider } from "@features/image/edit-view-context";
-import { FileProvider } from "@features/process/file-context";
+import { FileProvider } from "@providers/file-context";
 import { useFileStore } from "@stores/file-store";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { useRenderStateStore } from "@stores/render-state-store";

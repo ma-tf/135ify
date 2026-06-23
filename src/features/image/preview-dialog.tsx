@@ -1,7 +1,7 @@
 import { Button } from "@components/ui/button";
 import { DialogPortal, DialogOverlay, Dialog } from "@components/ui/dialog";
 import { useEditView } from "@features/image/edit-view-context";
-import { useFile } from "@features/process/file-context";
+import { useFile } from "@providers/file-context";
 import { XIcon } from "lucide-react";
 
 export function PreviewDialog() {

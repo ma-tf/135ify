@@ -1,5 +1,5 @@
-import { FileProvider } from "@features/process/file-context";
 import { RenderCard } from "@features/process/render-card";
+import { FileProvider } from "@providers/file-context";
 import { useFileStore } from "@stores/file-store";
 import { useRenderStateStore } from "@stores/render-state-store";
 import { TEST_FILE_RECORD, TEST_RENDER_STATE_WITH_URL } from "@test-utils/test-fixtures.spec";
