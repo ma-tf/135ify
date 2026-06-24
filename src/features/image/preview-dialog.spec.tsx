@@ -5,12 +5,15 @@ import { useFileStore } from "@stores/file-store";
 import { useRenderStateStore } from "@stores/render-state-store";
 import { TEST_FILE_RECORD } from "@test-utils/test-fixtures.spec";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { useEffect } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 function SetInspectUrl({ url }: { url: string | null }) {
   const { setInspectUrl } = useEditView();
-  act(() => setInspectUrl(url));
+  useEffect(() => {
+    setInspectUrl(url);
+  }, [url, setInspectUrl]);
   return null;
 }
 
