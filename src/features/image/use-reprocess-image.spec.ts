@@ -185,13 +185,13 @@ describe("useReprocessImage", () => {
         result.current.reprocessDebounced(DEFAULT_PARAMS);
       });
 
-      expect(processToBlobUrl).not.toHaveBeenCalled();
+      expect(processToBlobUrl).toHaveBeenCalledTimes(1);
 
       await act(async () => {
         vi.advanceTimersByTime(50);
       });
 
-      expect(processToBlobUrl).toHaveBeenCalledOnce();
+      expect(processToBlobUrl).toHaveBeenCalledTimes(2);
     });
   });
 });
