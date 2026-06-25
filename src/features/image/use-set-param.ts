@@ -19,7 +19,7 @@ export function useSetParam(
     100,
   );
 
-  const { debounced: reprocessDebounced } = useDebounce(reprocess, 500);
+  const { debounced: reprocessDebounced } = useDebounce(reprocess, 200);
 
   return useCallback(
     (partial: Partial<ProcessParams>) => {
