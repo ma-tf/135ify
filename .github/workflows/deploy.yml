@@ -21,11 +21,14 @@ jobs:
   deploy:
     needs: check
     runs-on: ubuntu-latest
+    environment: github-pages
     permissions:
       id-token: write
       pages: write
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH }}
+      VITE_FILE_SIZE_LIMIT_MB: ${{ vars.VITE_FILE_SIZE_LIMIT_MB }}
     steps:
       - uses: actions/checkout@v6
       - uses: voidzero-dev/setup-vp@v1
@@ -33,8 +36,6 @@ jobs:
           node-version-file: ".node-version"
       - run: vp i --frozen-lockfile
       - run: vp build
-        env:
-          VITE_BASE_PATH: /135ify/
       - run: vpx fallow health --format badge > dist/badge.svg
       - uses: actions/upload-pages-artifact@v5
         with:
