@@ -1,4 +1,4 @@
-# 0004: Source Images only in history
+# 0004: Source Images only in the Gallery
 
 ## Status
 
@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-When persisting images to a user's History, we need to decide what data to store. A Source Image plus its processing
+When persisting images to a user's Gallery, we need to decide what data to store. A Source Image plus its processing
 parameters can produce a Render. The question is whether to store:
 
 1. **Source Images only** — store the uploaded file and processing parameters. Re-generate the Render client-side on
@@ -46,8 +46,8 @@ The `images` table stores:
 }
 ```
 
-Parameters are always saved, even when they match defaults. This ensures loading an image from History always reproduces
-the exact editing state.
+Parameters are always saved, even when they match defaults. This ensures loading an image from the Gallery always
+reproduces the exact editing state.
 
 ## Consequences
 
@@ -55,6 +55,6 @@ the exact editing state.
 - **Positive**: Parameters are the single source of truth for visual output. No risk of stale Renders.
 - **Positive**: Simple upload flow — one file, one storage ID, one database record.
 - **Negative**: Re-processing is required on every load. Preview renders (1200px) are fast (~200ms) but introduce a
-  brief loading state when navigating to `/history/<uuid>`.
+  brief loading state when navigating to `/gallery/<uuid>`.
 - **Negative**: Full-resolution Renders are not pre-cached. Download requires re-processing at original resolution,
   which may take several seconds for large images.

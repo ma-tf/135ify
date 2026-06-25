@@ -61,8 +61,8 @@ describe("RenderCard", () => {
     const card = screen.getByRole("img").parentElement!;
     fireEvent.click(card);
     expect(mockNavigate).toHaveBeenCalledWith({
-      to: "/image/$fileId",
-      params: { fileId: TEST_FILE_RECORD.id },
+      to: "/gallery/$imageId",
+      params: { imageId: TEST_FILE_RECORD.id },
     });
   });
 

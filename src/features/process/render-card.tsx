@@ -42,7 +42,7 @@ export function RenderCard({ className }: { className?: string }) {
       )}
       onClick={(e) => {
         if (e.currentTarget.closest("[data-dragged]")) return;
-        void navigate({ to: "/image/$fileId", params: { fileId: file.id } });
+        void navigate({ to: "/gallery/$imageId", params: { imageId: file.id } });
       }}
     >
       <CardImage file={file} />

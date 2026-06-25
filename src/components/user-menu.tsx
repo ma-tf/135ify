@@ -10,6 +10,7 @@ import {
 import { Skeleton } from "@components/ui/skeleton";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "@convex/_generated/api";
+import { Link } from "@tanstack/react-router";
 import { useConvexAuth, useQuery_experimental as useQuery } from "convex/react";
 import { ImageIcon, LogOut } from "lucide-react";
 import { type ComponentProps } from "react";
@@ -63,10 +64,10 @@ export function UserMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
-          <a href="/images">
+          <Link to="/gallery">
             <ImageIcon className="mr-2 size-4" />
             My Images
-          </a>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => void signOut()}>

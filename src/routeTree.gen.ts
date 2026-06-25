@@ -9,48 +9,72 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ImageFileIdRouteImport } from './routes/image.$fileId'
+import { Route as GalleryIndexRouteImport } from './routes/gallery.index'
+import { Route as GalleryImageIdRouteImport } from './routes/gallery.$imageId'
 
+const GalleryRoute = GalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ImageFileIdRoute = ImageFileIdRouteImport.update({
-  id: '/image/$fileId',
-  path: '/image/$fileId',
-  getParentRoute: () => rootRouteImport,
+const GalleryIndexRoute = GalleryIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GalleryRoute,
+} as any)
+const GalleryImageIdRoute = GalleryImageIdRouteImport.update({
+  id: '/$imageId',
+  path: '/$imageId',
+  getParentRoute: () => GalleryRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/image/$fileId': typeof ImageFileIdRoute
+  '/gallery': typeof GalleryRouteWithChildren
+  '/gallery/$imageId': typeof GalleryImageIdRoute
+  '/gallery/': typeof GalleryIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/image/$fileId': typeof ImageFileIdRoute
+  '/gallery/$imageId': typeof GalleryImageIdRoute
+  '/gallery': typeof GalleryIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/image/$fileId': typeof ImageFileIdRoute
+  '/gallery': typeof GalleryRouteWithChildren
+  '/gallery/$imageId': typeof GalleryImageIdRoute
+  '/gallery/': typeof GalleryIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/image/$fileId'
+  fullPaths: '/' | '/gallery' | '/gallery/$imageId' | '/gallery/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/image/$fileId'
-  id: '__root__' | '/' | '/image/$fileId'
+  to: '/' | '/gallery/$imageId' | '/gallery'
+  id: '__root__' | '/' | '/gallery' | '/gallery/$imageId' | '/gallery/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ImageFileIdRoute: typeof ImageFileIdRoute
+  GalleryRoute: typeof GalleryRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -58,19 +82,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/image/$fileId': {
-      id: '/image/$fileId'
-      path: '/image/$fileId'
-      fullPath: '/image/$fileId'
-      preLoaderRoute: typeof ImageFileIdRouteImport
-      parentRoute: typeof rootRouteImport
+    '/gallery/': {
+      id: '/gallery/'
+      path: '/'
+      fullPath: '/gallery/'
+      preLoaderRoute: typeof GalleryIndexRouteImport
+      parentRoute: typeof GalleryRoute
+    }
+    '/gallery/$imageId': {
+      id: '/gallery/$imageId'
+      path: '/$imageId'
+      fullPath: '/gallery/$imageId'
+      preLoaderRoute: typeof GalleryImageIdRouteImport
+      parentRoute: typeof GalleryRoute
     }
   }
 }
 
+interface GalleryRouteChildren {
+  GalleryImageIdRoute: typeof GalleryImageIdRoute
+  GalleryIndexRoute: typeof GalleryIndexRoute
+}
+
+const GalleryRouteChildren: GalleryRouteChildren = {
+  GalleryImageIdRoute: GalleryImageIdRoute,
+  GalleryIndexRoute: GalleryIndexRoute,
+}
+
+const GalleryRouteWithChildren =
+  GalleryRoute._addFileChildren(GalleryRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ImageFileIdRoute: ImageFileIdRoute,
+  GalleryRoute: GalleryRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

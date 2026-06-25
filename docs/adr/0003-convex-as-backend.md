@@ -7,7 +7,7 @@ Accepted
 ## Context
 
 135ify is currently a purely client-side application — no backend, no database, no authentication. Images exist only in
-the browser's memory and are lost on page refresh. Adding user accounts and persistent image history requires a backend.
+the browser's memory and are lost on page refresh. Adding user accounts and a persistent gallery requires a backend.
 
 Alternatives considered:
 

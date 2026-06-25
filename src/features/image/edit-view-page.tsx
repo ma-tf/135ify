@@ -6,7 +6,7 @@ import { useStorage } from "@providers/storage-context";
 import { redirect, useParams } from "@tanstack/react-router";
 
 export function EditViewPage() {
-  const { fileId } = useParams({ from: "/image/$fileId" });
+  const { imageId: fileId } = useParams({ from: "/gallery/$imageId" });
   const { files } = useStorage();
   const file = files.find((f) => f.id === fileId);
 
