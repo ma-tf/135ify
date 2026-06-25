@@ -7,7 +7,6 @@ export function useDebounce<T extends (...args: never[]) => void>(
 ) {
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const callbackRef = useRef<T>(callback);
-  const invokedRef = useRef(false);
 
   useEffect(() => {
     callbackRef.current = callback;
@@ -17,14 +16,14 @@ export function useDebounce<T extends (...args: never[]) => void>(
 
   const debounced = useCallback(
     (...args: Parameters<T>) => {
-      if (options?.leading || !invokedRef.current) {
-        invokedRef.current = true;
+      if (options?.leading && !timer.current) {
         callbackRef.current(...args);
       }
 
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => {
-        if (!options?.leading) callbackRef.current(...args);
+        timer.current = undefined;
+        callbackRef.current(...args);
       }, delay);
     },
     [delay, options],

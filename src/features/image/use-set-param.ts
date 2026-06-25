@@ -12,13 +12,14 @@ export function useSetParam(
   setImageSrc: (url: string) => void,
 ) {
   const { updateParams } = useStorage();
-  const { reprocessDebounced } = useReprocessImage(fileId, sourceUrl, setImageSrc);
+  const { reprocess } = useReprocessImage(fileId, sourceUrl, setImageSrc);
 
-  const saveParams = useCallback(
+  const { debounced: saveParamsDebounced } = useDebounce(
     (merged: ProcessParams) => updateParams(fileId, merged),
-    [fileId, updateParams],
+    100,
   );
-  const { debounced: saveParamsDebounced } = useDebounce(saveParams, 200);
+
+  const { debounced: reprocessDebounced } = useDebounce(reprocess, 500);
 
   return useCallback(
     (partial: Partial<ProcessParams>) => {
@@ -26,6 +27,6 @@ export function useSetParam(
       saveParamsDebounced(merged);
       reprocessDebounced(merged);
     },
-    [fileId, params, saveParamsDebounced, reprocessDebounced],
+    [params, saveParamsDebounced, reprocessDebounced],
   );
 }

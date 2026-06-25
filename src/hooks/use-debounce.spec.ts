@@ -13,23 +13,23 @@ beforeEach(() => {
 
 describe("useDebounce", () => {
   describe("debounced", () => {
-    it("invokes fn immediately on first call (leading edge)", () => {
+    it("does not invoke fn immediately (trailing by default)", () => {
       const fn = vi.fn();
       const { result } = renderHook(() => useDebounce(fn, 100));
 
       result.current.debounced();
 
-      expect(fn).toHaveBeenCalledOnce();
+      expect(fn).not.toHaveBeenCalled();
     });
 
-    it("invokes fn again after delay (trailing edge)", () => {
+    it("invokes fn after delay (trailing edge)", () => {
       const fn = vi.fn();
       const { result } = renderHook(() => useDebounce(fn, 100));
 
       result.current.debounced();
       vi.advanceTimersByTime(100);
 
-      expect(fn).toHaveBeenCalledTimes(2);
+      expect(fn).toHaveBeenCalledOnce();
     });
 
     it("resets timer on rapid successive calls", () => {
@@ -41,10 +41,10 @@ describe("useDebounce", () => {
       result.current.debounced();
 
       vi.advanceTimersByTime(99);
-      expect(fn).toHaveBeenCalledTimes(1);
+      expect(fn).not.toHaveBeenCalled();
 
       vi.advanceTimersByTime(1);
-      expect(fn).toHaveBeenCalledTimes(2);
+      expect(fn).toHaveBeenCalledOnce();
     });
 
     it("passes latest args to trailing invocation", () => {
@@ -57,8 +57,8 @@ describe("useDebounce", () => {
 
       vi.advanceTimersByTime(100);
 
-      expect(fn).toHaveBeenCalledTimes(2);
-      expect(fn).toHaveBeenLastCalledWith("c");
+      expect(fn).toHaveBeenCalledOnce();
+      expect(fn).toHaveBeenCalledWith("c");
     });
 
     it("uses latest fn across renders", () => {
@@ -73,7 +73,7 @@ describe("useDebounce", () => {
 
       vi.advanceTimersByTime(100);
 
-      expect(fn1).toHaveBeenCalledOnce();
+      expect(fn1).not.toHaveBeenCalled();
       expect(fn2).toHaveBeenCalledOnce();
     });
 
@@ -87,7 +87,7 @@ describe("useDebounce", () => {
       result.current.debounced();
       vi.advanceTimersByTime(100);
 
-      expect(fn).toHaveBeenCalledTimes(3);
+      expect(fn).toHaveBeenCalledTimes(2);
     });
 
     it("does not fire trailing edge after unmount", () => {
@@ -99,7 +99,7 @@ describe("useDebounce", () => {
 
       vi.advanceTimersByTime(100);
 
-      expect(fn).toHaveBeenCalledTimes(1);
+      expect(fn).not.toHaveBeenCalled();
     });
 
     it("has stable identity when only callback changes", () => {
@@ -143,6 +143,49 @@ describe("useDebounce", () => {
     });
   });
 
+  describe("leading mode", () => {
+    it("fires immediately on first call of a burst", () => {
+      const fn = vi.fn();
+      const { result } = renderHook(() => useDebounce(fn, 100, { leading: true }));
+
+      result.current.debounced();
+
+      expect(fn).toHaveBeenCalledOnce();
+    });
+
+    it("fires trailing edge after delay with last value", () => {
+      const fn = vi.fn();
+      const { result } = renderHook(() => useDebounce(fn, 100, { leading: true }));
+
+      result.current.debounced("a");
+      result.current.debounced("b");
+      result.current.debounced("c");
+
+      vi.advanceTimersByTime(100);
+
+      expect(fn).toHaveBeenCalledTimes(2);
+      expect(fn).toHaveBeenNthCalledWith(1, "a");
+      expect(fn).toHaveBeenNthCalledWith(2, "c");
+    });
+
+    it("resets leading per burst", () => {
+      const fn = vi.fn();
+      const { result } = renderHook(() => useDebounce(fn, 100, { leading: true }));
+
+      result.current.debounced("a");
+      vi.advanceTimersByTime(100);
+
+      result.current.debounced("b");
+      vi.advanceTimersByTime(100);
+
+      expect(fn).toHaveBeenCalledTimes(4);
+      expect(fn).toHaveBeenNthCalledWith(1, "a");
+      expect(fn).toHaveBeenNthCalledWith(2, "a");
+      expect(fn).toHaveBeenNthCalledWith(3, "b");
+      expect(fn).toHaveBeenNthCalledWith(4, "b");
+    });
+  });
+
   describe("flush", () => {
     it("immediately invokes fn with provided args", () => {
       const fn = vi.fn();
@@ -163,7 +206,7 @@ describe("useDebounce", () => {
 
       vi.advanceTimersByTime(100);
 
-      expect(fn).toHaveBeenCalledTimes(2);
+      expect(fn).toHaveBeenCalledOnce();
     });
 
     it("works with no pending debounced call", () => {
@@ -213,7 +256,7 @@ describe("useDebounce", () => {
 
       vi.advanceTimersByTime(100);
 
-      expect(fn).toHaveBeenCalledTimes(1);
+      expect(fn).not.toHaveBeenCalled();
     });
 
     it("does nothing with no pending call", () => {
