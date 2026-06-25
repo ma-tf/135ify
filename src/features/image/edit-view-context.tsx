@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { useFile } from "@providers/file-context";
-import { createContext, use, useCallback, useEffect, useMemo, useState } from "react";
+import { createContext, use, useCallback, useEffect, useState } from "react";
 
 type EditViewContextValue = {
   imageSrc: string;
@@ -14,7 +14,7 @@ type EditViewContextValue = {
 
 const EditViewContext = createContext<EditViewContextValue | null>(null);
 
-export function EditViewProvider({ children }: { children: ReactNode }) {
+function useEditViewState() {
   const file = useFile();
   const [imageSrc, setImageSrc] = useState(file.renderUrl ?? file.sourceUrl);
   const [showOriginal, setShowOriginal] = useState(false);
@@ -33,12 +33,13 @@ export function EditViewProvider({ children }: { children: ReactNode }) {
     };
   }, [inspectUrl]);
 
-  const value = useMemo(
-    () => ({ imageSrc, setImageSrc, showOriginal, setShowOriginal, inspectUrl, setInspectUrl }),
-    [imageSrc, showOriginal, inspectUrl],
-  );
+  return { imageSrc, setImageSrc, showOriginal, setShowOriginal, inspectUrl, setInspectUrl };
+}
 
-  return <EditViewContext.Provider value={value}>{children}</EditViewContext.Provider>;
+export function EditViewProvider({ children }: { children: ReactNode }) {
+  const editViewState = useEditViewState();
+
+  return <EditViewContext.Provider value={editViewState}>{children}</EditViewContext.Provider>;
 }
 
 export function useEditView() {

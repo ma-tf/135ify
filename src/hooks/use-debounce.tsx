@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 export function useDebounce<T extends (...args: never[]) => void>(
   callback: T,
@@ -8,7 +8,6 @@ export function useDebounce<T extends (...args: never[]) => void>(
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const callbackRef = useRef<T>(callback);
   const invokedRef = useRef(false);
-  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     callbackRef.current = callback;
@@ -21,16 +20,12 @@ export function useDebounce<T extends (...args: never[]) => void>(
       if (options?.leading || !invokedRef.current) {
         invokedRef.current = true;
         callbackRef.current(...args);
-        setIsPending(false);
       }
 
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => {
         if (!options?.leading) callbackRef.current(...args);
-        setIsPending(false);
       }, delay);
-
-      setIsPending(true);
     },
     [delay, options],
   );
@@ -38,15 +33,13 @@ export function useDebounce<T extends (...args: never[]) => void>(
   const cancel = useCallback(() => {
     if (timer.current) clearTimeout(timer.current);
     timer.current = undefined;
-    setIsPending(false);
   }, []);
 
   const flush = useCallback((...args: Parameters<T>) => {
     if (timer.current) clearTimeout(timer.current);
     timer.current = undefined;
-    setIsPending(false);
     callbackRef.current(...args);
   }, []);
 
-  return { debounced, cancel, flush, isPending };
+  return { debounced, cancel, flush };
 }

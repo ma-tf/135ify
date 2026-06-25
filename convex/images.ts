@@ -4,9 +4,9 @@ import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
+import { GALLERY_IMAGE_LIMIT } from "./config";
 
 const boundedLimit = 100;
-const imageLimit = 20;
 const sizeLimit = 5 * 1024 * 1024;
 
 async function requireAuth(ctx: QueryCtx | MutationCtx) {
@@ -63,7 +63,7 @@ export const create = mutation({
       .query("images")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
       .collect();
-    if (existing.length >= imageLimit) throw new Error("Image limit reached");
+    if (existing.length >= GALLERY_IMAGE_LIMIT) throw new Error("Gallery image limit reached");
 
     const metadata = await ctx.db.system.get("_storage", args.storageId);
     if (!metadata) throw new Error("File not found in storage");

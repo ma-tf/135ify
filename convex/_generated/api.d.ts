@@ -9,6 +9,7 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as config from "../config.js";
 import type * as http from "../http.js";
 import type * as images from "../images.js";
 import type * as users from "../users.js";
@@ -21,6 +22,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  config: typeof config;
   http: typeof http;
   images: typeof images;
   users: typeof users;

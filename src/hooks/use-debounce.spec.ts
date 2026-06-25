@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react";
+import { renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { useDebounce } from "./use-debounce";
@@ -236,49 +236,6 @@ describe("useDebounce", () => {
       const second = result.current.cancel;
 
       expect(first).toBe(second);
-    });
-  });
-
-  describe("isPending", () => {
-    it("is true after debounced call", () => {
-      const fn = vi.fn();
-      const { result } = renderHook(() => useDebounce(fn, 100));
-
-      act(() => {
-        result.current.debounced();
-      });
-
-      expect(result.current.isPending).toBe(true);
-    });
-
-    it("is false after delay", () => {
-      const fn = vi.fn();
-      const { result } = renderHook(() => useDebounce(fn, 100));
-
-      result.current.debounced();
-      vi.advanceTimersByTime(100);
-
-      expect(result.current.isPending).toBe(false);
-    });
-
-    it("is false after flush", () => {
-      const fn = vi.fn();
-      const { result } = renderHook(() => useDebounce(fn, 100));
-
-      result.current.debounced();
-      result.current.flush();
-
-      expect(result.current.isPending).toBe(false);
-    });
-
-    it("is false after cancel", () => {
-      const fn = vi.fn();
-      const { result } = renderHook(() => useDebounce(fn, 100));
-
-      result.current.debounced();
-      result.current.cancel();
-
-      expect(result.current.isPending).toBe(false);
     });
   });
 });
