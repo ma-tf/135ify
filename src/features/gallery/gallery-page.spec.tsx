@@ -1,23 +1,24 @@
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import { setupTests } from "@test-utils/setup.spec";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import { GalleryPage } from "./gallery-page";
 
 const { mockUseConvexAuth, mockUseQuery, mockNavigate } = vi.hoisted(() => ({
+  mockNavigate: vi.fn(),
   mockUseConvexAuth: vi.fn(),
   mockUseQuery: vi.fn(),
-  mockNavigate: vi.fn(),
-}));
-
-vi.mock("convex/react", () => ({
-  useConvexAuth: mockUseConvexAuth,
-  useQuery_experimental: mockUseQuery,
 }));
 
 vi.mock("@convex-dev/auth/react", () => ({
   useAuthActions: () => ({ signIn: vi.fn(), signOut: vi.fn() }),
   useConvexAuth: mockUseConvexAuth,
+}));
+
+vi.mock("convex/react", () => ({
+  useConvexAuth: mockUseConvexAuth,
+  useQuery_experimental: mockUseQuery,
 }));
 
 vi.mock("@tanstack/react-router", () => ({
@@ -29,10 +30,7 @@ vi.mock("@tanstack/react-router", () => ({
   ),
 }));
 
-afterEach(() => {
-  cleanup();
-  vi.clearAllMocks();
-});
+setupTests();
 
 const mockImage = {
   _id: "img123",

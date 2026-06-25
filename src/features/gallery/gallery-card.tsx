@@ -17,8 +17,16 @@ export function GalleryCard({ image }: { image: GalleryImage }) {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       className="cursor-pointer overflow-hidden rounded-lg border transition hover:ring-2"
-      onClick={() => navigate({ to: "/gallery/$imageId", params: { imageId: image._id } } as any)}
+      onClick={() => navigate({ to: "/gallery/$imageId", params: { imageId: image._id } })}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          void navigate({ to: "/gallery/$imageId", params: { imageId: image._id } });
+        }
+      }}
     >
       <div className="aspect-square bg-muted">
         <img

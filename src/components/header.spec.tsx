@@ -1,5 +1,6 @@
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import { setupTests } from "@test-utils/setup.spec";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import { Header } from "./header";
 
@@ -37,10 +38,7 @@ vi.mock("@tanstack/react-router", () => ({
   ),
 }));
 
-afterEach(() => {
-  cleanup();
-  vi.clearAllMocks();
-});
+setupTests();
 
 describe("Header", () => {
   it("shows Gallery link when user is authenticated", () => {

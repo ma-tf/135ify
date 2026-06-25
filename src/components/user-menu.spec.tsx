@@ -1,5 +1,6 @@
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import { setupTests } from "@test-utils/setup.spec";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import { UserMenu } from "./user-menu";
 
@@ -45,10 +46,7 @@ vi.mock("radix-ui", async (importOriginal) => {
   return actual;
 });
 
-afterEach(() => {
-  cleanup();
-  vi.clearAllMocks();
-});
+setupTests();
 
 describe("UserMenu", () => {
   it("renders My Images link pointing to /gallery", () => {
