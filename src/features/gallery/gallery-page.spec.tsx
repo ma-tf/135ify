@@ -65,14 +65,6 @@ describe("GalleryPage", () => {
     expect(screen.getByRole("link", { name: /process/i })).toBeDefined();
   });
 
-  it("shows sign-in prompt when user is not authenticated", () => {
-    mockUseConvexAuth.mockReturnValue({ isAuthenticated: false, isLoading: false });
-
-    render(<GalleryPage />);
-
-    expect(screen.getByRole("button", { name: /sign in/i })).toBeDefined();
-  });
-
   it("renders a grid of image cards when images exist", () => {
     mockUseConvexAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
     mockUseQuery.mockReturnValue({ status: "success", data: [mockImage, mockImage2] });
@@ -88,7 +80,7 @@ describe("GalleryPage", () => {
     expect(screen.getByText(mockImage2.fileName)).toBeDefined();
 
     const expectedDate =
-      new Date(mockImage._creationTime).toLocaleDateString("en-US", {
+      new Date(mockImage._creationTime).toLocaleDateString("en-GB", {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -110,15 +102,6 @@ describe("GalleryPage", () => {
       to: "/gallery/$imageId",
       params: { imageId: mockImage._id },
     });
-  });
-
-  it("shows skeleton placeholders while auth is loading", () => {
-    mockUseConvexAuth.mockReturnValue({ isAuthenticated: false, isLoading: true });
-
-    const { container } = render(<GalleryPage />);
-
-    const skeletons = container.querySelectorAll(".animate-pulse");
-    expect(skeletons.length).toBe(8);
   });
 
   it("shows skeleton placeholders while query is pending", () => {

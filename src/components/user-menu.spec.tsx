@@ -60,7 +60,7 @@ describe("UserMenu", () => {
 
     render(<UserMenu />);
 
-    const link = screen.getByText(/my images/i);
+    const link = screen.getByText(/gallery/i);
     expect(link.closest("a")?.getAttribute("href")).toBe("/gallery");
   });
 });

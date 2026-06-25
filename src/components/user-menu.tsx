@@ -66,7 +66,7 @@ export function UserMenu() {
         <DropdownMenuItem asChild>
           <Link to="/gallery">
             <ImageIcon className="mr-2 size-4" />
-            My Images
+            Gallery
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
