@@ -1,3 +1,4 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 
 import type { Doc } from "./_generated/dataModel";
@@ -9,9 +10,9 @@ const imageLimit = 20;
 const sizeLimit = 5 * 1024 * 1024;
 
 async function requireAuth(ctx: QueryCtx | MutationCtx) {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) throw new Error("Unauthorized");
-  return identity;
+  const userId = await getAuthUserId(ctx);
+  if (!userId) throw new Error("Unauthorized");
+  return userId;
 }
 
 export const generateUploadUrl = mutation({
@@ -25,9 +26,9 @@ export const generateUploadUrl = mutation({
 export const getById = query({
   args: { imageId: v.id("images") },
   handler: async (ctx, args) => {
-    const identity = await requireAuth(ctx);
+    const userId = await requireAuth(ctx);
     const doc = await ctx.db.get("images", args.imageId);
-    if (!doc || doc.userId !== identity.tokenIdentifier) return null;
+    if (!doc || doc.userId !== userId) return null;
     const sourceUrl = await ctx.storage.getUrl(doc.sourceStorageId);
     return { ...doc, sourceUrl };
   },
@@ -35,10 +36,10 @@ export const getById = query({
 
 export const listByUser = query({
   handler: async (ctx) => {
-    const identity = await requireAuth(ctx);
+    const userId = await requireAuth(ctx);
     const docs = await ctx.db
       .query("images")
-      .withIndex("by_userId", (q) => q.eq("userId", identity.tokenIdentifier))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .order("desc")
       .take(boundedLimit);
 
@@ -57,10 +58,10 @@ export const create = mutation({
     fileName: v.string(),
   },
   handler: async (ctx, args) => {
-    const identity = await requireAuth(ctx);
+    const userId = await requireAuth(ctx);
     const existing = await ctx.db
       .query("images")
-      .withIndex("by_userId", (q) => q.eq("userId", identity.tokenIdentifier))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .collect();
     if (existing.length >= imageLimit) throw new Error("Image limit reached");
 
@@ -69,7 +70,7 @@ export const create = mutation({
     if (metadata.size > sizeLimit) throw new Error("File exceeds 5MB limit");
 
     const imageId = ctx.db.insert("images", {
-      userId: identity.tokenIdentifier,
+      userId,
       sourceStorageId: args.storageId,
       fileName: args.fileName,
       params: {
@@ -100,10 +101,10 @@ export const updateParams = mutation({
     }),
   },
   handler: async (ctx, args) => {
-    const identity = await requireAuth(ctx);
+    const userId = await requireAuth(ctx);
     const doc = await ctx.db.get("images", args.imageId);
     if (!doc) throw new Error("Image not found");
-    if (doc.userId !== identity.tokenIdentifier) throw new Error("Unauthorized");
+    if (doc.userId !== userId) throw new Error("Unauthorized");
     return await ctx.db.patch(args.imageId, { params: args.params as Doc<"images">["params"] });
   },
 });
@@ -113,10 +114,10 @@ export const deleteImage = mutation({
     imageId: v.id("images"),
   },
   handler: async (ctx, args) => {
-    const identity = await requireAuth(ctx);
+    const userId = await requireAuth(ctx);
     const doc = await ctx.db.get("images", args.imageId);
     if (!doc) throw new Error("Image not found");
-    if (doc.userId !== identity.tokenIdentifier) throw new Error("Unauthorized");
+    if (doc.userId !== userId) throw new Error("Unauthorized");
     await ctx.storage.delete(doc.sourceStorageId);
     await ctx.db.delete("images", args.imageId);
   },

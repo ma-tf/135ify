@@ -16,8 +16,8 @@ export function GalleryCard({ image }: { image: GalleryImage }) {
     }) + " UTC";
 
   return (
-    <div
-      role="button"
+    <button
+      type="button"
       tabIndex={0}
       className="cursor-pointer overflow-hidden rounded-lg border transition hover:ring-2"
       onClick={() => navigate({ to: "/gallery/$imageId", params: { imageId: image._id } })}
@@ -39,6 +39,6 @@ export function GalleryCard({ image }: { image: GalleryImage }) {
         <p className="truncate font-medium">{image.fileName}</p>
         <p className="text-xs text-muted-foreground">{formattedDate}</p>
       </div>
-    </div>
+    </button>
   );
 }

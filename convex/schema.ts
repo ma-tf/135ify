@@ -14,7 +14,7 @@ export default defineSchema({
     isAnonymous: v.optional(v.boolean()),
   }).index("email", ["email"]),
   images: defineTable({
-    userId: v.string(),
+    userId: v.id("users"),
     sourceStorageId: v.id("_storage"),
     fileName: v.string(),
     params: v.object({
