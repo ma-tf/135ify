@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { FEATURE_SIGN_IN } from "@config";
-import { useConvexAuth } from "@convex-dev/auth/react";
+import { useAuth } from "@hooks/use-auth";
 import { ZustandStorageProvider } from "@providers/zustand-storage";
 import React, { Suspense } from "react";
 
@@ -10,7 +10,7 @@ const LazyConvexStorage = FEATURE_SIGN_IN
   : null;
 
 function StorageProviderAuthGate({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isLoading } = useConvexAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) return null;
   if (!isAuthenticated) return <ZustandStorageProvider>{children}</ZustandStorageProvider>;

@@ -16,6 +16,7 @@ vi.mock("convex/react", () => ({
 
 vi.mock("@convex-dev/auth/react", () => ({
   useAuthActions: () => ({ signIn: vi.fn(), signOut: vi.fn() }),
+  useConvexAuth: mockUseConvexAuth,
 }));
 
 vi.mock("@tanstack/react-router", () => ({

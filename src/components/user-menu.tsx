@@ -10,8 +10,9 @@ import {
 import { Skeleton } from "@components/ui/skeleton";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "@convex/_generated/api";
+import { useAuth } from "@hooks/use-auth";
 import { Link } from "@tanstack/react-router";
-import { useConvexAuth, useQuery_experimental as useQuery } from "convex/react";
+import { useQuery_experimental as useQuery } from "convex/react";
 import { ImageIcon, LogOut } from "lucide-react";
 import { type ComponentProps } from "react";
 
@@ -50,7 +51,7 @@ function UserAvatar(props: ComponentProps<typeof Button>) {
 }
 
 export function UserMenu() {
-  const { isAuthenticated } = useConvexAuth();
+  const { isAuthenticated } = useAuth();
   const { signOut } = useAuthActions();
 
   if (!isAuthenticated) {

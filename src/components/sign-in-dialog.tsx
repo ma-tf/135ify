@@ -9,7 +9,8 @@ import {
   DialogTitle,
 } from "@components/ui/dialog";
 import { XIcon } from "@components/x-icon";
-import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useAuth } from "@hooks/use-auth";
 import { useState } from "react";
 
 function SignInDialog({
@@ -46,7 +47,7 @@ function SignInDialog({
 }
 
 export function SignInButtons() {
-  const { isAuthenticated, isLoading } = useConvexAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const [signInOpen, setSignInOpen] = useState(false);
 
   if (!isLoading && isAuthenticated) {

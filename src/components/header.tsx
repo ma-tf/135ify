@@ -2,11 +2,11 @@ import { ModeToggle } from "@components/mode-toggle";
 import { SignInButtons } from "@components/sign-in-dialog";
 import { UserMenu } from "@components/user-menu";
 import { FEATURE_SIGN_IN } from "@config";
-import { useConvexAuth } from "@convex-dev/auth/react";
+import { useAuth } from "@hooks/use-auth";
 import { Link } from "@tanstack/react-router";
 
 export function Header() {
-  const { isAuthenticated } = useConvexAuth();
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="background flex items-center justify-between p-6 lg:p-8">
