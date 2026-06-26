@@ -14,8 +14,8 @@ parameters can produce a Render. The question is whether to store:
 2. **Source Images + Preview Renders** — store the uploaded file, parameters, and the 1200px downscaled preview.
 3. **Source Images + Preview + Full Renders** — store everything, including download-ready full-resolution output.
 
-The processing pipeline is deterministic — given the same Source Image and `FileParams`, `processImage()` produces the
-same output every time. This means Renders are fully reconstructable from their inputs.
+The processing pipeline is deterministic — given the same Source Image and `ProcessParams`, `processImage()` produces
+the same output every time. This means Renders are fully reconstructable from their inputs.
 
 Alternatives considered:
 
@@ -42,7 +42,7 @@ The `images` table stores:
   userId: Id<"users">
   sourceStorageId: Id<"_storage">
   fileName: string
-  params: FileParams
+  params: ProcessParams
 }
 ```
 
