@@ -14,6 +14,10 @@ vi.mock("convex/react", () => ({
   useQuery_experimental: mockUseQuery,
 }));
 
+vi.mock("@config", () => ({
+  FEATURE_SIGN_IN: true,
+}));
+
 vi.mock("@convex-dev/auth/react", () => ({
   useAuthActions: () => ({ signIn: vi.fn(), signOut: vi.fn() }),
   useConvexAuth: mockUseConvexAuth,
