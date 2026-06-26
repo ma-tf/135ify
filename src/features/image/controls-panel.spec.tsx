@@ -9,21 +9,21 @@ import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-vi.mock("@features/image/use-set-param", () => ({
-  useSetParam: vi.fn(() => vi.fn()),
+vi.mock("@features/image/use-file-processing", () => ({
+  useFileProcessing: vi.fn(() => ({
+    params: TEST_FILE_RECORD_PHOTO.params,
+    setParam: vi.fn(),
+    downloadFullSize: vi.fn(),
+  })),
 }));
 
-import { useSetParam } from "@features/image/use-set-param";
-import { processToBlobUrl } from "@features/process/process-image";
+import { useFileProcessing } from "@features/image/use-file-processing";
 
 setupTests();
 
 const mockSetParam = vi.fn();
+const mockDownloadFullSize = vi.fn();
 const mockNavigate = vi.fn();
-
-vi.mock("@features/process/process-image", () => ({
-  processToBlobUrl: vi.fn(),
-}));
 
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
@@ -32,7 +32,11 @@ vi.mock("@tanstack/react-router", () => ({
 function renderEditPanel() {
   useFileStore.setState({ files: [TEST_FILE_RECORD_PHOTO] });
 
-  vi.mocked(useSetParam).mockReturnValue(mockSetParam);
+  vi.mocked(useFileProcessing).mockReturnValue({
+    params: TEST_FILE_RECORD_PHOTO.params,
+    setParam: mockSetParam,
+    downloadFullSize: mockDownloadFullSize,
+  });
 
   return render(
     <TestStorageProvider>
@@ -72,18 +76,12 @@ describe("EditPanel", () => {
     expect(mockSetParam).toHaveBeenCalledWith(DEFAULT_PARAMS);
   });
 
-  it("download handler calls processToBlobUrl", async () => {
-    const blobUrl = "blob:download-url";
-    vi.mocked(processToBlobUrl).mockResolvedValue(blobUrl);
-
+  it("download handler calls downloadFullSize", async () => {
     renderEditPanel();
     fireEvent.click(screen.getByText("Download"));
 
     await vi.waitFor(() => {
-      expect(processToBlobUrl).toHaveBeenCalledWith(
-        TEST_FILE_RECORD_PHOTO.sourceUrl,
-        TEST_FILE_RECORD_PHOTO.params,
-      );
+      expect(mockDownloadFullSize).toHaveBeenCalledOnce();
     });
   });
 

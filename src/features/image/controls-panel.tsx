@@ -1,12 +1,12 @@
+import type { ProcessParams } from "@stores/file-store-types";
+
 import { Button } from "@components/ui/button";
 import { Spinner } from "@components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@components/ui/toggle-group";
-import { FEATURE_3D_PHOTO } from "@config";
 import { useEditView } from "@features/image/edit-view-context";
 import { FilmSelector } from "@features/image/film-selector";
 import { ParameterSlider } from "@features/image/parameter-slider";
-import { useSetParam } from "@features/image/use-set-param";
-import { processToBlobUrl } from "@features/process/process-image";
+import { useFileProcessing } from "@features/image/use-file-processing";
 import { cn } from "@lib/utils";
 import { useFile } from "@providers/file-context";
 import { useStorage } from "@providers/storage-context";
@@ -14,15 +14,8 @@ import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { useNavigate } from "@tanstack/react-router";
 import { DownloadIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
 
-function useParameterSection() {
-  const file = useFile();
-  const { setImageSrc } = useEditView();
-  const setParam = useSetParam(file.id, file.sourceUrl, file.params, setImageSrc);
-  return { params: file.params, setParam };
-}
-
-function HalationControls() {
-  const { params, setParam } = useParameterSection();
+function HalationControls({ setParam }: { setParam: (partial: Partial<ProcessParams>) => void }) {
+  const { params } = useFile();
   if (!params) return null;
 
   return (
@@ -47,8 +40,8 @@ function HalationControls() {
   );
 }
 
-function VignetteControls() {
-  const { params, setParam } = useParameterSection();
+function VignetteControls({ setParam }: { setParam: (partial: Partial<ProcessParams>) => void }) {
+  const { params } = useFile();
   if (!params) return null;
 
   return (
@@ -79,8 +72,8 @@ const INTENSITY_TO_ISO: Record<number, string> = Object.fromEntries(
   ISO_PRESETS.map((p) => [p.intensity, p.iso]),
 );
 
-function GrainControls() {
-  const { params, setParam } = useParameterSection();
+function GrainControls({ setParam }: { setParam: (partial: Partial<ProcessParams>) => void }) {
+  const { params } = useFile();
   if (!params) return null;
 
   return (
@@ -108,10 +101,15 @@ function GrainControls() {
   );
 }
 
-function EditPanelButtons() {
+function EditPanelButtons({
+  setParam,
+  downloadFullSize,
+}: {
+  setParam: (partial: Partial<ProcessParams>) => void;
+  downloadFullSize: () => Promise<void>;
+}) {
   const file = useFile();
-  const { setImageSrc, setInspectUrl } = useEditView();
-  const setParam = useSetParam(file.id, file.sourceUrl, file.params, setImageSrc);
+  const { setImageSrc } = useEditView();
   const { removeFile } = useStorage();
   const navigate = useNavigate();
 
@@ -126,18 +124,7 @@ function EditPanelButtons() {
   };
 
   const handleDownload = async () => {
-    const url = await processToBlobUrl(file.sourceUrl, file.params);
-    if (!url) return;
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = file.fileName.replace(/\.[^.]+$/, "") + ".jpg";
-    a.click();
-    if (FEATURE_3D_PHOTO) {
-      setInspectUrl(url);
-    } else {
-      URL.revokeObjectURL(url);
-    }
+    await downloadFullSize();
   };
 
   return (
@@ -165,7 +152,7 @@ function EditPanelButtons() {
 export function EditPanel() {
   const file = useFile();
   const { showOriginal, setShowOriginal, setImageSrc } = useEditView();
-  const setParam = useSetParam(file.id, file.sourceUrl, file.params, setImageSrc);
+  const { setParam, downloadFullSize } = useFileProcessing(file.id);
 
   const selectedFilmId = file.params.selectedFilmId;
 
@@ -209,11 +196,11 @@ export function EditPanel() {
 
       <FilmSelector value={selectedFilmId} onValueChange={(v) => setParam({ selectedFilmId: v })} />
 
-      <HalationControls />
-      <VignetteControls />
-      <GrainControls />
+      <HalationControls setParam={setParam} />
+      <VignetteControls setParam={setParam} />
+      <GrainControls setParam={setParam} />
 
-      <EditPanelButtons />
+      <EditPanelButtons setParam={setParam} downloadFullSize={downloadFullSize} />
     </div>
   );
 }
