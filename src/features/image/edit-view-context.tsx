@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 
+import { processToBlobUrl } from "@features/process/process-image";
 import { useFile } from "@providers/file-context";
-import { createContext, use, useCallback, useEffect, useState } from "react";
+import { isDefaultParams } from "@stores/file-store-types";
+import { createContext, use, useCallback, useEffect, useRef, useState } from "react";
 
 type EditViewContextValue = {
   imageSrc: string;
@@ -19,6 +21,7 @@ function useEditViewState() {
   const [imageSrc, setImageSrc] = useState(file.renderUrl ?? file.sourceUrl);
   const [showOriginal, setShowOriginal] = useState(false);
   const [inspectUrl, setInspectUrlState] = useState<string | null>(null);
+  const mountFile = useRef(file);
 
   const setInspectUrl = useCallback((url: string | null) => {
     setInspectUrlState((prev) => {
@@ -32,6 +35,12 @@ function useEditViewState() {
       if (inspectUrl) URL.revokeObjectURL(inspectUrl);
     };
   }, [inspectUrl]);
+
+  useEffect(() => {
+    const f = mountFile.current;
+    if (f.renderUrl || isDefaultParams(f.params)) return;
+    void processToBlobUrl(f.sourceUrl, f.params).then(setImageSrc);
+  }, []);
 
   return { imageSrc, setImageSrc, showOriginal, setShowOriginal, inspectUrl, setInspectUrl };
 }

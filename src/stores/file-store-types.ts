@@ -19,6 +19,18 @@ export const DEFAULT_PARAMS: ProcessParams = {
   grainIntensity: 0,
 };
 
+export function isDefaultParams(p: ProcessParams): boolean {
+  return (
+    p.selectedFilmId === DEFAULT_PARAMS.selectedFilmId &&
+    p.halationIntensity === DEFAULT_PARAMS.halationIntensity &&
+    p.halationSpread === DEFAULT_PARAMS.halationSpread &&
+    p.halationThreshold === DEFAULT_PARAMS.halationThreshold &&
+    p.vignetteIntensity === DEFAULT_PARAMS.vignetteIntensity &&
+    p.vignetteFeather === DEFAULT_PARAMS.vignetteFeather &&
+    p.grainIntensity === DEFAULT_PARAMS.grainIntensity
+  );
+}
+
 export interface FileRecord {
   id: string;
   fileName: string;

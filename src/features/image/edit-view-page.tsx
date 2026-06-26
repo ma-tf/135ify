@@ -14,7 +14,7 @@ export function EditViewPage() {
 
   return (
     <FileProvider fileId={fileId}>
-      <EditViewProvider>
+      <EditViewProvider key={fileId}>
         <EditViewSheet />
         <PreviewDialog />
       </EditViewProvider>
