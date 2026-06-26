@@ -1,5 +1,6 @@
 import { StorageContext } from "@providers/storage-context";
-import { prepareFiles, useFileStore } from "@stores/file-store";
+import { useFileStore } from "@stores/file-store";
+import { prepareFiles } from "@stores/prepare-files";
 import { type ReactNode, useCallback, useMemo } from "react";
 
 export function ZustandStorageProvider({ children }: { children: ReactNode }) {

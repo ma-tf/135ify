@@ -3,7 +3,7 @@ import type { FileRecord } from "@stores/file-store-types";
 import { useDragDrop } from "@hooks/use-drag-drop";
 import { useFileInput } from "@hooks/use-file-input";
 import { useStorage } from "@providers/storage-context";
-import { prepareFiles } from "@stores/file-store";
+import { prepareFiles } from "@stores/prepare-files";
 import { useCallback, useState, type InputHTMLAttributes } from "react";
 
 export type FileUploadOptions = {
