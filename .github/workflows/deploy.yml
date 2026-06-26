@@ -30,6 +30,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH }}
       VITE_FILE_SIZE_LIMIT_MB: ${{ vars.VITE_FILE_SIZE_LIMIT_MB }}
+      VITE_CONVEX_URL: ${{ secrets.VITE_CONVEX_URL }}
     steps:
       - uses: actions/checkout@v6
       - uses: voidzero-dev/setup-vp@v1
