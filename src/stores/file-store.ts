@@ -29,6 +29,7 @@ export function prepareFiles(files: File[]) {
       fileName: file.name,
       sourceUrl: URL.createObjectURL(file),
       params: { ...DEFAULT_PARAMS },
+      createdAt: Date.now(),
     });
   }
 

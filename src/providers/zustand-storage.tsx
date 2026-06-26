@@ -18,7 +18,7 @@ export function ZustandStorageProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ files, addFiles, removeFile, updateParams }),
+    () => ({ files, addFiles, removeFile, updateParams, loading: false, error: null }),
     [files, addFiles, removeFile, updateParams],
   );
 

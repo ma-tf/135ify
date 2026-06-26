@@ -17,6 +17,7 @@ export function TestStorageProvider({ children }: { children: ReactNode }) {
           fileName: f.name,
           sourceUrl: URL.createObjectURL(f),
           params: { ...DEFAULT_PARAMS },
+          createdAt: Date.now(),
         }));
         useFileStore.setState((s) => ({ files: [...records, ...s.files] }));
       },
@@ -34,6 +35,8 @@ export function TestStorageProvider({ children }: { children: ReactNode }) {
           ),
         }));
       },
+      loading: false,
+      error: null,
     }),
     [files],
   );

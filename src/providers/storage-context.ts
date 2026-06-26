@@ -7,6 +7,8 @@ export interface StorageContextValue {
   addFiles: (files: File[]) => void;
   removeFile: (id: string) => void;
   updateParams: (id: string, params: Partial<ProcessParams>) => void;
+  loading: boolean;
+  error: Error | null;
 }
 
 export const StorageContext = createContext<StorageContextValue | null>(null);

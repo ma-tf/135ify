@@ -7,6 +7,7 @@ export const TEST_FILE_RECORD: FileRecord = {
   fileName: "test.jpg",
   sourceUrl: "blob:preview-url",
   params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
+  createdAt: Date.now(),
 };
 
 export const TEST_RENDER_STATE = {
@@ -26,6 +27,7 @@ export const TEST_FILE_RECORD_2: FileRecord = {
   fileName: "test2.jpg",
   sourceUrl: "blob:preview-url-2",
   params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
+  createdAt: Date.now(),
 };
 
 export const TEST_FILE_RECORD_PHOTO: FileRecord = {
@@ -33,4 +35,5 @@ export const TEST_FILE_RECORD_PHOTO: FileRecord = {
   fileName: "photo.jpg",
   sourceUrl: "blob:preview-url",
   params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
+  createdAt: Date.now(),
 };

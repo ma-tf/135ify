@@ -65,6 +65,8 @@ describe("StorageProvider with FEATURE_SIGN_IN=false", () => {
 
     expect(captured).toBeDefined();
     expect(captured!.files).toEqual([]);
+    expect(captured!.loading).toBe(false);
+    expect(captured!.error).toBeNull();
   });
 });
 

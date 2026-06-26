@@ -1,14 +1,13 @@
 import { Skeleton } from "@components/ui/skeleton";
-import { api } from "@convex/_generated/api";
+import { useStorage } from "@providers/storage-context";
 import { Link } from "@tanstack/react-router";
-import { useQuery_experimental as useQuery } from "convex/react";
 
 import { GalleryCard } from "./gallery-card";
 
 export function GalleryPage() {
-  const result = useQuery({ query: api.images.listByUser, args: {} });
+  const { loading, error, files } = useStorage();
 
-  if (result.status === "pending") {
+  if (loading) {
     return (
       <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
@@ -18,11 +17,15 @@ export function GalleryPage() {
     );
   }
 
-  if (result.status === "error") {
-    return null;
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 p-12">
+        <p className="text-destructive">Failed to load images</p>
+      </div>
+    );
   }
 
-  if (result.status === "success" && result.data.length === 0) {
+  if (files.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-12">
         <p className="text-muted-foreground">No saved images yet.</p>
@@ -33,15 +36,11 @@ export function GalleryPage() {
     );
   }
 
-  if (result.status === "success") {
-    return (
-      <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {result.data.map((image) => (
-          <GalleryCard key={image._id} image={image} />
-        ))}
-      </div>
-    );
-  }
-
-  return null;
+  return (
+    <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      {files.map((image) => (
+        <GalleryCard key={image.id} image={image} />
+      ))}
+    </div>
+  );
 }

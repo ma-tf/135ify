@@ -24,6 +24,7 @@ export interface FileRecord {
   fileName: string;
   sourceUrl: string;
   params: ProcessParams;
+  createdAt: number;
 }
 
 export type FileWithState = {

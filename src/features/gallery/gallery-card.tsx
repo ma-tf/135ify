@@ -1,14 +1,12 @@
-import type { Doc } from "@convex/_generated/dataModel";
+import type { FileRecord } from "@stores/file-store-types";
 
 import { useNavigate } from "@tanstack/react-router";
 
-type GalleryImage = Doc<"images"> & { sourceUrl: string | null };
-
-export function GalleryCard({ image }: { image: GalleryImage }) {
+export function GalleryCard({ image }: { image: FileRecord }) {
   const navigate = useNavigate();
 
   const formattedDate =
-    new Date(image._creationTime).toLocaleDateString("en-GB", {
+    new Date(image.createdAt).toLocaleDateString("en-GB", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -20,11 +18,11 @@ export function GalleryCard({ image }: { image: GalleryImage }) {
       type="button"
       tabIndex={0}
       className="cursor-pointer overflow-hidden rounded-lg border transition hover:ring-2"
-      onClick={() => navigate({ to: "/gallery/$imageId", params: { imageId: image._id } })}
+      onClick={() => navigate({ to: "/gallery/$imageId", params: { imageId: image.id } })}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          void navigate({ to: "/gallery/$imageId", params: { imageId: image._id } });
+          void navigate({ to: "/gallery/$imageId", params: { imageId: image.id } });
         }
       }}
     >

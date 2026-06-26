@@ -28,6 +28,7 @@ const fakeFileRecord: FileRecord = {
   fileName: "test.jpg",
   sourceUrl: "blob:preview-url",
   params: { ...DEFAULT_PARAMS },
+  createdAt: Date.now(),
 };
 
 function seedFile(file: FileRecord = fakeFileRecord) {

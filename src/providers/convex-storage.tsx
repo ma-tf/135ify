@@ -27,6 +27,7 @@ export default function ConvexStorageProvider({ children }: { children: ReactNod
           ...doc.params,
           selectedFilmId: doc.params.selectedFilmId as FileRecord["params"]["selectedFilmId"],
         },
+        createdAt: doc._creationTime,
       }),
     );
   }, [queryData]);
@@ -77,9 +78,15 @@ export default function ConvexStorageProvider({ children }: { children: ReactNod
     [convexUpdateParams],
   );
 
+  const loading = convexImages.status === "pending";
+  const error: Error | null =
+    convexImages.status === "error"
+      ? ((convexImages.error as Error) ?? new Error("Unknown error"))
+      : null;
+
   const value = useMemo(
-    () => ({ files, addFiles, removeFile, updateParams }),
-    [files, addFiles, removeFile, updateParams],
+    () => ({ files, addFiles, removeFile, updateParams, loading, error }),
+    [files, addFiles, removeFile, updateParams, loading, error],
   );
 
   return <StorageContext.Provider value={value}>{children}</StorageContext.Provider>;
