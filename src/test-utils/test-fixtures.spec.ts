@@ -8,18 +8,14 @@ export const TEST_FILE_RECORD: FileRecord = {
   sourceUrl: "blob:preview-url",
   params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
   createdAt: Date.now(),
-};
-
-export const TEST_RENDER_STATE = {
   renderUrl: null,
   isProcessing: false,
   renderError: null,
 };
 
-export const TEST_RENDER_STATE_WITH_URL = {
+export const TEST_FILE_RECORD_WITH_RENDER: FileRecord = {
+  ...TEST_FILE_RECORD,
   renderUrl: "blob:render-url",
-  isProcessing: false,
-  renderError: null,
 };
 
 export const TEST_FILE_RECORD_2: FileRecord = {
@@ -28,6 +24,9 @@ export const TEST_FILE_RECORD_2: FileRecord = {
   sourceUrl: "blob:preview-url-2",
   params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
   createdAt: Date.now(),
+  renderUrl: null,
+  isProcessing: false,
+  renderError: null,
 };
 
 export const TEST_FILE_RECORD_PHOTO: FileRecord = {
@@ -36,4 +35,7 @@ export const TEST_FILE_RECORD_PHOTO: FileRecord = {
   sourceUrl: "blob:preview-url",
   params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
   createdAt: Date.now(),
+  renderUrl: null,
+  isProcessing: false,
+  renderError: null,
 };

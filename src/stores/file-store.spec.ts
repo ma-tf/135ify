@@ -1,4 +1,4 @@
-import { prepareFiles } from "@stores/file-store";
+import { prepareFiles, useFileStore } from "@stores/file-store";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { describe, expect, it, vi } from "vite-plus/test";
 
@@ -116,5 +116,73 @@ describe("prepareFiles", () => {
   it("returns a new params object per file (not shared reference)", () => {
     const { records } = prepareFiles([makeImage(), makeImage()]);
     expect(records[0].params).not.toBe(records[1].params);
+  });
+
+  it("initializes render state fields to null/false", () => {
+    const { records } = prepareFiles([makeImage()]);
+    expect(records[0].renderUrl).toBeNull();
+    expect(records[0].isProcessing).toBe(false);
+    expect(records[0].renderError).toBeNull();
+  });
+});
+
+describe("useFileStore render state actions", () => {
+  it("setRenderUrl updates the file's renderUrl", () => {
+    useFileStore.setState({ files: [] });
+    useFileStore.getState().addFiles([
+      {
+        id: "f1",
+        fileName: "test.jpg",
+        sourceUrl: "blob:src",
+        params: { ...DEFAULT_PARAMS },
+        createdAt: Date.now(),
+        renderUrl: null,
+        isProcessing: false,
+        renderError: null,
+      },
+    ]);
+
+    useFileStore.getState().setRenderUrl("f1", "blob:rendered");
+    expect(useFileStore.getState().files[0].renderUrl).toBe("blob:rendered");
+  });
+
+  it("setProcessing updates the file's isProcessing", () => {
+    useFileStore.setState({
+      files: [
+        {
+          id: "f1",
+          fileName: "test.jpg",
+          sourceUrl: "blob:src",
+          params: { ...DEFAULT_PARAMS },
+          createdAt: Date.now(),
+          renderUrl: null,
+          isProcessing: false,
+          renderError: null,
+        },
+      ],
+    });
+
+    useFileStore.getState().setProcessing("f1", true);
+    expect(useFileStore.getState().files[0].isProcessing).toBe(true);
+  });
+
+  it("setRenderError updates the file's renderError", () => {
+    useFileStore.setState({
+      files: [
+        {
+          id: "f1",
+          fileName: "test.jpg",
+          sourceUrl: "blob:src",
+          params: { ...DEFAULT_PARAMS },
+          createdAt: Date.now(),
+          renderUrl: null,
+          isProcessing: false,
+          renderError: null,
+        },
+      ],
+    });
+
+    useFileStore.getState().setRenderError("f1", "oops");
+    expect(useFileStore.getState().files[0].renderError).toBe("oops");
   });
 });

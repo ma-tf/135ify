@@ -25,14 +25,9 @@ export interface FileRecord {
   sourceUrl: string;
   params: ProcessParams;
   createdAt: number;
-}
-
-export type FileWithState = {
-  id: string;
-  fileName: string;
-  sourceUrl: string;
-  params: ProcessParams;
   renderUrl: string | null;
   isProcessing: boolean;
   renderError: string | null;
-};
+}
+
+export type FileWithState = FileRecord;

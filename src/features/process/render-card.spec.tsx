@@ -1,8 +1,7 @@
 import { RenderCard } from "@features/process/render-card";
 import { FileProvider } from "@providers/file-context";
 import { useFileStore } from "@stores/file-store";
-import { useRenderStateStore } from "@stores/render-state-store";
-import { TEST_FILE_RECORD, TEST_RENDER_STATE_WITH_URL } from "@test-utils/test-fixtures.spec";
+import { TEST_FILE_RECORD, TEST_FILE_RECORD_WITH_RENDER } from "@test-utils/test-fixtures.spec";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
@@ -19,9 +18,8 @@ afterEach(() => {
 
 describe("RenderCard", () => {
   function renderCard(withRenderState = false) {
-    useFileStore.setState({ files: [TEST_FILE_RECORD] });
-    useRenderStateStore.setState({
-      states: withRenderState ? { [TEST_FILE_RECORD.id]: TEST_RENDER_STATE_WITH_URL } : {},
+    useFileStore.setState({
+      files: [withRenderState ? TEST_FILE_RECORD_WITH_RENDER : TEST_FILE_RECORD],
     });
 
     return render(
@@ -42,7 +40,7 @@ describe("RenderCard", () => {
   it("renders image with renderUrl when available", () => {
     renderCard(true);
     const img = screen.getByRole("img");
-    expect(img.getAttribute("src")).toBe(TEST_RENDER_STATE_WITH_URL.renderUrl);
+    expect(img.getAttribute("src")).toBe(TEST_FILE_RECORD_WITH_RENDER.renderUrl);
   });
 
   it("shows loading placeholder before image loads", () => {

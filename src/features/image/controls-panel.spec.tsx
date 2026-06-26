@@ -3,7 +3,6 @@ import { EditViewProvider } from "@features/image/edit-view-context";
 import { FileProvider } from "@providers/file-context";
 import { useFileStore } from "@stores/file-store";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
-import { useRenderStateStore } from "@stores/render-state-store";
 import { setupTests } from "@test-utils/setup.spec";
 import { TEST_FILE_RECORD_PHOTO } from "@test-utils/test-fixtures.spec";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
@@ -32,7 +31,6 @@ vi.mock("@tanstack/react-router", () => ({
 
 function renderEditPanel() {
   useFileStore.setState({ files: [TEST_FILE_RECORD_PHOTO] });
-  useRenderStateStore.setState({ states: {} });
 
   vi.mocked(useSetParam).mockReturnValue(mockSetParam);
 

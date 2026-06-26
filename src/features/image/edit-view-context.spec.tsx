@@ -1,7 +1,6 @@
 import { EditViewProvider, useEditView } from "@features/image/edit-view-context";
 import { FileProvider } from "@providers/file-context";
 import { useFileStore } from "@stores/file-store";
-import { useRenderStateStore } from "@stores/render-state-store";
 import { TEST_FILE_RECORD } from "@test-utils/test-fixtures.spec";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { act, renderHook } from "@testing-library/react";
@@ -21,7 +20,6 @@ afterEach(() => {
 
 function renderEditView() {
   useFileStore.setState({ files: [TEST_FILE_RECORD] });
-  useRenderStateStore.setState({ states: {} });
   return renderHook(() => useEditView(), {
     wrapper: ({ children }) => (
       <TestStorageProvider>

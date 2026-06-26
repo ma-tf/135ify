@@ -2,7 +2,6 @@ import { EditViewProvider, useEditView } from "@features/image/edit-view-context
 import { PreviewDialog } from "@features/image/preview-dialog";
 import { FileProvider } from "@providers/file-context";
 import { useFileStore } from "@stores/file-store";
-import { useRenderStateStore } from "@stores/render-state-store";
 import { TEST_FILE_RECORD } from "@test-utils/test-fixtures.spec";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -25,7 +24,6 @@ beforeEach(() => {
 
 function renderDialog(inspectUrl: string | null = null) {
   useFileStore.setState({ files: [TEST_FILE_RECORD] });
-  useRenderStateStore.setState({ states: {} });
 
   return render(
     <TestStorageProvider>

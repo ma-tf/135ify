@@ -30,6 +30,9 @@ const mockFileRecord: FileRecord = {
   sourceUrl: "https://example.com/photo.jpg",
   params: DEFAULT_PARAMS,
   createdAt: Date.UTC(2026, 5, 16, 16, 1, 11),
+  renderUrl: null,
+  isProcessing: false,
+  renderError: null,
 };
 
 const mockFileRecord2: FileRecord = {
@@ -38,6 +41,9 @@ const mockFileRecord2: FileRecord = {
   sourceUrl: "https://example.com/photo2.jpg",
   params: DEFAULT_PARAMS,
   createdAt: Date.UTC(2026, 5, 17, 10, 30, 0),
+  renderUrl: null,
+  isProcessing: false,
+  renderError: null,
 };
 
 function createValue(overrides?: Partial<StorageContextValue>): StorageContextValue {

@@ -11,7 +11,6 @@ import { cn } from "@lib/utils";
 import { useFile } from "@providers/file-context";
 import { useStorage } from "@providers/storage-context";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
-import { useRenderStateStore } from "@stores/render-state-store";
 import { useNavigate } from "@tanstack/react-router";
 import { DownloadIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
 
@@ -114,7 +113,6 @@ function EditPanelButtons() {
   const { setImageSrc, setInspectUrl } = useEditView();
   const setParam = useSetParam(file.id, file.sourceUrl, file.params, setImageSrc);
   const { removeFile } = useStorage();
-  const remove = useRenderStateStore((s) => s.remove);
   const navigate = useNavigate();
 
   const handleReset = () => {
@@ -124,7 +122,6 @@ function EditPanelButtons() {
 
   const handleDelete = () => {
     removeFile(file.id);
-    remove(file.id);
     void navigate({ to: "/" });
   };
 

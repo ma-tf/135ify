@@ -3,7 +3,6 @@ import type { FileRecord } from "@stores/file-store-types";
 import { FileProvider, useFile } from "@providers/file-context";
 import { useFileStore } from "@stores/file-store";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
-import { useRenderStateStore } from "@stores/render-state-store";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { act, cleanup, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
@@ -16,11 +15,13 @@ const TEST_FILE_RECORD: FileRecord = {
   sourceUrl: "blob:preview-url",
   params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
   createdAt: Date.now(),
+  renderUrl: null,
+  isProcessing: false,
+  renderError: null,
 };
 
 beforeEach(() => {
   useFileStore.setState({ files: [TEST_FILE_RECORD] });
-  useRenderStateStore.setState({ states: {} });
 });
 
 function UseFile({ onValue }: { onValue: (v: ReturnType<typeof useFile>) => void }) {
@@ -73,7 +74,7 @@ describe("useFile", () => {
     expect(captured!.renderUrl).toBeNull();
 
     act(() => {
-      useRenderStateStore.getState().set(TEST_FILE_RECORD.id, { renderUrl: "blob:new" });
+      useFileStore.getState().setRenderUrl(TEST_FILE_RECORD.id, "blob:new");
     });
 
     expect(captured!.renderUrl).toBe("blob:new");

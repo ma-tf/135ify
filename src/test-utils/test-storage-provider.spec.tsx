@@ -18,6 +18,9 @@ export function TestStorageProvider({ children }: { children: ReactNode }) {
           sourceUrl: URL.createObjectURL(f),
           params: { ...DEFAULT_PARAMS },
           createdAt: Date.now(),
+          renderUrl: null,
+          isProcessing: false,
+          renderError: null,
         }));
         useFileStore.setState((s) => ({ files: [...records, ...s.files] }));
       },

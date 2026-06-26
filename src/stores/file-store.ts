@@ -30,6 +30,9 @@ export function prepareFiles(files: File[]) {
       sourceUrl: URL.createObjectURL(file),
       params: { ...DEFAULT_PARAMS },
       createdAt: Date.now(),
+      renderUrl: null,
+      isProcessing: false,
+      renderError: null,
     });
   }
 
@@ -41,6 +44,9 @@ interface FileStore {
   addFiles: (records: FileRecord[]) => void;
   updateParams: (id: string, params: Partial<ProcessParams>) => void;
   removeFile: (id: string) => void;
+  setRenderUrl: (id: string, renderUrl: string | null) => void;
+  setProcessing: (id: string, isProcessing: boolean) => void;
+  setRenderError: (id: string, renderError: string | null) => void;
 }
 
 export const useFileStore = create<FileStore>((set) => ({
@@ -57,6 +63,25 @@ export const useFileStore = create<FileStore>((set) => ({
       const file = state.files.find((f) => f.id === id);
       if (!file) return state;
       URL.revokeObjectURL(file.sourceUrl);
+      if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
       return { files: state.files.filter((f) => f.id !== id) };
     }),
+  setRenderUrl: (id, renderUrl) =>
+    set((state) => ({
+      files: state.files.map((f) => {
+        if (f.id !== id) return f;
+        if (renderUrl !== undefined && f.renderUrl && renderUrl !== f.renderUrl) {
+          URL.revokeObjectURL(f.renderUrl);
+        }
+        return { ...f, renderUrl };
+      }),
+    })),
+  setProcessing: (id, isProcessing) =>
+    set((state) => ({
+      files: state.files.map((f) => (f.id === id ? { ...f, isProcessing } : f)),
+    })),
+  setRenderError: (id, renderError) =>
+    set((state) => ({
+      files: state.files.map((f) => (f.id === id ? { ...f, renderError } : f)),
+    })),
 }));

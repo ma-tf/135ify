@@ -19,7 +19,6 @@ vi.mock("@features/process/process-image", () => ({
 
 let processToBlobUrl: ReturnType<typeof vi.fn>;
 let useFileStore: typeof import("@stores/file-store").useFileStore;
-let useRenderStateStore: typeof import("@stores/render-state-store").useRenderStateStore;
 let useReprocessImage: typeof import("@features/image/use-reprocess-image").useReprocessImage;
 let TestStorageProvider: typeof import("@test-utils/test-storage-provider.spec").TestStorageProvider;
 
@@ -29,6 +28,9 @@ const fakeFileRecord: FileRecord = {
   sourceUrl: "blob:preview-url",
   params: { ...DEFAULT_PARAMS },
   createdAt: Date.now(),
+  renderUrl: null,
+  isProcessing: false,
+  renderError: null,
 };
 
 function seedFile(file: FileRecord = fakeFileRecord) {
@@ -53,10 +55,6 @@ describe("useReprocessImage", () => {
     const fileStoreMod = await import("@stores/file-store");
     useFileStore = fileStoreMod.useFileStore;
     useFileStore.setState({ files: [] });
-
-    const renderStateMod = await import("@stores/render-state-store");
-    useRenderStateStore = renderStateMod.useRenderStateStore;
-    useRenderStateStore.setState({ states: {} });
 
     const hookMod = await import("@features/image/use-reprocess-image");
     useReprocessImage = hookMod.useReprocessImage;
@@ -103,7 +101,7 @@ describe("useReprocessImage", () => {
         void result.current.reprocess(DEFAULT_PARAMS);
       });
 
-      expect(useRenderStateStore.getState().get("file-1").isProcessing).toBe(true);
+      expect(useFileStore.getState().files.find((f) => f.id === "file-1")!.isProcessing).toBe(true);
 
       await act(async () => {
         resolveProcess!("blob:done");
@@ -121,10 +119,10 @@ describe("useReprocessImage", () => {
         await result.current.reprocess(DEFAULT_PARAMS);
       });
 
-      const state = useRenderStateStore.getState().get("file-1");
-      expect(state.renderUrl).toBe("blob:processed-url");
-      expect(state.renderError).toBeNull();
-      expect(state.isProcessing).toBe(false);
+      const file = useFileStore.getState().files.find((f) => f.id === "file-1")!;
+      expect(file.renderUrl).toBe("blob:processed-url");
+      expect(file.renderError).toBeNull();
+      expect(file.isProcessing).toBe(false);
     });
 
     it("calls setImageSrc on success", async () => {
@@ -153,9 +151,9 @@ describe("useReprocessImage", () => {
         await result.current.reprocess(DEFAULT_PARAMS);
       });
 
-      const state = useRenderStateStore.getState().get("file-1");
-      expect(state.renderError).toBe("GPU unavailable");
-      expect(state.isProcessing).toBe(false);
+      const file = useFileStore.getState().files.find((f) => f.id === "file-1")!;
+      expect(file.renderError).toBe("GPU unavailable");
+      expect(file.isProcessing).toBe(false);
     });
 
     it("falls back to 'Processing failed' for non-Error throws", async () => {
@@ -170,7 +168,9 @@ describe("useReprocessImage", () => {
         await result.current.reprocess(DEFAULT_PARAMS);
       });
 
-      expect(useRenderStateStore.getState().get("file-1").renderError).toBe("Processing failed");
+      expect(useFileStore.getState().files.find((f) => f.id === "file-1")!.renderError).toBe(
+        "Processing failed",
+      );
     });
   });
 

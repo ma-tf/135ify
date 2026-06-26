@@ -2,7 +2,6 @@ import type { FileRecord } from "@stores/file-store-types";
 
 import { RenderCarousel } from "@features/process/render-carousel";
 import { useFileStore } from "@stores/file-store";
-import { useRenderStateStore } from "@stores/render-state-store";
 import { TEST_FILE_RECORD, TEST_FILE_RECORD_2 } from "@test-utils/test-fixtures.spec";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, render, screen } from "@testing-library/react";
@@ -27,7 +26,6 @@ afterEach(cleanup);
 
 function renderCarousel(files: FileRecord[] = []) {
   useFileStore.setState({ files });
-  useRenderStateStore.setState({ states: {} });
   return render(
     <TestStorageProvider>
       <RenderCarousel />
