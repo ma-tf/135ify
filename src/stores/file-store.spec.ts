@@ -1,5 +1,6 @@
-import { prepareFiles, useFileStore } from "@stores/file-store";
+import { useFileStore } from "@stores/file-store";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
+import { prepareFiles } from "@stores/prepare-files";
 import { describe, expect, it, vi } from "vite-plus/test";
 
 vi.mock("@config", () => ({

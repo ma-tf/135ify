@@ -31,3 +31,13 @@ export interface FileRecord {
 }
 
 export type FileWithState = FileRecord;
+
+export interface FileStore {
+  files: FileRecord[];
+  addFiles: (records: FileRecord[]) => void;
+  updateParams: (id: string, params: Partial<ProcessParams>) => void;
+  removeFile: (id: string) => void;
+  setRenderUrl: (id: string, renderUrl: string | null) => void;
+  setProcessing: (id: string, isProcessing: boolean) => void;
+  setRenderError: (id: string, renderError: string | null) => void;
+}
