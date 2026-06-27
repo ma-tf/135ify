@@ -51,15 +51,20 @@ describe("StorageProvider with FEATURE_SIGN_IN=false", () => {
   it("provides working storage context via Zustand", async () => {
     const { StorageProvider, useStorage } = await setupProvider(false);
 
-    let captured: ReturnType<typeof useStorage> | undefined;
-    function StorageReader() {
-      captured = useStorage();
+    function StorageReader({ onValue }: { onValue: (v: ReturnType<typeof useStorage>) => void }) {
+      onValue(useStorage());
       return null;
     }
 
+    let captured: ReturnType<typeof useStorage> | undefined;
+
     render(
       <StorageProvider>
-        <StorageReader />
+        <StorageReader
+          onValue={(v) => {
+            captured = v;
+          }}
+        />
       </StorageProvider>,
     );
 
