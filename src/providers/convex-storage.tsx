@@ -5,8 +5,9 @@ import { api } from "@convex/_generated/api";
 import { useEnsureProcessed } from "@features/image/use-ensure-processed";
 import { StorageContext } from "@providers/storage-context";
 import { useFileStore } from "@stores/file-store";
+import { prepareFiles } from "@stores/prepare-files";
 import { useMutation, useQuery_experimental as useQuery } from "convex/react";
-import { type ReactNode, useCallback, useMemo } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 
 export default function ConvexStorageProvider({ children }: { children: ReactNode }) {
@@ -15,14 +16,23 @@ export default function ConvexStorageProvider({ children }: { children: ReactNod
   const createImage = useMutation(api.images.create);
   const deleteImage = useMutation(api.images.deleteImage);
   const convexUpdateParams = useMutation(api.images.updateParams);
+
   const storeFiles = useFileStore((s) => s.files);
+  const storeAddFiles = useFileStore((s) => s.addFiles);
+  const storeUpdateParams = useFileStore((s) => s.updateParams);
+  const storeRemoveFile = useFileStore((s) => s.removeFile);
+  const storeFilesRef = useRef(storeFiles);
+  storeFilesRef.current = storeFiles;
 
   const queryData = convexImages.status === "success" ? convexImages.data : null;
 
-  const files = useMemo(() => {
-    if (!queryData) return [];
-    return queryData.map((doc): FileRecord => {
-      const storeFile = storeFiles.find((f) => f.id === doc._id);
+  // Hydrate store from Convex query results
+  useEffect(() => {
+    if (!queryData) return;
+    const current = storeFilesRef.current;
+
+    const records = queryData.map((doc): FileRecord => {
+      const existing = current.find((f) => f.id === doc._id);
       return {
         id: doc._id as string,
         fileName: doc.fileName,
@@ -32,17 +42,30 @@ export default function ConvexStorageProvider({ children }: { children: ReactNod
           selectedFilmId: doc.params.selectedFilmId as FileRecord["params"]["selectedFilmId"],
         },
         createdAt: doc._creationTime,
-        renderUrl: storeFile?.renderUrl ?? null,
-        isProcessing: storeFile?.isProcessing ?? false,
-        renderError: storeFile?.renderError ?? null,
+        renderUrl: existing?.renderUrl ?? null,
+        isProcessing: existing?.isProcessing ?? false,
+        renderError: existing?.renderError ?? null,
       };
     });
-  }, [queryData, storeFiles]);
+
+    useFileStore.setState({ files: records });
+  }, [queryData]);
+
+  const files = storeFiles;
+
+  const pendingFiles = useMemo(() => files.filter((f) => !f.renderUrl && !f.isProcessing), [files]);
+
+  useEnsureProcessed(pendingFiles);
 
   const addFiles = useCallback(
     async (newFiles: File[]) => {
+      const { valid, records } = prepareFiles(newFiles);
+      if (valid.length === 0) return;
+
+      storeAddFiles(records);
+
       await Promise.all(
-        newFiles.map(async (file) => {
+        valid.map(async (file) => {
           try {
             const uploadUrl = await generateUploadUrl();
             const result = await fetch(uploadUrl, {
@@ -63,11 +86,12 @@ export default function ConvexStorageProvider({ children }: { children: ReactNod
         }),
       );
     },
-    [generateUploadUrl, createImage],
+    [generateUploadUrl, createImage, storeAddFiles],
   );
 
   const removeFile = useCallback(
     async (id: string) => {
+      storeRemoveFile(id);
       try {
         await deleteImage({ imageId: id as Id<"images"> });
       } catch (err) {
@@ -75,19 +99,16 @@ export default function ConvexStorageProvider({ children }: { children: ReactNod
         toast.error("Failed to delete image");
       }
     },
-    [deleteImage],
+    [storeRemoveFile, deleteImage],
   );
 
   const updateParams = useCallback(
     (id: string, params: Partial<FileRecord["params"]>) => {
+      storeUpdateParams(id, params);
       void convexUpdateParams({ imageId: id as Id<"images">, params });
     },
-    [convexUpdateParams],
+    [storeUpdateParams, convexUpdateParams],
   );
-
-  const pendingFiles = useMemo(() => files.filter((f) => !f.renderUrl && !f.isProcessing), [files]);
-
-  useEnsureProcessed(pendingFiles);
 
   const loading = convexImages.status === "pending";
   const error: Error | null = convexImages.status === "error" ? convexImages.error : null;
