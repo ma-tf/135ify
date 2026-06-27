@@ -1,5 +1,6 @@
 import type { FileWithState } from "@stores/file-store-types";
 
+import { Skeleton } from "@components/ui/skeleton";
 import { cn } from "@lib/utils";
 import { useFile } from "@providers/file-context";
 import { useNavigate } from "@tanstack/react-router";
@@ -8,16 +9,24 @@ import { useState } from "react";
 function CardImage({ file }: { file: FileWithState }) {
   const [imgLoaded, setImgLoaded] = useState(false);
 
+  if (!file.renderUrl) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center">
+        <Skeleton className="size-8 rounded-full" />
+      </div>
+    );
+  }
+
   return (
     <>
       {!imgLoaded && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="size-8 animate-pulse rounded-full bg-muted-foreground/20" />
+          <Skeleton className="size-8 rounded-full" />
         </div>
       )}
       <img
         draggable={false}
-        src={file.renderUrl || file.sourceUrl}
+        src={file.renderUrl}
         className={cn(
           "h-full w-full object-contain transition-opacity group-hover:scale-105",
           imgLoaded ? "opacity-100" : "opacity-0",

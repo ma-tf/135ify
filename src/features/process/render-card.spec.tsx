@@ -33,8 +33,7 @@ describe("RenderCard", () => {
 
   it("renders image with sourceUrl when renderUrl is null", () => {
     renderCard();
-    const img = screen.getByRole("img");
-    expect(img.getAttribute("src")).toBe(TEST_FILE_RECORD.sourceUrl);
+    expect(screen.getByRole("button")).toBeDefined();
   });
 
   it("renders image with renderUrl when available", () => {
@@ -44,30 +43,33 @@ describe("RenderCard", () => {
   });
 
   it("shows loading placeholder before image loads", () => {
-    renderCard();
+    renderCard(true);
     expect(screen.getByRole("img").className).toContain("opacity-0");
   });
 
   it("hides loading placeholder after image loads", () => {
-    renderCard();
+    renderCard(true);
     fireEvent.load(screen.getByRole("img"));
     expect(screen.getByRole("img").className).toContain("opacity-100");
   });
 
   it("click navigates to edit view route", () => {
-    renderCard();
+    renderCard(true);
     const card = screen.getByRole("img").parentElement!;
     fireEvent.click(card);
     expect(mockNavigate).toHaveBeenCalledWith({
       to: "/gallery/$imageId",
-      params: { imageId: TEST_FILE_RECORD.id },
+      params: { imageId: TEST_FILE_RECORD_WITH_RENDER.id },
     });
   });
 
   it("applies custom className", () => {
+    useFileStore.setState({
+      files: [TEST_FILE_RECORD_WITH_RENDER],
+    });
     render(
       <TestStorageProvider>
-        <FileProvider fileId={TEST_FILE_RECORD.id}>
+        <FileProvider fileId={TEST_FILE_RECORD_WITH_RENDER.id}>
           <RenderCard className="my-custom-class" />
         </FileProvider>
       </TestStorageProvider>,

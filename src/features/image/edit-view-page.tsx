@@ -7,9 +7,10 @@ import { redirect, useParams } from "@tanstack/react-router";
 
 export function EditViewPage() {
   const { imageId: fileId } = useParams({ from: "/gallery/$imageId" });
-  const { files } = useStorage();
+  const { files, loading } = useStorage();
   const file = files.find((f) => f.id === fileId);
 
+  if (loading) return null;
   if (!file) throw redirect({ to: "/", replace: true });
 
   return (

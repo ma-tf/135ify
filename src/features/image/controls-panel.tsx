@@ -109,13 +109,11 @@ function EditPanelButtons({
   downloadFullSize: () => Promise<void>;
 }) {
   const file = useFile();
-  const { setImageSrc } = useEditView();
   const { removeFile } = useStorage();
   const navigate = useNavigate();
 
   const handleReset = () => {
     setParam(DEFAULT_PARAMS);
-    setImageSrc(file.sourceUrl);
   };
 
   const handleDelete = () => {
@@ -151,7 +149,7 @@ function EditPanelButtons({
 
 export function EditPanel() {
   const file = useFile();
-  const { showOriginal, setShowOriginal, setImageSrc } = useEditView();
+  const { showOriginal, setShowOriginal } = useEditView();
   const { setParam, downloadFullSize } = useFileProcessing(file.id);
 
   const selectedFilmId = file.params.selectedFilmId;
@@ -163,10 +161,7 @@ export function EditPanel() {
         <div className="flex rounded-lg border bg-muted p-0.5">
           <button
             type="button"
-            onClick={() => {
-              setShowOriginal(true);
-              setImageSrc(file.sourceUrl);
-            }}
+            onClick={() => setShowOriginal(true)}
             className={cn(
               "rounded-md px-3 py-1 text-xs font-medium transition-colors",
               showOriginal
@@ -178,10 +173,7 @@ export function EditPanel() {
           </button>
           <button
             type="button"
-            onClick={() => {
-              setShowOriginal(false);
-              setImageSrc(file.renderUrl || file.sourceUrl);
-            }}
+            onClick={() => setShowOriginal(false)}
             className={cn(
               "rounded-md px-3 py-1 text-xs font-medium transition-colors",
               !showOriginal

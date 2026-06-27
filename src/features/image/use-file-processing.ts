@@ -1,6 +1,5 @@
 import type { ProcessParams } from "@stores/file-store-types";
 
-import { useEditView } from "@features/image/edit-view-context";
 import { processToBlobUrl } from "@features/process/process-image";
 import { useDebounce } from "@hooks/use-debounce";
 import { useStorage } from "@providers/storage-context";
@@ -9,7 +8,6 @@ import { useCallback } from "react";
 
 export function useFileProcessing(fileId: string) {
   const file = useFileStore((s) => s.files.find((f) => f.id === fileId));
-  const { setImageSrc } = useEditView();
   const { updateParams } = useStorage();
   const setRenderUrl = useFileStore((s) => s.setRenderUrl);
   const setProcessing = useFileStore((s) => s.setProcessing);
@@ -19,14 +17,12 @@ export function useFileProcessing(fileId: string) {
 
   const process = useCallback(
     async (params: ProcessParams) => {
-      setImageSrc(file.sourceUrl);
       setProcessing(fileId, true);
       setRenderUrl(fileId, null);
       setRenderError(fileId, null);
 
       try {
         const url = await processToBlobUrl(file.sourceUrl, params);
-        setImageSrc(url);
         setRenderUrl(fileId, url);
       } catch (err) {
         console.error("Image processing failed:", err);
@@ -36,7 +32,7 @@ export function useFileProcessing(fileId: string) {
         setProcessing(fileId, false);
       }
     },
-    [fileId, file.sourceUrl, setImageSrc, setRenderUrl, setProcessing, setRenderError],
+    [fileId, file.sourceUrl, setRenderUrl, setProcessing, setRenderError],
   );
 
   const { debounced: saveAndProcess } = useDebounce((params: ProcessParams) => {

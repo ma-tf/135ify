@@ -17,14 +17,13 @@ Single-context layout — `CONTEXT.md` + `docs/adr/` at the repo root. See `docs
 
 ### Code conventions
 
-Must be consulted for all code changes. See `docs/agents/code-conventions.md`
-
 ## Toolchain
 
 Vite+ toolchain + Convex backend. See `docs/agents/toolchain.md`.
 
 ## Because the agent NEVER listens
 
-- NEVER use `store.getState()` — ALWAYS use the hook (`useStore(selector)`) to access store values. `getState()`
-  bypasses React's reactivity and leads to stale reads.
+- ALWAYS FOLLOW CONVENTIONS: `docs/agents/code-conventions.md`
+- NEVER use `store.getState()`
+- ALWAYS use the hook (`useStore(() => {}))`) to access store values.
 - Use `vp`. Never use `npm` or `npx`

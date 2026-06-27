@@ -1,5 +1,6 @@
 import { Button } from "@components/ui/button";
 import { SheetContent, SheetTitle, SheetDescription, Sheet } from "@components/ui/sheet";
+import { Skeleton } from "@components/ui/skeleton";
 import { EditPanel } from "@features/image/controls-panel";
 import { useEditView } from "@features/image/edit-view-context";
 import { useIsMobile } from "@hooks/use-mobile";
@@ -10,8 +11,10 @@ import { XIcon } from "lucide-react";
 export function EditViewSheet() {
   const navigate = useNavigate();
   const isDesktop = !useIsMobile(1024);
-  const { imageSrc } = useEditView();
   const file = useFile();
+  const { showOriginal } = useEditView();
+
+  const displayUrl = showOriginal ? file.sourceUrl : file.renderUrl;
 
   return (
     <Sheet
@@ -34,26 +37,32 @@ export function EditViewSheet() {
               <XIcon />
               <span className="sr-only">Close</span>
             </Button>
-            {isDesktop && (
-              <img
-                src={imageSrc}
-                alt={file.fileName}
-                className="pointer-events-auto max-h-[70vh] rounded-md object-contain"
-                onPointerDown={(e) => e.stopPropagation()}
-              />
-            )}
+            {isDesktop &&
+              (displayUrl ? (
+                <img
+                  src={displayUrl}
+                  alt={file.fileName}
+                  className="pointer-events-auto max-h-[70vh] rounded-md object-contain"
+                  onPointerDown={(e) => e.stopPropagation()}
+                />
+              ) : (
+                <Skeleton className="pointer-events-auto size-32 rounded-full" />
+              ))}
           </>
         }
       >
         <SheetTitle className="sr-only">Edit Image</SheetTitle>
         <SheetDescription className="sr-only">Edit image settings</SheetDescription>
-        {!isDesktop && (
-          <img
-            src={imageSrc}
-            alt={file.fileName}
-            className="max-h-[50vh] w-full rounded-md object-contain"
-          />
-        )}
+        {!isDesktop &&
+          (displayUrl ? (
+            <img
+              src={displayUrl}
+              alt={file.fileName}
+              className="max-h-[50vh] w-full rounded-md object-contain"
+            />
+          ) : (
+            <Skeleton className="max-h-[50vh] w-full" />
+          ))}
         <EditPanel />
       </SheetContent>
     </Sheet>

@@ -1,5 +1,6 @@
 import type { FileRecord } from "@stores/file-store-types";
 
+import { Skeleton } from "@components/ui/skeleton";
 import { useNavigate } from "@tanstack/react-router";
 
 export function GalleryCard({ image }: { image: FileRecord }) {
@@ -27,11 +28,11 @@ export function GalleryCard({ image }: { image: FileRecord }) {
       }}
     >
       <div className="aspect-square bg-muted">
-        <img
-          src={image.sourceUrl ?? undefined}
-          alt={image.fileName}
-          className="h-full w-full object-cover"
-        />
+        {image.renderUrl ? (
+          <img src={image.renderUrl} alt={image.fileName} className="h-full w-full object-cover" />
+        ) : (
+          <Skeleton className="h-full w-full" />
+        )}
       </div>
       <div className="space-y-1 p-3">
         <p className="truncate font-medium">{image.fileName}</p>

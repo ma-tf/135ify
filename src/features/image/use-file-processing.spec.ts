@@ -4,12 +4,6 @@ import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-const mockSetImageSrc = vi.fn();
-
-vi.mock("@features/image/edit-view-context", () => ({
-  useEditView: () => ({ setImageSrc: mockSetImageSrc }),
-}));
-
 vi.mock("@features/process/process-image", () => ({
   processToBlobUrl: vi.fn(),
 }));

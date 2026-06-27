@@ -3,7 +3,7 @@ import { EditViewSheet } from "@features/image/edit-view-sheet";
 import { FileProvider } from "@providers/file-context";
 import { useFileStore } from "@stores/file-store";
 import { setupTests } from "@test-utils/setup.spec";
-import { TEST_FILE_RECORD } from "@test-utils/test-fixtures.spec";
+import { TEST_FILE_RECORD_WITH_RENDER } from "@test-utils/test-fixtures.spec";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
@@ -29,11 +29,11 @@ setupTests();
 afterEach(cleanup);
 
 function renderSheet() {
-  useFileStore.setState({ files: [TEST_FILE_RECORD] });
+  useFileStore.setState({ files: [TEST_FILE_RECORD_WITH_RENDER] });
 
   return render(
     <TestStorageProvider>
-      <FileProvider fileId={TEST_FILE_RECORD.id}>
+      <FileProvider fileId={TEST_FILE_RECORD_WITH_RENDER.id}>
         <EditViewProvider>
           <EditViewSheet />
         </EditViewProvider>
@@ -68,21 +68,21 @@ describe("EditViewSheet", () => {
 
   it("renders image with alt text from file", () => {
     renderSheet();
-    const img = screen.getByAltText(TEST_FILE_RECORD.fileName);
-    expect(img.getAttribute("alt")).toBe(TEST_FILE_RECORD.fileName);
+    const img = screen.getByAltText(TEST_FILE_RECORD_WITH_RENDER.fileName);
+    expect(img.getAttribute("alt")).toBe(TEST_FILE_RECORD_WITH_RENDER.fileName);
   });
 
   it("renders image in overlay on desktop", () => {
     vi.mocked(useIsMobile).mockReturnValue(false);
     renderSheet();
-    const img = screen.getByAltText(TEST_FILE_RECORD.fileName);
+    const img = screen.getByAltText(TEST_FILE_RECORD_WITH_RENDER.fileName);
     expect(img.className).toContain("max-h-[70vh]");
   });
 
   it("renders image in content on mobile", () => {
     vi.mocked(useIsMobile).mockReturnValue(true);
     renderSheet();
-    const img = screen.getByAltText(TEST_FILE_RECORD.fileName);
+    const img = screen.getByAltText(TEST_FILE_RECORD_WITH_RENDER.fileName);
     expect(img.className).toContain("max-h-[50vh]");
   });
 });

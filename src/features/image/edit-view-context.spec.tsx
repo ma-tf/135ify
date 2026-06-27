@@ -34,15 +34,8 @@ function renderEditView() {
 describe("EditViewProvider", () => {
   it("has correct initial state", () => {
     const { result } = renderEditView();
-    expect(result.current.imageSrc).toBe(TEST_FILE_RECORD.sourceUrl);
     expect(result.current.showOriginal).toBe(false);
     expect(result.current.inspectUrl).toBeNull();
-  });
-
-  it("setImageSrc updates imageSrc", () => {
-    const { result } = renderEditView();
-    act(() => result.current.setImageSrc("blob:new"));
-    expect(result.current.imageSrc).toBe("blob:new");
   });
 
   it("setShowOriginal updates showOriginal", () => {

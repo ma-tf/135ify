@@ -1,3 +1,4 @@
+import { useEnsureProcessed } from "@features/image/use-ensure-processed";
 import { StorageContext } from "@providers/storage-context";
 import { useFileStore } from "@stores/file-store";
 import { prepareFiles } from "@stores/prepare-files";
@@ -17,6 +18,10 @@ export function ZustandStorageProvider({ children }: { children: ReactNode }) {
     },
     [storeAddFiles],
   );
+
+  const pendingFiles = useMemo(() => files.filter((f) => !f.renderUrl && !f.isProcessing), [files]);
+
+  useEnsureProcessed(pendingFiles);
 
   const value = useMemo(
     () => ({ files, addFiles, removeFile, updateParams, loading: false, error: null }),

@@ -30,7 +30,7 @@ const mockFileRecord: FileRecord = {
   sourceUrl: "https://example.com/photo.jpg",
   params: DEFAULT_PARAMS,
   createdAt: Date.UTC(2026, 5, 16, 16, 1, 11),
-  renderUrl: null,
+  renderUrl: "blob:render-1",
   isProcessing: false,
   renderError: null,
 };
@@ -41,7 +41,7 @@ const mockFileRecord2: FileRecord = {
   sourceUrl: "https://example.com/photo2.jpg",
   params: DEFAULT_PARAMS,
   createdAt: Date.UTC(2026, 5, 17, 10, 30, 0),
-  renderUrl: null,
+  renderUrl: "blob:render-2",
   isProcessing: false,
   renderError: null,
 };
@@ -80,8 +80,8 @@ describe("GalleryPage", () => {
 
     const images = screen.getAllByRole("img");
     expect(images).toHaveLength(2);
-    expect(images[0].getAttribute("src")).toBe(mockFileRecord.sourceUrl);
-    expect(images[1].getAttribute("src")).toBe(mockFileRecord2.sourceUrl);
+    expect(images[0].getAttribute("src")).toBe(mockFileRecord.renderUrl);
+    expect(images[1].getAttribute("src")).toBe(mockFileRecord2.renderUrl);
 
     expect(screen.getByText(mockFileRecord.fileName)).toBeDefined();
     expect(screen.getByText(mockFileRecord2.fileName)).toBeDefined();
