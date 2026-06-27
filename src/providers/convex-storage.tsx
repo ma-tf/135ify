@@ -3,6 +3,7 @@ import type { FileRecord } from "@stores/file-store-types";
 
 import { api } from "@convex/_generated/api";
 import { useEnsureProcessed } from "@features/image/use-ensure-processed";
+import { hydrateFromConvex } from "@providers/convex-hydration";
 import { StorageContext } from "@providers/storage-context";
 import { useFileStore } from "@stores/file-store";
 import { prepareFiles } from "@stores/prepare-files";
@@ -26,28 +27,9 @@ export default function ConvexStorageProvider({ children }: { children: ReactNod
 
   const queryData = convexImages.status === "success" ? convexImages.data : null;
 
-  // Hydrate store from Convex query results
   useEffect(() => {
     if (!queryData) return;
-    const current = storeFilesRef.current;
-
-    const records = queryData.map((doc): FileRecord => {
-      const existing = current.find((f) => f.id === doc._id);
-      return {
-        id: doc._id as string,
-        fileName: doc.fileName,
-        sourceUrl: doc.sourceUrl ?? "",
-        params: {
-          ...doc.params,
-          selectedFilmId: doc.params.selectedFilmId as FileRecord["params"]["selectedFilmId"],
-        },
-        createdAt: doc._creationTime,
-        renderUrl: existing?.renderUrl ?? null,
-        isProcessing: existing?.isProcessing ?? false,
-        renderError: existing?.renderError ?? null,
-      };
-    });
-
+    const records = hydrateFromConvex(queryData, storeFilesRef.current);
     useFileStore.setState({ files: records });
   }, [queryData]);
 
