@@ -40,4 +40,5 @@ export interface FileStore {
   setRenderUrl: (id: string, renderUrl: string | null) => void;
   setProcessing: (id: string, isProcessing: boolean) => void;
   setRenderError: (id: string, renderError: string | null) => void;
+  clearFiles: () => void;
 }

@@ -12,6 +12,7 @@ function useOnlineStatus() {
       };
     },
     () => navigator.onLine,
+    () => true,
   );
 }
 

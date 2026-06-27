@@ -36,4 +36,12 @@ export const useFileStore = create<FileStore>((set) => ({
     set((state) => ({
       files: state.files.map((f) => (f.id === id ? { ...f, renderError } : f)),
     })),
+  clearFiles: () =>
+    set((state) => {
+      state.files.forEach((f) => {
+        URL.revokeObjectURL(f.sourceUrl);
+        if (f.renderUrl) URL.revokeObjectURL(f.renderUrl);
+      });
+      return { files: [] };
+    }),
 }));

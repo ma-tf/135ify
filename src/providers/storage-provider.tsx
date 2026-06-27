@@ -3,7 +3,8 @@ import type { ReactNode } from "react";
 import { FEATURE_SIGN_IN } from "@config";
 import { useAuth } from "@hooks/use-auth";
 import { ZustandStorageProvider } from "@providers/zustand-storage";
-import React, { Suspense } from "react";
+import { useFileStore } from "@stores/file-store";
+import React, { Suspense, useEffect, useRef } from "react";
 
 const LazyConvexStorage = FEATURE_SIGN_IN
   ? React.lazy(() => import("@providers/convex-storage"))
@@ -11,6 +12,15 @@ const LazyConvexStorage = FEATURE_SIGN_IN
 
 function StorageProviderAuthGate({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
+  const clearFiles = useFileStore((s) => s.clearFiles);
+  const prevAuthenticated = useRef(isAuthenticated);
+
+  useEffect(() => {
+    if (prevAuthenticated.current !== isAuthenticated) {
+      clearFiles();
+      prevAuthenticated.current = isAuthenticated;
+    }
+  }, [isAuthenticated, clearFiles]);
 
   if (isLoading) return null;
   if (!isAuthenticated) return <ZustandStorageProvider>{children}</ZustandStorageProvider>;
