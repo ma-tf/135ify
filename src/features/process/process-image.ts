@@ -1,6 +1,9 @@
 import type { ProcessParams } from "@stores/file-store-types";
 
-import { applyGrain, applyHalation, applyFilmTint, applyVignette } from "@features/process/effects";
+import { applyFilmTint } from "@features/process/apply-film-tint";
+import { applyGrain } from "@features/process/apply-grain";
+import { applyHalation } from "@features/process/apply-halation";
+import { applyVignette } from "@features/process/apply-vignette";
 import { getGrainBitmap } from "@features/process/grain-texture";
 
 export async function processToBlobUrl(
