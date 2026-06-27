@@ -11,22 +11,12 @@ export const useFileStore = create<FileStore>((set) => ({
       ),
     })),
   removeFile: (id) =>
-    set((state) => {
-      const file = state.files.find((f) => f.id === id);
-      if (!file) return state;
-      URL.revokeObjectURL(file.sourceUrl);
-      if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
-      return { files: state.files.filter((f) => f.id !== id) };
-    }),
+    set((state) => ({
+      files: state.files.filter((f) => f.id !== id),
+    })),
   setRenderUrl: (id, renderUrl) =>
     set((state) => ({
-      files: state.files.map((f) => {
-        if (f.id !== id) return f;
-        if (renderUrl !== undefined && f.renderUrl && renderUrl !== f.renderUrl) {
-          URL.revokeObjectURL(f.renderUrl);
-        }
-        return { ...f, renderUrl };
-      }),
+      files: state.files.map((f) => (f.id === id ? { ...f, renderUrl } : f)),
     })),
   setProcessing: (id, isProcessing) =>
     set((state) => ({
@@ -36,12 +26,5 @@ export const useFileStore = create<FileStore>((set) => ({
     set((state) => ({
       files: state.files.map((f) => (f.id === id ? { ...f, renderError } : f)),
     })),
-  clearFiles: () =>
-    set((state) => {
-      state.files.forEach((f) => {
-        URL.revokeObjectURL(f.sourceUrl);
-        if (f.renderUrl) URL.revokeObjectURL(f.renderUrl);
-      });
-      return { files: [] };
-    }),
+  clearFiles: () => set({ files: [] }),
 }));

@@ -17,6 +17,11 @@ function StorageProviderAuthGate({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (prevAuthenticated.current !== isAuthenticated) {
+      const currentFiles = useFileStore.getState().files;
+      currentFiles.forEach((f) => {
+        URL.revokeObjectURL(f.sourceUrl);
+        if (f.renderUrl) URL.revokeObjectURL(f.renderUrl);
+      });
       clearFiles();
       prevAuthenticated.current = isAuthenticated;
     }

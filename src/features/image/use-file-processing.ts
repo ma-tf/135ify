@@ -18,6 +18,7 @@ export function useFileProcessing(fileId: string) {
   const process = useCallback(
     async (params: ProcessParams) => {
       setProcessing(fileId, true);
+      if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
       setRenderUrl(fileId, null);
       setRenderError(fileId, null);
 
@@ -28,11 +29,10 @@ export function useFileProcessing(fileId: string) {
         console.error("Image processing failed:", err);
         const msg = err instanceof Error ? err.message : "Processing failed";
         setRenderError(fileId, msg);
-      } finally {
-        setProcessing(fileId, false);
       }
+      setProcessing(fileId, false);
     },
-    [fileId, file.sourceUrl, setRenderUrl, setProcessing, setRenderError],
+    [fileId, file.sourceUrl, file.renderUrl, setRenderUrl, setProcessing, setRenderError],
   );
 
   const { debounced: saveAndProcess } = useDebounce((params: ProcessParams) => {

@@ -19,6 +19,7 @@ export function useEnsureProcessed(files: FileRecord[]): void {
 
       const process = () => {
         setProcessing(file.id, true);
+        if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
         setRenderUrl(file.id, null);
         setRenderError(file.id, null);
 

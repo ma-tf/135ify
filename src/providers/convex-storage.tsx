@@ -73,6 +73,10 @@ export default function ConvexStorageProvider({ children }: { children: ReactNod
 
   const removeFile = useCallback(
     async (id: string) => {
+      const file = files.find((f) => f.id === id);
+      if (file) {
+        if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
+      }
       storeRemoveFile(id);
       try {
         await deleteImage({ imageId: id as Id<"images"> });
@@ -81,7 +85,7 @@ export default function ConvexStorageProvider({ children }: { children: ReactNod
         toast.error("Failed to delete image");
       }
     },
-    [storeRemoveFile, deleteImage],
+    [files, storeRemoveFile, deleteImage],
   );
 
   const updateParams = useCallback(
