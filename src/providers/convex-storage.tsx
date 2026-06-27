@@ -20,6 +20,7 @@ export default function ConvexStorageProvider({ children }: { children: ReactNod
 
   const storeFiles = useFileStore((s) => s.files);
   const storeAddFiles = useFileStore((s) => s.addFiles);
+  const storeHydrateFiles = useFileStore((s) => s.hydrateFiles);
   const storeUpdateParams = useFileStore((s) => s.updateParams);
   const storeRemoveFile = useFileStore((s) => s.removeFile);
   const storeFilesRef = useRef(storeFiles);
@@ -30,7 +31,7 @@ export default function ConvexStorageProvider({ children }: { children: ReactNod
   useEffect(() => {
     if (!queryData) return;
     const records = hydrateFromConvex(queryData, storeFilesRef.current);
-    useFileStore.setState({ files: records });
+    storeHydrateFiles(records);
   }, [queryData]);
 
   const files = storeFiles;

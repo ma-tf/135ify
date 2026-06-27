@@ -186,4 +186,20 @@ describe("useFileStore render state actions", () => {
     useFileStore.getState().setRenderError("f1", "oops");
     expect(useFileStore.getState().files[0].renderError).toBe("oops");
   });
+
+  it("hydrateFiles replaces all files", () => {
+    useFileStore.setState({ files: [] });
+    const record = {
+      id: "h1",
+      fileName: "hydrated.jpg",
+      sourceUrl: "blob:src",
+      params: { ...DEFAULT_PARAMS },
+      createdAt: 0,
+      renderUrl: null,
+      isProcessing: false,
+      renderError: null,
+    };
+    useFileStore.getState().hydrateFiles([record]);
+    expect(useFileStore.getState().files).toEqual([record]);
+  });
 });

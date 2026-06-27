@@ -26,5 +26,6 @@ export const useFileStore = create<FileStore>((set) => ({
     set((state) => ({
       files: state.files.map((f) => (f.id === id ? { ...f, renderError } : f)),
     })),
+  hydrateFiles: (records) => set({ files: records }),
   clearFiles: () => set({ files: [] }),
 }));
