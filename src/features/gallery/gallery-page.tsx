@@ -1,13 +1,15 @@
-import { Skeleton } from "@components/ui/skeleton";
-import { useStorage } from "@providers/storage-context";
-import { Link } from "@tanstack/react-router";
+import type { FileRecord } from "@stores/file-store-types";
 
-import { GalleryCard } from "./gallery-card";
+import { Skeleton } from "@components/ui/skeleton";
+import { api } from "@convex/_generated/api";
+import { GalleryCard } from "@features/gallery/gallery-card";
+import { Link } from "@tanstack/react-router";
+import { useQuery_experimental as useQuery } from "convex/react";
 
 export function GalleryPage() {
-  const { loading, error, files } = useStorage();
+  const result = useQuery({ query: api.images.listByUser, args: {} });
 
-  if (loading) {
+  if (result.status === "pending") {
     return (
       <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
@@ -17,7 +19,7 @@ export function GalleryPage() {
     );
   }
 
-  if (error) {
+  if (result.status === "error") {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-12">
         <p className="text-destructive">Failed to load images</p>
@@ -25,7 +27,24 @@ export function GalleryPage() {
     );
   }
 
-  if (files.length === 0) {
+  const images = (result.data ?? []).map(
+    (doc) =>
+      ({
+        id: doc._id,
+        fileName: doc.fileName,
+        sourceUrl: doc.sourceUrl ?? "",
+        params: {
+          ...doc.params,
+          selectedFilmId: doc.params.selectedFilmId as FileRecord["params"]["selectedFilmId"],
+        },
+        createdAt: doc._creationTime,
+        renderUrl: doc.sourceUrl,
+        isProcessing: false,
+        renderError: null,
+      }) satisfies FileRecord,
+  );
+
+  if (images.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-12">
         <p className="text-muted-foreground">No saved images yet.</p>
@@ -38,7 +57,7 @@ export function GalleryPage() {
 
   return (
     <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      {files.map((image) => (
+      {images.map((image) => (
         <GalleryCard key={image.id} image={image} />
       ))}
     </div>

@@ -1,3 +1,4 @@
+import { CardClickProvider } from "@features/process/card-click-context";
 import { RenderCard } from "@features/process/render-card";
 import { FileProvider } from "@providers/file-context";
 import { useFileStore } from "@stores/file-store";
@@ -6,10 +7,7 @@ import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
-const mockNavigate = vi.fn();
-vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => mockNavigate,
-}));
+const mockCardClick = vi.fn();
 
 afterEach(() => {
   cleanup();
@@ -25,7 +23,9 @@ describe("RenderCard", () => {
     return render(
       <TestStorageProvider>
         <FileProvider fileId={TEST_FILE_RECORD.id}>
-          <RenderCard />
+          <CardClickProvider onCardClick={mockCardClick}>
+            <RenderCard />
+          </CardClickProvider>
         </FileProvider>
       </TestStorageProvider>,
     );
@@ -53,14 +53,11 @@ describe("RenderCard", () => {
     expect(screen.getByRole("img").className).toContain("opacity-100");
   });
 
-  it("click navigates to edit view route", () => {
+  it("click calls onCardClick with file id", () => {
     renderCard(true);
     const card = screen.getByRole("img").parentElement!;
     fireEvent.click(card);
-    expect(mockNavigate).toHaveBeenCalledWith({
-      to: "/gallery/$imageId",
-      params: { imageId: TEST_FILE_RECORD_WITH_RENDER.id },
-    });
+    expect(mockCardClick).toHaveBeenCalledWith(TEST_FILE_RECORD_WITH_RENDER.id);
   });
 
   it("applies custom className", () => {
@@ -70,7 +67,9 @@ describe("RenderCard", () => {
     render(
       <TestStorageProvider>
         <FileProvider fileId={TEST_FILE_RECORD_WITH_RENDER.id}>
-          <RenderCard className="my-custom-class" />
+          <CardClickProvider onCardClick={mockCardClick}>
+            <RenderCard className="my-custom-class" />
+          </CardClickProvider>
         </FileProvider>
       </TestStorageProvider>,
     );

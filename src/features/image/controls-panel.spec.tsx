@@ -1,4 +1,5 @@
 import { EditPanel } from "@features/image/controls-panel";
+import { EditViewCloseProvider } from "@features/image/edit-view-close-context";
 import { EditViewProvider } from "@features/image/edit-view-context";
 import { FileProvider } from "@providers/file-context";
 import { useFileStore } from "@stores/file-store";
@@ -6,8 +7,8 @@ import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { setupTests } from "@test-utils/setup.spec";
 import { TEST_FILE_RECORD_PHOTO } from "@test-utils/test-fixtures.spec";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
-import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 vi.mock("@features/image/use-file-processing", () => ({
   useFileProcessing: vi.fn(() => ({
@@ -23,11 +24,6 @@ setupTests();
 
 const mockSetParam = vi.fn();
 const mockDownloadFullSize = vi.fn();
-const mockNavigate = vi.fn();
-
-vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => mockNavigate,
-}));
 
 function renderEditPanel() {
   useFileStore.setState({ files: [TEST_FILE_RECORD_PHOTO] });
@@ -41,9 +37,11 @@ function renderEditPanel() {
   return render(
     <TestStorageProvider>
       <FileProvider fileId={TEST_FILE_RECORD_PHOTO.id}>
-        <EditViewProvider>
-          <EditPanel />
-        </EditViewProvider>
+        <EditViewCloseProvider onClose={vi.fn()}>
+          <EditViewProvider>
+            <EditPanel />
+          </EditViewProvider>
+        </EditViewCloseProvider>
       </FileProvider>
     </TestStorageProvider>,
   );
@@ -52,6 +50,10 @@ function renderEditPanel() {
 describe("EditPanel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it("renders the Processing heading", () => {
@@ -85,8 +87,27 @@ describe("EditPanel", () => {
     });
   });
 
-  it("delete handler removes file and navigates home", () => {
-    renderEditPanel();
+  it("delete handler removes file and calls onClose", () => {
+    const onClose = vi.fn();
+
+    useFileStore.setState({ files: [TEST_FILE_RECORD_PHOTO] });
+    vi.mocked(useFileProcessing).mockReturnValue({
+      params: TEST_FILE_RECORD_PHOTO.params,
+      setParam: mockSetParam,
+      downloadFullSize: mockDownloadFullSize,
+    });
+
+    render(
+      <TestStorageProvider>
+        <FileProvider fileId={TEST_FILE_RECORD_PHOTO.id}>
+          <EditViewCloseProvider onClose={onClose}>
+            <EditViewProvider>
+              <EditPanel />
+            </EditViewProvider>
+          </EditViewCloseProvider>
+        </FileProvider>
+      </TestStorageProvider>,
+    );
 
     let caught: unknown;
     try {
@@ -99,7 +120,7 @@ describe("EditPanel", () => {
     expect(
       useFileStore.getState().files.find((f) => f.id === TEST_FILE_RECORD_PHOTO.id),
     ).toBeUndefined();
-    expect(mockNavigate).toHaveBeenCalledWith({ to: "/" });
+    expect(onClose).toHaveBeenCalledOnce();
   });
 
   it("renders Halation, Vignette, and Grain section headings", () => {

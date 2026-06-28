@@ -1,19 +1,18 @@
 import type { FileRecord } from "@stores/file-store-types";
 
 import { processToBlobUrl } from "@features/process/process-image";
-import { useFileStore } from "@stores/file-store";
-import { useEffect, useRef } from "react";
+import { useStorage } from "@providers/storage-context";
+import { type ReactNode, useEffect, useRef } from "react";
 
 export function useEnsureProcessed(files: FileRecord[]): void {
-  const setRenderUrl = useFileStore((s) => s.setRenderUrl);
-  const setProcessing = useFileStore((s) => s.setProcessing);
-  const setRenderError = useFileStore((s) => s.setRenderError);
+  const { setRenderUrl, setProcessing, setRenderError } = useStorage();
   const initiated = useRef(new Set<string>());
 
   useEffect(() => {
     for (const file of files) {
       if (file.renderUrl) continue;
       if (file.isProcessing) continue;
+      if (!file.sourceUrl) continue;
       if (initiated.current.has(file.id)) continue;
       initiated.current.add(file.id);
 
@@ -40,4 +39,13 @@ export function useEnsureProcessed(files: FileRecord[]): void {
       process();
     }
   }, [files, setRenderUrl, setProcessing, setRenderError]);
+}
+
+export function EnsureProcessedOrchestrator({
+  pendingFiles,
+}: {
+  pendingFiles: FileRecord[];
+}): ReactNode {
+  useEnsureProcessed(pendingFiles);
+  return null;
 }

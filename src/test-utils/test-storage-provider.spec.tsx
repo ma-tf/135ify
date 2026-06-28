@@ -38,6 +38,21 @@ export function TestStorageProvider({ children }: { children: ReactNode }) {
           ),
         }));
       },
+      setRenderUrl: (id: string, renderUrl: string | null) => {
+        useFileStore.setState((s) => ({
+          files: s.files.map((f) => (f.id === id ? { ...f, renderUrl } : f)),
+        }));
+      },
+      setProcessing: (id: string, isProcessing: boolean) => {
+        useFileStore.setState((s) => ({
+          files: s.files.map((f) => (f.id === id ? { ...f, isProcessing } : f)),
+        }));
+      },
+      setRenderError: (id: string, renderError: string | null) => {
+        useFileStore.setState((s) => ({
+          files: s.files.map((f) => (f.id === id ? { ...f, renderError } : f)),
+        }));
+      },
       loading: false,
       error: null,
     }),

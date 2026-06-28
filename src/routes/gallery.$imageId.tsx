@@ -1,6 +1,10 @@
+import { GalleryStorageAdapter } from "@features/gallery/gallery-storage-adapter";
 import { EditViewCloseProvider } from "@features/image/edit-view-close-context";
-import { EditViewPage } from "@features/image/edit-view-page";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { EditViewProvider } from "@features/image/edit-view-context";
+import { EditViewSheet } from "@features/image/edit-view-sheet";
+import { PreviewDialog } from "@features/image/preview-dialog";
+import { FileProvider } from "@providers/file-context";
+import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/gallery/$imageId")({
   component: RouteComponent,
@@ -8,9 +12,18 @@ export const Route = createFileRoute("/gallery/$imageId")({
 
 function RouteComponent() {
   const navigate = useNavigate();
+  const { imageId } = useParams({ from: "/gallery/$imageId" });
+
   return (
     <EditViewCloseProvider onClose={() => void navigate({ to: "/gallery" })}>
-      <EditViewPage />
+      <GalleryStorageAdapter imageId={imageId}>
+        <FileProvider fileId={imageId}>
+          <EditViewProvider key={imageId}>
+            <EditViewSheet />
+            <PreviewDialog />
+          </EditViewProvider>
+        </FileProvider>
+      </GalleryStorageAdapter>
     </EditViewCloseProvider>
   );
 }

@@ -2,41 +2,36 @@ import type { ProcessParams } from "@stores/file-store-types";
 
 import { processToBlobUrl } from "@features/process/process-image";
 import { useDebounce } from "@hooks/use-debounce";
+import { useFile } from "@providers/file-context";
 import { useStorage } from "@providers/storage-context";
-import { useFileStore } from "@stores/file-store";
 import { useCallback } from "react";
 
-export function useFileProcessing(fileId: string) {
-  const file = useFileStore((s) => s.files.find((f) => f.id === fileId));
-  const { updateParams } = useStorage();
-  const setRenderUrl = useFileStore((s) => s.setRenderUrl);
-  const setProcessing = useFileStore((s) => s.setProcessing);
-  const setRenderError = useFileStore((s) => s.setRenderError);
-
-  if (!file) throw new Error(`File not found: ${fileId}`);
+export function useFileProcessing() {
+  const file = useFile();
+  const { updateParams, setRenderUrl, setProcessing, setRenderError } = useStorage();
 
   const process = useCallback(
     async (params: ProcessParams) => {
-      setProcessing(fileId, true);
+      setProcessing(file.id, true);
       if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
-      setRenderUrl(fileId, null);
-      setRenderError(fileId, null);
+      setRenderUrl(file.id, null);
+      setRenderError(file.id, null);
 
       try {
         const url = await processToBlobUrl(file.sourceUrl, params);
-        setRenderUrl(fileId, url);
+        setRenderUrl(file.id, url);
       } catch (err) {
         console.error("Image processing failed:", err);
         const msg = err instanceof Error ? err.message : "Processing failed";
-        setRenderError(fileId, msg);
+        setRenderError(file.id, msg);
       }
-      setProcessing(fileId, false);
+      setProcessing(file.id, false);
     },
-    [fileId, file.sourceUrl, file.renderUrl, setRenderUrl, setProcessing, setRenderError],
+    [file.id, file.sourceUrl, file.renderUrl, setRenderUrl, setProcessing, setRenderError],
   );
 
   const { debounced: saveAndProcess } = useDebounce((params: ProcessParams) => {
-    updateParams(fileId, params);
+    updateParams(file.id, params);
     void process(params);
   }, 200);
 

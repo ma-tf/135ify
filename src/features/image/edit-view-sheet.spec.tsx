@@ -1,3 +1,4 @@
+import { EditViewCloseProvider } from "@features/image/edit-view-close-context";
 import { EditViewProvider } from "@features/image/edit-view-context";
 import { EditViewSheet } from "@features/image/edit-view-sheet";
 import { FileProvider } from "@providers/file-context";
@@ -7,12 +8,6 @@ import { TEST_FILE_RECORD_WITH_RENDER } from "@test-utils/test-fixtures.spec";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
-
-const mockNavigate = vi.fn();
-
-vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => mockNavigate,
-}));
 
 vi.mock("@features/image/controls-panel", () => ({
   EditPanel: () => <div data-testid="edit-panel" />,
@@ -26,7 +21,12 @@ import { useIsMobile } from "@hooks/use-mobile";
 
 setupTests();
 
-afterEach(cleanup);
+const mockOnClose = vi.fn();
+
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
 
 function renderSheet() {
   useFileStore.setState({ files: [TEST_FILE_RECORD_WITH_RENDER] });
@@ -34,9 +34,11 @@ function renderSheet() {
   return render(
     <TestStorageProvider>
       <FileProvider fileId={TEST_FILE_RECORD_WITH_RENDER.id}>
-        <EditViewProvider>
-          <EditViewSheet />
-        </EditViewProvider>
+        <EditViewCloseProvider onClose={mockOnClose}>
+          <EditViewProvider>
+            <EditViewSheet />
+          </EditViewProvider>
+        </EditViewCloseProvider>
       </FileProvider>
     </TestStorageProvider>,
   );
@@ -44,7 +46,6 @@ function renderSheet() {
 
 describe("EditViewSheet", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
     vi.mocked(useIsMobile).mockReturnValue(false);
   });
 
@@ -59,11 +60,11 @@ describe("EditViewSheet", () => {
     expect(screen.getByText("Edit image settings")).toBeDefined();
   });
 
-  it("navigates home when close button is clicked", () => {
+  it("calls onClose when close button is clicked", () => {
     renderSheet();
     const closeBtn = screen.getByText("Close");
     fireEvent.click(closeBtn);
-    expect(mockNavigate).toHaveBeenCalledWith({ to: "/" });
+    expect(mockOnClose).toHaveBeenCalledOnce();
   });
 
   it("renders image with alt text from file", () => {

@@ -1,4 +1,4 @@
-import { useEnsureProcessed } from "@features/image/use-ensure-processed";
+import { EnsureProcessedOrchestrator } from "@features/image/use-ensure-processed";
 import { StorageContext } from "@providers/storage-context";
 import { useFileStore } from "@stores/file-store";
 import { prepareFiles } from "@stores/prepare-files";
@@ -8,6 +8,9 @@ export function ZustandStorageProvider({ children }: { children: ReactNode }) {
   const files = useFileStore((s) => s.files);
   const storeAddFiles = useFileStore((s) => s.addFiles);
   const storeRemoveFile = useFileStore((s) => s.removeFile);
+  const storeSetRenderUrl = useFileStore((s) => s.setRenderUrl);
+  const storeSetProcessing = useFileStore((s) => s.setProcessing);
+  const storeSetRenderError = useFileStore((s) => s.setRenderError);
 
   const removeFile = useCallback(
     (id: string) => {
@@ -21,6 +24,9 @@ export function ZustandStorageProvider({ children }: { children: ReactNode }) {
     [files, storeRemoveFile],
   );
   const updateParams = useFileStore((s) => s.updateParams);
+  const setRenderUrl = storeSetRenderUrl;
+  const setProcessing = storeSetProcessing;
+  const setRenderError = storeSetRenderError;
 
   const addFiles = useCallback(
     (newFiles: File[]) => {
@@ -33,12 +39,25 @@ export function ZustandStorageProvider({ children }: { children: ReactNode }) {
 
   const pendingFiles = useMemo(() => files.filter((f) => !f.renderUrl && !f.isProcessing), [files]);
 
-  useEnsureProcessed(pendingFiles);
-
   const value = useMemo(
-    () => ({ files, addFiles, removeFile, updateParams, loading: false, error: null }),
-    [files, addFiles, removeFile, updateParams],
+    () => ({
+      files,
+      addFiles,
+      removeFile,
+      updateParams,
+      setRenderUrl,
+      setProcessing,
+      setRenderError,
+      loading: false,
+      error: null,
+    }),
+    [files, addFiles, removeFile, updateParams, setRenderUrl, setProcessing, setRenderError],
   );
 
-  return <StorageContext.Provider value={value}>{children}</StorageContext.Provider>;
+  return (
+    <StorageContext.Provider value={value}>
+      <EnsureProcessedOrchestrator pendingFiles={pendingFiles} />
+      {children}
+    </StorageContext.Provider>
+  );
 }

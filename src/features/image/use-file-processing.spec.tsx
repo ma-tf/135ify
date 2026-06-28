@@ -1,17 +1,19 @@
 import type { FileRecord } from "@stores/file-store-types";
+import type { ReactNode } from "react";
 
+import { FileProvider } from "@providers/file-context";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
-import { act, renderHook } from "@testing-library/react";
+import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 vi.mock("@features/process/process-image", () => ({
   processToBlobUrl: vi.fn(),
 }));
 
-let processToBlobUrl: ReturnType<typeof vi.fn>;
-let useFileStore: typeof import("@stores/file-store").useFileStore;
-let useFileProcessing: typeof import("@features/image/use-file-processing").useFileProcessing;
-let TestStorageProvider: typeof import("@test-utils/test-storage-provider.spec").TestStorageProvider;
+import { useFileProcessing } from "@features/image/use-file-processing";
+import { processToBlobUrl } from "@features/process/process-image";
+import { useFileStore } from "@stores/file-store";
+import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 
 const fakeFileRecord: FileRecord = {
   id: "file-1",
@@ -28,29 +30,24 @@ function seedFile(file: FileRecord = fakeFileRecord) {
   useFileStore.setState({ files: [file] });
 }
 
+function Wrapper({ children }: { children: ReactNode }) {
+  return (
+    <TestStorageProvider>
+      <FileProvider fileId={fakeFileRecord.id}>{children}</FileProvider>
+    </TestStorageProvider>
+  );
+}
+
 describe("useFileProcessing", () => {
-  beforeEach(async () => {
-    vi.resetModules();
+  beforeEach(() => {
     vi.useFakeTimers();
     vi.clearAllMocks();
     vi.spyOn(console, "error").mockImplementation(() => {});
-
-    const processImageMod = await import("@features/process/process-image");
-    processToBlobUrl = vi.mocked(processImageMod.processToBlobUrl);
-    processToBlobUrl.mockResolvedValue("blob:processed-url");
-
-    const fileStoreMod = await import("@stores/file-store");
-    useFileStore = fileStoreMod.useFileStore;
-    useFileStore.setState({ files: [] });
-
-    const hookMod = await import("@features/image/use-file-processing");
-    useFileProcessing = hookMod.useFileProcessing;
-
-    const storageMod = await import("@test-utils/test-storage-provider.spec");
-    TestStorageProvider = storageMod.TestStorageProvider;
+    vi.mocked(processToBlobUrl).mockResolvedValue("blob:processed-url");
   });
 
   afterEach(() => {
+    cleanup();
     vi.useRealTimers();
     vi.restoreAllMocks();
   });
@@ -58,8 +55,8 @@ describe("useFileProcessing", () => {
   describe("setParam", () => {
     it("merges partial params and debounces save and process", async () => {
       seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"), {
-        wrapper: TestStorageProvider,
+      const { result } = renderHook(() => useFileProcessing(), {
+        wrapper: Wrapper,
       });
 
       act(() => {
@@ -81,8 +78,8 @@ describe("useFileProcessing", () => {
 
     it("coalesces rapid successive calls into single trailing edge", async () => {
       seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"), {
-        wrapper: TestStorageProvider,
+      const { result } = renderHook(() => useFileProcessing(), {
+        wrapper: Wrapper,
       });
 
       act(() => {
@@ -110,8 +107,8 @@ describe("useFileProcessing", () => {
 
     it("saves params to store after debounce", async () => {
       seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"), {
-        wrapper: TestStorageProvider,
+      const { result } = renderHook(() => useFileProcessing(), {
+        wrapper: Wrapper,
       });
 
       act(() => {
@@ -130,15 +127,15 @@ describe("useFileProcessing", () => {
   describe("process lifecycle", () => {
     it("sets isProcessing true while processing", async () => {
       let resolveProcess: (v: string) => void;
-      processToBlobUrl.mockImplementation(
+      vi.mocked(processToBlobUrl).mockImplementation(
         () =>
           new Promise<string>((r) => {
             resolveProcess = r;
           }),
       );
       seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"), {
-        wrapper: TestStorageProvider,
+      const { result } = renderHook(() => useFileProcessing(), {
+        wrapper: Wrapper,
       });
 
       act(() => {
@@ -158,8 +155,8 @@ describe("useFileProcessing", () => {
 
     it("sets renderUrl and clears renderError on success", async () => {
       seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"), {
-        wrapper: TestStorageProvider,
+      const { result } = renderHook(() => useFileProcessing(), {
+        wrapper: Wrapper,
       });
 
       act(() => {
@@ -177,10 +174,10 @@ describe("useFileProcessing", () => {
     });
 
     it("sets renderError on processing failure", async () => {
-      processToBlobUrl.mockRejectedValue(new Error("GPU unavailable"));
+      vi.mocked(processToBlobUrl).mockRejectedValue(new Error("GPU unavailable"));
       seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"), {
-        wrapper: TestStorageProvider,
+      const { result } = renderHook(() => useFileProcessing(), {
+        wrapper: Wrapper,
       });
 
       act(() => {
@@ -197,10 +194,10 @@ describe("useFileProcessing", () => {
     });
 
     it("falls back to 'Processing failed' for non-Error throws", async () => {
-      processToBlobUrl.mockRejectedValue("something bad");
+      vi.mocked(processToBlobUrl).mockRejectedValue("something bad");
       seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"), {
-        wrapper: TestStorageProvider,
+      const { result } = renderHook(() => useFileProcessing(), {
+        wrapper: Wrapper,
       });
 
       act(() => {
@@ -219,13 +216,13 @@ describe("useFileProcessing", () => {
   describe("downloadFullSize", () => {
     it("calls processToBlobUrl with sourceUrl and params", async () => {
       seedFile();
-      const { result } = renderHook(() => useFileProcessing("file-1"), {
-        wrapper: TestStorageProvider,
+      const { result } = renderHook(() => useFileProcessing(), {
+        wrapper: Wrapper,
       });
 
       const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
 
-      processToBlobUrl.mockResolvedValue("blob:fullsize-url");
+      vi.mocked(processToBlobUrl).mockResolvedValue("blob:fullsize-url");
       await act(async () => {
         await result.current.downloadFullSize();
       });
@@ -235,13 +232,13 @@ describe("useFileProcessing", () => {
     });
   });
 
-  it("throws for unknown fileId", () => {
-    useFileStore.setState({ files: [] });
+  it("throws when used outside FileProvider", () => {
+    useFileStore.setState({ files: [fakeFileRecord] });
 
     expect(() => {
-      renderHook(() => useFileProcessing("nonexistent"), {
+      renderHook(() => useFileProcessing(), {
         wrapper: TestStorageProvider,
       });
-    }).toThrow("File not found: nonexistent");
+    }).toThrow("useFile must be used within FileProvider");
   });
 });

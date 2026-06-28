@@ -1,16 +1,15 @@
-import type { FileRecord } from "@stores/file-store-types";
+import type { Doc } from "@convex/_generated/dataModel";
 
-import { StorageContext, type StorageContextValue } from "@providers/storage-context";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { setupTests } from "@test-utils/setup.spec";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { type ReactNode } from "react";
 import { describe, expect, it, vi } from "vite-plus/test";
 
 import { GalleryPage } from "./gallery-page";
 
-const { mockNavigate } = vi.hoisted(() => ({
+const { mockNavigate, mockUseQuery } = vi.hoisted(() => ({
   mockNavigate: vi.fn(),
+  mockUseQuery: vi.fn(),
 }));
 
 vi.mock("@tanstack/react-router", () => ({
@@ -22,72 +21,57 @@ vi.mock("@tanstack/react-router", () => ({
   ),
 }));
 
+vi.mock("convex/react", () => ({
+  useQuery_experimental: mockUseQuery,
+}));
+
 setupTests();
 
-const mockFileRecord: FileRecord = {
-  id: "img123",
+const mockDoc: Doc<"images"> & { sourceUrl: string | null } = {
+  _id: "img123" as Doc<"images">["_id"],
+  _creationTime: Date.UTC(2026, 5, 16, 16, 1, 11),
+  userId: "user1" as Doc<"images">["userId"],
+  sourceStorageId: "storage1" as Doc<"images">["sourceStorageId"],
   fileName: "test-photo.jpg",
-  sourceUrl: "https://example.com/photo.jpg",
-  params: DEFAULT_PARAMS,
-  createdAt: Date.UTC(2026, 5, 16, 16, 1, 11),
-  renderUrl: "blob:render-1",
-  isProcessing: false,
-  renderError: null,
+  sourceUrl: "blob:render-1",
+  params: { ...DEFAULT_PARAMS },
 };
 
-const mockFileRecord2: FileRecord = {
-  id: "img456",
+const mockDoc2: Doc<"images"> & { sourceUrl: string | null } = {
+  _id: "img456" as Doc<"images">["_id"],
+  _creationTime: Date.UTC(2026, 5, 17, 10, 30, 0),
+  userId: "user1" as Doc<"images">["userId"],
+  sourceStorageId: "storage2" as Doc<"images">["sourceStorageId"],
   fileName: "another-shot.png",
-  sourceUrl: "https://example.com/photo2.jpg",
-  params: DEFAULT_PARAMS,
-  createdAt: Date.UTC(2026, 5, 17, 10, 30, 0),
-  renderUrl: "blob:render-2",
-  isProcessing: false,
-  renderError: null,
+  sourceUrl: "blob:render-2",
+  params: { ...DEFAULT_PARAMS },
 };
-
-function createValue(overrides?: Partial<StorageContextValue>): StorageContextValue {
-  return {
-    files: [],
-    addFiles: vi.fn(),
-    removeFile: vi.fn(),
-    updateParams: vi.fn(),
-    loading: false,
-    error: null,
-    ...overrides,
-  };
-}
-
-function renderGalleryPage(value: StorageContextValue, children?: ReactNode) {
-  return render(
-    <StorageContext.Provider value={value}>
-      {children}
-      <GalleryPage />
-    </StorageContext.Provider>,
-  );
-}
 
 describe("GalleryPage", () => {
   it("shows empty state message when user has no saved images", () => {
-    renderGalleryPage(createValue({ files: [] }));
+    mockUseQuery.mockReturnValue({ status: "success", data: [] });
+
+    render(<GalleryPage />);
 
     expect(screen.getByText(/no saved images/i)).toBeDefined();
     expect(screen.getByRole("link", { name: /process/i })).toBeDefined();
   });
 
   it("renders a grid of image cards when images exist", () => {
-    renderGalleryPage(createValue({ files: [mockFileRecord, mockFileRecord2] }));
+    mockUseQuery.mockReturnValue({ status: "success", data: [mockDoc, mockDoc2] });
+
+    render(<GalleryPage />);
 
     const images = screen.getAllByRole("img");
     expect(images).toHaveLength(2);
-    expect(images[0].getAttribute("src")).toBe(mockFileRecord.renderUrl);
-    expect(images[1].getAttribute("src")).toBe(mockFileRecord2.renderUrl);
+    expect(images[0].getAttribute("src")).toBe(mockDoc.sourceUrl);
+    expect(images[1].getAttribute("src")).toBe(mockDoc2.sourceUrl);
 
-    expect(screen.getByText(mockFileRecord.fileName)).toBeDefined();
-    expect(screen.getByText(mockFileRecord2.fileName)).toBeDefined();
+    expect(screen.getByText(mockDoc.fileName)).toBeDefined();
+    expect(screen.getByText(mockDoc2.fileName)).toBeDefined();
 
     const expectedDate =
-      new Date(mockFileRecord.createdAt).toLocaleDateString("en-GB", {
+      new Date(mockDoc._creationTime).toLocaleDateString("en-GB", {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -97,26 +81,32 @@ describe("GalleryPage", () => {
   });
 
   it("navigates to /gallery/$imageId when a card is clicked", () => {
-    renderGalleryPage(createValue({ files: [mockFileRecord] }));
+    mockUseQuery.mockReturnValue({ status: "success", data: [mockDoc] });
 
-    const card = screen.getByText(mockFileRecord.fileName).closest('[class*="cursor-pointer"]')!;
+    render(<GalleryPage />);
+
+    const card = screen.getByText(mockDoc.fileName).closest('[class*="cursor-pointer"]')!;
     fireEvent.click(card);
 
     expect(mockNavigate).toHaveBeenCalledWith({
       to: "/gallery/$imageId",
-      params: { imageId: mockFileRecord.id },
+      params: { imageId: mockDoc._id },
     });
   });
 
   it("shows skeleton placeholders while loading", () => {
-    const { container } = renderGalleryPage(createValue({ loading: true, files: [] }));
+    mockUseQuery.mockReturnValue({ status: "pending" });
+
+    const { container } = render(<GalleryPage />);
 
     const skeletons = container.querySelectorAll(".animate-pulse");
     expect(skeletons.length).toBe(8);
   });
 
   it("shows error message when loading fails", () => {
-    renderGalleryPage(createValue({ error: new Error("Failed to fetch"), files: [] }));
+    mockUseQuery.mockReturnValue({ status: "error", error: new Error("Failed to fetch") });
+
+    render(<GalleryPage />);
 
     expect(screen.getByText(/failed to load images/i)).toBeDefined();
   });

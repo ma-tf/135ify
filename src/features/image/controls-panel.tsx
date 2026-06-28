@@ -3,6 +3,7 @@ import type { ProcessParams } from "@stores/file-store-types";
 import { Button } from "@components/ui/button";
 import { Spinner } from "@components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@components/ui/toggle-group";
+import { useEditViewClose } from "@features/image/edit-view-close-context";
 import { useEditView } from "@features/image/edit-view-context";
 import { FilmSelector } from "@features/image/film-selector";
 import { ParameterSlider } from "@features/image/parameter-slider";
@@ -11,7 +12,6 @@ import { cn } from "@lib/utils";
 import { useFile } from "@providers/file-context";
 import { useStorage } from "@providers/storage-context";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
-import { useNavigate } from "@tanstack/react-router";
 import { DownloadIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
 
 function HalationControls({ setParam }: { setParam: (partial: Partial<ProcessParams>) => void }) {
@@ -110,7 +110,7 @@ function EditPanelButtons({
 }) {
   const file = useFile();
   const { removeFile } = useStorage();
-  const navigate = useNavigate();
+  const onClose = useEditViewClose();
 
   const handleReset = () => {
     setParam(DEFAULT_PARAMS);
@@ -118,7 +118,7 @@ function EditPanelButtons({
 
   const handleDelete = () => {
     removeFile(file.id);
-    void navigate({ to: "/" });
+    onClose();
   };
 
   const handleDownload = async () => {
@@ -150,7 +150,7 @@ function EditPanelButtons({
 export function EditPanel() {
   const file = useFile();
   const { showOriginal, setShowOriginal } = useEditView();
-  const { setParam, downloadFullSize } = useFileProcessing(file.id);
+  const { setParam, downloadFullSize } = useFileProcessing();
 
   const selectedFilmId = file.params.selectedFilmId;
 
