@@ -27,17 +27,17 @@ export function useFileProcessing() {
     [file.id, file.sourceUrl, file.renderUrl, updateFile],
   );
 
-  const { debounced: saveAndProcess } = useDebounce((params: ProcessParams) => {
-    updateParams(file.id, params);
+  const { debounced: processDebounced } = useDebounce((params: ProcessParams) => {
     void process(params);
   }, 200);
 
   const setParam = useCallback(
     (partial: Partial<ProcessParams>) => {
       const merged = { ...file.params, ...partial };
-      saveAndProcess(merged);
+      updateParams(file.id, merged);
+      processDebounced(merged);
     },
-    [file.params, saveAndProcess],
+    [file.params, updateParams, file.id, processDebounced],
   );
 
   const downloadFullSize = useCallback(async () => {
