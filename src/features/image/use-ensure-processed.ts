@@ -12,7 +12,6 @@ export function EnsureProcessedOrchestrator({
 }): ReactNode {
   const { updateFile } = useStorage();
   const initiated = useRef(new Set<string>());
-  const MAX_DIMENSION = 400;
 
   useEffect(() => {
     for (const file of pendingFiles) {
@@ -26,7 +25,7 @@ export function EnsureProcessedOrchestrator({
         if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
         updateFile(file.id, { isProcessing: true, renderUrl: null, renderError: null });
 
-        processToBlobUrl(file.sourceUrl, file.params, MAX_DIMENSION)
+        processToBlobUrl(file.sourceUrl, file.params)
           .then((url) => {
             updateFile(file.id, { renderUrl: url, isProcessing: false });
           })

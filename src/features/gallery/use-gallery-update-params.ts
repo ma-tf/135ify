@@ -10,15 +10,17 @@ export function useGalleryUpdateParams() {
   const convexUpdateParams = useMutation(api.images.updateParams);
   const mergeParamsWithSnapshot = useGalleryClientStore((s) => s.mergeParamsWithSnapshot);
   const replaceParams = useGalleryClientStore((s) => s.replaceParams);
+  const setImageCacheEntry = useGalleryClientStore((s) => s.setImageCacheEntry);
 
   const updateParams = useCallback(
     (id: string, params: Partial<ProcessParams>) => {
       const snapshot = mergeParamsWithSnapshot(params);
+      setImageCacheEntry(id, { renderUrl: null, renderError: null });
       void convexUpdateParams({ imageId: id as Id<"images">, params }).catch(() => {
         if (snapshot !== null) replaceParams(snapshot);
       });
     },
-    [convexUpdateParams, mergeParamsWithSnapshot, replaceParams],
+    [convexUpdateParams, mergeParamsWithSnapshot, replaceParams, setImageCacheEntry],
   );
 
   return { updateParams };
