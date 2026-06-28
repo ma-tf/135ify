@@ -97,7 +97,7 @@ export function GalleryPage() {
 
   return (
     <StorageContext.Provider value={storageValue}>
-      <EnsureProcessedOrchestrator pendingFiles={pendingFiles} maxDimension={400} />
+      <EnsureProcessedOrchestrator pendingFiles={pendingFiles} />
       <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {images.map((image) => (
           <GalleryCard key={image.id} image={image} />

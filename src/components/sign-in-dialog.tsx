@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "@components/ui/dialog";
 import { Skeleton } from "@components/ui/skeleton";
+import { Spinner } from "@components/ui/spinner";
 import { XIcon } from "@components/x-icon";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useAuth } from "@hooks/use-auth";
@@ -22,23 +23,51 @@ function SignInDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const { signIn } = useAuthActions();
+  const [pendingProvider, setPendingProvider] = useState<string | null>(null);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Sign in</DialogTitle>
+          <DialogTitle>
+            Sign in
+            {pendingProvider !== null && <Spinner className="ml-2 inline-block size-4" />}
+          </DialogTitle>
           <DialogDescription>Sign in to save and manage your images.</DialogDescription>
         </DialogHeader>
-        <Button variant="outline" className="w-full" onClick={() => signIn("github")}>
+        <Button
+          variant="outline"
+          className="w-full"
+          disabled={pendingProvider !== null}
+          onClick={() => {
+            setPendingProvider("github");
+            void signIn("github");
+          }}
+        >
           <GitHubIcon className="mr-2 size-4" />
           Continue with GitHub
         </Button>
-        <Button variant="outline" className="w-full" onClick={() => signIn("google")}>
+        <Button
+          variant="outline"
+          className="w-full"
+          disabled={pendingProvider !== null}
+          onClick={() => {
+            setPendingProvider("google");
+            void signIn("google");
+          }}
+        >
           <GoogleIcon className="mr-2 size-4" />
           Continue with Google
         </Button>
-        <Button variant="outline" className="w-full" onClick={() => signIn("twitter")}>
+        <Button
+          variant="outline"
+          className="w-full"
+          disabled={pendingProvider !== null}
+          onClick={() => {
+            setPendingProvider("twitter");
+            void signIn("twitter");
+          }}
+        >
           <XIcon className="mr-2 size-4" />
           Continue with X
         </Button>
