@@ -201,7 +201,7 @@ describe("EnsureProcessedOrchestrator", () => {
       });
       await vi.waitFor(() => {
         expect(processToBlobUrl).toHaveBeenCalledTimes(1);
-        expect(processToBlobUrl).toHaveBeenCalledWith(pending.sourceUrl, pending.params, 400);
+        expect(processToBlobUrl).toHaveBeenCalledWith(pending.sourceUrl, pending.params);
       });
     });
   });
