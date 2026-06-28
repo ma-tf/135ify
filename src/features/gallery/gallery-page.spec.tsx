@@ -2,7 +2,7 @@ import type { Doc } from "@convex/_generated/dataModel";
 
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { setupTests } from "@test-utils/setup.spec";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
 
 import { GalleryPage } from "./gallery-page";
@@ -23,6 +23,10 @@ vi.mock("@tanstack/react-router", () => ({
 
 vi.mock("convex/react", () => ({
   useQuery_experimental: mockUseQuery,
+}));
+
+vi.mock("@features/process/process-image", () => ({
+  processToBlobUrl: vi.fn((url: string) => Promise.resolve(url)),
 }));
 
 setupTests();
@@ -57,10 +61,12 @@ describe("GalleryPage", () => {
     expect(screen.getByRole("link", { name: /process/i })).toBeDefined();
   });
 
-  it("renders a grid of image cards when images exist", () => {
+  it("renders a grid of image cards when images exist", async () => {
     mockUseQuery.mockReturnValue({ status: "success", data: [mockDoc, mockDoc2] });
 
     render(<GalleryPage />);
+
+    await act(async () => {});
 
     const images = screen.getAllByRole("img");
     expect(images).toHaveLength(2);

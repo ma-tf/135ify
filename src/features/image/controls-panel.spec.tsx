@@ -18,6 +18,33 @@ vi.mock("@features/image/use-file-processing", () => ({
   })),
 }));
 
+vi.mock("@tanstack/react-router", () => ({
+  useLocation: () => ({ pathname: "/" }),
+  Link: ({ to, children, className }: any) => (
+    <a href={to} className={className}>
+      {children}
+    </a>
+  ),
+}));
+
+vi.mock("convex/react", () => ({
+  useQuery_experimental: vi.fn(),
+  useMutation: vi.fn(),
+}));
+
+vi.mock("@hooks/use-auth", () => ({
+  useAuth: () => ({ isAuthenticated: false, isLoading: false }),
+}));
+
+vi.mock("@features/gallery/use-save-to-gallery", () => ({
+  useSaveToGallery: () => ({ save: vi.fn(), isSaving: false }),
+}));
+
+vi.mock("@providers/file-context", () => ({
+  FileProvider: ({ children }: any) => <>{children}</>,
+  useFile: () => TEST_FILE_RECORD_PHOTO,
+}));
+
 import { useFileProcessing } from "@features/image/use-file-processing";
 
 setupTests();
@@ -87,6 +114,13 @@ describe("EditPanel", () => {
     });
   });
 
+  it("renders Halation, Vignette, and Grain section headings", () => {
+    renderEditPanel();
+    expect(screen.getByText("Halation")).toBeDefined();
+    expect(screen.getByText("Vignette")).toBeDefined();
+    expect(screen.getByText("Grain")).toBeDefined();
+  });
+
   it("delete handler removes file and calls onClose", () => {
     const onClose = vi.fn();
 
@@ -109,24 +143,11 @@ describe("EditPanel", () => {
       </TestStorageProvider>,
     );
 
-    let caught: unknown;
-    try {
-      fireEvent.click(screen.getByText("Delete"));
-    } catch (e) {
-      caught = e;
-    }
+    fireEvent.click(screen.getByText("Delete"));
 
-    expect(caught).toBeDefined();
     expect(
       useFileStore.getState().files.find((f) => f.id === TEST_FILE_RECORD_PHOTO.id),
     ).toBeUndefined();
     expect(onClose).toHaveBeenCalledOnce();
-  });
-
-  it("renders Halation, Vignette, and Grain section headings", () => {
-    renderEditPanel();
-    expect(screen.getByText("Halation")).toBeDefined();
-    expect(screen.getByText("Vignette")).toBeDefined();
-    expect(screen.getByText("Grain")).toBeDefined();
   });
 });
