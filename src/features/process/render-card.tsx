@@ -1,9 +1,9 @@
 import type { FileWithState } from "@stores/file-store-types";
 
 import { Skeleton } from "@components/ui/skeleton";
+import { useCardClick } from "@features/process/card-click-context";
 import { cn } from "@lib/utils";
 import { useFile } from "@providers/file-context";
-import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 function CardImage({ file }: { file: FileWithState }) {
@@ -40,7 +40,7 @@ function CardImage({ file }: { file: FileWithState }) {
 
 export function RenderCard({ className }: { className?: string }) {
   const file = useFile();
-  const navigate = useNavigate();
+  const onCardClick = useCardClick();
 
   return (
     <button
@@ -51,7 +51,7 @@ export function RenderCard({ className }: { className?: string }) {
       )}
       onClick={(e) => {
         if (e.currentTarget.closest("[data-dragged]")) return;
-        void navigate({ to: "/gallery/$imageId", params: { imageId: file.id } });
+        onCardClick(file.id);
       }}
     >
       <CardImage file={file} />

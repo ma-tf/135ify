@@ -8,8 +8,8 @@ export const Route = createFileRoute("/gallery")({
 function GalleryLayout() {
   const { isAuthenticated, isLoading } = useAuth();
 
-  if (!isAuthenticated) throw redirect({ to: "/" });
   if (isLoading) return null;
+  if (!isAuthenticated) throw redirect({ to: "/" });
 
   return <Outlet />;
 }

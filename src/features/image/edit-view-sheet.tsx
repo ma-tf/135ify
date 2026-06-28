@@ -2,17 +2,17 @@ import { Button } from "@components/ui/button";
 import { SheetContent, SheetTitle, SheetDescription, Sheet } from "@components/ui/sheet";
 import { Skeleton } from "@components/ui/skeleton";
 import { EditPanel } from "@features/image/controls-panel";
+import { useEditViewClose } from "@features/image/edit-view-close-context";
 import { useEditView } from "@features/image/edit-view-context";
 import { useIsMobile } from "@hooks/use-mobile";
 import { useFile } from "@providers/file-context";
-import { useNavigate } from "@tanstack/react-router";
 import { XIcon } from "lucide-react";
 
 export function EditViewSheet() {
-  const navigate = useNavigate();
   const isDesktop = !useIsMobile(1024);
   const file = useFile();
   const { showOriginal } = useEditView();
+  const onClose = useEditViewClose();
 
   const displayUrl = showOriginal ? file.sourceUrl : file.renderUrl;
 
@@ -20,7 +20,7 @@ export function EditViewSheet() {
     <Sheet
       open
       onOpenChange={(v) => {
-        if (!v) void navigate({ to: "/" });
+        if (!v) onClose();
       }}
     >
       <SheetContent
@@ -29,7 +29,7 @@ export function EditViewSheet() {
         overlayContent={
           <>
             <Button
-              onClick={() => void navigate({ to: "/" })}
+              onClick={onClose}
               variant="ghost"
               size="icon-sm"
               className="pointer-events-auto absolute top-3 left-3 cursor-pointer"
