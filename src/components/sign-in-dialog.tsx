@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@components/ui/dialog";
+import { Skeleton } from "@components/ui/skeleton";
 import { XIcon } from "@components/x-icon";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useAuth } from "@hooks/use-auth";
@@ -50,7 +51,16 @@ export function SignInButtons() {
   const { isAuthenticated, isLoading } = useAuth();
   const [signInOpen, setSignInOpen] = useState(false);
 
-  if (!isLoading && isAuthenticated) {
+  if (isLoading) {
+    return (
+      <>
+        <Skeleton className="h-8 w-20" />
+        <Skeleton className="h-8 w-20" />
+      </>
+    );
+  }
+
+  if (isAuthenticated) {
     return null;
   }
 

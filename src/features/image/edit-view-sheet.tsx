@@ -46,7 +46,7 @@ export function EditViewSheet() {
                   onPointerDown={(e) => e.stopPropagation()}
                 />
               ) : (
-                <Skeleton className="pointer-events-auto size-32 rounded-full" />
+                <Skeleton className="pointer-events-auto max-h-[70vh] w-80 rounded-md" />
               ))}
           </>
         }
