@@ -10,6 +10,7 @@ import { useState } from "react";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
+  head: () => ({ meta: [{ title: "135ify | Film Strip" }] }),
 });
 
 function RouteComponent() {

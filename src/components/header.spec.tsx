@@ -31,29 +31,29 @@ vi.mock("@config", () => ({
 }));
 
 vi.mock("@tanstack/react-router", () => ({
-  Link: ({ to, children, className }: any) => (
-    <a href={to} className={className}>
-      {children}
-    </a>
+  Link: ({ to, children }: any) => (
+    <a href={to}>{typeof children === "function" ? children({ isActive: false }) : children}</a>
   ),
 }));
 
 setupTests();
 
 describe("Header", () => {
-  it("shows Gallery link when user is authenticated", () => {
-    mockUseConvexAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
-
-    render(<Header />);
-
-    expect(screen.getByRole("link", { name: /gallery/i })).toBeDefined();
-  });
-
-  it("hides Gallery link when user is not authenticated", () => {
+  it("hides nav links when user is not authenticated", () => {
     mockUseConvexAuth.mockReturnValue({ isAuthenticated: false, isLoading: false });
 
     render(<Header />);
 
+    expect(screen.queryByRole("link", { name: /film strip/i })).toBeNull();
     expect(screen.queryByRole("link", { name: /gallery/i })).toBeNull();
+  });
+
+  it("shows both Film Strip and Gallery links when authenticated", () => {
+    mockUseConvexAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
+
+    render(<Header />);
+
+    expect(screen.getByRole("link", { name: /film strip/i })).toBeDefined();
+    expect(screen.getByRole("link", { name: /gallery/i })).toBeDefined();
   });
 });

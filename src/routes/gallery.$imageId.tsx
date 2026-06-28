@@ -8,6 +8,7 @@ import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/gallery/$imageId")({
   component: RouteComponent,
+  head: () => ({ meta: [{ title: "135ify | Gallery" }] }),
 });
 
 function RouteComponent() {

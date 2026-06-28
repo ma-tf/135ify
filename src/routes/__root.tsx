@@ -4,7 +4,7 @@ import { ThemeProvider } from "@components/theme-provider";
 import { Toaster } from "@components/ui/sonner";
 import { useOfflineToast } from "@hooks/use-offline-toast";
 import { StorageProvider } from "@providers/storage-provider";
-import { Outlet, createRootRoute } from "@tanstack/react-router";
+import { HeadContent, Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 export const Route = createRootRoute({
@@ -16,6 +16,7 @@ function RootComponent() {
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <HeadContent />
       <StorageProvider>
         <div className="flex min-h-screen flex-col">
           <Header />
