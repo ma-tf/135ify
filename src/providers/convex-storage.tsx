@@ -3,12 +3,12 @@ import type { FileRecord } from "@stores/file-store-types";
 
 import { api } from "@convex/_generated/api";
 import { useEnsureProcessed } from "@features/image/use-ensure-processed";
+import { useConvexHydration } from "@hooks/use-convex-hydration";
 import { useConvexUpload } from "@hooks/use-convex-upload";
-import { hydrateFromConvex } from "@providers/convex-hydration";
 import { StorageContext } from "@providers/storage-context";
 import { useFileStore } from "@stores/file-store";
 import { useMutation, useQuery_experimental as useQuery } from "convex/react";
-import { type ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
+import { type ReactNode, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 
 export default function ConvexStorageProvider({ children }: { children: ReactNode }) {
@@ -18,22 +18,12 @@ export default function ConvexStorageProvider({ children }: { children: ReactNod
 
   const { addFiles } = useConvexUpload();
 
-  const storeFiles = useFileStore((s) => s.files);
-  const storeHydrateFiles = useFileStore((s) => s.hydrateFiles);
   const storeUpdateParams = useFileStore((s) => s.updateParams);
   const storeRemoveFile = useFileStore((s) => s.removeFile);
-  const storeFilesRef = useRef(storeFiles);
-  storeFilesRef.current = storeFiles;
 
-  const queryData = convexImages.status === "success" ? convexImages.data : null;
+  useConvexHydration(convexImages);
 
-  useEffect(() => {
-    if (!queryData) return;
-    const records = hydrateFromConvex(queryData, storeFilesRef.current);
-    storeHydrateFiles(records);
-  }, [queryData]);
-
-  const files = storeFiles;
+  const files = useFileStore((s) => s.files);
 
   const pendingFiles = useMemo(() => files.filter((f) => !f.renderUrl && !f.isProcessing), [files]);
 
