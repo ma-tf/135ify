@@ -16,7 +16,7 @@ function RouteComponent() {
 
   return (
     <EditViewCloseProvider onClose={() => void navigate({ to: "/gallery" })}>
-      <GalleryStorageAdapter imageId={imageId}>
+      <GalleryStorageAdapter key={imageId} imageId={imageId}>
         <FileProvider fileId={imageId}>
           <EditViewProvider key={imageId}>
             <EditViewSheet />

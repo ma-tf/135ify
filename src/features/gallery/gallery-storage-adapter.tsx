@@ -5,7 +5,7 @@ import { Skeleton } from "@components/ui/skeleton";
 import { api } from "@convex/_generated/api";
 import { EnsureProcessedOrchestrator } from "@features/image/use-ensure-processed";
 import { StorageContext } from "@providers/storage-context";
-import { useNavigate } from "@tanstack/react-router";
+import { Navigate, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery_experimental as useQuery } from "convex/react";
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
@@ -24,54 +24,49 @@ export function GalleryStorageAdapter({
   const convexUpdateParams = useMutation(api.images.updateParams);
   const convexDeleteImage = useMutation(api.images.deleteImage);
 
-  const [file, setFile] = useState<FileRecord | null>(null);
-
   const queryData = result.status === "success" ? result.data : null;
 
-  useEffect(() => {
-    if (queryData) {
-      setFile({
-        id: queryData._id,
-        fileName: queryData.fileName,
-        sourceUrl: queryData.sourceUrl ?? "",
-        params: {
-          ...queryData.params,
-          selectedFilmId: queryData.params.selectedFilmId as FileRecord["params"]["selectedFilmId"],
-        },
-        createdAt: queryData._creationTime,
-        renderUrl: null,
-        isProcessing: false,
-        renderError: null,
-      });
-    }
-  }, [queryData]);
+  const [localParams, setLocalParams] = useState<Partial<ProcessParams> | null>(null);
+  const [localRenderUrl, setLocalRenderUrl] = useState<string | null>(null);
+  const [localIsProcessing, setLocalIsProcessing] = useState(false);
+  const [localRenderError, setLocalRenderError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (result.status === "error" || (result.status === "success" && !queryData)) {
-      void navigate({ to: "/gallery" });
-    }
-  }, [result.status, queryData, navigate]);
+  const file = useMemo<FileRecord | null>(() => {
+    if (!queryData) return null;
+    return {
+      id: queryData._id,
+      fileName: queryData.fileName,
+      sourceUrl: queryData.sourceUrl ?? "",
+      params: {
+        ...queryData.params,
+        selectedFilmId: queryData.params.selectedFilmId as FileRecord["params"]["selectedFilmId"],
+        ...localParams,
+      },
+      createdAt: queryData._creationTime,
+      renderUrl: localRenderUrl,
+      isProcessing: localIsProcessing,
+      renderError: localRenderError,
+    };
+  }, [queryData, localParams, localRenderUrl, localIsProcessing, localRenderError]);
 
   useEffect(() => {
     return () => {
-      if (file?.renderUrl?.startsWith("blob:")) {
-        URL.revokeObjectURL(file.renderUrl);
+      if (localRenderUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(localRenderUrl);
       }
     };
-  }, [file?.renderUrl]);
+  }, [localRenderUrl]);
 
   const updateParams = useCallback(
     (id: string, params: Partial<ProcessParams>) => {
-      let previousParams: ProcessParams | undefined;
-      setFile((prev) => {
-        if (!prev) return prev;
-        previousParams = prev.params;
-        return { ...prev, params: { ...prev.params, ...params } };
+      let previousParams: Partial<ProcessParams> | null = null;
+      setLocalParams((prev) => {
+        previousParams = prev;
+        return { ...prev, ...params };
       });
       void convexUpdateParams({ imageId: id as Id<"images">, params }).catch(() => {
-        const rollback = previousParams;
-        if (rollback) {
-          setFile((prev) => (prev ? { ...prev, params: rollback } : prev));
+        if (previousParams !== null) {
+          setLocalParams(previousParams);
         }
       });
     },
@@ -91,22 +86,22 @@ export function GalleryStorageAdapter({
   );
 
   const setRenderUrl = useCallback((_id: string, renderUrl: string | null) => {
-    setFile((prev) => (prev ? { ...prev, renderUrl } : prev));
+    setLocalRenderUrl(renderUrl);
   }, []);
 
   const setProcessing = useCallback((_id: string, isProcessing: boolean) => {
-    setFile((prev) => (prev ? { ...prev, isProcessing } : prev));
+    setLocalIsProcessing(isProcessing);
   }, []);
 
   const setRenderError = useCallback((_id: string, renderError: string | null) => {
-    setFile((prev) => (prev ? { ...prev, renderError } : prev));
+    setLocalRenderError(renderError);
   }, []);
 
   const addFiles = useCallback(() => {
     console.warn("GalleryStorageAdapter does not support adding files");
   }, []);
 
-  const files = file ? [file] : [];
+  const files = useMemo(() => (file ? [file] : []), [file]);
   const pendingFiles = useMemo(() => files.filter((f) => !f.renderUrl && !f.isProcessing), [files]);
   const loading = result.status === "pending";
   const error: Error | null = result.status === "error" ? result.error : null;
@@ -143,12 +138,9 @@ export function GalleryStorageAdapter({
       </div>
     );
   }
-  if (result.status === "error")
-    return (
-      <div className="flex items-center justify-center p-8 text-destructive">
-        {result.error.message}
-      </div>
-    );
+  if (result.status === "error" || (result.status === "success" && !queryData)) {
+    return <Navigate to="/gallery" />;
+  }
 
   if (!file) return null;
 
