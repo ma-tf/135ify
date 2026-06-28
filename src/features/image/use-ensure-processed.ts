@@ -5,7 +5,7 @@ import { useStorage } from "@providers/storage-context";
 import { type ReactNode, useEffect, useRef } from "react";
 
 export function useEnsureProcessed(files: FileRecord[]): void {
-  const { setRenderUrl, setProcessing, setRenderError } = useStorage();
+  const { updateFile } = useStorage();
   const initiated = useRef(new Set<string>());
 
   useEffect(() => {
@@ -17,28 +17,24 @@ export function useEnsureProcessed(files: FileRecord[]): void {
       initiated.current.add(file.id);
 
       const process = () => {
-        setProcessing(file.id, true);
         if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
-        setRenderUrl(file.id, null);
-        setRenderError(file.id, null);
+        updateFile(file.id, { isProcessing: true, renderUrl: null, renderError: null });
 
         processToBlobUrl(file.sourceUrl, file.params)
           .then((url) => {
-            setRenderUrl(file.id, url);
-            setProcessing(file.id, false);
+            updateFile(file.id, { renderUrl: url, isProcessing: false });
           })
           .catch((err) => {
             console.error("Image processing failed:", err);
             const msg = err instanceof Error ? err.message : "Processing failed";
-            setRenderError(file.id, msg);
+            updateFile(file.id, { renderError: msg, isProcessing: false });
             initiated.current.delete(file.id);
-            setProcessing(file.id, false);
           });
       };
 
       process();
     }
-  }, [files, setRenderUrl, setProcessing, setRenderError]);
+  }, [files, updateFile]);
 }
 
 export function EnsureProcessedOrchestrator({

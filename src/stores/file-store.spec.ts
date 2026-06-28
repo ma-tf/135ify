@@ -1,3 +1,5 @@
+import type { FileRecord } from "@stores/file-store-types";
+
 import { useFileStore } from "@stores/file-store";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { prepareFiles } from "@stores/prepare-files";
@@ -127,64 +129,36 @@ describe("prepareFiles", () => {
   });
 });
 
-describe("useFileStore render state actions", () => {
-  it("setRenderUrl updates the file's renderUrl", () => {
-    useFileStore.setState({ files: [] });
-    useFileStore.getState().addFiles([
-      {
-        id: "f1",
-        fileName: "test.jpg",
-        sourceUrl: "blob:src",
-        params: { ...DEFAULT_PARAMS },
-        createdAt: Date.now(),
-        renderUrl: null,
-        isProcessing: false,
-        renderError: null,
-      },
-    ]);
+describe("useFileStore updateFile", () => {
+  const makeFile = (overrides: Partial<FileRecord> = {}): FileRecord => ({
+    id: "f1",
+    fileName: "test.jpg",
+    sourceUrl: "blob:src",
+    params: { ...DEFAULT_PARAMS },
+    createdAt: Date.now(),
+    renderUrl: null,
+    isProcessing: false,
+    renderError: null,
+    ...overrides,
+  });
 
-    useFileStore.getState().setRenderUrl("f1", "blob:rendered");
+  it("sets a single field", () => {
+    useFileStore.setState({ files: [makeFile()] });
+    useFileStore.getState().updateFile("f1", { renderUrl: "blob:rendered" });
     expect(useFileStore.getState().files[0].renderUrl).toBe("blob:rendered");
   });
 
-  it("setProcessing updates the file's isProcessing", () => {
-    useFileStore.setState({
-      files: [
-        {
-          id: "f1",
-          fileName: "test.jpg",
-          sourceUrl: "blob:src",
-          params: { ...DEFAULT_PARAMS },
-          createdAt: Date.now(),
-          renderUrl: null,
-          isProcessing: false,
-          renderError: null,
-        },
-      ],
+  it("sets multiple fields at once", () => {
+    useFileStore.setState({ files: [makeFile()] });
+    useFileStore.getState().updateFile("f1", {
+      renderUrl: "blob:rendered",
+      isProcessing: true,
+      renderError: null,
     });
-
-    useFileStore.getState().setProcessing("f1", true);
-    expect(useFileStore.getState().files[0].isProcessing).toBe(true);
-  });
-
-  it("setRenderError updates the file's renderError", () => {
-    useFileStore.setState({
-      files: [
-        {
-          id: "f1",
-          fileName: "test.jpg",
-          sourceUrl: "blob:src",
-          params: { ...DEFAULT_PARAMS },
-          createdAt: Date.now(),
-          renderUrl: null,
-          isProcessing: false,
-          renderError: null,
-        },
-      ],
-    });
-
-    useFileStore.getState().setRenderError("f1", "oops");
-    expect(useFileStore.getState().files[0].renderError).toBe("oops");
+    const f = useFileStore.getState().files[0];
+    expect(f.renderUrl).toBe("blob:rendered");
+    expect(f.isProcessing).toBe(true);
+    expect(f.renderError).toBeNull();
   });
 
   it("hydrateFiles replaces all files", () => {

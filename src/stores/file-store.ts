@@ -14,17 +14,9 @@ export const useFileStore = create<FileStore>((set) => ({
     set((state) => ({
       files: state.files.filter((f) => f.id !== id),
     })),
-  setRenderUrl: (id, renderUrl) =>
+  updateFile: (id, update) =>
     set((state) => ({
-      files: state.files.map((f) => (f.id === id ? { ...f, renderUrl } : f)),
-    })),
-  setProcessing: (id, isProcessing) =>
-    set((state) => ({
-      files: state.files.map((f) => (f.id === id ? { ...f, isProcessing } : f)),
-    })),
-  setRenderError: (id, renderError) =>
-    set((state) => ({
-      files: state.files.map((f) => (f.id === id ? { ...f, renderError } : f)),
+      files: state.files.map((f) => (f.id === id ? { ...f, ...update } : f)),
     })),
   hydrateFiles: (records) => set({ files: records }),
   clearFiles: () => set({ files: [] }),

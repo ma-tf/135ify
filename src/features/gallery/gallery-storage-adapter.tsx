@@ -85,17 +85,17 @@ export function GalleryStorageAdapter({
     [convexDeleteImage, navigate],
   );
 
-  const setRenderUrl = useCallback((_id: string, renderUrl: string | null) => {
-    setLocalRenderUrl(renderUrl);
-  }, []);
-
-  const setProcessing = useCallback((_id: string, isProcessing: boolean) => {
-    setLocalIsProcessing(isProcessing);
-  }, []);
-
-  const setRenderError = useCallback((_id: string, renderError: string | null) => {
-    setLocalRenderError(renderError);
-  }, []);
+  const updateFile = useCallback(
+    (
+      _id: string,
+      update: Partial<Pick<FileRecord, "renderUrl" | "isProcessing" | "renderError">>,
+    ) => {
+      if ("renderUrl" in update) setLocalRenderUrl(update.renderUrl!);
+      if ("isProcessing" in update) setLocalIsProcessing(update.isProcessing!);
+      if ("renderError" in update) setLocalRenderError(update.renderError!);
+    },
+    [],
+  );
 
   const addFiles = useCallback(() => {
     console.warn("GalleryStorageAdapter does not support adding files");
@@ -112,23 +112,11 @@ export function GalleryStorageAdapter({
       addFiles,
       removeFile,
       updateParams,
-      setRenderUrl,
-      setProcessing,
-      setRenderError,
+      updateFile,
       loading,
       error,
     }),
-    [
-      files,
-      addFiles,
-      removeFile,
-      updateParams,
-      setRenderUrl,
-      setProcessing,
-      setRenderError,
-      loading,
-      error,
-    ],
+    [files, addFiles, removeFile, updateParams, updateFile, loading, error],
   );
 
   if (loading) {

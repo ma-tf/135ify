@@ -8,26 +8,23 @@ import { useCallback } from "react";
 
 export function useFileProcessing() {
   const file = useFile();
-  const { updateParams, setRenderUrl, setProcessing, setRenderError } = useStorage();
+  const { updateParams, updateFile } = useStorage();
 
   const process = useCallback(
     async (params: ProcessParams) => {
-      setProcessing(file.id, true);
       if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
-      setRenderUrl(file.id, null);
-      setRenderError(file.id, null);
+      updateFile(file.id, { isProcessing: true, renderUrl: null, renderError: null });
 
       try {
         const url = await processToBlobUrl(file.sourceUrl, params);
-        setRenderUrl(file.id, url);
+        updateFile(file.id, { renderUrl: url, isProcessing: false });
       } catch (err) {
         console.error("Image processing failed:", err);
         const msg = err instanceof Error ? err.message : "Processing failed";
-        setRenderError(file.id, msg);
+        updateFile(file.id, { renderError: msg, isProcessing: false });
       }
-      setProcessing(file.id, false);
     },
-    [file.id, file.sourceUrl, file.renderUrl, setRenderUrl, setProcessing, setRenderError],
+    [file.id, file.sourceUrl, file.renderUrl, updateFile],
   );
 
   const { debounced: saveAndProcess } = useDebounce((params: ProcessParams) => {

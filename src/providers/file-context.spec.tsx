@@ -74,7 +74,7 @@ describe("useFile", () => {
     expect(captured!.renderUrl).toBeNull();
 
     act(() => {
-      useFileStore.getState().setRenderUrl(TEST_FILE_RECORD.id, "blob:new");
+      useFileStore.getState().updateFile(TEST_FILE_RECORD.id, { renderUrl: "blob:new" });
     });
 
     expect(captured!.renderUrl).toBe("blob:new");

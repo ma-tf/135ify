@@ -38,8 +38,9 @@ export interface FileStore {
   hydrateFiles: (records: FileRecord[]) => void;
   updateParams: (id: string, params: Partial<ProcessParams>) => void;
   removeFile: (id: string) => void;
-  setRenderUrl: (id: string, renderUrl: string | null) => void;
-  setProcessing: (id: string, isProcessing: boolean) => void;
-  setRenderError: (id: string, renderError: string | null) => void;
+  updateFile: (
+    id: string,
+    update: Partial<Pick<FileRecord, "renderUrl" | "isProcessing" | "renderError">>,
+  ) => void;
   clearFiles: () => void;
 }
