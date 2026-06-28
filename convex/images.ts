@@ -9,6 +9,16 @@ import { GALLERY_IMAGE_LIMIT } from "./config";
 const boundedLimit = 100;
 const sizeLimit = 5 * 1024 * 1024;
 
+const DEFAULT_PARAMS = {
+  selectedFilmId: "none",
+  halationIntensity: 0,
+  halationSpread: 0,
+  halationThreshold: 0,
+  vignetteIntensity: 0,
+  vignetteFeather: 0,
+  grainIntensity: 0,
+} as const;
+
 async function requireAuth(ctx: QueryCtx | MutationCtx) {
   const userId = await getAuthUserId(ctx);
   if (!userId) throw new Error("Unauthorized");
@@ -56,6 +66,17 @@ export const create = mutation({
   args: {
     storageId: v.id("_storage"),
     fileName: v.string(),
+    params: v.optional(
+      v.object({
+        selectedFilmId: v.string(),
+        halationIntensity: v.number(),
+        halationSpread: v.number(),
+        halationThreshold: v.number(),
+        vignetteIntensity: v.number(),
+        vignetteFeather: v.number(),
+        grainIntensity: v.number(),
+      }),
+    ),
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
@@ -73,15 +94,7 @@ export const create = mutation({
       userId,
       sourceStorageId: args.storageId,
       fileName: args.fileName,
-      params: {
-        selectedFilmId: "none",
-        halationIntensity: 0,
-        halationSpread: 0,
-        halationThreshold: 0,
-        vignetteIntensity: 0,
-        vignetteFeather: 0,
-        grainIntensity: 0,
-      },
+      params: args.params ?? DEFAULT_PARAMS,
     });
     return imageId;
   },
