@@ -2,6 +2,12 @@ import type { FileRecord, ProcessParams } from "@stores/file-store-types";
 
 import { create } from "zustand";
 
+interface ImageCacheEntry {
+  renderUrl: string | null;
+  isProcessing: boolean;
+  renderError: string | null;
+}
+
 interface GalleryClientState {
   localParams: Partial<ProcessParams> | null;
   localRenderUrl: string | null;
@@ -13,9 +19,12 @@ interface GalleryClientState {
     update: Partial<Pick<FileRecord, "renderUrl" | "isProcessing" | "renderError">>,
   ) => void;
   clear: () => void;
+  imageCache: Record<string, ImageCacheEntry>;
+  getImageCacheEntry: (id: string) => ImageCacheEntry | undefined;
+  setImageCacheEntry: (id: string, update: Partial<ImageCacheEntry>) => void;
 }
 
-export const useGalleryClientStore = create<GalleryClientState>((set) => ({
+export const useGalleryClientStore = create<GalleryClientState>((set, get) => ({
   localParams: null,
   localRenderUrl: null,
   localIsProcessing: false,
@@ -44,4 +53,13 @@ export const useGalleryClientStore = create<GalleryClientState>((set) => ({
       localIsProcessing: false,
       localRenderError: null,
     }),
+  imageCache: {},
+  getImageCacheEntry: (id) => get().imageCache[id],
+  setImageCacheEntry: (id, update) =>
+    set((state) => ({
+      imageCache: {
+        ...state.imageCache,
+        [id]: { ...state.imageCache[id], ...update },
+      },
+    })),
 }));

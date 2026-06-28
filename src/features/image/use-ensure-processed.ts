@@ -4,7 +4,7 @@ import { processToBlobUrl } from "@features/process/process-image";
 import { useStorage } from "@providers/storage-context";
 import { type ReactNode, useEffect, useRef } from "react";
 
-export function useEnsureProcessed(files: FileRecord[]): void {
+export function useEnsureProcessed(files: FileRecord[], maxDimension?: number): void {
   const { updateFile } = useStorage();
   const initiated = useRef(new Set<string>());
 
@@ -20,7 +20,7 @@ export function useEnsureProcessed(files: FileRecord[]): void {
         if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
         updateFile(file.id, { isProcessing: true, renderUrl: null, renderError: null });
 
-        processToBlobUrl(file.sourceUrl, file.params)
+        processToBlobUrl(file.sourceUrl, file.params, maxDimension)
           .then((url) => {
             updateFile(file.id, { renderUrl: url, isProcessing: false });
           })
@@ -34,14 +34,16 @@ export function useEnsureProcessed(files: FileRecord[]): void {
 
       process();
     }
-  }, [files, updateFile]);
+  }, [files, updateFile, maxDimension]);
 }
 
 export function EnsureProcessedOrchestrator({
   pendingFiles,
+  maxDimension,
 }: {
   pendingFiles: FileRecord[];
+  maxDimension?: number;
 }): ReactNode {
-  useEnsureProcessed(pendingFiles);
+  useEnsureProcessed(pendingFiles, maxDimension);
   return null;
 }
