@@ -50,6 +50,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
     "@vitest/coverage-v8": "4.1.9",
+    "jose": "^6.2.3",
     "jsdom": "^29.1.1",
     "react-scan": "^0.5.7",
     "shadcn": "^4.11.0",
