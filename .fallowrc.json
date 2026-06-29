@@ -24,12 +24,13 @@
   "duplicates": {
     "skipLocal": true
   },
-  "ignorePatterns": ["src/components/ui/**", "convex/**"],
+  "ignorePatterns": ["src/components/ui/**", "convex/**", "generateKeys.mjs"],
   "ignoreDependencies": [
     "@ai-hero/sandcastle",
     "@components/ui",
     "@convex/_generated",
     "class-variance-authority",
+    "jose",
     "next-themes",
     "radix-ui",
     "shadcn",
