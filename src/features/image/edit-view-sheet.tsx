@@ -1,18 +1,28 @@
 import { Button } from "@components/ui/button";
 import { SheetContent, SheetTitle, SheetDescription, Sheet } from "@components/ui/sheet";
 import { Skeleton } from "@components/ui/skeleton";
+import { Spinner } from "@components/ui/spinner";
 import { EditPanel } from "@features/image/controls-panel";
 import { useEditViewClose } from "@features/image/edit-view-close-context";
 import { useEditView } from "@features/image/edit-view-context";
 import { useIsMobile } from "@hooks/use-mobile";
 import { useFile } from "@providers/file-context";
 import { XIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+
+const SHOW_DELAY_MS = 2000;
 
 export function EditViewSheet() {
   const isDesktop = !useIsMobile(1024);
   const file = useFile();
   const { showOriginal } = useEditView();
   const onClose = useEditViewClose();
+  const [showImage, setShowImage] = useState(false);
+
+  useEffect(() => {
+    const id = setTimeout(() => setShowImage(true), SHOW_DELAY_MS);
+    return () => clearTimeout(id);
+  }, []);
 
   const displayUrl = showOriginal ? file.sourceUrl : file.renderUrl;
 
@@ -38,7 +48,7 @@ export function EditViewSheet() {
               <span className="sr-only">Close</span>
             </Button>
             {isDesktop &&
-              (displayUrl ? (
+              (showImage && displayUrl ? (
                 <img
                   src={displayUrl}
                   alt={file.fileName}
@@ -46,7 +56,9 @@ export function EditViewSheet() {
                   onPointerDown={(e) => e.stopPropagation()}
                 />
               ) : (
-                <Skeleton className="pointer-events-auto max-h-[70vh] w-80 rounded-md" />
+                <div className="pointer-events-auto flex max-h-[70vh] w-80 items-center justify-center">
+                  <Spinner className="size-8" />
+                </div>
               ))}
           </>
         }
@@ -54,14 +66,14 @@ export function EditViewSheet() {
         <SheetTitle className="sr-only">Edit Image</SheetTitle>
         <SheetDescription className="sr-only">Edit image settings</SheetDescription>
         {!isDesktop &&
-          (displayUrl ? (
+          (showImage && displayUrl ? (
             <img
               src={displayUrl}
               alt={file.fileName}
               className="max-h-[50vh] w-full rounded-md object-contain"
             />
           ) : (
-            <Skeleton className="max-h-[50vh] w-full" />
+            <Skeleton className="h-[30vh] w-full rounded-md" />
           ))}
         <EditPanel />
       </SheetContent>

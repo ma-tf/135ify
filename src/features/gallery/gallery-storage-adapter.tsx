@@ -1,4 +1,3 @@
-import { Skeleton } from "@components/ui/skeleton";
 import { useGalleryAddFiles } from "@features/gallery/use-gallery-add-files";
 import { useGalleryFiles } from "@features/gallery/use-gallery-files";
 import { useGalleryRemoveFile } from "@features/gallery/use-gallery-remove-file";
@@ -35,13 +34,7 @@ export function GalleryStorageAdapter({
     [files, addFiles, removeFile, updateParams, updateFile, loading, error],
   );
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <Skeleton className="h-96 w-full" />
-      </div>
-    );
-  }
+  if (loading) return null;
   if (error || files.length === 0) {
     return <Navigate to="/gallery" />;
   }
