@@ -1,1 +1,4 @@
 export const GALLERY_IMAGE_LIMIT = Number(process.env.GALLERY_IMAGE_LIMIT) || 10;
+export const FILE_SIZE_LIMIT_BYTES = Number(process.env.FILE_SIZE_LIMIT_BYTES) || 5 * 1024 * 1024;
+export const GALLERY_STORAGE_LIMIT_BYTES =
+  Number(process.env.GALLERY_STORAGE_LIMIT_BYTES) || GALLERY_IMAGE_LIMIT * FILE_SIZE_LIMIT_BYTES;

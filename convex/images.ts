@@ -4,10 +4,9 @@ import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
-import { GALLERY_IMAGE_LIMIT } from "./config";
+import { FILE_SIZE_LIMIT_BYTES, GALLERY_IMAGE_LIMIT, GALLERY_STORAGE_LIMIT_BYTES } from "./config";
 
 const boundedLimit = 100;
-const sizeLimit = 5 * 1024 * 1024;
 
 const DEFAULT_PARAMS = {
   selectedFilmId: "none",
@@ -41,6 +40,29 @@ export const getById = query({
     if (!doc || doc.userId !== userId) return null;
     const sourceUrl = await ctx.storage.getUrl(doc.sourceStorageId);
     return { ...doc, sourceUrl };
+  },
+});
+
+export const getStorageUsage = query({
+  handler: async (ctx) => {
+    const userId = await requireAuth(ctx);
+    const docs = await ctx.db
+      .query("images")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .collect();
+
+    let usedBytes = 0;
+    for (const doc of docs) {
+      const metadata = await ctx.db.system.get("_storage", doc.sourceStorageId);
+      if (metadata) usedBytes += metadata.size;
+    }
+
+    return {
+      usedBytes,
+      imageCount: docs.length,
+      imageLimit: GALLERY_IMAGE_LIMIT,
+      storageLimitBytes: GALLERY_STORAGE_LIMIT_BYTES,
+    };
   },
 });
 
@@ -88,7 +110,7 @@ export const create = mutation({
 
     const metadata = await ctx.db.system.get("_storage", args.storageId);
     if (!metadata) throw new Error("File not found in storage");
-    if (metadata.size > sizeLimit) throw new Error("File exceeds 5MB limit");
+    if (metadata.size > FILE_SIZE_LIMIT_BYTES) throw new Error("File exceeds 5MB limit");
 
     const imageId = ctx.db.insert("images", {
       userId,

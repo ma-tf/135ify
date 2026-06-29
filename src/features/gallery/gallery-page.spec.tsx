@@ -77,10 +77,12 @@ describe("GalleryPage", () => {
     expect(screen.getByText(mockDoc2.fileName)).toBeDefined();
 
     const expectedDate =
-      new Date(mockDoc._creationTime).toLocaleDateString("en-GB", {
+      new Date(mockDoc._creationTime).toLocaleString("en-GB", {
         year: "numeric",
         month: "short",
         day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
         timeZone: "UTC",
       }) + " UTC";
     expect(screen.getByText(expectedDate)).toBeDefined();
@@ -106,7 +108,7 @@ describe("GalleryPage", () => {
     const { container } = render(<GalleryPage />);
 
     const skeletons = container.querySelectorAll(".animate-pulse");
-    expect(skeletons.length).toBe(8);
+    expect(skeletons.length).toBe(12);
   });
 
   it("shows error message when loading fails", () => {
