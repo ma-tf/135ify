@@ -1,0 +1,58 @@
+import { setupTests } from "@test-utils/setup.spec";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vite-plus/test";
+
+setupTests();
+
+import { UsageBar, UsageBarSkeleton, type StorageUsage } from "./gallery-usage-bar";
+
+const fullData: StorageUsage = {
+  usedBytes: 5 * 1024 * 1024,
+  imageCount: 3,
+  imageLimit: 10,
+  storageLimitBytes: 50 * 1024 * 1024,
+};
+
+describe("UsageBarSkeleton", () => {
+  it("renders 4 skeleton elements", () => {
+    const { container } = render(<UsageBarSkeleton />);
+    const skeletons = container.querySelectorAll(".animate-pulse");
+    expect(skeletons).toHaveLength(4);
+  });
+});
+
+describe("UsageBar", () => {
+  it("renders Images and Storage labels", () => {
+    render(<UsageBar data={fullData} />);
+    expect(screen.getByText("Images")).toBeDefined();
+    expect(screen.getByText("Storage")).toBeDefined();
+  });
+
+  it("shows correct image count", () => {
+    render(<UsageBar data={fullData} />);
+    expect(screen.getByText("3 of 10")).toBeDefined();
+  });
+
+  it("shows correct storage text", () => {
+    render(<UsageBar data={fullData} />);
+    expect(screen.getByText("5MB of 50MB")).toBeDefined();
+  });
+
+  it("progress bar at 0%", () => {
+    const { container } = render(<UsageBar data={{ ...fullData, imageCount: 0 }} />);
+    const bars = container.querySelectorAll("[style*='width']");
+    expect(bars[0].getAttribute("style")).toBe("width: 0%;");
+  });
+
+  it("progress bar at 50%", () => {
+    const { container } = render(<UsageBar data={{ ...fullData, imageCount: 5 }} />);
+    const bars = container.querySelectorAll("[style*='width']");
+    expect(bars[0].getAttribute("style")).toBe("width: 50%;");
+  });
+
+  it("progress bar caps at 100% when over limit", () => {
+    const { container } = render(<UsageBar data={{ ...fullData, imageCount: 20 }} />);
+    const bars = container.querySelectorAll("[style*='width']");
+    expect(bars[0].getAttribute("style")).toBe("width: 100%;");
+  });
+});
