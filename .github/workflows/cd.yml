@@ -1,0 +1,48 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'master'
+    environment: github-pages
+    permissions:
+      id-token: write
+      pages: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-staging
+          path: dist
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v5
+
+  deploy-prod:
+    if: github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-prod
+          path: dist
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - run: npx convex deploy
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+      - run: npx netlify-cli deploy --dir=./dist --prod
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
