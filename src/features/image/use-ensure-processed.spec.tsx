@@ -40,6 +40,7 @@ describe("EnsureProcessedOrchestrator", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(processToBlobUrl).mockResolvedValue("blob:done");
+    vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
