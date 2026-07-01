@@ -9,12 +9,12 @@ jobs:
   deploy-staging:
     runs-on: ubuntu-latest
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'master'
-    environment: github-pages
+    environment: staging
     permissions:
       id-token: write
       pages: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: dist-staging
           path: dist
@@ -28,12 +28,13 @@ jobs:
 
   deploy-prod:
     if: github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'v')
+    environment: production
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: dist-prod
           path: dist
