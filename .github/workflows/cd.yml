@@ -53,7 +53,7 @@ jobs:
       - run: vpx convex deploy
         env:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
-      - run: vpx netlify-cli deploy --dir=./dist --prod --no-build
+      - run: vpx netlify deploy --dir=./dist --prod --no-build
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
