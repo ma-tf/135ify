@@ -6,7 +6,7 @@ overrides:
 allowBuilds:
   "@parcel/watcher": true
   esbuild: true
-  msgpackr-extract: false
+  msgpackr-extract: true
   netlify-cli: true
   sharp: true
   unix-dgram: true
