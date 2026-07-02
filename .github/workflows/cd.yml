@@ -43,7 +43,7 @@ jobs:
       - uses: voidzero-dev/setup-vp@v1
         with:
           node-version-file: .node-version
-      - run: vp i
+      - run: vp i --frozen-lockfile
       - uses: actions/download-artifact@v8
         with:
           name: dist-prod

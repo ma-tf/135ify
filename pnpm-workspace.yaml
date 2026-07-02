@@ -13,6 +13,7 @@ allowBuilds:
 minimumReleaseAge: 1440
 trustPolicy: no-downgrade
 trustPolicyExclude:
+  - semver@6.3.1
   - chokidar@4.0.3
   - "@netlify/edge-bundler@14.10.3"
   - "@netlify/zip-it-and-ship-it@14.7.1"
