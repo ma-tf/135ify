@@ -29,10 +29,10 @@ jobs:
     if: github.ref == 'refs/heads/master'
     environment: staging
     env:
-      VITE_BASE_PATH: ${{ vars.BASE_PATH }}
-      VITE_FILE_SIZE_LIMIT_MB: ${{ vars.FILE_SIZE_LIMIT_MB }}
+      VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH }}
+      VITE_FILE_SIZE_LIMIT_MB: ${{ vars.VITE_FILE_SIZE_LIMIT_MB }}
       VITE_CONVEX_URL: ${{ vars.CONVEX_URL }}
-      VITE_FEATURE_SIGN_IN: ${{ vars.FEATURE_SIGN_IN }}
+      VITE_FEATURE_SIGN_IN: ${{ vars.VITE_FEATURE_SIGN_IN }}
     steps:
       - uses: actions/checkout@v6
       - uses: voidzero-dev/setup-vp@v1
