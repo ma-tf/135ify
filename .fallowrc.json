@@ -31,8 +31,10 @@
     "@convex/_generated",
     "class-variance-authority",
     "jose",
+    "netlify-cli",
     "next-themes",
     "radix-ui",
+    "react-doctor",
     "shadcn",
     "vaul",
     "zod"

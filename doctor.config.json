@@ -1,7 +1,7 @@
 {
   "$schema": "https://react.doctor/schema/config.json",
   "ignore": {
-    "files": ["convex/_generated/**", "src/components/ui/**"],
+    "files": ["convex/_generated/**", "src/components/ui/**", "generateKeys.mjs"],
     "overrides": [
       {
         "files": ["convex/**.ts"],
