@@ -111,16 +111,16 @@ describe("AiKeyDialog", () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
-  it("Clear removes the key and shows a success toast", () => {
+  it("Clear removes the key and resets the input", () => {
     useAiProviderStore.getState().setApiKey("sk-to-clear");
-    const { onOpenChange } = renderDialog();
+    renderDialog();
 
     const clearButton = screen.getByText("Clear");
     fireEvent.click(clearButton);
 
     expect(useAiProviderStore.getState().apiKey).toBe("");
-    expect(toast.success).toHaveBeenCalledWith("API key removed");
-    expect(onOpenChange).toHaveBeenCalledWith(false);
+    const input = screen.getByLabelText("API Key") as HTMLInputElement;
+    expect(input.value).toBe("");
   });
 
   it("Cancel closes the dialog without making changes", () => {
