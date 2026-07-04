@@ -27,4 +27,12 @@ export default defineSchema({
       grainIntensity: v.number(),
     }),
   }).index("by_userId", ["userId"]),
+  aiTakes: defineTable({
+    userId: v.id("users"),
+    sourceImageId: v.id("images"),
+    previewStorageId: v.id("_storage"),
+    fullStorageId: v.id("_storage"),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_sourceImageId", ["sourceImageId"]),
 });

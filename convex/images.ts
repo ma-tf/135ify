@@ -1,10 +1,12 @@
-import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 
 import type { Doc } from "./_generated/dataModel";
 
-import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
+import { api } from "./_generated/api";
+import { mutation, query } from "./_generated/server";
 import { FILE_SIZE_LIMIT_BYTES, GALLERY_IMAGE_LIMIT, GALLERY_STORAGE_LIMIT_BYTES } from "./config";
+import { requireAuth } from "./lib";
+export { generateUploadUrl } from "./lib";
 
 const boundedLimit = 100;
 
@@ -17,20 +19,6 @@ const DEFAULT_PARAMS = {
   vignetteFeather: 0,
   grainIntensity: 0,
 } as const;
-
-async function requireAuth(ctx: QueryCtx | MutationCtx) {
-  const userId = await getAuthUserId(ctx);
-  if (!userId) throw new Error("Unauthorized");
-  return userId;
-}
-
-export const generateUploadUrl = mutation({
-  args: {},
-  handler: async (ctx) => {
-    await requireAuth(ctx);
-    return await ctx.storage.generateUploadUrl();
-  },
-});
 
 export const getById = query({
   args: { imageId: v.id("images") },
@@ -153,6 +141,7 @@ export const deleteImage = mutation({
     const doc = await ctx.db.get("images", args.imageId);
     if (!doc) throw new Error("Image not found");
     if (doc.userId !== userId) throw new Error("Unauthorized");
+    await ctx.runMutation(api.aiTakes.deleteBySourceImage, { sourceImageId: args.imageId });
     await ctx.storage.delete(doc.sourceStorageId);
     await ctx.db.delete("images", args.imageId);
   },
