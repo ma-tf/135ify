@@ -27,7 +27,7 @@ vi.mock("@components/user-menu", () => ({
 
 vi.mock("@config", () => ({
   FEATURE_SIGN_IN: true,
-  BASE_PATH: "/",
+  BASE_PATH: "",
 }));
 
 vi.mock("@tanstack/react-router", () => ({

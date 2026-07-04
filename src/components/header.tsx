@@ -1,7 +1,7 @@
 import { ModeToggle } from "@components/mode-toggle";
 import { SignInButtons } from "@components/sign-in-dialog";
 import { UserMenu } from "@components/user-menu";
-import { FEATURE_SIGN_IN } from "@config";
+import { BASE_PATH, FEATURE_SIGN_IN } from "@config";
 import { useAuth } from "@hooks/use-auth";
 import { Link } from "@tanstack/react-router";
 
@@ -15,12 +15,12 @@ export function Header() {
       <div className="flex justify-start">
         <Link to="/">
           <img
-            src="/assets/icon-d.png"
+            src={`${BASE_PATH}/assets/icon-d.png`}
             alt="135ify"
             className="hidden h-6 w-6 transition-all hover:brightness-125 dark:block"
           />
           <img
-            src="/assets/icon-l.png"
+            src={`${BASE_PATH}/assets/icon-l.png`}
             alt="135ify"
             className="h-6 w-6 transition-all hover:brightness-125 dark:hidden"
           />

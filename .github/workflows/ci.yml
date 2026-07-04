@@ -53,7 +53,7 @@ jobs:
     environment: production
     env:
       VITE_CONVEX_URL: ${{ vars.CONVEX_URL }}
-      VITE_BASE_PATH: ${{ vars.BASE_PATH }}
+      VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH }}
       VITE_GALLERY_IMAGE_LIMIT: "10"
       VITE_FILE_SIZE_LIMIT_MB: "0.5"
       VITE_FEATURE_SIGN_IN: ${{ vars.FEATURE_SIGN_IN }}

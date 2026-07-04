@@ -16,7 +16,7 @@ if (import.meta.env.DEV) {
 // Set up a Router instance
 const router = createRouter({
   routeTree,
-  basepath: BASE_PATH,
+  basepath: BASE_PATH || "/",
   defaultPreload: "intent",
   defaultStaleTime: 5000,
   scrollRestoration: true,
