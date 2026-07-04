@@ -22,13 +22,25 @@ the camera pressure plate back into the red-sensitive layer. Controlled by **int
 **spread** (scalar: how far the glow bleeds), and **threshold** (scalar: minimum luminance required to trigger the
 glow).
 
-**Render**: The output image after processing. Displayed as a preview in the browser and available for download.
+**Render**: The output image after processing. A Source Image has one Manual Render and zero-to-many AI Takes (both are
+Renders). Displayed as a preview in the browser and available for download.
 
 **Preview Render**: A Render downscaled to 1200px on its longest dimension for display in the Film Strip. Generated
 lazily after each parameter change.
 
 **Full Render**: A Render at the Source Image's original resolution. Generated on demand (download or magnifying glass
 inspection).
+
+**Manual Render**: The existing deterministic Render produced by Halation → Film Tint → Vignette → Grain. A Source Image
+has exactly one Manual Render, distinct from any AI Takes. _Avoid_: Default render, manual output
+
+**AI Take**: A single AI-generated film grain rendering of a Source Image, produced by GPT-4o via a one-button action in
+the Edit View. Immutable — once generated, it is not re-processable. Stored as Preview and Full Render in Convex file
+storage. A Source Image can have multiple AI Takes, each in a separate Convex table. _Avoid_: AI Render, Generated
+Render
+
+**Takes** (`/takes`): The top-level route showing all AI Takes across all Source Images, displayed as rows grouped by
+Source Image. Accessible from the root navigation alongside the Gallery. _Avoid_: Generated, AI Renders, Contact Sheet
 
 **Process** (verb): The act of transforming a Source Image into a Render by applying Halation, Film Tint, Vignette, and
 Grain.
@@ -70,7 +82,8 @@ parameters (ProcessParams). Returned by the Storage Facade. Does not include eph
 _Avoid_: FileWithState (use FileRecord for storage-layer concerns)
 
 **RenderState**: Ephemeral client-side processing state for a Source Image: render URL, processing flag, and error
-message. Not persisted server-side. Managed by a separate Zustand store.
+message. Applied per AI Take as well — each AI Take has its own RenderState. Not persisted server-side. Managed by a
+separate Zustand store.
 
 _Avoid_: Mixing into FileRecord or Storage Facade
 
@@ -78,6 +91,10 @@ _Avoid_: Mixing into FileRecord or Storage Facade
 to. Provides file CRUD (add, remove) and parameter updates. Does not manage render state.
 
 _Aavoid_: StorageProvider, storage layer
+
+**AI Provider**: Abstraction wrapping the model API used for AI Take generation. In this epic, the provider reads the
+user's client-side OpenAI API key from localStorage for a BYO-key flow. Future: server-side platform key via
+subscription. _Avoid_: AI service, model service
 
 ## Relationships
 
@@ -94,6 +111,12 @@ _Aavoid_: StorageProvider, storage layer
 - A **FileRecord** is composed with a **RenderState** at the UI layer to produce the full view model for a Source Image.
 - The **Storage Facade** is independent of render state management; composition happens in FileProvider.
 - The **Film Strip** is always rendered in the root layout. The **Edit View** opens as a Sheet overlay on top of it.
+- A **Source Image** can have many **AI Takes**. Deleting a Source Image cascade-deletes its AI Takes.
+- **AI Takes** are read/written via direct Convex queries and mutations (no Storage Facade involvement).
+- **AI Takes** are generated fire-and-forget: the Convex action always completes regardless of navigation.
+- AI generation uses a fixed prompt. The user has no prompt input.
+- On completion, a success toast and a notification dot on the **Takes** nav link signal the result.
+- If the generated image exceeds the user's storage quota, a popup offers immediate download before discard.
 
 ## Example dialogue
 
