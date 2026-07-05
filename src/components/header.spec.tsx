@@ -48,12 +48,13 @@ describe("Header", () => {
     expect(screen.queryByRole("link", { name: /gallery/i })).toBeNull();
   });
 
-  it("shows both Film Strip and Gallery links when authenticated", () => {
+  it("shows Film Strip, Gallery, and Takes links when authenticated", () => {
     mockUseConvexAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
 
     render(<Header />);
 
     expect(screen.getByRole("link", { name: /film strip/i })).toBeDefined();
     expect(screen.getByRole("link", { name: /gallery/i })).toBeDefined();
+    expect(screen.getByRole("link", { name: /takes/i })).toBeDefined();
   });
 });

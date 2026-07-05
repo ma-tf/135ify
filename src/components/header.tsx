@@ -54,6 +54,19 @@ export function Header() {
               </span>
             )}
           </Link>
+          <Link to="/takes">
+            {({ isActive }) => (
+              <span
+                className={
+                  isActive
+                    ? "text-sm font-medium text-foreground"
+                    : "text-sm text-muted-foreground transition-colors hover:text-foreground"
+                }
+              >
+                Takes
+              </span>
+            )}
+          </Link>
         </nav>
       )}
       <div className="flex items-center justify-end gap-2">

@@ -39,7 +39,7 @@ export function useSaveToGallery({ file, onSuccess }: { file: FileRecord; onSucc
       removeFile(file.id);
 
       toast.success(
-        <span>
+        <span className="flex gap-1">
           Saved to gallery.
           <Link
             to="/gallery/$imageId"

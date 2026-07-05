@@ -9,11 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TakesRouteImport } from './routes/takes'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TakesIndexRouteImport } from './routes/takes.index'
 import { Route as GalleryIndexRouteImport } from './routes/gallery.index'
 import { Route as GalleryImageIdRouteImport } from './routes/gallery.$imageId'
 
+const TakesRoute = TakesRouteImport.update({
+  id: '/takes',
+  path: '/takes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GalleryRoute = GalleryRouteImport.update({
   id: '/gallery',
   path: '/gallery',
@@ -23,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const TakesIndexRoute = TakesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TakesRoute,
 } as any)
 const GalleryIndexRoute = GalleryIndexRouteImport.update({
   id: '/',
@@ -38,36 +50,57 @@ const GalleryImageIdRoute = GalleryImageIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/gallery': typeof GalleryRouteWithChildren
+  '/takes': typeof TakesRouteWithChildren
   '/gallery/$imageId': typeof GalleryImageIdRoute
   '/gallery/': typeof GalleryIndexRoute
+  '/takes/': typeof TakesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/gallery/$imageId': typeof GalleryImageIdRoute
   '/gallery': typeof GalleryIndexRoute
+  '/takes': typeof TakesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/gallery': typeof GalleryRouteWithChildren
+  '/takes': typeof TakesRouteWithChildren
   '/gallery/$imageId': typeof GalleryImageIdRoute
   '/gallery/': typeof GalleryIndexRoute
+  '/takes/': typeof TakesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/gallery' | '/gallery/$imageId' | '/gallery/'
+  fullPaths:
+    '/' | '/gallery' | '/takes' | '/gallery/$imageId' | '/gallery/' | '/takes/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/gallery/$imageId' | '/gallery'
-  id: '__root__' | '/' | '/gallery' | '/gallery/$imageId' | '/gallery/'
+  to: '/' | '/gallery/$imageId' | '/gallery' | '/takes'
+  id:
+    | '__root__'
+    | '/'
+    | '/gallery'
+    | '/takes'
+    | '/gallery/$imageId'
+    | '/gallery/'
+    | '/takes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   GalleryRoute: typeof GalleryRouteWithChildren
+  TakesRoute: typeof TakesRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/takes': {
+      id: '/takes'
+      path: '/takes'
+      fullPath: '/takes'
+      preLoaderRoute: typeof TakesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gallery': {
       id: '/gallery'
       path: '/gallery'
@@ -81,6 +114,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/takes/': {
+      id: '/takes/'
+      path: '/'
+      fullPath: '/takes/'
+      preLoaderRoute: typeof TakesIndexRouteImport
+      parentRoute: typeof TakesRoute
     }
     '/gallery/': {
       id: '/gallery/'
@@ -112,9 +152,20 @@ const GalleryRouteChildren: GalleryRouteChildren = {
 const GalleryRouteWithChildren =
   GalleryRoute._addFileChildren(GalleryRouteChildren)
 
+interface TakesRouteChildren {
+  TakesIndexRoute: typeof TakesIndexRoute
+}
+
+const TakesRouteChildren: TakesRouteChildren = {
+  TakesIndexRoute: TakesIndexRoute,
+}
+
+const TakesRouteWithChildren = TakesRoute._addFileChildren(TakesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   GalleryRoute: GalleryRouteWithChildren,
+  TakesRoute: TakesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

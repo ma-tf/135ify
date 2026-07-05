@@ -1,7 +1,7 @@
-import { Skeleton } from "@components/ui/skeleton";
 import { api } from "@convex/_generated/api";
 import { GalleryCard } from "@features/gallery/gallery-card";
-import { UsageBar, UsageBarSkeleton } from "@features/gallery/gallery-usage-bar";
+import { GallerySkeleton } from "@features/gallery/gallery-skeleton";
+import { UsageBar } from "@features/gallery/gallery-usage-bar";
 import { useGalleryData } from "@features/gallery/use-gallery-data";
 import { EnsureProcessedOrchestrator } from "@features/image/use-ensure-processed";
 import { StorageContext } from "@providers/storage-context";
@@ -17,16 +17,7 @@ export function GalleryPage() {
   const usageData = storageResult.status === "success" ? storageResult.data : null;
 
   if (pending) {
-    return (
-      <div className="space-y-4 p-6">
-        <UsageBarSkeleton />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="aspect-square rounded-lg" />
-          ))}
-        </div>
-      </div>
-    );
+    return <GallerySkeleton />;
   }
 
   if (errored) {

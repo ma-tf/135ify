@@ -1,19 +1,12 @@
 import type { FileRecord } from "@stores/file-store-types";
 
 import { Skeleton } from "@components/ui/skeleton";
+import { formatTimestamp } from "@lib/utils";
 import { useNavigate } from "@tanstack/react-router";
 
 export function GalleryCard({ image }: { image: FileRecord }) {
   const navigate = useNavigate();
-  const formattedDate =
-    new Date(image.createdAt).toLocaleString("en-GB", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "UTC",
-    }) + " UTC";
+  const formattedDate = formatTimestamp(image.createdAt);
 
   return (
     <button
