@@ -19,8 +19,8 @@ trustPolicyExclude:
   - "@netlify/zip-it-and-ship-it@14.7.1"
   - "@netlify/serverless-functions-api@2.16.0"
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@0.2.1
-  vite-plus: 0.2.1
+  vite: npm:@voidzero-dev/vite-plus-core@0.2.2
+  vite-plus: 0.2.2
 peerDependencyRules:
   allowAny:
     - vite
