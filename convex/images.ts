@@ -45,9 +45,21 @@ export const getStorageUsage = query({
       if (metadata) usedBytes += metadata.size;
     }
 
+    const takes = await ctx.db
+      .query("aiTakes")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .collect();
+
+    for (const doc of takes) {
+      const preview = await ctx.db.system.get("_storage", doc.previewStorageId);
+      if (preview) usedBytes += preview.size;
+      const full = await ctx.db.system.get("_storage", doc.fullStorageId);
+      if (full) usedBytes += full.size;
+    }
+
     return {
       usedBytes,
-      imageCount: docs.length,
+      imageCount: docs.length + takes.length,
       imageLimit: GALLERY_IMAGE_LIMIT,
       storageLimitBytes: GALLERY_STORAGE_LIMIT_BYTES,
     };

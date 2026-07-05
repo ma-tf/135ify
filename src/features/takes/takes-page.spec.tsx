@@ -24,6 +24,13 @@ vi.mock("convex/react", () => ({
 
 setupTests();
 
+const mockStorageUsage = {
+  usedBytes: 5 * 1024 * 1024,
+  imageCount: 2,
+  imageLimit: 10,
+  storageLimitBytes: 50 * 1024 * 1024,
+};
+
 function mockTake(
   overrides: Partial<
     Doc<"aiTakes"> & {
@@ -66,8 +73,12 @@ describe("TakesPage", () => {
     vi.useRealTimers();
   });
 
-  it("shows empty state message when user has no AI Takes", async () => {
-    mockUseQuery.mockReturnValue({ status: "success", data: [] });
+  it("shows empty state message and CTA link when user has no AI Takes", async () => {
+    mockUseQuery.mockReturnValueOnce({ status: "success", data: [] });
+    mockUseQuery.mockReturnValueOnce({
+      status: "success",
+      data: { usedBytes: 0, imageCount: 0, imageLimit: 10, storageLimitBytes: 50 * 1024 * 1024 },
+    });
 
     render(<TakesPage />);
     act(() => {
@@ -75,6 +86,7 @@ describe("TakesPage", () => {
     });
 
     expect(screen.getByText(/no ai takes yet/i)).toBeDefined();
+    expect(screen.getByRole("link", { name: /process.*first image/i })).toBeDefined();
   });
 
   it("shows skeleton placeholders while loading", () => {
@@ -100,6 +112,21 @@ describe("TakesPage", () => {
     expect(screen.getByText(/failed to load/i)).toBeDefined();
   });
 
+  it("renders usage bar with count when storage is loaded", async () => {
+    const take = mockTake();
+
+    mockUseQuery.mockReturnValueOnce({ status: "success", data: [take] });
+    mockUseQuery.mockReturnValueOnce({ status: "success", data: mockStorageUsage });
+
+    render(<TakesPage />);
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+
+    expect(screen.getByText("Images")).toBeDefined();
+    expect(screen.getByText("2 of 10")).toBeDefined();
+  });
+
   it("renders takes grouped by source image with section headers and rows", async () => {
     const take1 = mockTake();
     const take2 = mockTake({
@@ -107,7 +134,8 @@ describe("TakesPage", () => {
       _creationTime: Date.UTC(2026, 5, 17, 10, 30, 0),
     });
 
-    mockUseQuery.mockReturnValue({ status: "success", data: [take1, take2] });
+    mockUseQuery.mockReturnValueOnce({ status: "success", data: [take1, take2] });
+    mockUseQuery.mockReturnValueOnce({ status: "success", data: mockStorageUsage });
 
     render(<TakesPage />);
     act(() => {
@@ -134,7 +162,8 @@ describe("TakesPage", () => {
       sourceFileName: "another-shot.png",
     });
 
-    mockUseQuery.mockReturnValue({ status: "success", data: [take1, take2] });
+    mockUseQuery.mockReturnValueOnce({ status: "success", data: [take1, take2] });
+    mockUseQuery.mockReturnValueOnce({ status: "success", data: mockStorageUsage });
 
     render(<TakesPage />);
     act(() => {
@@ -154,7 +183,8 @@ describe("TakesPage", () => {
       _creationTime: Date.UTC(2026, 5, 17, 10, 30, 0),
     });
 
-    mockUseQuery.mockReturnValue({ status: "success", data: [take1, take2] });
+    mockUseQuery.mockReturnValueOnce({ status: "success", data: [take1, take2] });
+    mockUseQuery.mockReturnValueOnce({ status: "success", data: mockStorageUsage });
 
     render(<TakesPage />);
     act(() => {
@@ -172,7 +202,8 @@ describe("TakesPage", () => {
   it("falls back to Unknown when sourceFileName is null", async () => {
     const take = mockTake({ sourceFileName: null });
 
-    mockUseQuery.mockReturnValue({ status: "success", data: [take] });
+    mockUseQuery.mockReturnValueOnce({ status: "success", data: [take] });
+    mockUseQuery.mockReturnValueOnce({ status: "success", data: mockStorageUsage });
 
     render(<TakesPage />);
     act(() => {
@@ -186,7 +217,8 @@ describe("TakesPage", () => {
   it("shows skeleton placeholder when previewUrl is null", async () => {
     const take = mockTake({ previewUrl: null });
 
-    mockUseQuery.mockReturnValue({ status: "success", data: [take] });
+    mockUseQuery.mockReturnValueOnce({ status: "success", data: [take] });
+    mockUseQuery.mockReturnValueOnce({ status: "success", data: mockStorageUsage });
 
     const { container } = render(<TakesPage />);
     act(() => {

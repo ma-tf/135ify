@@ -1,7 +1,9 @@
 import { Skeleton } from "@components/ui/skeleton";
 import { api } from "@convex/_generated/api";
+import { UsageBar, UsageBarSkeleton } from "@features/gallery/gallery-usage-bar";
 import { TakesSkeleton } from "@features/takes/takes-skeleton";
 import { formatTimestamp } from "@lib/utils";
+import { Link } from "@tanstack/react-router";
 import { useQuery_experimental as useQuery } from "convex/react";
 
 interface TakeSection {
@@ -36,15 +38,20 @@ function groupBySourceImage(takes: TakeSection["takes"]): TakeSection[] {
 
 export function TakesPage() {
   const result = useQuery({ query: api.aiTakes.listByUser, args: {} });
+  const storageResult = useQuery({ query: api.images.getStorageUsage, args: {} });
+
+  const pending = result.status === "pending";
+  const errored = result.status === "error" || storageResult.status === "error";
+  const usageData = storageResult.status === "success" ? storageResult.data : null;
 
   const takes = result.status === "success" ? result.data : null;
   const groups = takes ? groupBySourceImage(takes) : [];
 
-  if (result.status === "pending") {
+  if (pending) {
     return <TakesSkeleton />;
   }
 
-  if (result.status === "error") {
+  if (errored) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-12">
         <p className="text-destructive">Failed to load AI Takes</p>
@@ -56,12 +63,16 @@ export function TakesPage() {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-12">
         <p className="text-muted-foreground">No AI Takes yet.</p>
+        <Link to="/" className="text-primary hover:underline">
+          Process your first image
+        </Link>
       </div>
     );
   }
 
   return (
     <div className="space-y-8 p-6">
+      {usageData ? <UsageBar data={usageData} /> : <UsageBarSkeleton />}
       {groups.map((group) => (
         <section key={group.sourceImageId}>
           <h2 className="mb-3 text-sm font-medium text-muted-foreground">
