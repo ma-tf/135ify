@@ -36,6 +36,7 @@
     "radix-ui",
     "react-doctor",
     "shadcn",
+    "sharp",
     "vaul",
     "zod"
   ]

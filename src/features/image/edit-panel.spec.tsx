@@ -1,4 +1,4 @@
-import { EditPanel } from "@features/image/controls-panel";
+import { EditPanel } from "@features/image/edit-panel";
 import { EditViewCloseProvider } from "@features/image/edit-view-close-context";
 import { EditViewProvider } from "@features/image/edit-view-context";
 import { FileProvider } from "@providers/file-context";
@@ -10,6 +10,22 @@ import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
+const {
+  mockUseAuth,
+  mockUseLocation,
+  mockUseAction,
+  mockUseAiProviderStore,
+  mockConfig,
+  mockToast,
+} = vi.hoisted(() => ({
+  mockUseAuth: vi.fn(() => ({ isAuthenticated: false, isLoading: false })),
+  mockUseLocation: vi.fn(() => ({ pathname: "/" })),
+  mockUseAction: vi.fn(),
+  mockUseAiProviderStore: vi.fn(() => ({ apiKey: "" })),
+  mockConfig: { FEATURE_AI_GRAIN: true },
+  mockToast: { success: vi.fn(), error: vi.fn() },
+}));
+
 vi.mock("@features/image/use-file-processing", () => ({
   useFileProcessing: vi.fn(() => ({
     params: TEST_FILE_RECORD_PHOTO.params,
@@ -19,7 +35,7 @@ vi.mock("@features/image/use-file-processing", () => ({
 }));
 
 vi.mock("@tanstack/react-router", () => ({
-  useLocation: () => ({ pathname: "/" }),
+  useLocation: mockUseLocation,
   Link: ({ to, children, className }: any) => (
     <a href={to} className={className}>
       {children}
@@ -30,10 +46,11 @@ vi.mock("@tanstack/react-router", () => ({
 vi.mock("convex/react", () => ({
   useQuery_experimental: vi.fn(),
   useMutation: vi.fn(),
+  useAction: mockUseAction,
 }));
 
 vi.mock("@hooks/use-auth", () => ({
-  useAuth: () => ({ isAuthenticated: false, isLoading: false }),
+  useAuth: mockUseAuth,
 }));
 
 vi.mock("@features/gallery/use-save-to-gallery", () => ({
@@ -43,6 +60,32 @@ vi.mock("@features/gallery/use-save-to-gallery", () => ({
 vi.mock("@providers/file-context", () => ({
   FileProvider: ({ children }: any) => <>{children}</>,
   useFile: () => TEST_FILE_RECORD_PHOTO,
+}));
+
+vi.mock("@config", () => ({
+  get FEATURE_AI_GRAIN() {
+    return mockConfig.FEATURE_AI_GRAIN;
+  },
+  GALLERY_IMAGE_LIMIT: 10,
+  FILE_SIZE_LIMIT_BYTES: 5 * 1024 * 1024,
+  GRAIN_URL: "",
+  BASE_PATH: "",
+}));
+
+vi.mock("sonner", () => ({
+  toast: mockToast,
+}));
+
+vi.mock("@stores/ai-provider-store", () => ({
+  useAiProviderStore: mockUseAiProviderStore,
+}));
+
+vi.mock("@components/ai-key-dialog", () => ({
+  AiKeyDialog: () => <div data-testid="ai-key-dialog" />,
+}));
+
+vi.mock("@components/over-quota-dialog", () => ({
+  OverQuotaDialog: () => <div data-testid="over-quota-dialog" />,
 }));
 
 import { useFileProcessing } from "@features/image/use-file-processing";

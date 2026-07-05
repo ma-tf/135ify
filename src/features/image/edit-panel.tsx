@@ -1,24 +1,13 @@
 import type { ProcessParams } from "@stores/file-store-types";
 
-import { Button } from "@components/ui/button";
-import { Spinner } from "@components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@components/ui/toggle-group";
-import { GALLERY_IMAGE_LIMIT } from "@config";
-import { api } from "@convex/_generated/api";
-import { useSaveToGallery } from "@features/gallery/use-save-to-gallery";
-import { useEditViewClose } from "@features/image/edit-view-close-context";
+import { EditPanelButtons } from "@features/image/edit-panel-buttons";
 import { useEditView } from "@features/image/edit-view-context";
 import { FilmSelector } from "@features/image/film-selector";
 import { ParameterSlider } from "@features/image/parameter-slider";
 import { useFileProcessing } from "@features/image/use-file-processing";
-import { useAuth } from "@hooks/use-auth";
 import { cn } from "@lib/utils";
 import { useFile } from "@providers/file-context";
-import { useStorage } from "@providers/storage-context";
-import { DEFAULT_PARAMS } from "@stores/file-store-types";
-import { useLocation } from "@tanstack/react-router";
-import { useQuery_experimental as useQuery } from "convex/react";
-import { DownloadIcon, ImagePlusIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
 
 function HalationControls({ setParam }: { setParam: (partial: Partial<ProcessParams>) => void }) {
   const { params } = useFile();
@@ -107,76 +96,7 @@ function GrainControls({ setParam }: { setParam: (partial: Partial<ProcessParams
   );
 }
 
-function SaveToGalleryButton() {
-  const { isAuthenticated } = useAuth();
-  const file = useFile();
-  const onClose = useEditViewClose();
-  const location = useLocation();
-  const gallery = useQuery({ query: api.images.listByUser, args: {} });
-  const { save, isSaving } = useSaveToGallery({ file, onSuccess: onClose });
-
-  if (location.pathname.startsWith("/gallery")) return null;
-  if (!isAuthenticated) return null;
-
-  const count = gallery?.status === "success" ? gallery.data.length : 0;
-  if (count >= GALLERY_IMAGE_LIMIT) return null;
-
-  return (
-    <Button disabled={isSaving || file.isProcessing} size="sm" className="gap-1.5" onClick={save}>
-      {isSaving ? <Spinner className="size-3.5" /> : <ImagePlusIcon className="size-3.5" />}
-      Save to Gallery
-    </Button>
-  );
-}
-
-function EditPanelButtons({
-  setParam,
-  downloadFullSize,
-}: {
-  setParam: (partial: Partial<ProcessParams>) => void;
-  downloadFullSize: () => Promise<void>;
-}) {
-  const file = useFile();
-  const { removeFile } = useStorage();
-  const onClose = useEditViewClose();
-
-  const handleReset = () => {
-    setParam(DEFAULT_PARAMS);
-  };
-
-  const handleDelete = () => {
-    removeFile(file.id);
-    onClose();
-  };
-
-  const handleDownload = async () => {
-    await downloadFullSize();
-  };
-
-  return (
-    <div className="flex flex-col gap-2">
-      <SaveToGalleryButton />
-      <Button variant="outline" size="sm" className="gap-1.5" onClick={handleReset}>
-        <RotateCcwIcon className="size-3.5" />
-        Reset
-      </Button>
-      <Button disabled={file.isProcessing} size="sm" className="gap-1.5" onClick={handleDownload}>
-        {file.isProcessing ? (
-          <Spinner className="size-3.5" />
-        ) : (
-          <DownloadIcon className="size-3.5" />
-        )}
-        Download
-      </Button>
-      <Button variant="destructive" size="sm" className="gap-1.5" onClick={handleDelete}>
-        <Trash2Icon className="size-3.5" />
-        Delete
-      </Button>
-    </div>
-  );
-}
-
-export function EditPanel() {
+export function EditPanel({ context = "upload" }: { context?: "upload" | "gallery" }) {
   const file = useFile();
   const { showOriginal, setShowOriginal } = useEditView();
   const { setParam, downloadFullSize } = useFileProcessing();
@@ -221,7 +141,7 @@ export function EditPanel() {
       <VignetteControls setParam={setParam} />
       <GrainControls setParam={setParam} />
 
-      <EditPanelButtons setParam={setParam} downloadFullSize={downloadFullSize} />
+      <EditPanelButtons context={context} setParam={setParam} downloadFullSize={downloadFullSize} />
     </div>
   );
 }

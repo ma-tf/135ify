@@ -9,8 +9,12 @@ import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-vi.mock("@features/image/controls-panel", () => ({
+vi.mock("@features/image/edit-panel", () => ({
   EditPanel: () => <div data-testid="edit-panel" />,
+}));
+
+vi.mock("@tanstack/react-router", () => ({
+  useLocation: () => ({ pathname: "/" }),
 }));
 
 vi.mock("@hooks/use-mobile", () => ({
