@@ -1,10 +1,14 @@
-import { Skeleton } from "@components/ui/skeleton";
+import type { Id } from "@convex/_generated/dataModel";
+
 import { api } from "@convex/_generated/api";
 import { UsageBar, UsageBarSkeleton } from "@features/gallery/gallery-usage-bar";
+import { TakeRow } from "@features/takes/take-row";
 import { TakesSkeleton } from "@features/takes/takes-skeleton";
-import { formatTimestamp } from "@lib/utils";
+import { useTakesNotificationStore } from "@stores/takes-notification-store";
 import { Link } from "@tanstack/react-router";
-import { useQuery_experimental as useQuery } from "convex/react";
+import { useMutation, useQuery_experimental as useQuery } from "convex/react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface TakeSection {
   sourceImageId: string;
@@ -40,13 +44,35 @@ function groupBySourceImage(takes: TakeSection["takes"]): TakeSection[] {
 export function TakesPage() {
   const result = useQuery({ query: api.aiTakes.listByUser, args: {} });
   const storageResult = useQuery({ query: api.images.getStorageUsage, args: {} });
+  const deleteTake = useMutation(api.aiTakes.deleteTake);
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
+  const markSeen = useTakesNotificationStore((s) => s.markSeen);
+
+  useEffect(() => {
+    markSeen();
+  }, [markSeen]);
 
   const pending = result.status === "pending";
   const errored = result.status === "error" || storageResult.status === "error";
   const usageData = storageResult.status === "success" ? storageResult.data : null;
 
   const takes = result.status === "success" ? result.data : null;
-  const groups = takes ? groupBySourceImage(takes) : [];
+  const activeTakes = takes ? takes.filter((t) => !deletedIds.has(t._id)) : null;
+  const groups = activeTakes ? groupBySourceImage(activeTakes) : [];
+
+  const handleDelete = async (takeId: string) => {
+    setDeletedIds((prev) => new Set(prev).add(takeId));
+    try {
+      await deleteTake({ takeId: takeId as Id<"aiTakes"> });
+    } catch {
+      setDeletedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(takeId);
+        return next;
+      });
+      toast.error("Failed to delete AI Take");
+    }
+  };
 
   if (pending) {
     return <TakesSkeleton />;
@@ -79,23 +105,12 @@ export function TakesPage() {
           <h2 className="mb-3 text-sm font-medium text-muted-foreground">{group.sourceFileName}</h2>
           <div className="space-y-2">
             {group.takes.map((take) => (
-              <div key={take._id} className="flex items-center gap-4 rounded-lg border p-3">
-                {take.previewUrl ? (
-                  <img
-                    src={take.previewUrl}
-                    alt={group.sourceFileName}
-                    className="h-16 w-16 rounded object-cover"
-                  />
-                ) : (
-                  <Skeleton className="h-16 w-16 rounded" />
-                )}
-                <div>
-                  <p className="text-sm font-medium">{group.sourceFileName}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatTimestamp(take._creationTime)}
-                  </p>
-                </div>
-              </div>
+              <TakeRow
+                key={take._id}
+                take={take}
+                sourceFileName={group.sourceFileName}
+                onDelete={handleDelete}
+              />
             ))}
           </div>
         </section>

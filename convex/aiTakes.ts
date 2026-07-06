@@ -5,6 +5,18 @@ import { requireAuth } from "./lib";
 
 const boundedLimit = 100;
 
+export const latestTimestamp = query({
+  handler: async (ctx) => {
+    const userId = await requireAuth(ctx);
+    const doc = await ctx.db
+      .query("aiTakes")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .order("desc")
+      .first();
+    return doc ? { _creationTime: doc._creationTime } : null;
+  },
+});
+
 export const create = mutation({
   args: {
     sourceImageId: v.optional(v.id("images")),
