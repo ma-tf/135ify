@@ -69,7 +69,7 @@ describe("Generate AI Film Grain button", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
     mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton context="gallery" />);
 
     expect(screen.getByText("Generate AI Film Grain")).toBeDefined();
   });
@@ -78,7 +78,7 @@ describe("Generate AI Film Grain button", () => {
     mockConfig.FEATURE_AI_GRAIN = false;
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton context="gallery" />);
 
     expect(screen.queryByText("Generate AI Film Grain")).toBeNull();
   });
@@ -86,7 +86,7 @@ describe("Generate AI Film Grain button", () => {
   it("does not render when not authenticated", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: false, isLoading: false });
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton context="gallery" />);
 
     expect(screen.queryByText("Generate AI Film Grain")).toBeNull();
   });
@@ -96,7 +96,7 @@ describe("Generate AI Film Grain button", () => {
     mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
     mockUseAction.mockReturnValue(vi.fn(() => new Promise(() => {})));
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton context="gallery" />);
 
     fireEvent.click(screen.getByText("Generate AI Film Grain"));
 
@@ -108,7 +108,7 @@ describe("Generate AI Film Grain button", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
     mockUseAiProviderStore.mockReturnValue({ apiKey: "" });
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton context="gallery" />);
 
     expect(screen.queryByTestId("ai-key-dialog")).toBeNull();
 
@@ -123,7 +123,7 @@ describe("Generate AI Film Grain button", () => {
     const mockGenerate = vi.fn().mockResolvedValue({ status: "stored", takeId: "take-1" });
     mockUseAction.mockReturnValue(mockGenerate);
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton context="gallery" />);
 
     fireEvent.click(screen.getByText("Generate AI Film Grain"));
 
@@ -141,7 +141,7 @@ describe("Generate AI Film Grain button", () => {
     const mockGenerate = vi.fn().mockResolvedValue({ status: "stored", takeId: "take-1" });
     mockUseAction.mockReturnValue(mockGenerate);
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton context="gallery" />);
 
     fireEvent.click(screen.getByText("Generate AI Film Grain"));
 
@@ -161,7 +161,7 @@ describe("Generate AI Film Grain button", () => {
     mockUseAction.mockReturnValue(mockGenerate);
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton context="gallery" />);
 
     fireEvent.click(screen.getByText("Generate AI Film Grain"));
 
@@ -181,7 +181,7 @@ describe("Generate AI Film Grain button", () => {
       .mockResolvedValue({ status: "overQuota", base64: "dGVzdC1iYXNlNjQ" });
     mockUseAction.mockReturnValue(mockGenerate);
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton context="gallery" />);
 
     expect(screen.queryByTestId("over-quota-dialog")).toBeNull();
 
@@ -200,7 +200,7 @@ describe("Generate AI Film Grain button", () => {
       .mockResolvedValue({ status: "overQuota", base64: "dGVzdC1iYXNlNjQ" });
     mockUseAction.mockReturnValue(mockGenerate);
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton context="gallery" />);
 
     fireEvent.click(screen.getByText("Generate AI Film Grain"));
 

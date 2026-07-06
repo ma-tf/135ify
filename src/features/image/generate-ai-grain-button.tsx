@@ -15,17 +15,57 @@ import { SparklesIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export function GenerateAiGrainButton() {
+async function blobToBase64(blob: Blob): Promise<string> {
+  const buffer = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+export function GenerateAiGrainButton({ context }: { context: "upload" | "gallery" }) {
   const { isAuthenticated } = useAuth();
   const file = useFile();
   const { apiKey } = useAiProviderStore();
   const generate = useAction(api.aiGeneration.generate);
+  const generateFromBase64 = useAction(api.aiGeneration.generateFromBase64);
   const [isGenerating, setIsGenerating] = useState(false);
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
   const [overQuotaBase64, setOverQuotaBase64] = useState<string | null>(null);
 
   if (!FEATURE_AI_GRAIN) return null;
   if (!isAuthenticated) return null;
+
+  const handleResult = (result: { status: string; base64?: string }) => {
+    if (result.status === "stored") {
+      toast.success(
+        <span className="flex gap-1">
+          AI generation complete.
+          <Link to="/takes" className="underline underline-offset-2">
+            View Takes
+          </Link>
+        </span>,
+      );
+    } else if (result.status === "overQuota") {
+      setOverQuotaBase64(result.base64!);
+    }
+  };
+
+  const handleGalleryClick = async () => {
+    return generate({
+      sourceImageId: file.id as Id<"images">,
+      apiKey,
+    });
+  };
+
+  const handleUploadClick = async () => {
+    const response = await fetch(file.sourceUrl);
+    const blob = await response.blob();
+    const base64 = await blobToBase64(blob);
+    return generateFromBase64({ sourceBase64: base64, sourceFileName: file.fileName, apiKey });
+  };
 
   const handleClick = async () => {
     if (!apiKey) {
@@ -34,23 +74,10 @@ export function GenerateAiGrainButton() {
     }
 
     setIsGenerating(true);
+    const run = context === "gallery" ? handleGalleryClick : handleUploadClick;
     try {
-      const result = await generate({
-        sourceImageId: file.id as Id<"images">,
-        apiKey,
-      });
-      if (result.status === "stored") {
-        toast.success(
-          <span className="flex gap-1">
-            AI generation complete.
-            <Link to="/takes" className="underline underline-offset-2">
-              View Takes
-            </Link>
-          </span>,
-        );
-      } else if (result.status === "overQuota") {
-        setOverQuotaBase64(result.base64);
-      }
+      const result = await run();
+      handleResult(result);
     } catch (err) {
       console.error("AI generation failed:", err);
       toast.error("AI generation failed");

@@ -29,7 +29,8 @@ export default defineSchema({
   }).index("by_userId", ["userId"]),
   aiTakes: defineTable({
     userId: v.id("users"),
-    sourceImageId: v.id("images"),
+    sourceImageId: v.optional(v.id("images")),
+    sourceFileName: v.string(),
     previewStorageId: v.id("_storage"),
     fullStorageId: v.id("_storage"),
   })

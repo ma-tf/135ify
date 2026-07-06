@@ -7,18 +7,22 @@ const boundedLimit = 100;
 
 export const create = mutation({
   args: {
-    sourceImageId: v.id("images"),
+    sourceImageId: v.optional(v.id("images")),
+    sourceFileName: v.string(),
     previewStorageId: v.id("_storage"),
     fullStorageId: v.id("_storage"),
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
-    const sourceImage = await ctx.db.get("images", args.sourceImageId);
-    if (!sourceImage) throw new Error("Source image not found");
-    if (sourceImage.userId !== userId) throw new Error("Unauthorized");
+    if (args.sourceImageId !== undefined) {
+      const sourceImage = await ctx.db.get("images", args.sourceImageId);
+      if (!sourceImage) throw new Error("Source image not found");
+      if (sourceImage.userId !== userId) throw new Error("Unauthorized");
+    }
     return await ctx.db.insert("aiTakes", {
       userId,
       sourceImageId: args.sourceImageId,
+      sourceFileName: args.sourceFileName,
       previewStorageId: args.previewStorageId,
       fullStorageId: args.fullStorageId,
     });
@@ -36,12 +40,11 @@ export const listByUser = query({
 
     return Promise.all(
       docs.map(async (doc) => {
-        const sourceImage = await ctx.db.get("images", doc.sourceImageId);
         const previewUrl = await ctx.storage.getUrl(doc.previewStorageId);
         const fullUrl = await ctx.storage.getUrl(doc.fullStorageId);
         return {
           ...doc,
-          sourceFileName: sourceImage?.fileName ?? null,
+          sourceFileName: doc.sourceFileName,
           previewUrl,
           fullUrl,
         };

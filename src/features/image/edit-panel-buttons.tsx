@@ -39,7 +39,7 @@ export function EditPanelButtons({
   return (
     <div className="flex flex-col gap-2">
       {context === "upload" && <SaveToGalleryButton />}
-      {context === "gallery" && <GenerateAiGrainButton />}
+      <GenerateAiGrainButton context={context} />
       <Button variant="outline" size="sm" className="gap-1.5" onClick={handleReset}>
         <RotateCcwIcon className="size-3.5" />
         Reset

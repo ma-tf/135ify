@@ -8,12 +8,12 @@ import { useQuery_experimental as useQuery } from "convex/react";
 
 interface TakeSection {
   sourceImageId: string;
-  sourceFileName: string | null;
+  sourceFileName: string;
   takes: {
     _id: string;
     _creationTime: number;
-    sourceImageId: string;
-    sourceFileName: string | null;
+    sourceImageId?: string;
+    sourceFileName: string;
     previewUrl: string | null;
     fullUrl: string | null;
   }[];
@@ -22,12 +22,13 @@ interface TakeSection {
 function groupBySourceImage(takes: TakeSection["takes"]): TakeSection[] {
   const map = new Map<string, TakeSection>();
   for (const take of takes) {
-    const existing = map.get(take.sourceImageId);
+    const key = take.sourceImageId ?? "";
+    const existing = map.get(key);
     if (existing) {
       existing.takes.push(take);
     } else {
-      map.set(take.sourceImageId, {
-        sourceImageId: take.sourceImageId,
+      map.set(key, {
+        sourceImageId: take.sourceImageId ?? "",
         sourceFileName: take.sourceFileName,
         takes: [take],
       });
@@ -75,23 +76,21 @@ export function TakesPage() {
       {usageData ? <UsageBar data={usageData} /> : <UsageBarSkeleton />}
       {groups.map((group) => (
         <section key={group.sourceImageId}>
-          <h2 className="mb-3 text-sm font-medium text-muted-foreground">
-            {group.sourceFileName ?? "Unknown"}
-          </h2>
+          <h2 className="mb-3 text-sm font-medium text-muted-foreground">{group.sourceFileName}</h2>
           <div className="space-y-2">
             {group.takes.map((take) => (
               <div key={take._id} className="flex items-center gap-4 rounded-lg border p-3">
                 {take.previewUrl ? (
                   <img
                     src={take.previewUrl}
-                    alt={group.sourceFileName ?? ""}
+                    alt={group.sourceFileName}
                     className="h-16 w-16 rounded object-cover"
                   />
                 ) : (
                   <Skeleton className="h-16 w-16 rounded" />
                 )}
                 <div>
-                  <p className="text-sm font-medium">{group.sourceFileName ?? "Unknown"}</p>
+                  <p className="text-sm font-medium">{group.sourceFileName}</p>
                   <p className="text-xs text-muted-foreground">
                     {formatTimestamp(take._creationTime)}
                   </p>

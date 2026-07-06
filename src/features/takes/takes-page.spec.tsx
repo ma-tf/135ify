@@ -34,7 +34,7 @@ const mockStorageUsage = {
 function mockTake(
   overrides: Partial<
     Doc<"aiTakes"> & {
-      sourceFileName: string | null;
+      sourceFileName: string;
       previewUrl: string | null;
       fullUrl: string | null;
     }
@@ -197,21 +197,6 @@ describe("TakesPage", () => {
 
     const images = screen.getAllByRole("img");
     expect(images).toHaveLength(2);
-  });
-
-  it("falls back to Unknown when sourceFileName is null", async () => {
-    const take = mockTake({ sourceFileName: null });
-
-    mockUseQuery.mockReturnValueOnce({ status: "success", data: [take] });
-    mockUseQuery.mockReturnValueOnce({ status: "success", data: mockStorageUsage });
-
-    render(<TakesPage />);
-    act(() => {
-      vi.advanceTimersByTime(3000);
-    });
-
-    const unknowns = screen.getAllByText("Unknown");
-    expect(unknowns.length).toBeGreaterThan(0);
   });
 
   it("shows skeleton placeholder when previewUrl is null", async () => {
