@@ -6,10 +6,11 @@ import { Button } from "@components/ui/button";
 import { Spinner } from "@components/ui/spinner";
 import { FEATURE_AI_GRAIN } from "@config";
 import { api } from "@convex/_generated/api";
+import { useEditViewClose } from "@features/image/edit-view-close-context";
 import { useAuth } from "@hooks/use-auth";
 import { useFile } from "@providers/file-context";
 import { useAiProviderStore } from "@stores/ai-provider-store";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useAction } from "convex/react";
 import { SparklesIcon } from "lucide-react";
 import { useState } from "react";
@@ -28,6 +29,8 @@ async function blobToBase64(blob: Blob): Promise<string> {
 export function GenerateAiGrainButton({ context }: { context: "upload" | "gallery" }) {
   const { isAuthenticated } = useAuth();
   const file = useFile();
+  const navigate = useNavigate();
+  const onClose = useEditViewClose();
   const { apiKey } = useAiProviderStore();
   const generate = useAction(api.aiGeneration.generate);
   const generateFromBase64 = useAction(api.aiGeneration.generateFromBase64);
@@ -38,45 +41,42 @@ export function GenerateAiGrainButton({ context }: { context: "upload" | "galler
   if (!FEATURE_AI_GRAIN) return null;
   if (!isAuthenticated) return null;
 
-  const handleResult = (result: { status: string; base64?: string }) => {
-    if (result.status === "stored") {
+  const handleResult = (result: { status: string; base64?: string; imageId?: string }) => {
+    if (result.status === "stored" && result.imageId) {
+      onClose();
       toast.success(
         <span className="flex gap-1">
-          AI generation complete.
+          Image queued.
           <Link to="/takes" className="underline underline-offset-2">
-            View Takes
+            View status
           </Link>
         </span>,
       );
+      void navigate({ to: "/takes" });
     } else if (result.status === "overQuota") {
       setOverQuotaBase64(result.base64!);
     }
   };
 
-  const handleGalleryClick = async () => {
+  const handleGalleryClick = async (key: string) => {
     return generate({
       sourceImageId: file.id as Id<"images">,
-      apiKey,
+      apiKey: key,
     });
   };
 
-  const handleUploadClick = async () => {
+  const handleUploadClick = async (key: string) => {
     const response = await fetch(file.sourceUrl);
     const blob = await response.blob();
     const base64 = await blobToBase64(blob);
-    return generateFromBase64({ sourceBase64: base64, sourceFileName: file.fileName, apiKey });
+    return generateFromBase64({ sourceBase64: base64, sourceFileName: file.fileName, apiKey: key });
   };
 
-  const handleClick = async () => {
-    if (!apiKey) {
-      setKeyDialogOpen(true);
-      return;
-    }
-
+  const runGeneration = async (key: string) => {
     setIsGenerating(true);
     const run = context === "gallery" ? handleGalleryClick : handleUploadClick;
     try {
-      const result = await run();
+      const result = await run(key);
       handleResult(result);
     } catch (err) {
       console.error("AI generation failed:", err);
@@ -85,13 +85,21 @@ export function GenerateAiGrainButton({ context }: { context: "upload" | "galler
     setIsGenerating(false);
   };
 
+  const handleClick = async () => {
+    if (!apiKey) {
+      setKeyDialogOpen(true);
+      return;
+    }
+    await runGeneration(apiKey);
+  };
+
   return (
     <>
       <Button disabled={isGenerating} size="sm" className="gap-1.5" onClick={handleClick}>
         {isGenerating ? <Spinner className="size-3.5" /> : <SparklesIcon className="size-3.5" />}
         Generate AI Film Grain
       </Button>
-      {keyDialogOpen && <AiKeyDialog onOpenChange={setKeyDialogOpen} />}
+      {keyDialogOpen && <AiKeyDialog onOpenChange={setKeyDialogOpen} onSave={runGeneration} />}
       {overQuotaBase64 && (
         <OverQuotaDialog base64={overQuotaBase64} onDiscard={() => setOverQuotaBase64(null)} />
       )}

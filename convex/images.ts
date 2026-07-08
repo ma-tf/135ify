@@ -2,7 +2,6 @@ import { v } from "convex/values";
 
 import type { Doc } from "./_generated/dataModel";
 
-import { api } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 import { FILE_SIZE_LIMIT_BYTES, GALLERY_IMAGE_LIMIT, GALLERY_STORAGE_LIMIT_BYTES } from "./config";
 import { requireAuth } from "./lib";
@@ -45,35 +44,45 @@ export const getStorageUsage = query({
       if (metadata) usedBytes += metadata.size;
     }
 
-    const takes = await ctx.db
-      .query("aiTakes")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .collect();
-
-    for (const doc of takes) {
-      const preview = await ctx.db.system.get("_storage", doc.previewStorageId);
-      if (preview) usedBytes += preview.size;
-      const full = await ctx.db.system.get("_storage", doc.fullStorageId);
-      if (full) usedBytes += full.size;
-    }
-
     return {
       usedBytes,
-      imageCount: docs.length + takes.length,
+      imageCount: docs.length,
       imageLimit: GALLERY_IMAGE_LIMIT,
       storageLimitBytes: GALLERY_STORAGE_LIMIT_BYTES,
     };
   },
 });
 
-export const listByUser = query({
+export const latestAiGrainTimestamp = query({
   handler: async (ctx) => {
     const userId = await requireAuth(ctx);
     const docs = await ctx.db
       .query("images")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
       .order("desc")
-      .take(boundedLimit);
+      .take(100);
+
+    const latest = docs.find((d) => d.source === "openai");
+    return latest ? { _creationTime: latest._creationTime } : null;
+  },
+});
+
+export const listByUser = query({
+  args: {
+    source: v.optional(v.union(v.literal("openai"), v.literal("manual"))),
+  },
+  handler: async (ctx, args) => {
+    const userId = await requireAuth(ctx);
+    let query = ctx.db
+      .query("images")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .order("desc");
+
+    if (args.source) {
+      query = query.filter((q) => q.eq(q.field("source"), args.source));
+    }
+
+    const docs = await query.take(boundedLimit);
 
     return Promise.all(
       docs.map(async (doc) => {
@@ -99,6 +108,13 @@ export const create = mutation({
         grainIntensity: v.number(),
       }),
     ),
+    source: v.union(v.literal("openai"), v.literal("manual")),
+    parent: v.optional(
+      v.object({
+        imageId: v.optional(v.id("images")),
+        fileName: v.string(),
+      }),
+    ),
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
@@ -117,6 +133,8 @@ export const create = mutation({
       sourceStorageId: args.storageId,
       fileName: args.fileName,
       params: args.params ?? DEFAULT_PARAMS,
+      source: args.source,
+      parent: args.parent,
     });
     return imageId;
   },
@@ -153,7 +171,18 @@ export const deleteImage = mutation({
     const doc = await ctx.db.get("images", args.imageId);
     if (!doc) throw new Error("Image not found");
     if (doc.userId !== userId) throw new Error("Unauthorized");
-    await ctx.runMutation(api.aiTakes.deleteBySourceImage, { sourceImageId: args.imageId });
+
+    const children = await ctx.db
+      .query("images")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .filter((q) => q.eq(q.field("parent.imageId"), args.imageId))
+      .collect();
+    for (const child of children) {
+      await ctx.db.patch(child._id, {
+        parent: { imageId: undefined, fileName: child.parent!.fileName },
+      });
+    }
+
     await ctx.storage.delete(doc.sourceStorageId);
     await ctx.db.delete("images", args.imageId);
   },

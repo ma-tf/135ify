@@ -22,6 +22,7 @@ const makeDoc = (overrides: Partial<Doc<"images"> & { sourceUrl: string | null }
     userId: "user1" as Doc<"images">["userId"],
     sourceStorageId: "storage1" as Doc<"images">["sourceStorageId"],
     fileName: "test-photo.jpg",
+    source: "manual" as "openai" | "manual",
     sourceUrl: "https://example.com/storage/1",
     params: { ...DEFAULT_PARAMS },
     ...overrides,

@@ -14,7 +14,13 @@ import { EyeOffIcon, EyeIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export function AiKeyDialog({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
+export function AiKeyDialog({
+  onOpenChange,
+  onSave,
+}: {
+  onOpenChange: (open: boolean) => void;
+  onSave?: (apiKey: string) => void;
+}) {
   const { apiKey, setApiKey, clearApiKey } = useAiProviderStore();
   const [inputValue, setInputValue] = useState(apiKey);
 
@@ -24,6 +30,7 @@ export function AiKeyDialog({ onOpenChange }: { onOpenChange: (open: boolean) =>
   const handleSave = () => {
     setApiKey(inputValue);
     toast.success("API key saved");
+    onSave?.(inputValue);
     onOpenChange(false);
   };
 

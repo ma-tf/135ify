@@ -120,7 +120,7 @@ describe("Generate AI Film Grain button", () => {
   it("calls useAction with correct arguments when API key is set", async () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
     mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
-    const mockGenerate = vi.fn().mockResolvedValue({ status: "stored", takeId: "take-1" });
+    const mockGenerate = vi.fn().mockResolvedValue({ status: "stored", imageId: "img-1" });
     mockUseAction.mockReturnValue(mockGenerate);
 
     render(<GenerateAiGrainButton context="gallery" />);
@@ -135,10 +135,10 @@ describe("Generate AI Film Grain button", () => {
     });
   });
 
-  it("shows success toast with link to /takes on stored result", async () => {
+  it("shows success toast with link to gallery on stored result", async () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
     mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
-    const mockGenerate = vi.fn().mockResolvedValue({ status: "stored", takeId: "take-1" });
+    const mockGenerate = vi.fn().mockResolvedValue({ status: "stored", imageId: "img-1" });
     mockUseAction.mockReturnValue(mockGenerate);
 
     render(<GenerateAiGrainButton context="gallery" />);
@@ -151,7 +151,8 @@ describe("Generate AI Film Grain button", () => {
 
     const successArg = mockToast.success.mock.calls[0][0];
     const linkEl = successArg.props.children[1];
-    expect(linkEl.props.to).toBe("/takes");
+    expect(linkEl.props.to).toBe("/gallery/$imageId");
+    expect(linkEl.props.params.imageId).toBe("img-1");
   });
 
   it("shows error toast when action rejects", async () => {

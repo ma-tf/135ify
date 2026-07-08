@@ -9,7 +9,6 @@
  */
 
 import type * as aiGeneration from "../aiGeneration.js";
-import type * as aiTakes from "../aiTakes.js";
 import type * as auth from "../auth.js";
 import type * as config from "../config.js";
 import type * as http from "../http.js";
@@ -25,7 +24,6 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   aiGeneration: typeof aiGeneration;
-  aiTakes: typeof aiTakes;
   auth: typeof auth;
   config: typeof config;
   http: typeof http;

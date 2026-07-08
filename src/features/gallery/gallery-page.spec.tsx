@@ -25,31 +25,30 @@ vi.mock("convex/react", () => ({
   useQuery_experimental: mockUseQuery,
 }));
 
+vi.mock("@features/gallery/gallery-usage-bar", () => ({
+  UsageBar: () => null,
+  UsageBarSkeleton: () => null,
+}));
+
 vi.mock("@features/process/process-image", () => ({
   processToBlobUrl: vi.fn((url: string) => Promise.resolve(url)),
 }));
 
 setupTests();
 
-const mockDoc: Doc<"images"> & { sourceUrl: string | null } = {
+const makeMockDoc = (
+  overrides: Partial<Doc<"images"> & { sourceUrl: string | null }> = {},
+): Doc<"images"> & { sourceUrl: string | null } => ({
   _id: "img123" as Doc<"images">["_id"],
   _creationTime: Date.UTC(2026, 5, 16, 16, 1, 11),
   userId: "user1" as Doc<"images">["userId"],
   sourceStorageId: "storage1" as Doc<"images">["sourceStorageId"],
   fileName: "test-photo.jpg",
+  source: "manual" as "openai" | "manual",
   sourceUrl: "blob:render-1",
   params: { ...DEFAULT_PARAMS },
-};
-
-const mockDoc2: Doc<"images"> & { sourceUrl: string | null } = {
-  _id: "img456" as Doc<"images">["_id"],
-  _creationTime: Date.UTC(2026, 5, 17, 10, 30, 0),
-  userId: "user1" as Doc<"images">["userId"],
-  sourceStorageId: "storage2" as Doc<"images">["sourceStorageId"],
-  fileName: "another-shot.png",
-  sourceUrl: "blob:render-2",
-  params: { ...DEFAULT_PARAMS },
-};
+  ...overrides,
+});
 
 describe("GalleryPage", () => {
   it("shows empty state message when user has no saved images", () => {
@@ -62,7 +61,14 @@ describe("GalleryPage", () => {
   });
 
   it("renders a grid of image cards when images exist", async () => {
-    mockUseQuery.mockReturnValue({ status: "success", data: [mockDoc, mockDoc2] });
+    const doc1 = makeMockDoc();
+    const doc2 = makeMockDoc({
+      _id: "img456" as Doc<"images">["_id"],
+      fileName: "another-shot.png",
+      sourceUrl: "blob:render-2",
+      _creationTime: Date.UTC(2026, 5, 17, 10, 30, 0),
+    });
+    mockUseQuery.mockReturnValue({ status: "success", data: [doc1, doc2] });
 
     render(<GalleryPage />);
 
@@ -70,14 +76,14 @@ describe("GalleryPage", () => {
 
     const images = screen.getAllByRole("img");
     expect(images).toHaveLength(2);
-    expect(images[0].getAttribute("src")).toBe(mockDoc.sourceUrl);
-    expect(images[1].getAttribute("src")).toBe(mockDoc2.sourceUrl);
+    expect(images[0].getAttribute("src")).toBe(doc1.sourceUrl);
+    expect(images[1].getAttribute("src")).toBe(doc2.sourceUrl);
 
-    expect(screen.getByText(mockDoc.fileName)).toBeDefined();
-    expect(screen.getByText(mockDoc2.fileName)).toBeDefined();
+    expect(screen.getByText(doc1.fileName)).toBeDefined();
+    expect(screen.getByText(doc2.fileName)).toBeDefined();
 
     const expectedDate =
-      new Date(mockDoc._creationTime).toLocaleString("en-GB", {
+      new Date(doc1._creationTime).toLocaleString("en-GB", {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -89,16 +95,17 @@ describe("GalleryPage", () => {
   });
 
   it("navigates to /gallery/$imageId when a card is clicked", () => {
-    mockUseQuery.mockReturnValue({ status: "success", data: [mockDoc] });
+    const doc = makeMockDoc();
+    mockUseQuery.mockReturnValue({ status: "success", data: [doc] });
 
     render(<GalleryPage />);
 
-    const card = screen.getByText(mockDoc.fileName).closest('[class*="cursor-pointer"]')!;
+    const card = screen.getByText(doc.fileName).closest('[class*="cursor-pointer"]')!;
     fireEvent.click(card);
 
     expect(mockNavigate).toHaveBeenCalledWith({
       to: "/gallery/$imageId",
-      params: { imageId: mockDoc._id },
+      params: { imageId: doc._id },
     });
   });
 
@@ -108,7 +115,7 @@ describe("GalleryPage", () => {
     const { container } = render(<GalleryPage />);
 
     const skeletons = container.querySelectorAll(".animate-pulse");
-    expect(skeletons.length).toBe(12);
+    expect(skeletons.length).toBe(8);
   });
 
   it("shows error message when loading fails", () => {

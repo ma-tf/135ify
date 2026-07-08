@@ -34,6 +34,7 @@ export function useSaveToGallery({ file, onSuccess }: { file: FileRecord; onSucc
         storageId: storageId as Id<"_storage">,
         fileName: file.fileName,
         params: file.params,
+        source: "manual",
       });
 
       removeFile(file.id);

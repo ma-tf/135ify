@@ -1,12 +1,7 @@
 import { Skeleton } from "@components/ui/skeleton";
+import { api } from "@convex/_generated/api";
 import { formatBytes } from "@lib/utils";
-
-export type StorageUsage = {
-  usedBytes: number;
-  imageCount: number;
-  imageLimit: number;
-  storageLimitBytes: number;
-};
+import { useQuery_experimental as useQuery } from "convex/react";
 
 export function UsageBarSkeleton() {
   return (
@@ -23,7 +18,12 @@ export function UsageBarSkeleton() {
   );
 }
 
-export function UsageBar({ data }: { data: StorageUsage }) {
+export function UsageBar() {
+  const storageResult = useQuery({ query: api.images.getStorageUsage, args: {} });
+  if (storageResult.status === "pending") return <UsageBarSkeleton />;
+  if (storageResult.status === "error") return null;
+
+  const data = storageResult.data;
   const imagePercent = Math.min((data.imageCount / data.imageLimit) * 100, 100);
   const storagePercent = Math.min((data.usedBytes / data.storageLimitBytes) * 100, 100);
 

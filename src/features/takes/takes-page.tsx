@@ -1,7 +1,7 @@
-import type { Id } from "@convex/_generated/dataModel";
+import type { Doc, Id } from "@convex/_generated/dataModel";
 
 import { api } from "@convex/_generated/api";
-import { UsageBar, UsageBarSkeleton } from "@features/gallery/gallery-usage-bar";
+import { UsageBar } from "@features/gallery/gallery-usage-bar";
 import { TakeRow } from "@features/takes/take-row";
 import { TakesSkeleton } from "@features/takes/takes-skeleton";
 import { useTakesNotificationStore } from "@stores/takes-notification-store";
@@ -10,31 +10,47 @@ import { useMutation, useQuery_experimental as useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+type GalleryImage = Pick<Doc<"images">, "_id" | "_creationTime" | "fileName" | "parent"> & {
+  sourceUrl: string | null;
+};
+
 interface TakeSection {
   sourceImageId: string;
+  sourceLinkId: string | null;
   sourceFileName: string;
-  takes: {
-    _id: string;
-    _creationTime: number;
-    sourceImageId?: string;
-    sourceFileName: string;
-    previewUrl: string | null;
-    fullUrl: string | null;
-  }[];
+  takes: GalleryImage[];
 }
 
-function groupBySourceImage(takes: TakeSection["takes"]): TakeSection[] {
+function groupBySourceImage(images: GalleryImage[]): TakeSection[] {
   const map = new Map<string, TakeSection>();
-  for (const take of takes) {
-    const key = take.sourceImageId ?? "";
+  for (const img of images) {
+    let key: string;
+    let linkId: string | null;
+    let label: string;
+
+    if (img.parent?.imageId) {
+      key = img.parent.imageId;
+      linkId = key;
+      label = img.parent.fileName;
+    } else if (img.parent?.fileName) {
+      key = img.parent.fileName;
+      linkId = null;
+      label = img.parent.fileName;
+    } else {
+      key = img._id;
+      linkId = key;
+      label = img.fileName;
+    }
+
     const existing = map.get(key);
     if (existing) {
-      existing.takes.push(take);
+      existing.takes.push(img);
     } else {
       map.set(key, {
-        sourceImageId: take.sourceImageId ?? "",
-        sourceFileName: take.sourceFileName,
-        takes: [take],
+        sourceImageId: key,
+        sourceLinkId: linkId,
+        sourceFileName: label,
+        takes: [img],
       });
     }
   }
@@ -42,9 +58,7 @@ function groupBySourceImage(takes: TakeSection["takes"]): TakeSection[] {
 }
 
 export function TakesPage() {
-  const result = useQuery({ query: api.aiTakes.listByUser, args: {} });
-  const storageResult = useQuery({ query: api.images.getStorageUsage, args: {} });
-  const deleteTake = useMutation(api.aiTakes.deleteTake);
+  const result = useQuery({ query: api.images.listByUser, args: { source: "openai" } });
   const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
   const markSeen = useTakesNotificationStore((s) => s.markSeen);
 
@@ -53,21 +67,22 @@ export function TakesPage() {
   }, [markSeen]);
 
   const pending = result.status === "pending";
-  const errored = result.status === "error" || storageResult.status === "error";
-  const usageData = storageResult.status === "success" ? storageResult.data : null;
+  const errored = result.status === "error";
 
-  const takes = result.status === "success" ? result.data : null;
-  const activeTakes = takes ? takes.filter((t) => !deletedIds.has(t._id)) : null;
+  const activeTakes =
+    result.status === "success" ? result.data?.filter((t) => !deletedIds.has(t._id)) : null;
   const groups = activeTakes ? groupBySourceImage(activeTakes) : [];
 
-  const handleDelete = async (takeId: string) => {
-    setDeletedIds((prev) => new Set(prev).add(takeId));
+  const deleteImage = useMutation(api.images.deleteImage);
+
+  const handleDelete = async (imageId: string) => {
+    setDeletedIds((prev) => new Set(prev).add(imageId));
     try {
-      await deleteTake({ takeId: takeId as Id<"aiTakes"> });
+      await deleteImage({ imageId: imageId as Id<"images"> });
     } catch {
       setDeletedIds((prev) => {
         const next = new Set(prev);
-        next.delete(takeId);
+        next.delete(imageId);
         return next;
       });
       toast.error("Failed to delete AI Take");
@@ -86,7 +101,7 @@ export function TakesPage() {
     );
   }
 
-  if (result.data.length == 0) {
+  if (!activeTakes || activeTakes.length == 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-12">
         <p className="text-muted-foreground">No AI Takes yet.</p>
@@ -99,18 +114,25 @@ export function TakesPage() {
 
   return (
     <div className="space-y-8 p-6">
-      {usageData ? <UsageBar data={usageData} /> : <UsageBarSkeleton />}
+      <UsageBar />
       {groups.map((group) => (
         <section key={group.sourceImageId}>
-          <h2 className="mb-3 text-sm font-medium text-muted-foreground">{group.sourceFileName}</h2>
+          {group.sourceLinkId ? (
+            <Link
+              to="/gallery/$imageId"
+              params={{ imageId: group.sourceLinkId }}
+              className="mb-3 text-sm font-medium text-muted-foreground hover:underline"
+            >
+              {group.sourceFileName}
+            </Link>
+          ) : (
+            <span className="mb-3 block text-sm font-medium text-muted-foreground">
+              {group.sourceFileName}
+            </span>
+          )}
           <div className="space-y-2">
             {group.takes.map((take) => (
-              <TakeRow
-                key={take._id}
-                take={take}
-                sourceFileName={group.sourceFileName}
-                onDelete={handleDelete}
-              />
+              <TakeRow key={take._id} take={take} onDelete={handleDelete} />
             ))}
           </div>
         </section>

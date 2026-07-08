@@ -26,14 +26,13 @@ export default defineSchema({
       vignetteFeather: v.number(),
       grainIntensity: v.number(),
     }),
+    source: v.union(v.literal("openai"), v.literal("manual")),
+    parentImageId: v.optional(v.id("images")),
+    parent: v.optional(
+      v.object({
+        imageId: v.optional(v.id("images")),
+        fileName: v.string(),
+      }),
+    ),
   }).index("by_userId", ["userId"]),
-  aiTakes: defineTable({
-    userId: v.id("users"),
-    sourceImageId: v.optional(v.id("images")),
-    sourceFileName: v.string(),
-    previewStorageId: v.id("_storage"),
-    fullStorageId: v.id("_storage"),
-  })
-    .index("by_userId", ["userId"])
-    .index("by_sourceImageId", ["sourceImageId"]),
 });

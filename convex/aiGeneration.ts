@@ -11,7 +11,7 @@ import { requireAuth } from "./lib";
 
 type GenerateResult =
   | { status: "overQuota"; base64: string }
-  | { status: "stored"; takeId: Id<"aiTakes"> };
+  | { status: "stored"; imageId: Id<"images"> };
 
 export const generate = action({
   args: {
@@ -20,6 +20,9 @@ export const generate = action({
   },
   handler: async (ctx, args): Promise<GenerateResult> => {
     await requireAuth(ctx);
+
+    // Testing delay to simulate AI API latency
+    await new Promise((resolve) => setTimeout(resolve, 10_000));
 
     const sourceImage = await ctx.runQuery(api.images.getById, {
       imageId: args.sourceImageId,
@@ -39,7 +42,7 @@ export const generate = action({
       .toBuffer();
 
     const usage = await ctx.runQuery(api.images.getStorageUsage, {});
-    const estimatedTotal = fullBuffer.length + Math.ceil(fullBuffer.length * 0.3);
+    const estimatedTotal = fullBuffer.length;
 
     if (usage.usedBytes + estimatedTotal > usage.storageLimitBytes) {
       return {
@@ -48,40 +51,26 @@ export const generate = action({
       };
     }
 
-    const previewBuffer = await sharp(fullBuffer)
-      .resize(1200, 1200, { fit: "inside" })
-      .jpeg()
-      .toBuffer();
+    const uploadUrl = await ctx.runMutation(api.lib.generateUploadUrl, {});
 
-    const [fullUploadUrl, previewUploadUrl] = await Promise.all([
-      ctx.runMutation(api.lib.generateUploadUrl, {}),
-      ctx.runMutation(api.lib.generateUploadUrl, {}),
-    ]);
+    const response = await fetch(uploadUrl, { method: "POST", body: fullBuffer });
 
-    const [fullResponse, previewResponse] = await Promise.all([
-      fetch(fullUploadUrl, { method: "POST", body: fullBuffer }),
-      fetch(previewUploadUrl, { method: "POST", body: previewBuffer }),
-    ]);
-
-    if (!fullResponse.ok || !previewResponse.ok) {
+    if (!response.ok) {
       throw new Error("Failed to upload generated image");
     }
 
-    const { storageId: fullStorageId } = (await fullResponse.json()) as {
-      storageId: Id<"_storage">;
-    };
-    const { storageId: previewStorageId } = (await previewResponse.json()) as {
+    const { storageId } = (await response.json()) as {
       storageId: Id<"_storage">;
     };
 
-    const takeId: Id<"aiTakes"> = await ctx.runMutation(api.aiTakes.create, {
-      sourceImageId: args.sourceImageId,
-      sourceFileName: sourceImage.fileName,
-      previewStorageId,
-      fullStorageId,
+    const imageId: Id<"images"> = await ctx.runMutation(api.images.create, {
+      storageId,
+      fileName: `ai-grain-${sourceImage.fileName}`,
+      source: "openai",
+      parent: { imageId: args.sourceImageId, fileName: sourceImage.fileName },
     });
 
-    return { status: "stored" as const, takeId };
+    return { status: "stored" as const, imageId };
   },
 });
 
@@ -93,6 +82,9 @@ export const generateFromBase64 = action({
   },
   handler: async (ctx, args): Promise<GenerateResult> => {
     await requireAuth(ctx);
+
+    // Testing delay to simulate AI API latency
+    await new Promise((resolve) => setTimeout(resolve, 10_000));
 
     const fullBuffer = await sharp({
       create: {
@@ -106,7 +98,7 @@ export const generateFromBase64 = action({
       .toBuffer();
 
     const usage = await ctx.runQuery(api.images.getStorageUsage, {});
-    const estimatedTotal = fullBuffer.length + Math.ceil(fullBuffer.length * 0.3);
+    const estimatedTotal = fullBuffer.length;
 
     if (usage.usedBytes + estimatedTotal > usage.storageLimitBytes) {
       return {
@@ -115,38 +107,24 @@ export const generateFromBase64 = action({
       };
     }
 
-    const previewBuffer = await sharp(fullBuffer)
-      .resize(1200, 1200, { fit: "inside" })
-      .jpeg()
-      .toBuffer();
+    const uploadUrl = await ctx.runMutation(api.lib.generateUploadUrl, {});
 
-    const [fullUploadUrl, previewUploadUrl] = await Promise.all([
-      ctx.runMutation(api.lib.generateUploadUrl, {}),
-      ctx.runMutation(api.lib.generateUploadUrl, {}),
-    ]);
+    const response = await fetch(uploadUrl, { method: "POST", body: fullBuffer });
 
-    const [fullResponse, previewResponse] = await Promise.all([
-      fetch(fullUploadUrl, { method: "POST", body: fullBuffer }),
-      fetch(previewUploadUrl, { method: "POST", body: previewBuffer }),
-    ]);
-
-    if (!fullResponse.ok || !previewResponse.ok) {
+    if (!response.ok) {
       throw new Error("Failed to upload generated image");
     }
 
-    const { storageId: fullStorageId } = (await fullResponse.json()) as {
-      storageId: Id<"_storage">;
-    };
-    const { storageId: previewStorageId } = (await previewResponse.json()) as {
+    const { storageId } = (await response.json()) as {
       storageId: Id<"_storage">;
     };
 
-    const takeId: Id<"aiTakes"> = await ctx.runMutation(api.aiTakes.create, {
-      sourceFileName: args.sourceFileName,
-      previewStorageId,
-      fullStorageId,
+    const imageId: Id<"images"> = await ctx.runMutation(api.images.create, {
+      storageId,
+      fileName: `ai-grain-${args.sourceFileName}`,
+      source: "openai",
     });
 
-    return { status: "stored" as const, takeId };
+    return { status: "stored" as const, imageId };
   },
 });
