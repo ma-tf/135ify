@@ -1,14 +1,10 @@
-import type { TakeRowTake } from "@features/takes/take-row";
+import type { TakeRowJob } from "@features/takes/take-row";
 
 import { setupTests } from "@test-utils/setup.spec";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { TakeRow } from "./take-row";
-
-const { mockUseMutation } = vi.hoisted(() => ({
-  mockUseMutation: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
-}));
 
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ to, params, children }: any) => {
@@ -24,128 +20,73 @@ vi.mock("@tanstack/react-router", () => ({
   },
 }));
 
-vi.mock("convex/react", () => ({
-  useMutation: mockUseMutation,
-}));
-
 vi.mock("sonner", () => ({
   toast: { error: vi.fn() },
 }));
 
 setupTests();
 
-function mockTake(overrides: Partial<TakeRowTake> = {}): TakeRowTake {
+function mockJob(overrides: Partial<TakeRowJob> = {}): TakeRowJob {
   return {
-    _id: "take-1",
+    _id: "job-1",
     _creationTime: Date.UTC(2026, 5, 16, 16, 1, 11),
-    sourceUrl: "https://example.com/take1.jpg",
-    fileName: "ai-grain-photo.jpg",
+    fileName: "photo.jpg",
+    status: "completed",
+    thumbnailBase64: "dGVzdC10aHVtYm5haWw=",
+    takeImageId: "img-1",
+    takeImageUrl: "https://example.com/full-image.jpg",
     ...overrides,
   };
 }
 
-const expectedDate =
-  new Date(Date.UTC(2026, 5, 16, 16, 1, 11)).toLocaleString("en-GB", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "UTC",
-  }) + " UTC";
-
 describe("TakeRow", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    mockUseMutation.mockReturnValue(vi.fn().mockResolvedValue(undefined));
   });
 
   afterEach(() => {
     vi.useRealTimers();
   });
 
-  it("renders completed row with thumbnail, filename link, and action buttons", () => {
-    render(<TakeRow take={mockTake({ status: "completed" })} />);
+  it("renders completed row with thumbnail, filename link, and download button", () => {
+    render(<TakeRow job={mockJob()} />);
 
-    expect(screen.getByRole("img")).toBeDefined();
-    expect(screen.getByText("ai-grain-photo.jpg")).toBeDefined();
+    const img = screen.getByRole("img") as HTMLImageElement;
+    expect(img).toBeDefined();
+    expect(img.src).toBe("data:image/jpeg;base64,dGVzdC10aHVtYm5haWw=");
+
+    expect(screen.getByText("photo.jpg")).toBeDefined();
 
     const links = screen.getAllByRole("link");
     const thumbnailLink = links.find((l) => l.querySelector("img"));
-    expect(thumbnailLink?.getAttribute("href")).toBe("/gallery/take-1");
-    expect(screen.getByText("ai-grain-photo.jpg").closest("a")?.getAttribute("href")).toBe(
-      "/gallery/take-1",
-    );
+    expect(thumbnailLink?.getAttribute("href")).toBe("/gallery/img-1");
+    expect(screen.getByText("photo.jpg").closest("a")?.getAttribute("href")).toBe("/gallery/img-1");
 
     const buttons = screen.getAllByRole("button");
-    expect(buttons).toHaveLength(2);
+    expect(buttons).toHaveLength(1);
   });
 
-  it("renders completed row when status is absent", () => {
-    render(<TakeRow take={mockTake({ status: undefined })} />);
-
-    expect(screen.getByRole("img")).toBeDefined();
-    expect(screen.getAllByRole("button")).toHaveLength(2);
-  });
-
-  it("renders queued row with skeleton, plain text, badge, and delete only", () => {
+  it("renders processing row with skeleton, badge, and no action buttons", () => {
     const { container } = render(
-      <TakeRow take={mockTake({ status: "queued", sourceUrl: null })} />,
+      <TakeRow job={mockJob({ status: "processing", thumbnailBase64: null })} />,
     );
 
     expect(container.querySelector("img")).toBeNull();
     expect(screen.queryByRole("link")).toBeNull();
-    expect(screen.getByText("Queued")).toBeDefined();
-    expect(screen.getAllByRole("button")).toHaveLength(1);
-  });
-
-  it("renders processing row with skeleton, badge with spinner, and delete only", () => {
-    const { container } = render(
-      <TakeRow take={mockTake({ status: "processing", sourceUrl: null })} />,
-    );
-
-    expect(container.querySelector("img")).toBeNull();
     expect(screen.getByText("Processing")).toBeDefined();
-    expect(screen.getAllByRole("button")).toHaveLength(1);
+    expect(screen.queryByRole("button")).toBeNull();
   });
 
-  it("renders failed row with skeleton, failed badge, and delete only", () => {
+  it("renders failed row with skeleton, failed badge, and no action buttons", () => {
     const { container } = render(
       <TakeRow
-        take={mockTake({ status: "failed", sourceUrl: null, failureReason: "API error" })}
+        job={mockJob({ status: "failed", thumbnailBase64: null, failureReason: "API error" })}
       />,
     );
 
     expect(container.querySelector("img")).toBeNull();
     expect(screen.getByText("Failed")).toBeDefined();
-    expect(screen.getAllByRole("button")).toHaveLength(1);
-  });
-
-  it("calls deleteImage mutation when delete button is clicked and removes row", () => {
-    const deleteFn = vi.fn().mockResolvedValue(undefined);
-    mockUseMutation.mockReturnValue(deleteFn);
-    render(<TakeRow take={mockTake({ status: "completed" })} />);
-
-    const deleteButton = screen.getAllByRole("button")[1];
-    fireEvent.click(deleteButton);
-
-    expect(deleteFn).toHaveBeenCalledWith({ imageId: "take-1" });
-    expect(screen.queryByText(expectedDate)).toBeNull();
-  });
-
-  it("restores row when delete mutation fails", async () => {
-    const deleteFn = vi.fn().mockRejectedValue(new Error("Failed"));
-    mockUseMutation.mockReturnValue(deleteFn);
-    render(<TakeRow take={mockTake({ status: "completed" })} />);
-
-    const deleteButton = screen.getAllByRole("button")[1];
-    fireEvent.click(deleteButton);
-
-    expect(screen.queryByText(expectedDate)).toBeNull();
-
-    await act(async () => {});
-
-    expect(screen.getByText(expectedDate)).toBeDefined();
+    expect(screen.queryByRole("button")).toBeNull();
   });
 
   it("downloads full image when download button is clicked", async () => {
@@ -157,14 +98,14 @@ describe("TakeRow", () => {
       headers: new Headers(),
     } as Response);
 
-    render(<TakeRow take={mockTake({ status: "completed" })} />);
+    render(<TakeRow job={mockJob()} />);
 
-    const downloadButton = screen.getAllByRole("button")[0];
+    const downloadButton = screen.getByRole("button");
     fireEvent.click(downloadButton);
 
     await act(async () => {});
 
-    expect(fetchSpy).toHaveBeenCalledWith("https://example.com/take1.jpg");
+    expect(fetchSpy).toHaveBeenCalledWith("https://example.com/full-image.jpg");
 
     fetchSpy.mockRestore();
   });
@@ -172,7 +113,7 @@ describe("TakeRow", () => {
   it("shows failureReason as title attribute on failed badge", () => {
     render(
       <TakeRow
-        take={mockTake({ status: "failed", sourceUrl: null, failureReason: "overQuota" })}
+        job={mockJob({ status: "failed", thumbnailBase64: null, failureReason: "overQuota" })}
       />,
     );
 

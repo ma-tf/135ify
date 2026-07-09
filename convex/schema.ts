@@ -43,4 +43,22 @@ export default defineSchema({
       }),
     ),
   }).index("by_userId", ["userId"]),
+  aiGenerationJobs: defineTable({
+    userId: v.id("users"),
+    status: v.union(v.literal("processing"), v.literal("completed"), v.literal("failed")),
+    sourceStorageId: v.id("_storage"),
+    fileName: v.string(),
+    parent: v.optional(
+      v.object({
+        imageId: v.optional(v.id("images")),
+        fileName: v.string(),
+      }),
+    ),
+    takeImageId: v.optional(v.id("images")),
+    thumbnailBase64: v.optional(v.string()),
+    failureReason: v.optional(v.string()),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_takeImageId", ["takeImageId"])
+    .index("by_parentImageId", ["parent.imageId"]),
 });

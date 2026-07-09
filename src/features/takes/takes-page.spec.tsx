@@ -6,9 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { TakesPage } from "./takes-page";
 
-const { mockUseQuery, mockUseMutation, mockMarkSeen } = vi.hoisted(() => ({
+const { mockUseQuery, mockMarkSeen } = vi.hoisted(() => ({
   mockUseQuery: vi.fn(),
-  mockUseMutation: vi.fn(),
   mockMarkSeen: vi.fn(),
 }));
 
@@ -28,7 +27,6 @@ vi.mock("@tanstack/react-router", () => ({
 
 vi.mock("convex/react", () => ({
   useQuery_experimental: mockUseQuery,
-  useMutation: mockUseMutation,
 }));
 
 vi.mock("@stores/takes-notification-store", () => ({
@@ -44,58 +42,38 @@ vi.mock("sonner", () => ({
 
 setupTests();
 
-const mockStorageUsage = {
-  usedBytes: 5 * 1024 * 1024,
-  imageCount: 3,
-  imageLimit: 10,
-  storageLimitBytes: 50 * 1024 * 1024,
+type MockJob = Pick<
+  Doc<"aiGenerationJobs">,
+  | "_id"
+  | "_creationTime"
+  | "fileName"
+  | "parent"
+  | "status"
+  | "failureReason"
+  | "thumbnailBase64"
+  | "takeImageId"
+> & {
+  takeImageUrl: string | null;
 };
 
-function mockImage(
-  overrides: Partial<
-    Doc<"images"> & {
-      sourceUrl: string | null;
-    }
-  > = {},
-) {
+function mockJob(overrides: Partial<MockJob> = {}): MockJob {
   return {
-    _id: "img1" as Doc<"images">["_id"],
+    _id: "job1" as Doc<"aiGenerationJobs">["_id"],
     _creationTime: Date.UTC(2026, 5, 16, 16, 1, 11),
-    userId: "user1" as Doc<"images">["userId"],
-    sourceStorageId: "storage1" as Doc<"images">["sourceStorageId"],
     fileName: "test-photo.jpg",
-    params: {
-      selectedFilmId: "none",
-      halationIntensity: 0,
-      halationSpread: 0,
-      halationThreshold: 0,
-      vignetteIntensity: 0,
-      vignetteFeather: 0,
-      grainIntensity: 0,
-    },
-    source: "manual" as "openai" | "manual",
-    parent: undefined as { imageId?: string; fileName: string } | undefined,
-    sourceUrl: "https://example.com/source1.jpg",
+    status: "completed",
+    failureReason: undefined,
+    thumbnailBase64: "dGVzdC10aHVtYm5haWw=",
+    takeImageId: "img1" as Doc<"images">["_id"],
+    takeImageUrl: "https://example.com/take1.jpg",
+    parent: undefined as { imageId?: Doc<"images">["_id"]; fileName: string } | undefined,
     ...overrides,
   };
 }
 
-const expectedDate =
-  new Date(Date.UTC(2026, 5, 16, 16, 1, 11)).toLocaleString("en-GB", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "UTC",
-  }) + " UTC";
-
-function renderPage(images: unknown[], storage = mockStorageUsage) {
+function renderPage(jobs: unknown[]) {
   mockUseQuery.mockReset();
-  mockUseQuery
-    .mockImplementationOnce(() => ({ status: "success", data: images }))
-    .mockImplementationOnce(() => ({ status: "success", data: storage }))
-    .mockReturnValue({ status: "success", data: images });
+  mockUseQuery.mockReturnValue({ status: "success", data: jobs });
 
   const result = render(<TakesPage />);
   act(() => {
@@ -107,7 +85,6 @@ function renderPage(images: unknown[], storage = mockStorageUsage) {
 describe("TakesPage", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    mockUseMutation.mockReturnValue(vi.fn().mockResolvedValue(undefined));
   });
 
   afterEach(() => {
@@ -142,77 +119,57 @@ describe("TakesPage", () => {
     expect(screen.getByText(/failed to load/i)).toBeDefined();
   });
 
-  it("renders usage bar with count when storage is loaded", () => {
-    const take = mockImage({
-      _id: "take1" as Doc<"images">["_id"],
-      fileName: "ai-grain-source-photo.jpg",
-      parent: { imageId: "source1" as Doc<"images">["_id"], fileName: "source-photo.jpg" },
-      source: "openai" as "openai" | "manual",
-      _creationTime: Date.UTC(2026, 5, 17, 10, 30, 0),
-    });
-    renderPage([take]);
-
-    expect(screen.getByText("Images")).toBeDefined();
-    expect(screen.getByText("3 of 10")).toBeDefined();
-  });
-
   it("renders takes grouped by source image with section headers and rows", () => {
-    const take1 = mockImage({
-      _id: "take1" as Doc<"images">["_id"],
+    const job1 = mockJob({
+      _id: "job1" as Doc<"aiGenerationJobs">["_id"],
       fileName: "ai-grain-source-photo.jpg",
       parent: { imageId: "source1" as Doc<"images">["_id"], fileName: "source-photo.jpg" },
-      source: "openai" as "openai" | "manual",
       _creationTime: Date.UTC(2026, 5, 17, 10, 30, 0),
     });
-    const take2 = mockImage({
-      _id: "take2" as Doc<"images">["_id"],
+    const job2 = mockJob({
+      _id: "job2" as Doc<"aiGenerationJobs">["_id"],
       fileName: "ai-grain-source-photo-2.jpg",
       parent: { imageId: "source1" as Doc<"images">["_id"], fileName: "source-photo.jpg" },
-      source: "openai" as "openai" | "manual",
       _creationTime: Date.UTC(2026, 5, 17, 11, 0, 0),
     });
-    renderPage([take1, take2]);
+    renderPage([job1, job2]);
 
     expect(screen.getByText("source-photo.jpg")).toBeDefined();
 
     const images = screen.getAllByRole("img");
     expect(images).toHaveLength(2);
-    expect(images[0].getAttribute("src")).toBe(take1.sourceUrl);
-    expect(images[1].getAttribute("src")).toBe(take2.sourceUrl);
+    expect(images[0].getAttribute("src")).toBe(`data:image/jpeg;base64,${job1.thumbnailBase64}`);
+    expect(images[1].getAttribute("src")).toBe(`data:image/jpeg;base64,${job2.thumbnailBase64}`);
   });
 
   it("renders separate groups for different source images", () => {
-    const take1 = mockImage({
-      _id: "take1" as Doc<"images">["_id"],
+    const job1 = mockJob({
+      _id: "job1" as Doc<"aiGenerationJobs">["_id"],
       fileName: "ai-grain-photo.jpg",
       parent: { imageId: "source1" as Doc<"images">["_id"], fileName: "photo.jpg" },
-      source: "openai" as "openai" | "manual",
     });
-    const take2 = mockImage({
-      _id: "take2" as Doc<"images">["_id"],
+    const job2 = mockJob({
+      _id: "job2" as Doc<"aiGenerationJobs">["_id"],
       fileName: "ai-grain-another-shot.png",
       parent: { imageId: "source2" as Doc<"images">["_id"], fileName: "another-shot.png" },
-      source: "openai" as "openai" | "manual",
     });
-    renderPage([take1, take2]);
+    renderPage([job1, job2]);
 
     expect(screen.getByText("photo.jpg")).toBeDefined();
     expect(screen.getByText("another-shot.png")).toBeDefined();
   });
 
   it("keeps multiple takes under the same source image in one group", () => {
-    const take1 = mockImage({
-      _id: "take1" as Doc<"images">["_id"],
+    const job1 = mockJob({
+      _id: "job1" as Doc<"aiGenerationJobs">["_id"],
       parent: { imageId: "source1" as Doc<"images">["_id"], fileName: "photo.jpg" },
-      source: "openai" as "openai" | "manual",
     });
-    const take2 = mockImage({
-      _id: "take2" as Doc<"images">["_id"],
+    const job2 = mockJob({
+      _id: "job2" as Doc<"aiGenerationJobs">["_id"],
       parent: { imageId: "source1" as Doc<"images">["_id"], fileName: "photo.jpg" },
-      source: "openai" as "openai" | "manual",
       _creationTime: Date.UTC(2026, 5, 17, 10, 30, 0),
     });
-    renderPage([take1, take2]);
+    renderPage([job1, job2]);
 
     expect(screen.getByText("photo.jpg")).toBeDefined();
 
@@ -220,67 +177,28 @@ describe("TakesPage", () => {
     expect(images).toHaveLength(2);
   });
 
-  it("shows skeleton placeholder when sourceUrl is null", () => {
-    const take = mockImage({
-      _id: "take1" as Doc<"images">["_id"],
+  it("shows skeleton placeholder when thumbnailBase64 is null", () => {
+    const job = mockJob({
+      _id: "job1" as Doc<"aiGenerationJobs">["_id"],
       parent: { imageId: "source1" as Doc<"images">["_id"], fileName: "photo.jpg" },
-      source: "openai" as "openai" | "manual",
-      sourceUrl: null,
+      thumbnailBase64: undefined,
     });
 
-    const { container } = renderPage([take]);
+    const { container } = renderPage([job]);
 
     const image = container.querySelector("img");
     expect(image).toBeNull();
   });
 
-  it("renders download and delete buttons for each take", () => {
-    const take = mockImage({
-      _id: "take1" as Doc<"images">["_id"],
+  it("renders download button for each completed take", () => {
+    const job = mockJob({
+      _id: "job1" as Doc<"aiGenerationJobs">["_id"],
       parent: { imageId: "source1" as Doc<"images">["_id"], fileName: "photo.jpg" },
-      source: "openai" as "openai" | "manual",
     });
-    renderPage([take]);
+    renderPage([job]);
 
     const buttons = screen.getAllByRole("button");
-    expect(buttons).toHaveLength(2);
-  });
-
-  it("calls deleteImage mutation when delete button is clicked and removes row", () => {
-    const deleteFn = vi.fn().mockResolvedValue(undefined);
-    mockUseMutation.mockReturnValue(deleteFn);
-    const take = mockImage({
-      _id: "take1" as Doc<"images">["_id"],
-      parent: { imageId: "source1" as Doc<"images">["_id"], fileName: "photo.jpg" },
-      source: "openai" as "openai" | "manual",
-    });
-    renderPage([take]);
-
-    const deleteButton = screen.getAllByRole("button")[1];
-    fireEvent.click(deleteButton);
-
-    expect(deleteFn).toHaveBeenCalledWith({ imageId: take._id });
-    expect(screen.queryByText(expectedDate)).toBeNull();
-  });
-
-  it("restores row when delete mutation fails", async () => {
-    const deleteFn = vi.fn().mockRejectedValue(new Error("Failed"));
-    mockUseMutation.mockReturnValue(deleteFn);
-    const take = mockImage({
-      _id: "take1" as Doc<"images">["_id"],
-      parent: { imageId: "source1" as Doc<"images">["_id"], fileName: "photo.jpg" },
-      source: "openai" as "openai" | "manual",
-    });
-    renderPage([take]);
-
-    const deleteButton = screen.getAllByRole("button")[1];
-    fireEvent.click(deleteButton);
-
-    expect(screen.queryByText(expectedDate)).toBeNull();
-
-    await act(async () => {});
-
-    expect(screen.getByText(expectedDate)).toBeDefined();
+    expect(buttons).toHaveLength(1);
   });
 
   it("downloads full image when download button is clicked", async () => {
@@ -292,64 +210,63 @@ describe("TakesPage", () => {
       headers: new Headers(),
     } as Response);
 
-    const take = mockImage({
-      _id: "take1" as Doc<"images">["_id"],
+    const job = mockJob({
+      _id: "job1" as Doc<"aiGenerationJobs">["_id"],
       parent: { imageId: "source1" as Doc<"images">["_id"], fileName: "photo.jpg" },
-      source: "openai" as "openai" | "manual",
+      takeImageUrl: "https://example.com/full-image.jpg",
     });
-    renderPage([take]);
+    renderPage([job]);
 
-    const downloadButton = screen.getAllByRole("button")[0];
+    const downloadButton = screen.getByRole("button");
     fireEvent.click(downloadButton);
 
     await act(async () => {});
 
-    expect(fetchSpy).toHaveBeenCalledWith(take.sourceUrl);
+    expect(fetchSpy).toHaveBeenCalledWith(job.takeImageUrl);
 
     fetchSpy.mockRestore();
   });
 
   it("calls markSeen on mount", () => {
-    const images: unknown[] = [];
-    renderPage(images);
+    const jobs: unknown[] = [];
+    renderPage(jobs);
 
     expect(mockMarkSeen).toHaveBeenCalledTimes(1);
   });
 
   it("links take thumbnail to the AI grain image in gallery", () => {
-    const take = mockImage({
-      _id: "take1" as Doc<"images">["_id"],
+    const job = mockJob({
+      _id: "job1" as Doc<"aiGenerationJobs">["_id"],
       parent: { imageId: "source1" as Doc<"images">["_id"], fileName: "photo.jpg" },
-      source: "openai" as "openai" | "manual",
+      takeImageId: "img1" as Doc<"images">["_id"],
     });
-    renderPage([take]);
+    renderPage([job]);
 
     const links = screen.getAllByRole("link");
     const thumbnailLink = links.find((l) => l.querySelector("img"));
-    expect(thumbnailLink?.getAttribute("href")).toBe(`/gallery/${take._id}`);
+    expect(thumbnailLink?.getAttribute("href")).toBe(`/gallery/${job.takeImageId}`);
   });
 
   it("links take filename to the AI grain image in gallery", () => {
-    const take = mockImage({
-      _id: "take1" as Doc<"images">["_id"],
+    const job = mockJob({
+      _id: "job1" as Doc<"aiGenerationJobs">["_id"],
       fileName: "ai-grain-source-photo.jpg",
       parent: { imageId: "source1" as Doc<"images">["_id"], fileName: "source-photo.jpg" },
-      source: "openai" as "openai" | "manual",
+      takeImageId: "img1" as Doc<"images">["_id"],
     });
-    renderPage([take]);
+    renderPage([job]);
 
     const filenameLink = screen.getByText("ai-grain-source-photo.jpg");
-    expect(filenameLink.closest("a")?.getAttribute("href")).toBe(`/gallery/${take._id}`);
+    expect(filenameLink.closest("a")?.getAttribute("href")).toBe(`/gallery/${job.takeImageId}`);
   });
 
   it("links group source file name to the parent image in gallery", () => {
-    const take = mockImage({
-      _id: "take1" as Doc<"images">["_id"],
+    const job = mockJob({
+      _id: "job1" as Doc<"aiGenerationJobs">["_id"],
       fileName: "ai-grain-source-photo.jpg",
       parent: { imageId: "source1" as Doc<"images">["_id"], fileName: "source-photo.jpg" },
-      source: "openai" as "openai" | "manual",
     });
-    renderPage([take]);
+    renderPage([job]);
 
     const groupHeader = screen.getByText("source-photo.jpg");
     expect(groupHeader.closest("a")?.getAttribute("href")).toBe("/gallery/source1");

@@ -9,33 +9,40 @@ import { Link } from "@tanstack/react-router";
 import { useQuery_experimental as useQuery } from "convex/react";
 import { useEffect } from "react";
 
-type GalleryImage = Pick<
-  Doc<"images">,
-  "_id" | "_creationTime" | "fileName" | "parent" | "status" | "failureReason"
+type JobRow = Pick<
+  Doc<"aiGenerationJobs">,
+  | "_id"
+  | "_creationTime"
+  | "fileName"
+  | "parent"
+  | "status"
+  | "failureReason"
+  | "thumbnailBase64"
+  | "takeImageId"
 > & {
-  sourceUrl: string | null;
+  takeImageUrl: string | null;
 };
 
 interface TakeSection {
   sourceImageId: string;
   sourceLinkId: string | null;
   sourceFileName: string;
-  takes: GalleryImage[];
+  takes: JobRow[];
 }
 
-function groupBySourceImage(images: GalleryImage[]): TakeSection[] {
+function groupBySourceImage(jobs: JobRow[]): TakeSection[] {
   const map = new Map<string, TakeSection>();
-  for (const img of images) {
-    const key = img.parent?.imageId ?? img.parent?.fileName ?? img._id;
+  for (const job of jobs) {
+    const key = job.parent?.imageId ?? job.parent?.fileName ?? job._id;
     const existing = map.get(key);
     if (existing) {
-      existing.takes.push(img);
+      existing.takes.push(job);
     } else {
       map.set(key, {
         sourceImageId: key,
-        sourceLinkId: img.parent?.imageId ?? (img.parent ? null : img._id),
-        sourceFileName: img.parent?.fileName ?? img.fileName,
-        takes: [img],
+        sourceLinkId: job.parent?.imageId ?? null,
+        sourceFileName: job.parent?.fileName ?? job.fileName,
+        takes: [job],
       });
     }
   }
@@ -43,7 +50,7 @@ function groupBySourceImage(images: GalleryImage[]): TakeSection[] {
 }
 
 export function TakesPage() {
-  const result = useQuery({ query: api.images.listByUser, args: { source: "openai" } });
+  const result = useQuery({ query: api.aiGenerationJobs.listByUser, args: {} });
   const markSeen = useTakesNotificationStore((s) => s.markSeen);
 
   useEffect(() => {
@@ -53,8 +60,8 @@ export function TakesPage() {
   const pending = result.status === "pending";
   const errored = result.status === "error";
 
-  const activeTakes = result.status === "success" ? result.data : null;
-  const groups = activeTakes ? groupBySourceImage(activeTakes) : [];
+  const jobs = result.status === "success" ? result.data : null;
+  const groups = jobs ? groupBySourceImage(jobs) : [];
 
   if (pending) {
     return <TakesSkeleton />;
@@ -68,7 +75,7 @@ export function TakesPage() {
     );
   }
 
-  if (!activeTakes || activeTakes.length == 0) {
+  if (!jobs || jobs.length == 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-12">
         <p className="text-muted-foreground">No AI Takes yet.</p>
@@ -99,7 +106,7 @@ export function TakesPage() {
           )}
           <div className="space-y-2">
             {group.takes.map((take) => (
-              <TakeRow key={take._id} take={take} />
+              <TakeRow key={take._id} job={take} />
             ))}
           </div>
         </section>

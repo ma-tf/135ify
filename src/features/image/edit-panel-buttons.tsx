@@ -11,11 +11,9 @@ import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { DownloadIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
 
 export function EditPanelButtons({
-  context,
   setParam,
   downloadFullSize,
 }: {
-  context: "upload" | "gallery";
   setParam: (partial: Partial<ProcessParams>) => void;
   downloadFullSize: () => Promise<void>;
 }) {
@@ -38,8 +36,8 @@ export function EditPanelButtons({
 
   return (
     <div className="flex flex-col gap-2">
-      {context === "upload" && <SaveToGalleryButton />}
-      <GenerateAiGrainButton context={context} />
+      <SaveToGalleryButton />
+      <GenerateAiGrainButton />
       <Button variant="outline" size="sm" className="gap-1.5" onClick={handleReset}>
         <RotateCcwIcon className="size-3.5" />
         Reset

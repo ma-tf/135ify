@@ -13,7 +13,7 @@ const { mockUseQuery, mockUseTakesNotificationStore, mockUseLocation, mockUseCon
   }));
 
 vi.mock("@convex/_generated/api", () => ({
-  api: { images: { latestAiGrainTimestamp: "latestAiGrainTimestamp" } },
+  api: { aiGenerationJobs: { latestJobTimestamp: "latestJobTimestamp" } },
 }));
 
 vi.mock("@stores/takes-notification-store", () => ({

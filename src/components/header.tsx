@@ -47,7 +47,7 @@ function GalleryLink() {
 function TakesLink() {
   const location = useLocation();
   const lastSeenAt = useTakesNotificationStore((s) => s.lastSeenAt);
-  const latestResult = useQuery({ query: api.images.latestAiGrainTimestamp, args: {} });
+  const latestResult = useQuery({ query: api.aiGenerationJobs.latestJobTimestamp, args: {} });
   const latestTimestamp = latestResult.status === "success" ? latestResult.data : null;
 
   const isOnTakes = location.pathname.startsWith("/takes");

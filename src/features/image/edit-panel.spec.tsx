@@ -10,21 +10,15 @@ import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-const {
-  mockUseAuth,
-  mockUseLocation,
-  mockUseAction,
-  mockUseAiProviderStore,
-  mockConfig,
-  mockToast,
-} = vi.hoisted(() => ({
-  mockUseAuth: vi.fn(() => ({ isAuthenticated: false, isLoading: false })),
-  mockUseLocation: vi.fn(() => ({ pathname: "/" })),
-  mockUseAction: vi.fn(),
-  mockUseAiProviderStore: vi.fn(() => ({ apiKey: "" })),
-  mockConfig: { FEATURE_AI_GRAIN: true },
-  mockToast: { success: vi.fn(), error: vi.fn() },
-}));
+const { mockUseAuth, mockUseLocation, mockUseAiProviderStore, mockConfig, mockToast } = vi.hoisted(
+  () => ({
+    mockUseAuth: vi.fn(() => ({ isAuthenticated: false, isLoading: false })),
+    mockUseLocation: vi.fn(() => ({ pathname: "/" })),
+    mockUseAiProviderStore: vi.fn(() => ({ apiKey: "" })),
+    mockConfig: { FEATURE_AI_GRAIN: true },
+    mockToast: { success: vi.fn(), error: vi.fn() },
+  }),
+);
 
 vi.mock("@features/image/use-file-processing", () => ({
   useFileProcessing: vi.fn(() => ({
@@ -47,7 +41,10 @@ vi.mock("@tanstack/react-router", () => ({
 vi.mock("convex/react", () => ({
   useQuery_experimental: vi.fn(),
   useMutation: vi.fn(),
-  useAction: mockUseAction,
+}));
+
+vi.mock("@hooks/useAiGrainGeneration", () => ({
+  useAiGrainGeneration: () => ({ trigger: vi.fn(), isGenerating: false }),
 }));
 
 vi.mock("@hooks/use-auth", () => ({
@@ -83,10 +80,6 @@ vi.mock("@stores/ai-provider-store", () => ({
 
 vi.mock("@components/ai-key-dialog", () => ({
   AiKeyDialog: () => <div data-testid="ai-key-dialog" />,
-}));
-
-vi.mock("@components/over-quota-dialog", () => ({
-  OverQuotaDialog: () => <div data-testid="over-quota-dialog" />,
 }));
 
 import { useFileProcessing } from "@features/image/use-file-processing";

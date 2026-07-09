@@ -17,6 +17,7 @@ export function SaveToGalleryButton() {
   const { save, isSaving } = useSaveToGallery({ file, onSuccess: onClose });
 
   if (!isAuthenticated) return null;
+  if (file.convexId) return null;
 
   const count = gallery?.status === "success" ? gallery.data.length : 0;
   if (count >= GALLERY_IMAGE_LIMIT) return null;

@@ -96,7 +96,7 @@ function GrainControls({ setParam }: { setParam: (partial: Partial<ProcessParams
   );
 }
 
-export function EditPanel({ context = "upload" }: { context?: "upload" | "gallery" }) {
+export function EditPanel() {
   const file = useFile();
   const { showOriginal, setShowOriginal } = useEditView();
   const { setParam, downloadFullSize } = useFileProcessing();
@@ -141,7 +141,7 @@ export function EditPanel({ context = "upload" }: { context?: "upload" | "galler
       <VignetteControls setParam={setParam} />
       <GrainControls setParam={setParam} />
 
-      <EditPanelButtons context={context} setParam={setParam} downloadFullSize={downloadFullSize} />
+      <EditPanelButtons setParam={setParam} downloadFullSize={downloadFullSize} />
     </div>
   );
 }

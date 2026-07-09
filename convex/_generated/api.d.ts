@@ -8,7 +8,8 @@
  * @module
  */
 
-import type * as aiGeneration from "../aiGeneration.js";
+import type * as aiGenerationJobs from "../aiGenerationJobs.js";
+import type * as aiGenerationJobsActions from "../aiGenerationJobsActions.js";
 import type * as auth from "../auth.js";
 import type * as config from "../config.js";
 import type * as http from "../http.js";
@@ -23,7 +24,8 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  aiGeneration: typeof aiGeneration;
+  aiGenerationJobs: typeof aiGenerationJobs;
+  aiGenerationJobsActions: typeof aiGenerationJobsActions;
   auth: typeof auth;
   config: typeof config;
   http: typeof http;

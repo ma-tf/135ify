@@ -1,19 +1,22 @@
 import { GenerateAiGrainButton } from "@features/image/generate-ai-grain-button";
-import { TEST_FILE_RECORD_PHOTO } from "@test-utils/test-fixtures.spec";
+import { setupTests } from "@test-utils/setup.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-const { mockUseAuth, mockUseAction, mockUseAiProviderStore, mockConfig, mockToast } = vi.hoisted(
+const { mockUseAuth, mockUseAiProviderStore, mockConfig, mockUseAiGrainGeneration } = vi.hoisted(
   () => ({
     mockUseAuth: vi.fn(() => ({ isAuthenticated: false, isLoading: false })),
-    mockUseAction: vi.fn(),
     mockUseAiProviderStore: vi.fn(() => ({ apiKey: "" })),
     mockConfig: { FEATURE_AI_GRAIN: true },
-    mockToast: { success: vi.fn(), error: vi.fn() },
+    mockUseAiGrainGeneration: vi.fn(() => ({
+      trigger: vi.fn().mockResolvedValue(undefined),
+      isGenerating: false,
+    })),
   }),
 );
 
 vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => vi.fn(),
   Link: ({ to, children, className }: any) => (
     <a href={to} className={className}>
       {children}
@@ -21,16 +24,12 @@ vi.mock("@tanstack/react-router", () => ({
   ),
 }));
 
-vi.mock("convex/react", () => ({
-  useAction: mockUseAction,
-}));
-
 vi.mock("@hooks/use-auth", () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock("@providers/file-context", () => ({
-  useFile: () => TEST_FILE_RECORD_PHOTO,
+vi.mock("@hooks/useAiGrainGeneration", () => ({
+  useAiGrainGeneration: mockUseAiGrainGeneration,
 }));
 
 vi.mock("@config", () => ({
@@ -39,26 +38,28 @@ vi.mock("@config", () => ({
   },
 }));
 
-vi.mock("sonner", () => ({
-  toast: mockToast,
-}));
-
 vi.mock("@stores/ai-provider-store", () => ({
   useAiProviderStore: mockUseAiProviderStore,
 }));
 
 vi.mock("@components/ai-key-dialog", () => ({
-  AiKeyDialog: () => <div data-testid="ai-key-dialog" />,
+  AiKeyDialog: ({ onSave }: any) => (
+    <div data-testid="ai-key-dialog">
+      <button onClick={() => onSave("sk-from-dialog")}>Save Key</button>
+    </div>
+  ),
 }));
 
-vi.mock("@components/over-quota-dialog", () => ({
-  OverQuotaDialog: () => <div data-testid="over-quota-dialog" />,
-}));
+setupTests();
 
 describe("Generate AI Film Grain button", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockConfig.FEATURE_AI_GRAIN = true;
+    mockUseAiGrainGeneration.mockReturnValue({
+      trigger: vi.fn().mockResolvedValue(undefined),
+      isGenerating: false,
+    });
   });
 
   afterEach(() => {
@@ -69,7 +70,7 @@ describe("Generate AI Film Grain button", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
     mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
 
-    render(<GenerateAiGrainButton context="gallery" />);
+    render(<GenerateAiGrainButton />);
 
     expect(screen.getByText("Generate AI Film Grain")).toBeDefined();
   });
@@ -78,7 +79,7 @@ describe("Generate AI Film Grain button", () => {
     mockConfig.FEATURE_AI_GRAIN = false;
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
 
-    render(<GenerateAiGrainButton context="gallery" />);
+    render(<GenerateAiGrainButton />);
 
     expect(screen.queryByText("Generate AI Film Grain")).toBeNull();
   });
@@ -86,7 +87,7 @@ describe("Generate AI Film Grain button", () => {
   it("does not render when not authenticated", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: false, isLoading: false });
 
-    render(<GenerateAiGrainButton context="gallery" />);
+    render(<GenerateAiGrainButton />);
 
     expect(screen.queryByText("Generate AI Film Grain")).toBeNull();
   });
@@ -94,11 +95,12 @@ describe("Generate AI Film Grain button", () => {
   it("disables button and shows spinner while generating", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
     mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
-    mockUseAction.mockReturnValue(vi.fn(() => new Promise(() => {})));
+    mockUseAiGrainGeneration.mockReturnValue({
+      trigger: vi.fn(() => new Promise(() => {})),
+      isGenerating: true,
+    });
 
-    render(<GenerateAiGrainButton context="gallery" />);
-
-    fireEvent.click(screen.getByText("Generate AI Film Grain"));
+    render(<GenerateAiGrainButton />);
 
     const button = screen.getByRole("button", { name: /generate ai film grain/i });
     expect(button.hasAttribute("disabled")).toBe(true);
@@ -108,7 +110,7 @@ describe("Generate AI Film Grain button", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
     mockUseAiProviderStore.mockReturnValue({ apiKey: "" });
 
-    render(<GenerateAiGrainButton context="gallery" />);
+    render(<GenerateAiGrainButton />);
 
     expect(screen.queryByTestId("ai-key-dialog")).toBeNull();
 
@@ -117,98 +119,36 @@ describe("Generate AI Film Grain button", () => {
     expect(screen.getByTestId("ai-key-dialog")).toBeDefined();
   });
 
-  it("calls useAction with correct arguments when API key is set", async () => {
+  it("calls trigger with apiKey when button clicked", async () => {
+    const trigger = vi.fn().mockResolvedValue(undefined);
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
     mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
-    const mockGenerate = vi.fn().mockResolvedValue({ status: "stored", imageId: "img-1" });
-    mockUseAction.mockReturnValue(mockGenerate);
+    mockUseAiGrainGeneration.mockReturnValue({ trigger, isGenerating: false });
 
-    render(<GenerateAiGrainButton context="gallery" />);
+    render(<GenerateAiGrainButton />);
 
     fireEvent.click(screen.getByText("Generate AI Film Grain"));
 
     await vi.waitFor(() => {
-      expect(mockGenerate).toHaveBeenCalledWith({
-        sourceImageId: TEST_FILE_RECORD_PHOTO.id,
-        apiKey: "sk-test",
-      });
+      expect(trigger).toHaveBeenCalledWith("sk-test");
     });
   });
 
-  it("shows success toast with link to gallery on stored result", async () => {
+  it("calls trigger with key from dialog when no apiKey is set", async () => {
+    const trigger = vi.fn().mockResolvedValue(undefined);
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
-    const mockGenerate = vi.fn().mockResolvedValue({ status: "stored", imageId: "img-1" });
-    mockUseAction.mockReturnValue(mockGenerate);
+    mockUseAiProviderStore.mockReturnValue({ apiKey: "" });
+    mockUseAiGrainGeneration.mockReturnValue({ trigger, isGenerating: false });
 
-    render(<GenerateAiGrainButton context="gallery" />);
+    render(<GenerateAiGrainButton />);
 
     fireEvent.click(screen.getByText("Generate AI Film Grain"));
+    expect(screen.getByTestId("ai-key-dialog")).toBeDefined();
+
+    fireEvent.click(screen.getByText("Save Key"));
 
     await vi.waitFor(() => {
-      expect(mockToast.success).toHaveBeenCalled();
+      expect(trigger).toHaveBeenCalledWith("sk-from-dialog");
     });
-
-    const successArg = mockToast.success.mock.calls[0][0];
-    const linkEl = successArg.props.children[1];
-    expect(linkEl.props.to).toBe("/gallery/$imageId");
-    expect(linkEl.props.params.imageId).toBe("img-1");
-  });
-
-  it("shows error toast when action rejects", async () => {
-    mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
-    const mockGenerate = vi.fn().mockRejectedValue(new Error("API error"));
-    mockUseAction.mockReturnValue(mockGenerate);
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
-    render(<GenerateAiGrainButton context="gallery" />);
-
-    fireEvent.click(screen.getByText("Generate AI Film Grain"));
-
-    await vi.waitFor(() => {
-      expect(mockToast.error).toHaveBeenCalledWith("AI generation failed");
-    });
-    expect(consoleSpy).toHaveBeenCalled();
-
-    consoleSpy.mockRestore();
-  });
-
-  it("renders OverQuotaDialog on over-quota result", async () => {
-    mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
-    const mockGenerate = vi
-      .fn()
-      .mockResolvedValue({ status: "overQuota", base64: "dGVzdC1iYXNlNjQ" });
-    mockUseAction.mockReturnValue(mockGenerate);
-
-    render(<GenerateAiGrainButton context="gallery" />);
-
-    expect(screen.queryByTestId("over-quota-dialog")).toBeNull();
-
-    fireEvent.click(screen.getByText("Generate AI Film Grain"));
-
-    await vi.waitFor(() => {
-      expect(screen.getByTestId("over-quota-dialog")).toBeDefined();
-    });
-  });
-
-  it("closes OverQuotaDialog when discarded", async () => {
-    mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
-    const mockGenerate = vi
-      .fn()
-      .mockResolvedValue({ status: "overQuota", base64: "dGVzdC1iYXNlNjQ" });
-    mockUseAction.mockReturnValue(mockGenerate);
-
-    render(<GenerateAiGrainButton context="gallery" />);
-
-    fireEvent.click(screen.getByText("Generate AI Film Grain"));
-
-    await vi.waitFor(() => {
-      expect(screen.getByTestId("over-quota-dialog")).toBeDefined();
-    });
-
-    expect(mockGenerate).toHaveBeenCalledOnce();
   });
 });
