@@ -14,6 +14,7 @@ const TEST_FILE_RECORD: FileRecord = {
   fileName: "test.jpg",
   sourceUrl: "blob:preview-url",
   params: { ...DEFAULT_PARAMS, selectedFilmId: "none" },
+  convexId: null,
   createdAt: Date.now(),
   renderUrl: null,
   isProcessing: false,

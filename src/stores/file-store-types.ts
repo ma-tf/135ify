@@ -24,6 +24,7 @@ export interface FileRecord {
   fileName: string;
   sourceUrl: string;
   params: ProcessParams;
+  convexId: string | null;
   createdAt: number;
   renderUrl: string | null;
   isProcessing: boolean;

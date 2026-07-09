@@ -27,6 +27,7 @@ export function prepareFiles(files: File[]) {
       fileName: file.name,
       sourceUrl: URL.createObjectURL(file),
       params: { ...DEFAULT_PARAMS },
+      convexId: null,
       createdAt: Date.now(),
       renderUrl: null,
       isProcessing: false,

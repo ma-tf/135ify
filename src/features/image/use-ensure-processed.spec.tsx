@@ -20,6 +20,7 @@ function baseFile(overrides?: Partial<FileRecord>): FileRecord {
     fileName: "test.jpg",
     sourceUrl: "blob:preview-url",
     params: { ...DEFAULT_PARAMS },
+    convexId: null,
     createdAt: Date.now(),
     renderUrl: null,
     isProcessing: false,

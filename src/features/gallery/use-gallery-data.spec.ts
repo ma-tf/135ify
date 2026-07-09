@@ -63,6 +63,7 @@ describe("useGalleryData", () => {
     expect(image.sourceUrl).toBe(doc.sourceUrl);
     expect(image.params).toEqual(doc.params);
     expect(image.createdAt).toBe(doc._creationTime);
+    expect(image.convexId).toBe(doc._id);
     expect(image.renderUrl).toBeNull();
     expect(image.isProcessing).toBe(false);
     expect(image.renderError).toBeNull();

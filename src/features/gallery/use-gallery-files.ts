@@ -35,6 +35,7 @@ export function useGalleryFiles(imageId: string) {
         selectedFilmId: queryData.params.selectedFilmId as FileRecord["params"]["selectedFilmId"],
         ...localParams,
       },
+      convexId: queryData._id,
       createdAt: queryData._creationTime,
       renderUrl: localRenderUrl,
       isProcessing: localIsProcessing,

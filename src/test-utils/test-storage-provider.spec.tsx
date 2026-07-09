@@ -14,6 +14,7 @@ export function TestStorageProvider({ children }: { children: ReactNode }) {
       fileName: f.name,
       sourceUrl: URL.createObjectURL(f),
       params: { ...DEFAULT_PARAMS },
+      convexId: null,
       createdAt: Date.now(),
       renderUrl: null,
       isProcessing: false,

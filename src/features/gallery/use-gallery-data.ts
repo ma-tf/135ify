@@ -24,6 +24,7 @@ export function useGalleryData() {
             ...doc.params,
             selectedFilmId: doc.params.selectedFilmId as FileRecord["params"]["selectedFilmId"],
           },
+          convexId: doc._id,
           createdAt: doc._creationTime,
           renderUrl: cached?.renderUrl ?? null,
           isProcessing: cached?.isProcessing ?? false,
