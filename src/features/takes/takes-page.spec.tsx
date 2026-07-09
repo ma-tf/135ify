@@ -27,6 +27,7 @@ vi.mock("@tanstack/react-router", () => ({
 
 vi.mock("convex/react", () => ({
   useQuery_experimental: mockUseQuery,
+  useMutation: () => vi.fn(),
 }));
 
 vi.mock("@stores/takes-notification-store", () => ({
@@ -52,6 +53,7 @@ type MockJob = Pick<
   | "failureReason"
   | "thumbnailBase64"
   | "takeImageId"
+  | "overQuotaStorageId"
 > & {
   takeImageUrl: string | null;
 };
@@ -67,6 +69,7 @@ function mockJob(overrides: Partial<MockJob> = {}): MockJob {
     takeImageId: "img1" as Doc<"images">["_id"],
     takeImageUrl: "https://example.com/take1.jpg",
     parent: undefined as { imageId?: Doc<"images">["_id"]; fileName: string } | undefined,
+    overQuotaStorageId: undefined as Doc<"aiGenerationJobs">["overQuotaStorageId"],
     ...overrides,
   };
 }

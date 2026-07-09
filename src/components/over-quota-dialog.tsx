@@ -9,21 +9,28 @@ import {
 } from "@components/ui/dialog";
 import { useCallback } from "react";
 
-export function OverQuotaDialog({ base64, onDiscard }: { base64: string; onDiscard: () => void }) {
-  const handleDownload = useCallback(() => {
-    const byteCharacters = atob(base64);
-    const byteArray = new Uint8Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteArray[i] = byteCharacters.charCodeAt(i);
+export function OverQuotaDialog({
+  downloadUrl,
+  onDiscard,
+}: {
+  downloadUrl: string;
+  onDiscard: () => void;
+}) {
+  const handleDownload = useCallback(async () => {
+    try {
+      const res = await fetch(downloadUrl);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "ai-grain.jpg";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // Download failed silently
     }
-    const blob = new Blob([byteArray], { type: "image/jpeg" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "ai-grain.jpg";
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [base64]);
+    onDiscard();
+  }, [downloadUrl, onDiscard]);
 
   return (
     <Dialog open={true} onOpenChange={() => onDiscard()}>
@@ -36,7 +43,7 @@ export function OverQuotaDialog({ base64, onDiscard }: { base64: string; onDisca
         </DialogHeader>
         <div className="flex justify-center">
           <img
-            src={`data:image/jpeg;base64,${base64}`}
+            src={downloadUrl}
             alt="AI generated preview"
             className="max-h-64 rounded-lg object-contain"
           />

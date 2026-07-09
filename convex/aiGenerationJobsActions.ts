@@ -34,7 +34,7 @@ export const processJob = action({
         .toBuffer();
       const thumbnailBase64 = thumbnailBuffer.toString("base64");
 
-      // Stub: generate a full placeholder JPEG and upload to Convex storage
+      // Stub: generate a full placeholder JPEG
       const fullBuffer = await sharp({
         create: {
           width: 100,
@@ -46,6 +46,33 @@ export const processJob = action({
         .jpeg()
         .toBuffer();
 
+      // Check quota before persisting
+      const { imageCount, imageLimit } = await ctx.runQuery(api.images.getStorageUsage, {});
+
+      if (imageCount >= imageLimit) {
+        // Over quota: upload to ephemeral storage without creating an images record
+        const overQuotaUploadUrl = await ctx.runMutation(api.lib.generateUploadUrl, {});
+        const overQuotaResponse = await fetch(overQuotaUploadUrl, {
+          method: "POST",
+          body: fullBuffer,
+        });
+        if (!overQuotaResponse.ok) {
+          throw new Error("Failed to upload over-quota image");
+        }
+        const { storageId: overQuotaStorageId } = (await overQuotaResponse.json()) as {
+          storageId: Id<"_storage">;
+        };
+
+        await ctx.runMutation(api.aiGenerationJobs.setJobStatus, {
+          jobId: args.jobId,
+          status: "overQuota",
+          thumbnailBase64,
+          overQuotaStorageId,
+        });
+        return;
+      }
+
+      // Under quota: upload and persist as a take
       const uploadUrl = await ctx.runMutation(api.lib.generateUploadUrl, {});
       const response = await fetch(uploadUrl, { method: "POST", body: fullBuffer });
 

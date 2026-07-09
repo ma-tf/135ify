@@ -19,6 +19,7 @@ type JobRow = Pick<
   | "failureReason"
   | "thumbnailBase64"
   | "takeImageId"
+  | "overQuotaStorageId"
 > & {
   takeImageUrl: string | null;
 };

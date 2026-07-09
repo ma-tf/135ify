@@ -45,7 +45,12 @@ export default defineSchema({
   }).index("by_userId", ["userId"]),
   aiGenerationJobs: defineTable({
     userId: v.id("users"),
-    status: v.union(v.literal("processing"), v.literal("completed"), v.literal("failed")),
+    status: v.union(
+      v.literal("processing"),
+      v.literal("completed"),
+      v.literal("failed"),
+      v.literal("overQuota"),
+    ),
     sourceStorageId: v.id("_storage"),
     fileName: v.string(),
     parent: v.optional(
@@ -57,6 +62,7 @@ export default defineSchema({
     takeImageId: v.optional(v.id("images")),
     thumbnailBase64: v.optional(v.string()),
     failureReason: v.optional(v.string()),
+    overQuotaStorageId: v.optional(v.id("_storage")),
   })
     .index("by_userId", ["userId"])
     .index("by_takeImageId", ["takeImageId"])

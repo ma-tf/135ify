@@ -44,10 +44,16 @@ export const getJob = query({
 export const setJobStatus = mutation({
   args: {
     jobId: v.id("aiGenerationJobs"),
-    status: v.union(v.literal("processing"), v.literal("completed"), v.literal("failed")),
+    status: v.union(
+      v.literal("processing"),
+      v.literal("completed"),
+      v.literal("failed"),
+      v.literal("overQuota"),
+    ),
     takeImageId: v.optional(v.id("images")),
     thumbnailBase64: v.optional(v.string()),
     failureReason: v.optional(v.string()),
+    overQuotaStorageId: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
@@ -57,7 +63,32 @@ export const setJobStatus = mutation({
     if (args.takeImageId !== undefined) patch.takeImageId = args.takeImageId;
     if (args.thumbnailBase64 !== undefined) patch.thumbnailBase64 = args.thumbnailBase64;
     if (args.failureReason !== undefined) patch.failureReason = args.failureReason;
+    if (args.overQuotaStorageId !== undefined) patch.overQuotaStorageId = args.overQuotaStorageId;
     await ctx.db.patch(args.jobId, patch);
+  },
+});
+
+export const getOverQuotaUrl = query({
+  args: { jobId: v.id("aiGenerationJobs") },
+  handler: async (ctx, args) => {
+    const userId = await requireAuth(ctx);
+    const doc = await ctx.db.get("aiGenerationJobs", args.jobId);
+    if (!doc || doc.userId !== userId) return null;
+    if (!doc.overQuotaStorageId) return null;
+    return ctx.storage.getUrl(doc.overQuotaStorageId);
+  },
+});
+
+export const clearOverQuota = mutation({
+  args: { jobId: v.id("aiGenerationJobs") },
+  handler: async (ctx, args) => {
+    const userId = await requireAuth(ctx);
+    const doc = await ctx.db.get("aiGenerationJobs", args.jobId);
+    if (!doc || doc.userId !== userId) throw new Error("Unauthorized");
+    if (doc.overQuotaStorageId) {
+      await ctx.storage.delete(doc.overQuotaStorageId);
+    }
+    await ctx.db.patch(args.jobId, { overQuotaStorageId: undefined });
   },
 });
 

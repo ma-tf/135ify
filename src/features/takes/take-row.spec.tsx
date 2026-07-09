@@ -24,6 +24,18 @@ vi.mock("sonner", () => ({
   toast: { error: vi.fn() },
 }));
 
+let mockOverQuotaUrl: string | null = null;
+
+vi.mock("convex/react", () => ({
+  useQuery_experimental: vi.fn((opts: any): any => {
+    if (opts.args?.jobId) {
+      return { status: "success", data: mockOverQuotaUrl };
+    }
+    return { status: "success", data: [] };
+  }),
+  useMutation: () => vi.fn(),
+}));
+
 setupTests();
 
 function mockJob(overrides: Partial<TakeRowJob> = {}): TakeRowJob {
@@ -35,6 +47,7 @@ function mockJob(overrides: Partial<TakeRowJob> = {}): TakeRowJob {
     thumbnailBase64: "dGVzdC10aHVtYm5haWw=",
     takeImageId: "img-1",
     takeImageUrl: "https://example.com/full-image.jpg",
+    overQuotaStorageId: undefined,
     ...overrides,
   };
 }
@@ -42,10 +55,12 @@ function mockJob(overrides: Partial<TakeRowJob> = {}): TakeRowJob {
 describe("TakeRow", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    mockOverQuotaUrl = null;
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    mockOverQuotaUrl = null;
   });
 
   it("renders completed row with thumbnail, filename link, and download button", () => {
@@ -119,5 +134,88 @@ describe("TakeRow", () => {
 
     const badge = screen.getByText("Failed");
     expect(badge.getAttribute("title")).toBe("overQuota");
+  });
+
+  it("renders overQuota row with thumbnail, over quota badge, and no download button", () => {
+    render(
+      <TakeRow
+        job={mockJob({
+          status: "overQuota",
+          thumbnailBase64: "dGVzdC1vdmVyLXF1b3Rh",
+          overQuotaStorageId: "storage-1",
+          takeImageId: undefined,
+        })}
+      />,
+    );
+
+    const img = screen.getByRole("img") as HTMLImageElement;
+    expect(img).toBeDefined();
+    expect(img.src).toBe("data:image/jpeg;base64,dGVzdC1vdmVyLXF1b3Rh");
+
+    expect(screen.getByText("Over Quota")).toBeDefined();
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("opens OverQuotaDialog when overQuota thumbnail is clicked", () => {
+    mockOverQuotaUrl = "https://example.com/over-quota-image.jpg";
+
+    render(
+      <TakeRow
+        job={mockJob({
+          status: "overQuota",
+          thumbnailBase64: "dGVzdC1vdmVyLXF1b3Rh",
+          overQuotaStorageId: "storage-1",
+          takeImageId: undefined,
+        })}
+      />,
+    );
+
+    const thumbnailButton = screen.getByRole("button");
+    fireEvent.click(thumbnailButton);
+
+    expect(screen.getByAltText("AI generated preview")).toBeDefined();
+  });
+
+  it("shows resolved state for overQuota row after discard", async () => {
+    mockOverQuotaUrl = "https://example.com/over-quota-image.jpg";
+
+    render(
+      <TakeRow
+        job={mockJob({
+          status: "overQuota",
+          thumbnailBase64: "dGVzdC1vdmVyLXF1b3Rh",
+          overQuotaStorageId: "storage-1",
+          takeImageId: undefined,
+        })}
+      />,
+    );
+
+    const thumbnailButton = screen.getByRole("button");
+    fireEvent.click(thumbnailButton);
+
+    const discardButton = screen.getByText("Discard");
+    await act(async () => {
+      fireEvent.click(discardButton);
+    });
+
+    expect(screen.getByText("Resolved")).toBeDefined();
+  });
+
+  it("renders overQuota row with non-interactive thumbnail when storage is already cleared", () => {
+    render(
+      <TakeRow
+        job={mockJob({
+          status: "overQuota",
+          thumbnailBase64: "dGVzdC1vdmVyLXF1b3Rh",
+          overQuotaStorageId: undefined,
+          takeImageId: undefined,
+        })}
+      />,
+    );
+
+    const img = screen.getByRole("img") as HTMLImageElement;
+    expect(img).toBeDefined();
+    expect(img.className).toContain("opacity-50");
+    expect(screen.getByText("Resolved")).toBeDefined();
   });
 });
