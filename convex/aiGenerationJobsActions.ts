@@ -21,30 +21,21 @@ export const processJob = action({
       // Simulate AI generation latency
       await new Promise((resolve) => setTimeout(resolve, 3_000));
 
-      // Stub: generate a 128x128 placeholder thumbnail
-      const thumbnailBuffer = await sharp({
-        create: {
-          width: 128,
-          height: 128,
-          channels: 3,
-          background: { r: 200, g: 180, b: 100 },
-        },
-      })
+      // Fetch the source image from storage
+      const sourceUrl = await ctx.storage.getUrl(job.sourceStorageId);
+      if (!sourceUrl) throw new Error("Source image not found in storage");
+
+      const response = await fetch(sourceUrl);
+      if (!response.ok) throw new Error("Failed to fetch source image");
+
+      const fullBuffer = Buffer.from(await response.arrayBuffer());
+
+      // Generate a real thumbnail from the source image
+      const thumbnailBuffer = await sharp(fullBuffer)
+        .resize(128, 128, { fit: "cover" })
         .jpeg()
         .toBuffer();
       const thumbnailBase64 = thumbnailBuffer.toString("base64");
-
-      // Stub: generate a full placeholder JPEG
-      const fullBuffer = await sharp({
-        create: {
-          width: 100,
-          height: 100,
-          channels: 3,
-          background: { r: 200, g: 180, b: 100 },
-        },
-      })
-        .jpeg()
-        .toBuffer();
 
       // Check quota before persisting
       const { imageCount, imageLimit, usedBytes, storageLimitBytes } = await ctx.runQuery(
@@ -77,13 +68,13 @@ export const processJob = action({
 
       // Under quota: upload and persist as a take
       const uploadUrl = await ctx.runMutation(api.lib.generateUploadUrl, {});
-      const response = await fetch(uploadUrl, { method: "POST", body: fullBuffer });
+      const uploadResponse = await fetch(uploadUrl, { method: "POST", body: fullBuffer });
 
-      if (!response.ok) {
+      if (!uploadResponse.ok) {
         throw new Error("Failed to upload generated image");
       }
 
-      const { storageId } = (await response.json()) as {
+      const { storageId } = (await uploadResponse.json()) as {
         storageId: Id<"_storage">;
       };
 
