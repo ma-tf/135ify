@@ -3,17 +3,17 @@ import { setupTests } from "@test-utils/setup.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-const { mockUseAuth, mockUseAiProviderStore, mockConfig, mockUseAiGrainGeneration } = vi.hoisted(
-  () => ({
+const { mockUseAuth, mockUseAiProviderStore, mockConfig, mockUseAiGrainGeneration, mockUseQuery } =
+  vi.hoisted(() => ({
     mockUseAuth: vi.fn(() => ({ isAuthenticated: false, isLoading: false })),
     mockUseAiProviderStore: vi.fn(() => ({ apiKey: "" })),
-    mockConfig: { FEATURE_AI_GRAIN: true },
+    mockConfig: { FEATURE_AI_GRAIN: true, GALLERY_IMAGE_LIMIT: 10 },
     mockUseAiGrainGeneration: vi.fn(() => ({
       trigger: vi.fn().mockResolvedValue(undefined),
       isGenerating: false,
     })),
-  }),
-);
+    mockUseQuery: vi.fn(),
+  }));
 
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => vi.fn(),
@@ -36,6 +36,17 @@ vi.mock("@config", () => ({
   get FEATURE_AI_GRAIN() {
     return mockConfig.FEATURE_AI_GRAIN;
   },
+  get GALLERY_IMAGE_LIMIT() {
+    return mockConfig.GALLERY_IMAGE_LIMIT;
+  },
+}));
+
+vi.mock("convex/react", () => ({
+  useQuery_experimental: mockUseQuery,
+}));
+
+vi.mock("@convex/_generated/api", () => ({
+  api: { images: { getStorageUsage: "getStorageUsage" } },
 }));
 
 vi.mock("@stores/ai-provider-store", () => ({
@@ -56,9 +67,20 @@ describe("Generate AI Film Grain button", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockConfig.FEATURE_AI_GRAIN = true;
+    mockConfig.GALLERY_IMAGE_LIMIT = 10;
     mockUseAiGrainGeneration.mockReturnValue({
       trigger: vi.fn().mockResolvedValue(undefined),
       isGenerating: false,
+    });
+    mockUseQuery.mockReturnValue({
+      status: "success",
+      data: {
+        imageCount: 0,
+        imageLimit: 10,
+        atLimit: false,
+        usedBytes: 0,
+        storageLimitBytes: 52428800,
+      },
     });
   });
 
@@ -98,6 +120,20 @@ describe("Generate AI Film Grain button", () => {
     mockUseAiGrainGeneration.mockReturnValue({
       trigger: vi.fn(() => new Promise(() => {})),
       isGenerating: true,
+    });
+
+    render(<GenerateAiGrainButton />);
+
+    const button = screen.getByRole("button", { name: /generate ai film grain/i });
+    expect(button.hasAttribute("disabled")).toBe(true);
+  });
+
+  it("renders disabled when gallery is at image limit", () => {
+    mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
+    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
+    mockUseQuery.mockReturnValue({
+      status: "success",
+      data: { imageCount: 10, imageLimit: 10, atLimit: true },
     });
 
     render(<GenerateAiGrainButton />);

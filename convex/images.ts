@@ -49,6 +49,7 @@ export const getStorageUsage = query({
       usedBytes,
       imageCount: docs.length,
       imageLimit: GALLERY_IMAGE_LIMIT,
+      atLimit: docs.length >= GALLERY_IMAGE_LIMIT,
       storageLimitBytes: GALLERY_IMAGE_LIMIT * FILE_SIZE_LIMIT_BYTES,
     };
   },

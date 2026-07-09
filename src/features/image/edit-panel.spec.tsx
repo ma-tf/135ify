@@ -39,7 +39,16 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 vi.mock("convex/react", () => ({
-  useQuery_experimental: vi.fn(),
+  useQuery_experimental: vi.fn(() => ({
+    status: "success",
+    data: {
+      imageCount: 0,
+      imageLimit: 10,
+      atLimit: false,
+      usedBytes: 0,
+      storageLimitBytes: 52428800,
+    },
+  })),
   useMutation: vi.fn(),
 }));
 
