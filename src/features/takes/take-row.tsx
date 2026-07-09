@@ -166,7 +166,16 @@ export function TakeRow({ job }: { job: TakeRowJob }) {
             onOverQuotaClick={!overQuotaResolved ? handleOverQuotaThumbnailClick : undefined}
           />
           <div className="min-w-0">
-            <span className="text-sm font-medium text-muted-foreground">{job.fileName}</span>
+            {!overQuotaResolved && job.overQuotaStorageId ? (
+              <button
+                onClick={handleOverQuotaThumbnailClick}
+                className="cursor-pointer text-sm font-medium hover:underline"
+              >
+                {job.fileName}
+              </button>
+            ) : (
+              <span className="text-sm font-medium text-muted-foreground">{job.fileName}</span>
+            )}
             <div className="flex items-center gap-2">
               <p className="text-xs text-muted-foreground">{formatTimestamp(job._creationTime)}</p>
               <OverQuotaBadge resolved={overQuotaResolved} />
