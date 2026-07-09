@@ -47,9 +47,12 @@ export const processJob = action({
         .toBuffer();
 
       // Check quota before persisting
-      const { imageCount, imageLimit } = await ctx.runQuery(api.images.getStorageUsage, {});
+      const { imageCount, imageLimit, usedBytes, storageLimitBytes } = await ctx.runQuery(
+        api.images.getStorageUsage,
+        {},
+      );
 
-      if (imageCount >= imageLimit) {
+      if (imageCount >= imageLimit || usedBytes + fullBuffer.length > storageLimitBytes) {
         // Over quota: upload to ephemeral storage without creating an images record
         const overQuotaUploadUrl = await ctx.runMutation(api.lib.generateUploadUrl, {});
         const overQuotaResponse = await fetch(overQuotaUploadUrl, {
