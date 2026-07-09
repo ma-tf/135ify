@@ -162,6 +162,25 @@ export const deleteImage = mutation({
     if (!doc) throw new Error("Image not found");
     if (doc.userId !== userId) throw new Error("Unauthorized");
 
+    // Step 1: Handle aiGenerationJobs where parent.imageId matches the deleted image
+    const parentJobs = await ctx.db
+      .query("aiGenerationJobs")
+      .withIndex("by_parentImageId", (q) => q.eq("parent.imageId", args.imageId))
+      .collect();
+    for (const job of parentJobs) {
+      if (job.status === "failed") {
+        if (job.overQuotaStorageId) {
+          await ctx.storage.delete(job.overQuotaStorageId);
+        }
+        await ctx.db.delete("aiGenerationJobs", job._id);
+      } else {
+        await ctx.db.patch(job._id, {
+          parent: { imageId: undefined, fileName: job.parent!.fileName },
+        });
+      }
+    }
+
+    // Step 2: Un-link orphaned children in the images table
     const children = await ctx.db
       .query("images")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
@@ -173,6 +192,19 @@ export const deleteImage = mutation({
       });
     }
 
+    // Step 3: Handle job that generated this image as an AI take
+    const takeJobs = await ctx.db
+      .query("aiGenerationJobs")
+      .withIndex("by_takeImageId", (q) => q.eq("takeImageId", args.imageId))
+      .collect();
+    for (const job of takeJobs) {
+      if (job.overQuotaStorageId) {
+        await ctx.storage.delete(job.overQuotaStorageId);
+      }
+      await ctx.db.delete("aiGenerationJobs", job._id);
+    }
+
+    // Step 4: Delete the stored file and database record
     if (doc.sourceStorageId) {
       await ctx.storage.delete(doc.sourceStorageId);
     }
