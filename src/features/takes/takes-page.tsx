@@ -2,7 +2,9 @@ import type { Doc } from "@convex/_generated/dataModel";
 
 import { api } from "@convex/_generated/api";
 import { UsageBar } from "@features/gallery/gallery-usage-bar";
-import { TakeRow } from "@features/takes/take-row";
+import { CompletedTakeRow } from "@features/takes/completed-take-row";
+import { OverQuotaTakeRow } from "@features/takes/over-quota-take-row";
+import { PendingTakeRow } from "@features/takes/pending-take-row";
 import { TakesSkeleton } from "@features/takes/takes-skeleton";
 import { useTakesNotificationStore } from "@stores/takes-notification-store";
 import { Link } from "@tanstack/react-router";
@@ -106,9 +108,15 @@ export function TakesPage() {
             </span>
           )}
           <div className="space-y-2">
-            {group.takes.map((take) => (
-              <TakeRow key={take._id} job={take} />
-            ))}
+            {group.takes.map((take) => {
+              if (take.status === "overQuota") {
+                return <OverQuotaTakeRow key={take._id} job={take} />;
+              }
+              if (take.status !== "completed") {
+                return <PendingTakeRow key={take._id} job={take} />;
+              }
+              return <CompletedTakeRow key={take._id} job={take} />;
+            })}
           </div>
         </section>
       ))}

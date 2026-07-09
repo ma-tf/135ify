@@ -1,10 +1,10 @@
-import type { TakeRowJob } from "@features/takes/take-row";
-
 import { setupTests } from "@test-utils/setup.spec";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-import { TakeRow } from "./take-row";
+import type { TakeRowJob } from "./take-row-thumbnail";
+
+import { OverQuotaTakeRow } from "./over-quota-take-row";
 
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ to, params, children }: any) => {
@@ -52,7 +52,7 @@ function mockJob(overrides: Partial<TakeRowJob> = {}): TakeRowJob {
   };
 }
 
-describe("TakeRow", () => {
+describe("OverQuotaTakeRow", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     mockOverQuotaUrl = null;
@@ -63,82 +63,9 @@ describe("TakeRow", () => {
     mockOverQuotaUrl = null;
   });
 
-  it("renders completed row with thumbnail, filename link, and download button", () => {
-    render(<TakeRow job={mockJob()} />);
-
-    const img = screen.getByRole("img") as HTMLImageElement;
-    expect(img).toBeDefined();
-    expect(img.src).toBe("data:image/jpeg;base64,dGVzdC10aHVtYm5haWw=");
-
-    expect(screen.getByText("photo.jpg")).toBeDefined();
-
-    const links = screen.getAllByRole("link");
-    const thumbnailLink = links.find((l) => l.querySelector("img"));
-    expect(thumbnailLink?.getAttribute("href")).toBe("/gallery/img-1");
-    expect(screen.getByText("photo.jpg").closest("a")?.getAttribute("href")).toBe("/gallery/img-1");
-
-    const buttons = screen.getAllByRole("button");
-    expect(buttons).toHaveLength(1);
-  });
-
-  it("renders processing row with skeleton, badge, and no action buttons", () => {
-    const { container } = render(
-      <TakeRow job={mockJob({ status: "processing", thumbnailBase64: null })} />,
-    );
-
-    expect(container.querySelector("img")).toBeNull();
-    expect(screen.queryByRole("link")).toBeNull();
-    expect(screen.getByText("Processing")).toBeDefined();
-    expect(screen.queryByRole("button")).toBeNull();
-  });
-
-  it("renders failed row with skeleton, failed badge, and no action buttons", () => {
-    const { container } = render(
-      <TakeRow
-        job={mockJob({ status: "failed", thumbnailBase64: null, failureReason: "API error" })}
-      />,
-    );
-
-    expect(container.querySelector("img")).toBeNull();
-    expect(screen.getByText("Failed")).toBeDefined();
-    expect(screen.queryByRole("button")).toBeNull();
-  });
-
-  it("downloads full image when download button is clicked", async () => {
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
-      blob: () => Promise.resolve(new Blob()),
-      ok: true,
-      status: 200,
-      statusText: "OK",
-      headers: new Headers(),
-    } as Response);
-
-    render(<TakeRow job={mockJob()} />);
-
-    const downloadButton = screen.getByRole("button");
-    fireEvent.click(downloadButton);
-
-    await act(async () => {});
-
-    expect(fetchSpy).toHaveBeenCalledWith("https://example.com/full-image.jpg");
-
-    fetchSpy.mockRestore();
-  });
-
-  it("shows failureReason as title attribute on failed badge", () => {
-    render(
-      <TakeRow
-        job={mockJob({ status: "failed", thumbnailBase64: null, failureReason: "overQuota" })}
-      />,
-    );
-
-    const badge = screen.getByText("Failed");
-    expect(badge.getAttribute("title")).toBe("overQuota");
-  });
-
   it("renders overQuota row with thumbnail, over quota badge, and no download button", () => {
     render(
-      <TakeRow
+      <OverQuotaTakeRow
         job={mockJob({
           status: "overQuota",
           thumbnailBase64: "dGVzdC1vdmVyLXF1b3Rh",
@@ -160,7 +87,7 @@ describe("TakeRow", () => {
     mockOverQuotaUrl = "https://example.com/over-quota-image.jpg";
 
     render(
-      <TakeRow
+      <OverQuotaTakeRow
         job={mockJob({
           status: "overQuota",
           thumbnailBase64: "dGVzdC1vdmVyLXF1b3Rh",
@@ -170,7 +97,7 @@ describe("TakeRow", () => {
       />,
     );
 
-    const thumbnailButton = screen.getByRole("button");
+    const [thumbnailButton] = screen.getAllByRole("button");
     fireEvent.click(thumbnailButton);
 
     expect(screen.getByAltText("AI generated preview")).toBeDefined();
@@ -180,7 +107,7 @@ describe("TakeRow", () => {
     mockOverQuotaUrl = "https://example.com/over-quota-image.jpg";
 
     render(
-      <TakeRow
+      <OverQuotaTakeRow
         job={mockJob({
           status: "overQuota",
           thumbnailBase64: "dGVzdC1vdmVyLXF1b3Rh",
@@ -190,7 +117,7 @@ describe("TakeRow", () => {
       />,
     );
 
-    const thumbnailButton = screen.getByRole("button");
+    const [thumbnailButton] = screen.getAllByRole("button");
     fireEvent.click(thumbnailButton);
 
     const discardButton = screen.getByText("Discard");
@@ -203,7 +130,7 @@ describe("TakeRow", () => {
 
   it("renders overQuota row with non-interactive thumbnail when storage is already cleared", () => {
     render(
-      <TakeRow
+      <OverQuotaTakeRow
         job={mockJob({
           status: "overQuota",
           thumbnailBase64: "dGVzdC1vdmVyLXF1b3Rh",

@@ -29,6 +29,7 @@
     "@ai-hero/sandcastle",
     "@components/ui",
     "@convex/_generated",
+    "@tanstack/react-router-devtools",
     "class-variance-authority",
     "jose",
     "netlify-cli",
