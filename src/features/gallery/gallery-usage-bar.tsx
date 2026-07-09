@@ -38,7 +38,7 @@ export function UsageBar() {
         </div>
         <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
           <div
-            className="h-full rounded-full bg-primary transition-all"
+            className={`h-full rounded-full transition-all ${imagePercent >= 100 ? "bg-destructive" : "bg-primary"}`}
             style={{ width: `${imagePercent}%` }}
           />
         </div>
@@ -52,7 +52,7 @@ export function UsageBar() {
         </div>
         <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
           <div
-            className="h-full rounded-full bg-primary transition-all"
+            className={`h-full rounded-full transition-all ${storagePercent >= 90 ? "bg-destructive" : storagePercent >= 75 ? "bg-amber-500" : "bg-primary"}`}
             style={{ width: `${storagePercent}%` }}
           />
         </div>
