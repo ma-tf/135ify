@@ -95,6 +95,14 @@ function FailedBadge({ failureReason }: { failureReason?: string | null }) {
   );
 }
 
+function CompletedBadge() {
+  return (
+    <span className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium tracking-wider text-emerald-600 uppercase">
+      Completed
+    </span>
+  );
+}
+
 function OverQuotaBadge({ resolved }: { resolved?: boolean }) {
   return (
     <span className="inline-flex items-center rounded-full border border-orange-500/30 bg-orange-500/10 px-2 py-0.5 text-[10px] font-medium tracking-wider text-orange-600 uppercase">
@@ -213,7 +221,10 @@ export function TakeRow({ job }: { job: TakeRowJob }) {
         ) : (
           <span className="text-sm font-medium">{job.fileName}</span>
         )}
-        <p className="text-xs text-muted-foreground">{formatTimestamp(job._creationTime)}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-xs text-muted-foreground">{formatTimestamp(job._creationTime)}</p>
+          <CompletedBadge />
+        </div>
       </div>
       <div className="ml-auto flex items-center gap-1">
         <Button
