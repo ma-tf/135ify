@@ -64,6 +64,7 @@ export function OverQuotaTakeRow({ job }: { job: TakeRowJob }) {
         <div className="min-w-0">
           {!overQuotaResolved && job.overQuotaStorageId ? (
             <button
+              type="button"
               onClick={handleThumbnailClick}
               className="cursor-pointer text-sm font-medium hover:underline"
             >

@@ -45,7 +45,7 @@ export function TakeRowThumbnail({
   if (status === "overQuota" && thumbnailBase64) {
     if (overQuotaStorageId && onOverQuotaClick) {
       return (
-        <button onClick={onOverQuotaClick} className="cursor-pointer">
+        <button type="button" onClick={onOverQuotaClick} className="cursor-pointer">
           <img
             src={`data:image/jpeg;base64,${thumbnailBase64}`}
             alt={fileName}
