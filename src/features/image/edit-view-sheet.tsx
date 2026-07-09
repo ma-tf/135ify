@@ -6,7 +6,6 @@ import { useEditViewClose } from "@features/image/edit-view-close-context";
 import { useEditView } from "@features/image/edit-view-context";
 import { useIsMobile } from "@hooks/use-mobile";
 import { useFile } from "@providers/file-context";
-import { useLocation } from "@tanstack/react-router";
 import { XIcon } from "lucide-react";
 
 export function EditViewSheet() {
@@ -14,9 +13,6 @@ export function EditViewSheet() {
   const file = useFile();
   const { showOriginal } = useEditView();
   const onClose = useEditViewClose();
-  const location = useLocation();
-  const context = location.pathname.startsWith("/gallery") ? "gallery" : "upload";
-
   const displayUrl = showOriginal ? file.sourceUrl : file.renderUrl;
 
   return (
@@ -70,7 +66,7 @@ export function EditViewSheet() {
               <Spinner className="size-8" />
             </div>
           ))}
-        <EditPanel context={context} />
+        <EditPanel />
       </SheetContent>
     </Sheet>
   );
