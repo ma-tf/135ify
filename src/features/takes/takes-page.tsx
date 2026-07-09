@@ -1,4 +1,4 @@
-import type { Doc, Id } from "@convex/_generated/dataModel";
+import type { Doc } from "@convex/_generated/dataModel";
 
 import { api } from "@convex/_generated/api";
 import { UsageBar } from "@features/gallery/gallery-usage-bar";
@@ -6,11 +6,13 @@ import { TakeRow } from "@features/takes/take-row";
 import { TakesSkeleton } from "@features/takes/takes-skeleton";
 import { useTakesNotificationStore } from "@stores/takes-notification-store";
 import { Link } from "@tanstack/react-router";
-import { useMutation, useQuery_experimental as useQuery } from "convex/react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useQuery_experimental as useQuery } from "convex/react";
+import { useEffect } from "react";
 
-type GalleryImage = Pick<Doc<"images">, "_id" | "_creationTime" | "fileName" | "parent"> & {
+type GalleryImage = Pick<
+  Doc<"images">,
+  "_id" | "_creationTime" | "fileName" | "parent" | "status" | "failureReason"
+> & {
   sourceUrl: string | null;
 };
 
@@ -24,32 +26,15 @@ interface TakeSection {
 function groupBySourceImage(images: GalleryImage[]): TakeSection[] {
   const map = new Map<string, TakeSection>();
   for (const img of images) {
-    let key: string;
-    let linkId: string | null;
-    let label: string;
-
-    if (img.parent?.imageId) {
-      key = img.parent.imageId;
-      linkId = key;
-      label = img.parent.fileName;
-    } else if (img.parent?.fileName) {
-      key = img.parent.fileName;
-      linkId = null;
-      label = img.parent.fileName;
-    } else {
-      key = img._id;
-      linkId = key;
-      label = img.fileName;
-    }
-
+    const key = img.parent?.imageId ?? img.parent?.fileName ?? img._id;
     const existing = map.get(key);
     if (existing) {
       existing.takes.push(img);
     } else {
       map.set(key, {
         sourceImageId: key,
-        sourceLinkId: linkId,
-        sourceFileName: label,
+        sourceLinkId: img.parent?.imageId ?? (img.parent ? null : img._id),
+        sourceFileName: img.parent?.fileName ?? img.fileName,
         takes: [img],
       });
     }
@@ -59,7 +44,6 @@ function groupBySourceImage(images: GalleryImage[]): TakeSection[] {
 
 export function TakesPage() {
   const result = useQuery({ query: api.images.listByUser, args: { source: "openai" } });
-  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
   const markSeen = useTakesNotificationStore((s) => s.markSeen);
 
   useEffect(() => {
@@ -69,25 +53,8 @@ export function TakesPage() {
   const pending = result.status === "pending";
   const errored = result.status === "error";
 
-  const activeTakes =
-    result.status === "success" ? result.data?.filter((t) => !deletedIds.has(t._id)) : null;
+  const activeTakes = result.status === "success" ? result.data : null;
   const groups = activeTakes ? groupBySourceImage(activeTakes) : [];
-
-  const deleteImage = useMutation(api.images.deleteImage);
-
-  const handleDelete = async (imageId: string) => {
-    setDeletedIds((prev) => new Set(prev).add(imageId));
-    try {
-      await deleteImage({ imageId: imageId as Id<"images"> });
-    } catch {
-      setDeletedIds((prev) => {
-        const next = new Set(prev);
-        next.delete(imageId);
-        return next;
-      });
-      toast.error("Failed to delete AI Take");
-    }
-  };
 
   if (pending) {
     return <TakesSkeleton />;
@@ -132,7 +99,7 @@ export function TakesPage() {
           )}
           <div className="space-y-2">
             {group.takes.map((take) => (
-              <TakeRow key={take._id} take={take} onDelete={handleDelete} />
+              <TakeRow key={take._id} take={take} />
             ))}
           </div>
         </section>

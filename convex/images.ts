@@ -25,7 +25,7 @@ export const getById = query({
     const userId = await requireAuth(ctx);
     const doc = await ctx.db.get("images", args.imageId);
     if (!doc || doc.userId !== userId) return null;
-    const sourceUrl = await ctx.storage.getUrl(doc.sourceStorageId);
+    const sourceUrl = doc.sourceStorageId ? await ctx.storage.getUrl(doc.sourceStorageId) : null;
     return { ...doc, sourceUrl };
   },
 });
@@ -40,6 +40,7 @@ export const getStorageUsage = query({
 
     let usedBytes = 0;
     for (const doc of docs) {
+      if (!doc.sourceStorageId) continue;
       const metadata = await ctx.db.system.get("_storage", doc.sourceStorageId);
       if (metadata) usedBytes += metadata.size;
     }
@@ -86,7 +87,9 @@ export const listByUser = query({
 
     return Promise.all(
       docs.map(async (doc) => {
-        const sourceUrl = await ctx.storage.getUrl(doc.sourceStorageId);
+        const sourceUrl = doc.sourceStorageId
+          ? await ctx.storage.getUrl(doc.sourceStorageId)
+          : null;
         return { ...doc, sourceUrl };
       }),
     );
@@ -134,6 +137,7 @@ export const create = mutation({
       fileName: args.fileName,
       params: args.params ?? DEFAULT_PARAMS,
       source: args.source,
+      status: "completed",
       parent: args.parent,
     });
     return imageId;
@@ -183,7 +187,88 @@ export const deleteImage = mutation({
       });
     }
 
-    await ctx.storage.delete(doc.sourceStorageId);
+    if (doc.sourceStorageId) {
+      await ctx.storage.delete(doc.sourceStorageId);
+    }
     await ctx.db.delete("images", args.imageId);
+  },
+});
+
+export const createTake = mutation({
+  args: {
+    fileName: v.string(),
+    parent: v.optional(
+      v.object({
+        imageId: v.optional(v.id("images")),
+        fileName: v.string(),
+      }),
+    ),
+  },
+  handler: async (ctx, args) => {
+    const userId = await requireAuth(ctx);
+    return await ctx.db.insert("images", {
+      userId,
+      fileName: args.fileName,
+      params: DEFAULT_PARAMS,
+      source: "openai",
+      status: "queued",
+      parent: args.parent,
+    });
+  },
+});
+
+export const setStatus = mutation({
+  args: {
+    imageId: v.id("images"),
+    status: v.union(
+      v.literal("queued"),
+      v.literal("processing"),
+      v.literal("completed"),
+      v.literal("failed"),
+    ),
+    failureReason: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await requireAuth(ctx);
+    const doc = await ctx.db.get("images", args.imageId);
+    if (!doc) return; // already deleted (cancelled)
+    if (doc.userId !== userId) throw new Error("Unauthorized");
+    const patch: Partial<Doc<"images">> = { status: args.status };
+    if (args.failureReason) patch.failureReason = args.failureReason;
+    await ctx.db.patch(args.imageId, patch);
+  },
+});
+
+export const completeTake = mutation({
+  args: {
+    imageId: v.id("images"),
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await requireAuth(ctx);
+    const doc = await ctx.db.get("images", args.imageId);
+    if (!doc) return; // already deleted
+    if (doc.userId !== userId) throw new Error("Unauthorized");
+    await ctx.db.patch(args.imageId, {
+      sourceStorageId: args.storageId,
+      status: "completed",
+    });
+  },
+});
+
+export const failTake = mutation({
+  args: {
+    imageId: v.id("images"),
+    failureReason: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await requireAuth(ctx);
+    const doc = await ctx.db.get("images", args.imageId);
+    if (!doc) return; // already deleted
+    if (doc.userId !== userId) throw new Error("Unauthorized");
+    await ctx.db.patch(args.imageId, {
+      status: "failed",
+      failureReason: args.failureReason,
+    });
   },
 });

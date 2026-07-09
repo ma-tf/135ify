@@ -35,6 +35,7 @@ vi.mock("@features/image/use-file-processing", () => ({
 }));
 
 vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => vi.fn(),
   useLocation: mockUseLocation,
   Link: ({ to, children, className }: any) => (
     <a href={to} className={className}>

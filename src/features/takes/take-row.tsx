@@ -1,25 +1,81 @@
 import { Button } from "@components/ui/button";
 import { Skeleton } from "@components/ui/skeleton";
 import { Spinner } from "@components/ui/spinner";
+import { api } from "@convex/_generated/api";
 import { formatTimestamp } from "@lib/utils";
 import { Link } from "@tanstack/react-router";
+import { useMutation } from "convex/react";
 import { DownloadIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export function TakeRow({
-  take,
-  onDelete,
+type TakeStatus = "queued" | "processing" | "completed" | "failed";
+
+export type TakeRowTake = {
+  _id: string;
+  _creationTime: number;
+  sourceUrl: string | null;
+  fileName: string;
+  status?: TakeStatus | null;
+  failureReason?: string | null;
+};
+
+function TakeRowThumbnail({
+  status,
+  sourceUrl,
+  imageId,
+  fileName,
 }: {
-  take: {
-    _id: string;
-    _creationTime: number;
-    sourceUrl: string | null;
-    fileName: string;
-  };
-  onDelete: (id: string) => void;
+  status: TakeStatus;
+  sourceUrl: string | null;
+  imageId: string;
+  fileName: string;
 }) {
+  if (status === "completed" && sourceUrl) {
+    return (
+      <Link to="/gallery/$imageId" params={{ imageId }}>
+        <img src={sourceUrl} alt={fileName} className="h-16 w-16 rounded object-cover" />
+      </Link>
+    );
+  }
+  return <Skeleton className="h-16 w-16 rounded" />;
+}
+
+function QueuedBadge() {
+  return (
+    <span className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium tracking-wider text-amber-600 uppercase">
+      Queued
+    </span>
+  );
+}
+
+function ProcessingBadge() {
+  return (
+    <span className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium tracking-wider text-amber-600 uppercase">
+      <Spinner className="mr-1 size-2.5" />
+      Processing
+    </span>
+  );
+}
+
+function FailedBadge({ failureReason }: { failureReason?: string | null }) {
+  return (
+    <span
+      className="inline-flex items-center rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-medium tracking-wider text-destructive uppercase"
+      title={failureReason ?? undefined}
+    >
+      Failed
+    </span>
+  );
+}
+
+export function TakeRow({ take }: { take: TakeRowTake }) {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const deleteImage = useMutation(api.images.deleteImage);
+  const status = take.status ?? "completed";
+
+  if (isDeleting) return null;
 
   const handleDownload = async () => {
     if (!take.sourceUrl) return;
@@ -39,20 +95,57 @@ export function TakeRow({
     setIsDownloading(false);
   };
 
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteImage({ imageId: take._id as any });
+    } catch {
+      setIsDeleting(false);
+      toast.error("Failed to delete AI Take");
+    }
+  };
+
+  if (status !== "completed") {
+    return (
+      <div className="flex items-center gap-4 rounded-lg border p-3">
+        <TakeRowThumbnail
+          status={status}
+          sourceUrl={take.sourceUrl}
+          imageId={take._id}
+          fileName={take.fileName}
+        />
+        <div className="min-w-0">
+          <span className="text-sm font-medium text-muted-foreground">{take.fileName}</span>
+          <div className="flex items-center gap-2">
+            <p className="text-xs text-muted-foreground">{formatTimestamp(take._creationTime)}</p>
+            {status === "queued" && <QueuedBadge />}
+            {status === "processing" && <ProcessingBadge />}
+            {status === "failed" && <FailedBadge failureReason={take.failureReason} />}
+          </div>
+        </div>
+        <div className="ml-auto flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon-lg"
+            className="text-destructive hover:text-destructive"
+            onClick={handleDelete}
+          >
+            <Trash2Icon />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center gap-4 rounded-lg border p-3">
-      {take.sourceUrl ? (
-        <Link to="/gallery/$imageId" params={{ imageId: take._id }}>
-          <img
-            src={take.sourceUrl}
-            alt={take.fileName}
-            className="h-16 w-16 rounded object-cover"
-          />
-        </Link>
-      ) : (
-        <Skeleton className="h-16 w-16 rounded" />
-      )}
-      <div>
+      <TakeRowThumbnail
+        status={status}
+        sourceUrl={take.sourceUrl}
+        imageId={take._id}
+        fileName={take.fileName}
+      />
+      <div className="min-w-0">
         <Link
           to="/gallery/$imageId"
           params={{ imageId: take._id }}
@@ -63,16 +156,16 @@ export function TakeRow({
         <p className="text-xs text-muted-foreground">{formatTimestamp(take._creationTime)}</p>
       </div>
       <div className="ml-auto flex items-center gap-1">
-        <Button variant="ghost" size="icon-xs" onClick={handleDownload} disabled={isDownloading}>
-          {isDownloading ? <Spinner className="size-3" /> : <DownloadIcon className="size-3" />}
+        <Button variant="ghost" size="icon-lg" onClick={handleDownload} disabled={isDownloading}>
+          {isDownloading ? <Spinner /> : <DownloadIcon />}
         </Button>
         <Button
           variant="ghost"
-          size="icon-xs"
+          size="icon-lg"
           className="text-destructive hover:text-destructive"
-          onClick={() => onDelete(take._id)}
+          onClick={handleDelete}
         >
-          <Trash2Icon className="size-3" />
+          <Trash2Icon />
         </Button>
       </div>
     </div>

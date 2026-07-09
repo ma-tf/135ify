@@ -15,7 +15,7 @@ export default defineSchema({
   }).index("email", ["email"]),
   images: defineTable({
     userId: v.id("users"),
-    sourceStorageId: v.id("_storage"),
+    sourceStorageId: v.optional(v.id("_storage")),
     fileName: v.string(),
     params: v.object({
       selectedFilmId: v.string(),
@@ -27,7 +27,15 @@ export default defineSchema({
       grainIntensity: v.number(),
     }),
     source: v.union(v.literal("openai"), v.literal("manual")),
-    parentImageId: v.optional(v.id("images")),
+    status: v.optional(
+      v.union(
+        v.literal("queued"),
+        v.literal("processing"),
+        v.literal("completed"),
+        v.literal("failed"),
+      ),
+    ),
+    failureReason: v.optional(v.string()),
     parent: v.optional(
       v.object({
         imageId: v.optional(v.id("images")),
