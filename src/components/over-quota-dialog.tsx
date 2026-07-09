@@ -1,12 +1,12 @@
-import { Button } from "@components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@components/ui/dialog";
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@components/ui/alert-dialog";
+import { Button } from "@components/ui/button";
 import { useCallback } from "react";
 
 export function OverQuotaDialog({
@@ -33,14 +33,14 @@ export function OverQuotaDialog({
   }, [downloadUrl, onDiscard]);
 
   return (
-    <Dialog open={true} onOpenChange={() => onDiscard()}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Gallery storage full</DialogTitle>
-          <DialogDescription>
+    <AlertDialog open={true}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Gallery storage full</AlertDialogTitle>
+          <AlertDialogDescription>
             Your gallery is over capacity. Download the AI-generated image now or discard it.
-          </DialogDescription>
-        </DialogHeader>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
         <div className="flex justify-center">
           <img
             src={downloadUrl}
@@ -48,13 +48,13 @@ export function OverQuotaDialog({
             className="max-h-64 rounded-lg object-contain"
           />
         </div>
-        <DialogFooter>
+        <AlertDialogFooter>
           <Button variant="outline" onClick={onDiscard}>
             Discard
           </Button>
           <Button onClick={handleDownload}>Download now</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
