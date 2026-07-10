@@ -32,6 +32,7 @@ export function prepareFiles(files: File[]) {
       renderUrl: null,
       isProcessing: false,
       renderError: null,
+      size: file.size,
     });
   }
 

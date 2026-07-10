@@ -24,6 +24,7 @@ type JobRow = Pick<
   | "overQuotaStorageId"
 > & {
   takeImageUrl: string | null;
+  size: number | null;
 };
 
 interface TakeSection {

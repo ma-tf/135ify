@@ -104,13 +104,19 @@ export const listByUser = query({
     return Promise.all(
       docs.map(async (doc) => {
         let takeImageUrl: string | null = null;
+        let size: number | null = null;
         if (doc.takeImageId && doc.status === "completed") {
           const image = await ctx.db.get("images", doc.takeImageId);
           if (image?.sourceStorageId) {
             takeImageUrl = await ctx.storage.getUrl(image.sourceStorageId);
+            const metadata = await ctx.db.system.get("_storage", image.sourceStorageId);
+            size = metadata?.size ?? null;
           }
+        } else if (doc.status === "overQuota" && doc.overQuotaStorageId) {
+          const metadata = await ctx.db.system.get("_storage", doc.overQuotaStorageId);
+          size = metadata?.size ?? null;
         }
-        return { ...doc, takeImageUrl };
+        return { ...doc, takeImageUrl, size };
       }),
     );
   },

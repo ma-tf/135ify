@@ -1,6 +1,6 @@
 import { OverQuotaDialog } from "@components/over-quota-dialog";
 import { api } from "@convex/_generated/api";
-import { formatTimestamp } from "@lib/utils";
+import { formatBytes, formatTimestamp } from "@lib/utils";
 import { useQuery_experimental as useQuery, useMutation } from "convex/react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -74,7 +74,10 @@ export function OverQuotaTakeRow({ job }: { job: TakeRowJob }) {
             <span className="text-sm font-medium text-muted-foreground">{job.fileName}</span>
           )}
           <div className="flex items-center gap-2">
-            <p className="text-xs text-muted-foreground">{formatTimestamp(job._creationTime)}</p>
+            <p className="text-xs text-muted-foreground">
+              {formatTimestamp(job._creationTime)}
+              {job.size != null && ` · ${formatBytes(job.size)}`}
+            </p>
             <OverQuotaBadge resolved={overQuotaResolved} />
           </div>
         </div>

@@ -56,6 +56,7 @@ type MockJob = Pick<
   | "overQuotaStorageId"
 > & {
   takeImageUrl: string | null;
+  size: number | null;
 };
 
 function mockJob(overrides: Partial<MockJob> = {}): MockJob {
@@ -70,6 +71,7 @@ function mockJob(overrides: Partial<MockJob> = {}): MockJob {
     takeImageUrl: "https://example.com/take1.jpg",
     parent: undefined as { imageId?: Doc<"images">["_id"]; fileName: string } | undefined,
     overQuotaStorageId: undefined as Doc<"aiGenerationJobs">["overQuotaStorageId"],
+    size: null,
     ...overrides,
   };
 }

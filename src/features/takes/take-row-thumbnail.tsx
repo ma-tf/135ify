@@ -13,6 +13,7 @@ export type TakeRowJob = {
   takeImageId?: string | null;
   takeImageUrl?: string | null;
   overQuotaStorageId?: string | null;
+  size: number | null;
 };
 
 export function TakeRowThumbnail({

@@ -29,6 +29,7 @@ export interface FileRecord {
   renderUrl: string | null;
   isProcessing: boolean;
   renderError: string | null;
+  size?: number | null;
 }
 
 export type FileWithState = FileRecord;

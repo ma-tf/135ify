@@ -26,7 +26,12 @@ export const getById = query({
     const doc = await ctx.db.get("images", args.imageId);
     if (!doc || doc.userId !== userId) return null;
     const sourceUrl = doc.sourceStorageId ? await ctx.storage.getUrl(doc.sourceStorageId) : null;
-    return { ...doc, sourceUrl };
+    let size: number | null = null;
+    if (doc.sourceStorageId) {
+      const metadata = await ctx.db.system.get("_storage", doc.sourceStorageId);
+      size = metadata?.size ?? null;
+    }
+    return { ...doc, sourceUrl, size };
   },
 });
 
@@ -77,7 +82,12 @@ export const listByUser = query({
         const sourceUrl = doc.sourceStorageId
           ? await ctx.storage.getUrl(doc.sourceStorageId)
           : null;
-        return { ...doc, sourceUrl };
+        let size: number | null = null;
+        if (doc.sourceStorageId) {
+          const metadata = await ctx.db.system.get("_storage", doc.sourceStorageId);
+          size = metadata?.size ?? null;
+        }
+        return { ...doc, sourceUrl, size };
       }),
     );
   },

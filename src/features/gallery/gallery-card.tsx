@@ -1,7 +1,7 @@
 import type { FileRecord } from "@stores/file-store-types";
 
 import { Skeleton } from "@components/ui/skeleton";
-import { formatTimestamp } from "@lib/utils";
+import { formatBytes, formatTimestamp } from "@lib/utils";
 import { useNavigate } from "@tanstack/react-router";
 
 export function GalleryCard({ image }: { image: FileRecord }) {
@@ -34,7 +34,10 @@ export function GalleryCard({ image }: { image: FileRecord }) {
         {image.renderUrl || !image.isProcessing ? (
           <>
             <p className="truncate font-medium">{image.fileName}</p>
-            <p className="text-xs text-muted-foreground">{formattedDate}</p>
+            <p className="text-xs text-muted-foreground">
+              {formattedDate}
+              {image.size != null && ` · ${formatBytes(image.size)}`}
+            </p>
           </>
         ) : (
           <>

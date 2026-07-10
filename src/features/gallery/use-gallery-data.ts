@@ -29,6 +29,7 @@ export function useGalleryData() {
           renderUrl: cached?.renderUrl ?? null,
           isProcessing: cached?.isProcessing ?? false,
           renderError: cached?.renderError ?? null,
+          size: doc.size ?? null,
         } satisfies FileRecord;
       }),
     [queryData, imageCache],

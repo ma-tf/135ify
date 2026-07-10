@@ -40,6 +40,7 @@ export function useGalleryFiles(imageId: string) {
       renderUrl: localRenderUrl,
       isProcessing: localIsProcessing,
       renderError: localRenderError,
+      size: queryData.size ?? null,
     };
   }, [queryData, localParams, localRenderUrl, localIsProcessing, localRenderError]);
 

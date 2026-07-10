@@ -32,6 +32,7 @@ function mockJob(overrides: Partial<TakeRowJob> = {}): TakeRowJob {
     takeImageId: "img-1",
     takeImageUrl: "https://example.com/full-image.jpg",
     overQuotaStorageId: undefined,
+    size: null,
     ...overrides,
   };
 }

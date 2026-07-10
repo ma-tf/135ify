@@ -1,6 +1,6 @@
 import { Button } from "@components/ui/button";
 import { Spinner } from "@components/ui/spinner";
-import { formatTimestamp } from "@lib/utils";
+import { formatBytes, formatTimestamp } from "@lib/utils";
 import { Link } from "@tanstack/react-router";
 import { DownloadIcon } from "lucide-react";
 import { useState } from "react";
@@ -60,7 +60,10 @@ export function CompletedTakeRow({ job }: { job: TakeRowJob }) {
           <span className="text-sm font-medium">{job.fileName}</span>
         )}
         <div className="flex items-center gap-2">
-          <p className="text-xs text-muted-foreground">{formatTimestamp(job._creationTime)}</p>
+          <p className="text-xs text-muted-foreground">
+            {formatTimestamp(job._creationTime)}
+            {job.size != null && ` · ${formatBytes(job.size)}`}
+          </p>
           <CompletedBadge />
         </div>
       </div>
