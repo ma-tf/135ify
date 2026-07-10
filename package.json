@@ -52,30 +52,18 @@
     "@types/react-dom": "^19.2.3",
     "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "@vitejs/plugin-react": "^6.0.3",
-<<<<<<< HEAD
     "@vitest/coverage-v8": "^4.1.10",
     "fallow": "^3.2.0",
-=======
-    "@vitest/coverage-v8": "catalog:",
-    "fallow": "^2.104.0",
->>>>>>> d702628 (fix: update vitest and coverage-v8 dependencies to use catalog versioning)
     "jose": "^6.2.3",
     "jsdom": "^29.1.1",
     "netlify-cli": "^26.2.0",
     "react-doctor": "^0.7.2",
     "react-scan": "^0.5.7",
     "shadcn": "^4.13.0",
-<<<<<<< HEAD
     "typescript": "~7.0.2",
     "vite": "npm:@voidzero-dev/vite-plus-core@0.2.4",
     "vite-plus": "0.2.4",
     "vitest": "^4.1.10"
-=======
-    "typescript": "~6.0.3",
-    "vite": "catalog:",
-    "vite-plus": "catalog:",
-    "vitest": "catalog:"
->>>>>>> d702628 (fix: update vitest and coverage-v8 dependencies to use catalog versioning)
   },
   "packageManager": "pnpm@11.11.0"
 }
