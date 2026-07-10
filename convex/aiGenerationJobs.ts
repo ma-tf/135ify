@@ -79,6 +79,18 @@ export const getOverQuotaUrl = query({
   },
 });
 
+export const clearResolvedTakes = mutation({
+  args: { jobIds: v.array(v.id("aiGenerationJobs")) },
+  handler: async (ctx, args) => {
+    const userId = await requireAuth(ctx);
+    for (const jobId of args.jobIds) {
+      const doc = await ctx.db.get("aiGenerationJobs", jobId);
+      if (!doc || doc.userId !== userId) continue;
+      await ctx.db.delete("aiGenerationJobs", jobId);
+    }
+  },
+});
+
 export const clearOverQuota = mutation({
   args: { jobId: v.id("aiGenerationJobs") },
   handler: async (ctx, args) => {

@@ -1,5 +1,6 @@
 import type { Doc } from "@convex/_generated/dataModel";
 
+import { Button } from "@components/ui/button";
 import { api } from "@convex/_generated/api";
 import { UsageBar } from "@features/gallery/gallery-usage-bar";
 import { CompletedTakeRow } from "@features/takes/completed-take-row";
@@ -8,8 +9,9 @@ import { PendingTakeRow } from "@features/takes/pending-take-row";
 import { TakesSkeleton } from "@features/takes/takes-skeleton";
 import { useTakesNotificationStore } from "@stores/takes-notification-store";
 import { Link } from "@tanstack/react-router";
-import { useQuery_experimental as useQuery } from "convex/react";
+import { useMutation, useQuery_experimental as useQuery } from "convex/react";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 type JobRow = Pick<
   Doc<"aiGenerationJobs">,
@@ -56,6 +58,7 @@ function groupBySourceImage(jobs: JobRow[]): TakeSection[] {
 export function TakesPage() {
   const result = useQuery({ query: api.aiGenerationJobs.listByUser, args: {} });
   const markSeen = useTakesNotificationStore((s) => s.markSeen);
+  const clearResolved = useMutation(api.aiGenerationJobs.clearResolvedTakes);
 
   useEffect(() => {
     markSeen();
@@ -65,6 +68,9 @@ export function TakesPage() {
   const errored = result.status === "error";
 
   const jobs = result.status === "success" ? result.data : null;
+  const resolvedJobIds = jobs
+    ? jobs.filter((j) => j.status === "overQuota" && !j.overQuotaStorageId).map((j) => j._id as any)
+    : [];
   const groups = jobs ? groupBySourceImage(jobs) : [];
 
   if (pending) {
@@ -93,6 +99,18 @@ export function TakesPage() {
   return (
     <div className="space-y-8 p-6">
       <UsageBar />
+      {resolvedJobIds.length > 0 && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={async () => {
+            await clearResolved({ jobIds: resolvedJobIds });
+            toast.success("Cleared resolved takes");
+          }}
+        >
+          Clear resolved takes
+        </Button>
+      )}
       {groups.map((group) => (
         <section key={group.sourceImageId}>
           {group.sourceLinkId ? (
