@@ -32,7 +32,7 @@ export function useSaveToGallery({ file, onSuccess }: { file: FileRecord; onSucc
 
       const imageId = await createImage({
         storageId: storageId as Id<"_storage">,
-        fileName: file.fileName,
+        fileName: crypto.randomUUID(),
         params: file.params,
         source: "manual",
       });

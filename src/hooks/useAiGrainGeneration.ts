@@ -39,12 +39,12 @@ export function useAiGrainGeneration() {
     setIsGenerating(false);
 
     const parent = file.convexId
-      ? { imageId: file.convexId as Id<"images">, fileName: file.fileName }
-      : { fileName: file.fileName };
+      ? { imageId: file.convexId as Id<"images">, fileName: crypto.randomUUID() }
+      : { fileName: crypto.randomUUID() };
 
     const jobId = await createJob({
       sourceStorageId,
-      fileName: file.fileName,
+      fileName: crypto.randomUUID(),
       parent,
     });
 
