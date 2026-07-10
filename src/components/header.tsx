@@ -1,5 +1,15 @@
 import { ModeToggle } from "@components/mode-toggle";
 import { SignInButtons } from "@components/sign-in-dialog";
+import { useTheme } from "@components/theme-provider";
+import { Button } from "@components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@components/ui/sheet";
 import { UserMenu } from "@components/user-menu";
 import { BASE_PATH, FEATURE_SIGN_IN } from "@config";
 import { api } from "@convex/_generated/api";
@@ -7,6 +17,8 @@ import { useAuth } from "@hooks/use-auth";
 import { useTakesNotificationStore } from "@stores/takes-notification-store";
 import { Link, useLocation } from "@tanstack/react-router";
 import { useQuery_experimental as useQuery } from "convex/react";
+import { Menu } from "lucide-react";
+import { useEffect, useState } from "react";
 
 function FilmStripLink() {
   return (
@@ -78,12 +90,71 @@ function TakesLink() {
   );
 }
 
+function MobileNav() {
+  const [open, setOpen] = useState(false);
+  const { setTheme } = useTheme();
+  const location = useLocation();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="outline" size="icon" className="md:hidden" aria-label="Open menu">
+          <Menu />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-64">
+        <SheetHeader>
+          <SheetTitle>Menu</SheetTitle>
+        </SheetHeader>
+        <nav className="flex flex-col gap-3 pt-4">
+          <FilmStripLink />
+          <GalleryLink />
+          <TakesLink />
+        </nav>
+        <SheetFooter>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-medium text-muted-foreground">Theme</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="justify-start"
+              onClick={() => setTheme("light")}
+            >
+              Light
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="justify-start"
+              onClick={() => setTheme("dark")}
+            >
+              Dark
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="justify-start"
+              onClick={() => setTheme("system")}
+            >
+              System
+            </Button>
+          </div>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 export function Header() {
   const { isAuthenticated } = useAuth();
 
   return (
     <div
-      className={`background grid items-center p-6 lg:p-8 ${FEATURE_SIGN_IN && isAuthenticated ? "grid-cols-3" : "grid-cols-2"}`}
+      className={`background grid items-center p-6 lg:p-8 ${FEATURE_SIGN_IN && isAuthenticated ? "grid-cols-2 md:grid-cols-3" : "grid-cols-2"}`}
     >
       <div className="flex justify-start">
         <Link to="/">
@@ -100,20 +171,27 @@ export function Header() {
         </Link>
       </div>
       {FEATURE_SIGN_IN && isAuthenticated && (
-        <nav className="flex items-center justify-center gap-6">
+        <nav className="hidden items-center justify-center gap-6 md:flex">
           <FilmStripLink />
           <GalleryLink />
           <TakesLink />
         </nav>
       )}
       <div className="flex items-center justify-end gap-2">
+        {FEATURE_SIGN_IN && isAuthenticated && <MobileNav />}
         {FEATURE_SIGN_IN && (
           <>
             <SignInButtons />
             <UserMenu />
           </>
         )}
-        <ModeToggle />
+        {FEATURE_SIGN_IN && isAuthenticated ? (
+          <span className="hidden md:block">
+            <ModeToggle />
+          </span>
+        ) : (
+          <ModeToggle />
+        )}
       </div>
     </div>
   );
