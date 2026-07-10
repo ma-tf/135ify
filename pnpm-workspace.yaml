@@ -16,9 +16,6 @@ trustPolicyExclude:
   - "@netlify/edge-bundler@14.10.3"
   - "@netlify/zip-it-and-ship-it@14.7.1"
   - "@netlify/serverless-functions-api@2.16.0"
-catalog:
-  vite-plus: 0.2.4
-  "@vitest/coverage-v8": 4.1.9
 peerDependencyRules:
   allowAny:
     - vite
