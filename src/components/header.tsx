@@ -2,14 +2,7 @@ import { ModeToggle } from "@components/mode-toggle";
 import { SignInButtons } from "@components/sign-in-dialog";
 import { useTheme } from "@components/theme-provider";
 import { Button } from "@components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@components/ui/sheet";
+import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { UserMenu } from "@components/user-menu";
 import { BASE_PATH, FEATURE_SIGN_IN } from "@config";
 import { api } from "@convex/_generated/api";
@@ -100,52 +93,40 @@ function MobileNav() {
   }, [location.pathname]);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="md:hidden" aria-label="Open menu">
-          <Menu />
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="sm" className="md:hidden">
+          <Menu className="mr-2 size-4" />
+          Menu
         </Button>
-      </SheetTrigger>
-      <SheetContent side="right" className="w-64">
-        <SheetHeader>
-          <SheetTitle>Menu</SheetTitle>
-        </SheetHeader>
-        <nav className="flex flex-col gap-3 pt-4">
+      </PopoverTrigger>
+      <PopoverContent
+        side="bottom"
+        align="end"
+        sideOffset={4}
+        className="w-screen max-w-none rounded-none border-x-0 px-6 py-4"
+      >
+        <nav className="flex flex-col gap-3">
           <FilmStripLink />
           <GalleryLink />
           <TakesLink />
         </nav>
-        <SheetFooter>
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-muted-foreground">Theme</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="justify-start"
-              onClick={() => setTheme("light")}
-            >
+        <div className="mt-4 flex flex-col gap-2 border-t pt-4">
+          <span className="text-xs font-medium text-muted-foreground">Theme</span>
+          <div className="flex gap-1">
+            <Button variant="ghost" size="sm" onClick={() => setTheme("light")}>
               Light
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="justify-start"
-              onClick={() => setTheme("dark")}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setTheme("dark")}>
               Dark
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="justify-start"
-              onClick={() => setTheme("system")}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setTheme("system")}>
               System
             </Button>
           </div>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
