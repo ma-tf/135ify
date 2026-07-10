@@ -1,7 +1,6 @@
+import { useFileInput } from "@hooks/use-file-input";
 import { render, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
-
-import { useFileInput } from "./use-file-input";
 
 const createFile = (name = "test.txt", content = "x") =>
   new File([content], name, { type: "text/plain" });

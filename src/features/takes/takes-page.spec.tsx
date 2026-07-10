@@ -1,10 +1,9 @@
 import type { Doc } from "@convex/_generated/dataModel";
 
+import { TakesPage } from "@features/takes/takes-page";
 import { setupTests } from "@test-utils/setup.spec";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
-
-import { TakesPage } from "./takes-page";
 
 const { mockUseQuery, mockMarkSeen } = vi.hoisted(() => ({
   mockUseQuery: vi.fn(),

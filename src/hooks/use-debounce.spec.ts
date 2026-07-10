@@ -1,7 +1,6 @@
+import { useDebounce } from "@hooks/use-debounce";
 import { renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
-
-import { useDebounce } from "./use-debounce";
 
 afterEach(() => {
   vi.useRealTimers();

@@ -1,13 +1,12 @@
+import type { TakeRowJob } from "@features/takes/take-row-thumbnail";
+
 import { OverQuotaDialog } from "@components/over-quota-dialog";
 import { api } from "@convex/_generated/api";
+import { TakeRowThumbnail } from "@features/takes/take-row-thumbnail";
 import { formatBytes, formatTimestamp } from "@lib/utils";
 import { useQuery_experimental as useQuery, useMutation } from "convex/react";
 import { useState } from "react";
 import { toast } from "sonner";
-
-import type { TakeRowJob } from "./take-row-thumbnail";
-
-import { TakeRowThumbnail } from "./take-row-thumbnail";
 
 function OverQuotaBadge({ resolved }: { resolved?: boolean }) {
   return (

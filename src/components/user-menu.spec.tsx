@@ -1,8 +1,7 @@
+import { UserMenu } from "@components/user-menu";
 import { setupTests } from "@test-utils/setup.spec";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
-
-import { UserMenu } from "./user-menu";
 
 const { mockUseConvexAuth, mockUseQuery, mockConfig } = vi.hoisted(() => ({
   mockUseConvexAuth: vi.fn(),

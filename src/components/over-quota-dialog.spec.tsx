@@ -1,7 +1,6 @@
+import { OverQuotaDialog } from "@components/over-quota-dialog";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
-
-import { OverQuotaDialog } from "./over-quota-dialog";
 
 const TEST_URL = "https://example.com/over-quota-image.jpg";
 const TEST_BLOB = new Blob(["test-image-data"], { type: "image/jpeg" });

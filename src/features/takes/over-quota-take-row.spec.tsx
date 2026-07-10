@@ -1,10 +1,9 @@
+import type { TakeRowJob } from "@features/takes/take-row-thumbnail";
+
+import { OverQuotaTakeRow } from "@features/takes/over-quota-take-row";
 import { setupTests } from "@test-utils/setup.spec";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
-
-import type { TakeRowJob } from "./take-row-thumbnail";
-
-import { OverQuotaTakeRow } from "./over-quota-take-row";
 
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ to, params, children }: any) => {

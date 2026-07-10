@@ -1,11 +1,10 @@
 import type { Doc } from "@convex/_generated/dataModel";
 
+import { GalleryPage } from "@features/gallery/gallery-page";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { setupTests } from "@test-utils/setup.spec";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
-
-import { GalleryPage } from "./gallery-page";
 
 const { mockNavigate, mockUseQuery } = vi.hoisted(() => ({
   mockNavigate: vi.fn(),

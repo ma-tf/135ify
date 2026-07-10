@@ -1,14 +1,13 @@
+import type { TakeRowJob } from "@features/takes/take-row-thumbnail";
+
 import { Button } from "@components/ui/button";
 import { Spinner } from "@components/ui/spinner";
+import { TakeRowThumbnail } from "@features/takes/take-row-thumbnail";
 import { formatBytes, formatTimestamp } from "@lib/utils";
 import { Link } from "@tanstack/react-router";
 import { DownloadIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-
-import type { TakeRowJob } from "./take-row-thumbnail";
-
-import { TakeRowThumbnail } from "./take-row-thumbnail";
 
 function CompletedBadge() {
   return (

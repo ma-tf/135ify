@@ -6,7 +6,7 @@ vi.mock("@features/process/grain-texture", () => ({
 }));
 
 describe("processToBlobUrl", () => {
-  let processToBlobUrl: typeof import("./process-image").processToBlobUrl;
+  let processToBlobUrl: typeof import("@features/process/process-image").processToBlobUrl;
 
   const fakeGrainBitmap = { width: 2048, height: 2048 } as ImageBitmap;
   const closeSpy = vi.fn();
@@ -55,7 +55,7 @@ describe("processToBlobUrl", () => {
       },
     );
 
-    ({ processToBlobUrl } = await import("./process-image"));
+    ({ processToBlobUrl } = await import("@features/process/process-image"));
   });
 
   afterEach(() => {

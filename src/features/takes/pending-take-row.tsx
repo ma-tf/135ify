@@ -1,14 +1,13 @@
+import type { TakeRowJob } from "@features/takes/take-row-thumbnail";
+
 import { AiKeyDialog } from "@components/ai-key-dialog";
 import { Button } from "@components/ui/button";
 import { Spinner } from "@components/ui/spinner";
+import { TakeRowThumbnail } from "@features/takes/take-row-thumbnail";
+import { useRetryTake } from "@features/takes/use-retry-take";
 import { formatTimestamp } from "@lib/utils";
 import { RotateCw } from "lucide-react";
 import { useState } from "react";
-
-import type { TakeRowJob } from "./take-row-thumbnail";
-
-import { TakeRowThumbnail } from "./take-row-thumbnail";
-import { useRetryTake } from "./use-retry-take";
 
 function ProcessingBadge() {
   return (

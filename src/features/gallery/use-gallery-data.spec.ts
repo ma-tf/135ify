@@ -13,7 +13,7 @@ vi.mock("convex/react", () => ({
   useQuery_experimental: mockUseQuery,
 }));
 
-import { useGalleryData } from "./use-gallery-data";
+import { useGalleryData } from "@features/gallery/use-gallery-data";
 
 const makeDoc = (overrides: Partial<Doc<"images"> & { sourceUrl: string | null }> = {}) => {
   const doc: Doc<"images"> & { sourceUrl: string | null } = {

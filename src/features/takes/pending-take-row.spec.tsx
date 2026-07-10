@@ -1,10 +1,9 @@
+import type { TakeRowJob } from "@features/takes/take-row-thumbnail";
+
+import { PendingTakeRow } from "@features/takes/pending-take-row";
 import { setupTests } from "@test-utils/setup.spec";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
-
-import type { TakeRowJob } from "./take-row-thumbnail";
-
-import { PendingTakeRow } from "./pending-take-row";
 
 const { mockRetryJob, mockProcessJob, mockUseAiProviderStore } = vi.hoisted(() => ({
   mockRetryJob: vi.fn().mockResolvedValue(undefined),

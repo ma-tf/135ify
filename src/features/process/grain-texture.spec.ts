@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test"
 vi.mock("@config", () => ({ GRAIN_URL: "/grain.jpg" }));
 
 describe("getGrainBitmap", () => {
-  let getGrainBitmap: typeof import("./grain-texture").getGrainBitmap;
+  let getGrainBitmap: typeof import("@features/process/grain-texture").getGrainBitmap;
 
   const fakeBitmap = {} as ImageBitmap;
   const fakeBlob = {} as Blob;
@@ -20,7 +20,7 @@ describe("getGrainBitmap", () => {
     createImageBitmapSpy.mockResolvedValue(fakeBitmap);
     vi.stubGlobal("fetch", fetchSpy);
     vi.stubGlobal("createImageBitmap", createImageBitmapSpy);
-    ({ getGrainBitmap } = await import("./grain-texture"));
+    ({ getGrainBitmap } = await import("@features/process/grain-texture"));
   });
 
   afterEach(() => {

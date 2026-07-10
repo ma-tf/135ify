@@ -12,7 +12,7 @@ vi.mock("convex/react", () => ({
   useQuery_experimental: mockUseQuery,
 }));
 
-import { UsageBar, UsageBarSkeleton } from "./gallery-usage-bar";
+import { UsageBar, UsageBarSkeleton } from "@features/gallery/gallery-usage-bar";
 
 const fullData = {
   usedBytes: 5 * 1024 * 1024,

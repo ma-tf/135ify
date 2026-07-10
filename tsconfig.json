@@ -11,6 +11,8 @@
       "@convex/*": ["./convex/*"],
       "@routes/*": ["./src/routes/*"],
       "@components": ["./src/components/*"],
+      "@features/*": ["./src/features/*"],
+      "@stores/*": ["./src/stores/*"],
       "@utils": ["./src/lib/utils/*"],
       "@ui": ["./src/components/ui/*"],
       "@lib": ["./src/lib/*"],

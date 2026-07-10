@@ -1,8 +1,7 @@
+import { Header } from "@components/header";
 import { setupTests } from "@test-utils/setup.spec";
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-
-import { Header } from "./header";
 
 const { mockUseQuery, mockUseTakesNotificationStore, mockUseLocation, mockUseConvexAuth } =
   vi.hoisted(() => ({
