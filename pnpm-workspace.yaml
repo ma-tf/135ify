@@ -1,8 +1,6 @@
 packages:
   - ".sandcastle"
-overrides:
-  vite: "catalog:"
-  vitest: "catalog:"
+
 allowBuilds:
   "@parcel/watcher": true
   esbuild: true
@@ -19,9 +17,7 @@ trustPolicyExclude:
   - "@netlify/zip-it-and-ship-it@14.7.1"
   - "@netlify/serverless-functions-api@2.16.0"
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@0.2.4
   vite-plus: 0.2.4
-  vitest: 4.1.9
   "@vitest/coverage-v8": 4.1.9
 peerDependencyRules:
   allowAny:

@@ -60,9 +60,9 @@
     "react-scan": "^0.5.7",
     "shadcn": "^4.13.0",
     "typescript": "~6.0.3",
-    "vite": "catalog:",
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.4",
     "vite-plus": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "4.1.9"
   },
-  "packageManager": "pnpm@11.9.0"
+  "packageManager": "pnpm@11.11.0"
 }
