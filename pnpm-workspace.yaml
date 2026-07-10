@@ -4,8 +4,6 @@ packages:
 
 =======
 overrides:
-  nanoid: "3.3.8"
-  semver: "7.7.2"
   vite: "catalog:"
   vitest: "catalog:"
 >>>>>>> d702628 (fix: update vitest and coverage-v8 dependencies to use catalog versioning)
@@ -27,8 +25,8 @@ trustPolicyExclude:
 <<<<<<< HEAD
 =======
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@0.2.2
-  vite-plus: 0.2.2
+  vite: npm:@voidzero-dev/vite-plus-core@0.2.4
+  vite-plus: 0.2.4
   vitest: 4.1.9
   "@vitest/coverage-v8": 4.1.9
 >>>>>>> d702628 (fix: update vitest and coverage-v8 dependencies to use catalog versioning)
@@ -40,10 +38,15 @@ peerDependencyRules:
     vite: "*"
     vitest: "*"
 <<<<<<< HEAD
+<<<<<<< HEAD
     "@opentelemetry/api": "*"
     "@vitest/browser-preview": "*"
 =======
 >>>>>>> d702628 (fix: update vitest and coverage-v8 dependencies to use catalog versioning)
+=======
+    "@opentelemetry/api": "*"
+    "@vitest/browser-preview": "*"
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
 minimumReleaseAgeExclude:
   - vite-plus
   - "@voidzero-dev/*"

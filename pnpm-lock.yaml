@@ -11,19 +11,13 @@ catalogs:
     '@vitest/coverage-v8':
       specifier: 4.1.9
       version: 4.1.9
-    vite:
-      specifier: npm:@voidzero-dev/vite-plus-core@0.2.2
-      version: 0.2.2
     vite-plus:
-      specifier: 0.2.2
-      version: 0.2.2
-    vitest:
-      specifier: 4.1.9
-      version: 4.1.9
+      specifier: 0.2.4
+      version: 0.2.4
 
 overrides:
-  nanoid: 3.3.8
-  semver: 7.7.2
+  vite: npm:@voidzero-dev/vite-plus-core@0.2.4
+  vitest: 4.1.9
 
 >>>>>>> d702628 (fix: update vitest and coverage-v8 dependencies to use catalog versioning)
 importers:
@@ -99,13 +93,21 @@ importers:
         version: 21.2.0
       '@tailwindcss/vite':
         specifier: ^4.3.2
+<<<<<<< HEAD
         version: 4.3.2(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))
+=======
+        version: 4.3.2(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
       '@tanstack/react-router-devtools':
         specifier: ^1.167.0
         version: 1.167.0(@tanstack/react-router@1.170.17(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tanstack/router-core@1.171.14)(csstype@3.2.3)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@tanstack/router-plugin':
         specifier: ^1.168.19
+<<<<<<< HEAD
         version: 1.168.19(@tanstack/react-router@1.170.17(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)
+=======
+        version: 1.168.19(@tanstack/react-router@1.170.17(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
       '@testing-library/react':
         specifier: ^16.3.2
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -120,7 +122,11 @@ importers:
         version: 7.0.0-dev.20260707.2
       '@vitejs/plugin-react':
         specifier: ^6.0.3
+<<<<<<< HEAD
         version: 6.0.3(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))
+=======
+        version: 6.0.3(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
       '@vitest/coverage-v8':
 <<<<<<< HEAD
         specifier: ^4.1.10
@@ -151,7 +157,11 @@ importers:
 >>>>>>> d702628 (fix: update vitest and coverage-v8 dependencies to use catalog versioning)
       react-scan:
         specifier: ^0.5.7
+<<<<<<< HEAD
         version: 0.5.7(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)(eslint@10.6.0(jiti@2.7.0))(oxlint-tsgolint@0.24.0)(preact-render-to-string@6.5.11(preact@10.24.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+=======
+        version: 0.5.7(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)(eslint@10.5.0(jiti@2.7.0))(oxlint-tsgolint@0.24.0)(preact-render-to-string@6.5.11(preact@10.24.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
       shadcn:
         specifier: ^4.13.0
         version: 4.13.0(typescript@7.0.2)
@@ -160,7 +170,11 @@ importers:
         version: 7.0.2
       vite:
         specifier: npm:@voidzero-dev/vite-plus-core@0.2.4
+<<<<<<< HEAD
         version: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)'
+=======
+        version: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
       vite-plus:
 <<<<<<< HEAD
         specifier: 0.2.4
@@ -170,11 +184,16 @@ importers:
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(vitest@4.1.10))(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jsdom@29.1.1)
 =======
         specifier: 'catalog:'
-        version: 0.2.2(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.2(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@6.0.3)(yaml@2.9.0)
+        version: 0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@6.0.3)(yaml@2.9.0)
       vitest:
+<<<<<<< HEAD
         specifier: 'catalog:'
         version: 4.1.9(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.9)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.2(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jsdom@29.1.1)
 >>>>>>> d702628 (fix: update vitest and coverage-v8 dependencies to use catalog versioning)
+=======
+        specifier: 4.1.9
+        version: 4.1.9(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.10)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jsdom@29.1.1)
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
 
   .sandcastle:
     devDependencies:
@@ -3999,6 +4018,14 @@ packages:
 
   '@vitest/browser-preview@4.1.10':
     resolution: {integrity: sha512-14MJrL59ZFkqXLjwfSk6RzTDy5Czf9UG4+8q8L6Gxjs2aPjEce/cVNYV14bXAc2BvMjUNu904+ZEZA1Xc1wtvQ==}
+<<<<<<< HEAD
+=======
+    peerDependencies:
+      vitest: 4.1.9
+
+  '@vitest/browser@4.1.10':
+    resolution: {integrity: sha512-UDwuWGwXj646CBx/bQHOaJSX7np0I8JL/UKQYa1e4QrVHH8VdWtx8eaOuf8sy0ShwDgR6NjJAsp5eF6vjF6qng==}
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     peerDependencies:
       vitest: 4.1.10
 
@@ -4018,6 +4045,14 @@ packages:
 
   '@vitest/expect@4.1.10':
     resolution: {integrity: sha512-YsCn+qAk1GWjQOWFEsEcL2gNQ0zmVmQu3T03qP6UyjhtmdtwtbuI+DASn/7iQB3HGTXkdBwGddzxPlmiql5vlA==}
+<<<<<<< HEAD
+
+  '@vitest/mocker@4.1.10':
+    resolution: {integrity: sha512-v0xaezt+DKEmKfaxg133ldzADrwLGd7Ze1MfQQTYfvs8OqZIwbxyxaYURivwV7sWy5fqn3rH5uOrSp07bp44Ow==}
+=======
+
+  '@vitest/expect@4.1.9':
+    resolution: {integrity: sha512-vl/rYsUKcBr3SnQn166+XR5ZQcgMx3DQhFWdfli/cWpLnLUmbxZvyrJZotLFUryib+LtArYMSTJ5RbQ57ZqrlA==}
 
   '@vitest/mocker@4.1.10':
     resolution: {integrity: sha512-v0xaezt+DKEmKfaxg133ldzADrwLGd7Ze1MfQQTYfvs8OqZIwbxyxaYURivwV7sWy5fqn3rH5uOrSp07bp44Ow==}
@@ -4030,8 +4065,21 @@ packages:
       vite:
         optional: true
 
+  '@vitest/mocker@4.1.9':
+    resolution: {integrity: sha512-EVkXzBjrPGM+cK8/ANWgBrkUCfJfb38/EfTSO8h7pWvKkyPkpWxvR7BkD2MyItMF62C97zAEoqdpUixwR/e+Rw==}
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
+    peerDependencies:
+      msw: ^2.4.9
+      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
+    peerDependenciesMeta:
+      msw:
+        optional: true
+      vite:
+        optional: true
+
   '@vitest/pretty-format@4.1.10':
     resolution: {integrity: sha512-W1HsjSH4MXQ9YfmmhLAoIYf1HRfekQCGngeIgcei6MP5QQGWUe0gkopdZQaVCFO+JDJMrAJGwa5pRpNpvy4P8Q==}
+<<<<<<< HEAD
 
   '@vitest/runner@4.1.10':
     resolution: {integrity: sha512-IKI6kpIH+LmpROplyLwBBaCfMgOZOMsygVa6BARD6ahA04VRuJSa6OaVG7kRvSEMD870Vd91rSSw0eegtWyLGg==}
@@ -4044,6 +4092,35 @@ packages:
 
   '@vitest/utils@4.1.10':
     resolution: {integrity: sha512-fy9am/HWxbaGt/Sawrp90vt6Y6jQwf1RX77cz3uwoJwJVMli/e1IEwRPnMNJ7vKfPTwo0diXifkpPvwH9v7nGA==}
+=======
+
+  '@vitest/pretty-format@4.1.9':
+    resolution: {integrity: sha512-s0iufns3iIFitdgm+YR7g1whCAaGtXz459VS9/PqyKDEEFgYIhsHOQmXgIgDuYCt7DeQmiZT0Qe2OA2p4ZPu5A==}
+
+  '@vitest/runner@4.1.10':
+    resolution: {integrity: sha512-IKI6kpIH+LmpROplyLwBBaCfMgOZOMsygVa6BARD6ahA04VRuJSa6OaVG7kRvSEMD870Vd91rSSw0eegtWyLGg==}
+
+  '@vitest/runner@4.1.9':
+    resolution: {integrity: sha512-KXLMDtc7oe70+3mJfGrPUWPesswH+3sTxAMAMl8DG7I8IUQT4XW718dY5ID3vPUcmlu27CcKfY4P3h3I29SLJg==}
+
+  '@vitest/snapshot@4.1.10':
+    resolution: {integrity: sha512-xRkfOT1qpTAi/Ti4Y1LtfRc3kEuqxGw59eN2jN9pRWMtS/XDevekhcFSqvQqjUNGksfjMJu3Y+oJ+4Ypn2OaJw==}
+
+  '@vitest/snapshot@4.1.9':
+    resolution: {integrity: sha512-Jc7RKGNBo8Z28WYIm0Niej4xdSPByRf6mU58VpHQkd6Zh05rlnA+twjbK5HyeIGHxrzsc3mJgS43uM0CZKzaIA==}
+
+  '@vitest/spy@4.1.10':
+    resolution: {integrity: sha512-PLf/Ugvoq5wO/b4rwYCR1h2PSIdXz7wnkQFMiUpLdtM7l6pqVFcQIBEHyT1+l+cj7mNwAfZHzqXqDyjvOuwbDw==}
+
+  '@vitest/spy@4.1.9':
+    resolution: {integrity: sha512-fHpsS6mIi+PiEW+vcRVOMkX1oSaPKne3VOclSFICPcGOmfKgXPU5iAah+wcNcj2xPrCCmfq99IDGf+EojhhvhA==}
+
+  '@vitest/utils@4.1.10':
+    resolution: {integrity: sha512-fy9am/HWxbaGt/Sawrp90vt6Y6jQwf1RX77cz3uwoJwJVMli/e1IEwRPnMNJ7vKfPTwo0diXifkpPvwH9v7nGA==}
+
+  '@vitest/utils@4.1.9':
+    resolution: {integrity: sha512-A51o8ymO5PpqlWNnBP9ZHPXDIpuMtTLlGSjN7la4US+LJzoUMyhwjA5QXlm39JexgwHKW4Xjs8Z2d3dLCXOeuA==}
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
 
   '@voidzero-dev/vite-plus-core@0.2.4':
     resolution: {integrity: sha512-AoAYGPwNO56o9TuCR+KaQGA5XpSnTpn2QYHK0DQ0f8j3wvaMmToeWOJF6STo+XMntMDfiaB7sOsSFNE+hPYyjg==}
@@ -7680,6 +7757,16 @@ packages:
 
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
+    hasBin: true
+
+<<<<<<< HEAD
+  semver@7.8.5:
+    resolution: {integrity: sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==}
+=======
+  semver@7.7.2:
+    resolution: {integrity: sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==}
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
+    engines: {node: '>=10'}
     hasBin: true
 
   semver@7.8.5:
@@ -11939,12 +12026,20 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.3.2
       '@tailwindcss/oxide-win32-x64-msvc': 4.3.2
 
+<<<<<<< HEAD
   '@tailwindcss/vite@4.3.2(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))':
+=======
+  '@tailwindcss/vite@4.3.2(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))':
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     dependencies:
       '@tailwindcss/node': 4.3.2
       '@tailwindcss/oxide': 4.3.2
       tailwindcss: 4.3.2
+<<<<<<< HEAD
       vite: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)'
+=======
+      vite: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
 
   '@tanstack/history@1.162.0': {}
 
@@ -12003,7 +12098,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+<<<<<<< HEAD
   '@tanstack/router-plugin@1.168.19(@tanstack/react-router@1.170.17(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)':
+=======
+  '@tanstack/router-plugin@1.168.19(@tanstack/react-router@1.170.17(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)':
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     dependencies:
       '@babel/core': 7.29.7
       '@babel/template': 7.29.7
@@ -12012,11 +12111,19 @@ snapshots:
       '@tanstack/router-generator': 1.167.18
       '@tanstack/router-utils': 1.162.2
       chokidar: 5.0.0
+<<<<<<< HEAD
       unplugin: 3.3.0(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)
       zod: 4.4.3
     optionalDependencies:
       '@tanstack/react-router': 1.170.17(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       vite: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)'
+=======
+      unplugin: 3.3.0(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)
+      zod: 4.4.3
+    optionalDependencies:
+      '@tanstack/react-router': 1.170.17(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      vite: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     transitivePeerDependencies:
       - '@farmfe/core'
       - '@rspack/core'
@@ -12277,6 +12384,7 @@ snapshots:
       - rollup
       - supports-color
 
+<<<<<<< HEAD
   '@vitejs/plugin-react@6.0.3(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
@@ -12288,22 +12396,46 @@ snapshots:
       '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.1)
       '@vitest/browser': 4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(vitest@4.1.10)
       vitest: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(vitest@4.1.10))(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jsdom@29.1.1)
+=======
+  '@vitejs/plugin-react@6.0.3(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))':
+    dependencies:
+      '@rolldown/pluginutils': 1.0.1
+      vite: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
+
+  '@vitest/browser-preview@4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(vitest@4.1.9)':
+    dependencies:
+      '@testing-library/dom': 10.4.1
+      '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.1)
+      '@vitest/browser': 4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(vitest@4.1.9)
+      vitest: 4.1.9(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.10)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jsdom@29.1.1)
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     transitivePeerDependencies:
       - bufferutil
       - msw
       - utf-8-validate
       - vite
 
+<<<<<<< HEAD
   '@vitest/browser@4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(vitest@4.1.10)':
     dependencies:
       '@blazediff/core': 1.9.1
       '@vitest/mocker': 4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))
+=======
+  '@vitest/browser@4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(vitest@4.1.9)':
+    dependencies:
+      '@blazediff/core': 1.9.1
+      '@vitest/mocker': 4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
       '@vitest/utils': 4.1.10
       magic-string: 0.30.21
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.0
+<<<<<<< HEAD
       vitest: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(vitest@4.1.10))(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jsdom@29.1.1)
+=======
+      vitest: 4.1.9(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.10)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jsdom@29.1.1)
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
       ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
@@ -12311,7 +12443,29 @@ snapshots:
       - utf-8-validate
       - vite
 
+<<<<<<< HEAD
   '@vitest/coverage-v8@4.1.10(@vitest/browser@4.1.10)(vitest@4.1.10)':
+=======
+  '@vitest/browser@4.1.9(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(vitest@4.1.9)':
+    dependencies:
+      '@blazediff/core': 1.9.1
+      '@vitest/mocker': 4.1.9(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
+      '@vitest/utils': 4.1.9
+      magic-string: 0.30.21
+      pngjs: 7.0.0
+      sirv: 3.0.2
+      tinyrainbow: 3.1.0
+      vitest: 4.1.9(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.10)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jsdom@29.1.1)
+      ws: 8.21.0
+    transitivePeerDependencies:
+      - bufferutil
+      - msw
+      - utf-8-validate
+      - vite
+    optional: true
+
+  '@vitest/coverage-v8@4.1.9(@vitest/browser@4.1.9)(vitest@4.1.9)':
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     dependencies:
       '@bcoe/v8-coverage': 1.0.2
       '@vitest/utils': 4.1.10
@@ -12323,9 +12477,24 @@ snapshots:
       obug: 2.1.3
       std-env: 4.2.0
       tinyrainbow: 3.1.0
+<<<<<<< HEAD
       vitest: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(vitest@4.1.10))(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jsdom@29.1.1)
     optionalDependencies:
       '@vitest/browser': 4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(vitest@4.1.10)
+=======
+      vitest: 4.1.9(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.10)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jsdom@29.1.1)
+    optionalDependencies:
+      '@vitest/browser': 4.1.9(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(vitest@4.1.9)
+
+  '@vitest/expect@4.1.10':
+    dependencies:
+      '@standard-schema/spec': 1.1.0
+      '@types/chai': 5.2.3
+      '@vitest/spy': 4.1.10
+      '@vitest/utils': 4.1.10
+      chai: 6.2.2
+      tinyrainbow: 3.1.0
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
 
   '@vitest/expect@4.1.10':
     dependencies:
@@ -12336,24 +12505,62 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
+<<<<<<< HEAD
   '@vitest/mocker@4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))':
+=======
+  '@vitest/mocker@4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))':
     dependencies:
       '@vitest/spy': 4.1.10
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
+      vite: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
+
+  '@vitest/mocker@4.1.9(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))':
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
+    dependencies:
+      '@vitest/spy': 4.1.10
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+<<<<<<< HEAD
       vite: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)'
+=======
+      vite: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
+
+  '@vitest/pretty-format@4.1.10':
+    dependencies:
+      tinyrainbow: 3.1.0
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
 
   '@vitest/pretty-format@4.1.10':
     dependencies:
       tinyrainbow: 3.1.0
 
   '@vitest/runner@4.1.10':
+<<<<<<< HEAD
+=======
+    dependencies:
+      '@vitest/utils': 4.1.10
+      pathe: 2.0.3
+
+  '@vitest/runner@4.1.9':
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     dependencies:
       '@vitest/utils': 4.1.10
       pathe: 2.0.3
 
   '@vitest/snapshot@4.1.10':
+<<<<<<< HEAD
+=======
+    dependencies:
+      '@vitest/pretty-format': 4.1.10
+      '@vitest/utils': 4.1.10
+      magic-string: 0.30.21
+      pathe: 2.0.3
+
+  '@vitest/snapshot@4.1.9':
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     dependencies:
       '@vitest/pretty-format': 4.1.10
       '@vitest/utils': 4.1.10
@@ -12361,6 +12568,12 @@ snapshots:
       pathe: 2.0.3
 
   '@vitest/spy@4.1.10': {}
+<<<<<<< HEAD
+
+  '@vitest/utils@4.1.10':
+=======
+
+  '@vitest/spy@4.1.9': {}
 
   '@vitest/utils@4.1.10':
     dependencies:
@@ -12368,7 +12581,18 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
 
+  '@vitest/utils@4.1.9':
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
+    dependencies:
+      '@vitest/pretty-format': 4.1.10
+      convert-source-map: 2.0.0
+      tinyrainbow: 3.1.0
+
+<<<<<<< HEAD
   '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)':
+=======
+  '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)':
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     dependencies:
       '@oxc-project/runtime': 0.138.0
       '@oxc-project/types': 0.138.0
@@ -15543,7 +15767,11 @@ snapshots:
       '@oxc-resolver/binding-win32-arm64-msvc': 11.23.0
       '@oxc-resolver/binding-win32-x64-msvc': 11.23.0
 
+<<<<<<< HEAD
   oxfmt@0.57.0(vite-plus@0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@7.0.2)(yaml@2.9.0)):
+=======
+  oxfmt@0.57.0(vite-plus@0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@6.0.3)(yaml@2.9.0)):
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     dependencies:
       tinypool: 2.1.0
     optionalDependencies:
@@ -15566,7 +15794,18 @@ snapshots:
       '@oxfmt/binding-win32-arm64-msvc': 0.57.0
       '@oxfmt/binding-win32-ia32-msvc': 0.57.0
       '@oxfmt/binding-win32-x64-msvc': 0.57.0
+<<<<<<< HEAD
       vite-plus: 0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@7.0.2)(yaml@2.9.0)
+=======
+      vite-plus: 0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@6.0.3)(yaml@2.9.0)
+
+  oxlint-plugin-react-doctor@0.6.3:
+    dependencies:
+      '@typescript-eslint/types': 8.63.0
+      eslint-scope: 9.1.2
+      eslint-visitor-keys: 5.0.1
+      oxc-parser: 0.135.0
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
 
   oxlint-plugin-react-doctor@0.7.2:
     dependencies:
@@ -15607,7 +15846,11 @@ snapshots:
       '@oxlint/binding-win32-x64-msvc': 1.66.0
       oxlint-tsgolint: 0.24.0
 
+<<<<<<< HEAD
   oxlint@1.72.0(oxlint-tsgolint@0.24.0)(vite-plus@0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@7.0.2)(yaml@2.9.0)):
+=======
+  oxlint@1.72.0(oxlint-tsgolint@0.24.0)(vite-plus@0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@6.0.3)(yaml@2.9.0)):
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     optionalDependencies:
       '@oxlint/binding-android-arm-eabi': 1.72.0
       '@oxlint/binding-android-arm64': 1.72.0
@@ -15629,7 +15872,11 @@ snapshots:
       '@oxlint/binding-win32-ia32-msvc': 1.72.0
       '@oxlint/binding-win32-x64-msvc': 1.72.0
       oxlint-tsgolint: 0.24.0
+<<<<<<< HEAD
       vite-plus: 0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@7.0.2)(yaml@2.9.0)
+=======
+      vite-plus: 0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@6.0.3)(yaml@2.9.0)
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
 
   p-event@6.0.1:
     dependencies:
@@ -16162,7 +16409,11 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.17
 
+<<<<<<< HEAD
   react-scan@0.5.7(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)(eslint@10.6.0(jiti@2.7.0))(oxlint-tsgolint@0.24.0)(preact-render-to-string@6.5.11(preact@10.24.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+=======
+  react-scan@0.5.7(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)(eslint@10.5.0(jiti@2.7.0))(oxlint-tsgolint@0.24.0)(preact-render-to-string@6.5.11(preact@10.24.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     dependencies:
       '@babel/core': 7.29.7
       '@babel/types': 7.29.7
@@ -16179,7 +16430,11 @@ snapshots:
       react-grab: 0.1.48(react@19.2.7)
     optionalDependencies:
       esbuild: 0.28.0
+<<<<<<< HEAD
       unplugin: 3.3.0(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)
+=======
+      unplugin: 3.3.0(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     transitivePeerDependencies:
       - '@farmfe/core'
       - '@opentelemetry/core'
@@ -16426,6 +16681,12 @@ snapshots:
   semifies@1.0.0: {}
 
   semver@6.3.1: {}
+
+<<<<<<< HEAD
+  semver@7.8.5: {}
+=======
+  semver@7.7.2: {}
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
 
   semver@7.8.5: {}
 
@@ -17120,14 +17381,22 @@ snapshots:
 
   unpipe@1.0.0: {}
 
+<<<<<<< HEAD
   unplugin@3.3.0(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0):
+=======
+  unplugin@3.3.0(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0):
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     dependencies:
       '@jridgewell/remapping': 2.3.5
       picomatch: 4.0.5
       webpack-virtual-modules: 0.6.2
     optionalDependencies:
       esbuild: 0.28.0
+<<<<<<< HEAD
       vite: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)'
+=======
+      vite: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
 
   unstorage@1.17.5(@netlify/blobs@10.7.9):
     dependencies:
@@ -17222,6 +17491,7 @@ snapshots:
       - '@types/react'
       - '@types/react-dom'
 
+<<<<<<< HEAD
   vite-plus@0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@7.0.2)(yaml@2.9.0):
     dependencies:
       '@oxc-project/types': 0.138.0
@@ -17230,16 +17500,34 @@ snapshots:
       '@vitest/browser-preview': 4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(vitest@4.1.10)
       '@vitest/expect': 4.1.10
       '@vitest/mocker': 4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))
+=======
+  vite-plus@0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@6.0.3)(yaml@2.9.0):
+    dependencies:
+      '@oxc-project/types': 0.138.0
+      '@oxlint/plugins': 1.68.0
+      '@vitest/browser': 4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(vitest@4.1.9)
+      '@vitest/browser-preview': 4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(vitest@4.1.9)
+      '@vitest/expect': 4.1.10
+      '@vitest/mocker': 4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
       '@vitest/pretty-format': 4.1.10
       '@vitest/runner': 4.1.10
       '@vitest/snapshot': 4.1.10
       '@vitest/spy': 4.1.10
       '@vitest/utils': 4.1.10
+<<<<<<< HEAD
       '@voidzero-dev/vite-plus-core': 0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
       oxfmt: 0.57.0(vite-plus@0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@7.0.2)(yaml@2.9.0))
       oxlint: 1.72.0(oxlint-tsgolint@0.24.0)(vite-plus@0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@7.0.2)(yaml@2.9.0))
       oxlint-tsgolint: 0.24.0
       vitest: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(vitest@4.1.10))(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jsdom@29.1.1)
+=======
+      '@voidzero-dev/vite-plus-core': 0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
+      oxfmt: 0.57.0(vite-plus@0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@6.0.3)(yaml@2.9.0))
+      oxlint: 1.72.0(oxlint-tsgolint@0.24.0)(vite-plus@0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@6.0.3)(yaml@2.9.0))
+      oxlint-tsgolint: 0.24.0
+      vitest: 4.1.9(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.10)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jsdom@29.1.1)
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
     optionalDependencies:
       '@voidzero-dev/vite-plus-darwin-arm64': 0.2.4
       '@voidzero-dev/vite-plus-darwin-x64': 0.2.4
@@ -17280,6 +17568,7 @@ snapshots:
       - vite
       - yaml
 
+<<<<<<< HEAD
   vitest@4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(vitest@4.1.10))(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jsdom@29.1.1):
     dependencies:
       '@vitest/expect': 4.1.10
@@ -17289,6 +17578,17 @@ snapshots:
       '@vitest/snapshot': 4.1.10
       '@vitest/spy': 4.1.10
       '@vitest/utils': 4.1.10
+=======
+  vitest@4.1.9(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.10)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jsdom@29.1.1):
+    dependencies:
+      '@vitest/expect': 4.1.9
+      '@vitest/mocker': 4.1.9(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
+      '@vitest/pretty-format': 4.1.9
+      '@vitest/runner': 4.1.9
+      '@vitest/snapshot': 4.1.9
+      '@vitest/spy': 4.1.9
+      '@vitest/utils': 4.1.9
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
       es-module-lexer: 2.3.0
       expect-type: 1.4.0
       magic-string: 0.30.21
@@ -17300,13 +17600,22 @@ snapshots:
       tinyexec: 1.2.4
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
+<<<<<<< HEAD
       vite: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)'
+=======
+      vite: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
       '@types/node': 26.1.1
+<<<<<<< HEAD
       '@vitest/browser-preview': 4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(vitest@4.1.10)
       '@vitest/coverage-v8': 4.1.10(@vitest/browser@4.1.10)(vitest@4.1.10)
+=======
+      '@vitest/browser-preview': 4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(vitest@4.1.9)
+      '@vitest/coverage-v8': 4.1.9(@vitest/browser@4.1.9)(vitest@4.1.9)
+>>>>>>> d6d26ef (chore: update pnpm workspace dependencies and versions)
       jsdom: 29.1.1
     transitivePeerDependencies:
       - msw
