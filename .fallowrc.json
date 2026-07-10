@@ -32,6 +32,7 @@
     "@tanstack/react-router-devtools",
     "class-variance-authority",
     "jose",
+    "openai",
     "netlify-cli",
     "next-themes",
     "radix-ui",

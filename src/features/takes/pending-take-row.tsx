@@ -1,9 +1,14 @@
+import { AiKeyDialog } from "@components/ai-key-dialog";
+import { Button } from "@components/ui/button";
 import { Spinner } from "@components/ui/spinner";
 import { formatTimestamp } from "@lib/utils";
+import { RotateCw } from "lucide-react";
+import { useState } from "react";
 
 import type { TakeRowJob } from "./take-row-thumbnail";
 
 import { TakeRowThumbnail } from "./take-row-thumbnail";
+import { useRetryTake } from "./use-retry-take";
 
 function ProcessingBadge() {
   return (
@@ -26,6 +31,22 @@ function FailedBadge({ failureReason }: { failureReason?: string | null }) {
 }
 
 export function PendingTakeRow({ job }: { job: TakeRowJob }) {
+  const { retry, isRetrying, hasApiKey } = useRetryTake();
+  const [keyDialogOpen, setKeyDialogOpen] = useState(false);
+
+  const handleRetry = () => {
+    if (hasApiKey) {
+      void retry(job._id);
+    } else {
+      setKeyDialogOpen(true);
+    }
+  };
+
+  const handleSaveKey = (key: string) => {
+    setKeyDialogOpen(false);
+    void retry(job._id, key);
+  };
+
   return (
     <div className="flex items-center gap-4 rounded-lg border p-3">
       <TakeRowThumbnail
@@ -42,6 +63,14 @@ export function PendingTakeRow({ job }: { job: TakeRowJob }) {
           {job.status === "failed" && <FailedBadge failureReason={job.failureReason} />}
         </div>
       </div>
+      {job.status === "failed" && (
+        <div className="ml-auto flex items-center gap-1">
+          <Button variant="ghost" size="icon-lg" onClick={handleRetry} disabled={isRetrying}>
+            {isRetrying ? <Spinner /> : <RotateCw />}
+          </Button>
+        </div>
+      )}
+      {keyDialogOpen && <AiKeyDialog onOpenChange={setKeyDialogOpen} onSave={handleSaveKey} />}
     </div>
   );
 }

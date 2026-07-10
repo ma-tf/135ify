@@ -1,5 +1,6 @@
 import { Skeleton } from "@components/ui/skeleton";
 import { Link } from "@tanstack/react-router";
+import { TriangleAlert } from "lucide-react";
 
 type TakeStatus = "processing" | "completed" | "failed" | "overQuota";
 
@@ -61,6 +62,14 @@ export function TakeRowThumbnail({
         alt={fileName}
         className="h-16 w-16 rounded object-cover opacity-50"
       />
+    );
+  }
+
+  if (status === "failed") {
+    return (
+      <div className="flex h-16 w-16 items-center justify-center rounded border border-destructive/30 bg-destructive/10">
+        <TriangleAlert className="size-6 text-destructive" />
+      </div>
     );
   }
 

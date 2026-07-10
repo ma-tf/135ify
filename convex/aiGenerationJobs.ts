@@ -92,6 +92,17 @@ export const clearOverQuota = mutation({
   },
 });
 
+export const retryJob = mutation({
+  args: { jobId: v.id("aiGenerationJobs") },
+  handler: async (ctx, args) => {
+    const userId = await requireAuth(ctx);
+    const doc = await ctx.db.get("aiGenerationJobs", args.jobId);
+    if (!doc || doc.userId !== userId) throw new Error("Unauthorized");
+    if (doc.status !== "failed") throw new Error("Only failed jobs can be retried");
+    await ctx.db.patch(args.jobId, { status: "processing", failureReason: undefined });
+  },
+});
+
 export const listByUser = query({
   handler: async (ctx) => {
     const userId = await requireAuth(ctx);
