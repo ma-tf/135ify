@@ -4,6 +4,28 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+<<<<<<< HEAD
+=======
+catalogs:
+  default:
+    '@vitest/coverage-v8':
+      specifier: 4.1.9
+      version: 4.1.9
+    vite:
+      specifier: npm:@voidzero-dev/vite-plus-core@0.2.2
+      version: 0.2.2
+    vite-plus:
+      specifier: 0.2.2
+      version: 0.2.2
+    vitest:
+      specifier: 4.1.9
+      version: 4.1.9
+
+overrides:
+  nanoid: 3.3.8
+  semver: 7.7.2
+
+>>>>>>> d702628 (fix: update vitest and coverage-v8 dependencies to use catalog versioning)
 importers:
 
   .:
@@ -100,8 +122,13 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))
       '@vitest/coverage-v8':
+<<<<<<< HEAD
         specifier: ^4.1.10
         version: 4.1.10(@vitest/browser@4.1.10)(vitest@4.1.10)
+=======
+        specifier: 'catalog:'
+        version: 4.1.9(@vitest/browser@4.1.9)(vitest@4.1.9)
+>>>>>>> d702628 (fix: update vitest and coverage-v8 dependencies to use catalog versioning)
       fallow:
         specifier: ^3.2.0
         version: 3.2.0
@@ -115,8 +142,13 @@ importers:
         specifier: ^26.2.0
         version: 26.2.0(@types/node@26.1.1)(picomatch@4.0.5)(supports-color@10.2.2)
       react-doctor:
+<<<<<<< HEAD
         specifier: ^0.7.2
         version: 0.7.2(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))(eslint@10.6.0(jiti@2.7.0))(oxlint-tsgolint@0.24.0)(supports-color@10.2.2)
+=======
+        specifier: ^0.6.3
+        version: 0.6.3(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))(eslint@10.5.0(jiti@2.7.0))(oxlint-tsgolint@0.24.0)(supports-color@10.2.2)
+>>>>>>> d702628 (fix: update vitest and coverage-v8 dependencies to use catalog versioning)
       react-scan:
         specifier: ^0.5.7
         version: 0.5.7(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)(eslint@10.6.0(jiti@2.7.0))(oxlint-tsgolint@0.24.0)(preact-render-to-string@6.5.11(preact@10.24.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -130,11 +162,19 @@ importers:
         specifier: npm:@voidzero-dev/vite-plus-core@0.2.4
         version: '@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)'
       vite-plus:
+<<<<<<< HEAD
         specifier: 0.2.4
         version: 0.2.4(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@7.0.2)(yaml@2.9.0)
       vitest:
         specifier: ^4.1.10
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.10(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(vitest@4.1.10))(@vitest/coverage-v8@4.1.10)(@voidzero-dev/vite-plus-core@0.2.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jsdom@29.1.1)
+=======
+        specifier: 'catalog:'
+        version: 0.2.2(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.2(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(jsdom@29.1.1)(typescript@6.0.3)(yaml@2.9.0)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.9(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/browser-preview@4.1.9)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.2(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jsdom@29.1.1)
+>>>>>>> d702628 (fix: update vitest and coverage-v8 dependencies to use catalog versioning)
 
   .sandcastle:
     devDependencies:
@@ -16030,10 +16070,43 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
+<<<<<<< HEAD
   react-doctor@0.7.2(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))(eslint@10.6.0(jiti@2.7.0))(oxlint-tsgolint@0.24.0)(supports-color@10.2.2):
     dependencies:
       '@babel/code-frame': 7.29.7
       '@sentry/node': 10.64.0(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))(supports-color@10.2.2)
+=======
+  react-doctor@0.6.3(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))(eslint@10.5.0(jiti@2.7.0))(oxlint-tsgolint@0.24.0)(supports-color@10.2.2):
+    dependencies:
+      '@babel/code-frame': 7.29.7
+      '@sentry/node': 10.64.0(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))(supports-color@10.2.2)
+      agent-install: 0.0.5
+      conf: 15.1.0
+      confbox: 0.2.4
+      deslop-js: 0.6.3
+      eslint-plugin-react-hooks: 7.1.1(eslint@10.5.0(jiti@2.7.0))
+      jiti: 2.7.0
+      magicast: 0.5.3
+      oxlint: 1.66.0(oxlint-tsgolint@0.24.0)
+      oxlint-plugin-react-doctor: 0.6.3
+      prompts: 2.4.2
+      typescript: 5.9.3
+      vscode-languageserver: 9.0.1
+      vscode-languageserver-textdocument: 1.0.12
+      vscode-uri: 3.1.0
+      yaml: 2.9.0
+    transitivePeerDependencies:
+      - '@opentelemetry/core'
+      - '@opentelemetry/exporter-trace-otlp-http'
+      - eslint
+      - oxlint-tsgolint
+      - supports-color
+
+  react-doctor@0.7.2(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))(eslint@10.5.0(jiti@2.7.0))(oxlint-tsgolint@0.24.0):
+    dependencies:
+      '@babel/code-frame': 7.29.7
+      '@sentry/node': 10.64.0(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))(supports-color@10.2.2)
+>>>>>>> d702628 (fix: update vitest and coverage-v8 dependencies to use catalog versioning)
       agent-install: 0.0.5
       conf: 15.1.0
       confbox: 0.2.4
