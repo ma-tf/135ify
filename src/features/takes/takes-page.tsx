@@ -78,66 +78,83 @@ export function TakesPage() {
   }
   const groups = jobs ? groupBySourceImage(jobs) : [];
 
-  return (
-    <div className="space-y-8 p-6">
-      <UsageBar />
-      {pending ? (
+  if (pending) {
+    return (
+      <div className="space-y-8 p-6">
+        <UsageBar />
         <TakesSkeleton />
-      ) : errored ? (
+      </div>
+    );
+  }
+
+  if (errored) {
+    return (
+      <div className="space-y-8 p-6">
+        <UsageBar />
         <div className="flex flex-col items-center justify-center gap-4 p-12">
           <p className="text-destructive">Failed to load AI Takes</p>
         </div>
-      ) : !jobs || jobs.length === 0 ? (
+      </div>
+    );
+  }
+
+  if (!jobs || jobs.length === 0) {
+    return (
+      <div className="space-y-8 p-6">
+        <UsageBar />
         <div className="flex flex-col items-center justify-center gap-4 p-12">
           <p className="text-muted-foreground">No AI Takes yet.</p>
           <Link to="/" className="text-primary hover:underline">
             Process your first image
           </Link>
         </div>
-      ) : (
-        <>
-          {resolvedJobIds.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={async () => {
-                await clearResolved({ jobIds: resolvedJobIds });
-                toast.success("Cleared resolved takes");
-              }}
-            >
-              Clear resolved takes
-            </Button>
-          )}
-          {groups.map((group) => (
-            <section key={group.sourceImageId}>
-              {group.sourceLinkId ? (
-                <Link
-                  to="/gallery/$imageId"
-                  params={{ imageId: group.sourceLinkId }}
-                  className="mb-3 text-sm font-medium text-muted-foreground hover:underline"
-                >
-                  {group.sourceFileName}
-                </Link>
-              ) : (
-                <span className="mb-3 block text-sm font-medium text-muted-foreground">
-                  {group.sourceFileName}
-                </span>
-              )}
-              <div className="space-y-2">
-                {group.takes.map((take) => {
-                  if (take.status === "overQuota") {
-                    return <OverQuotaTakeRow key={take._id} job={take} />;
-                  }
-                  if (take.status !== "completed") {
-                    return <PendingTakeRow key={take._id} job={take} />;
-                  }
-                  return <CompletedTakeRow key={take._id} job={take} />;
-                })}
-              </div>
-            </section>
-          ))}
-        </>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8 p-6">
+      <UsageBar />
+      {resolvedJobIds.length > 0 && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={async () => {
+            await clearResolved({ jobIds: resolvedJobIds });
+            toast.success("Cleared resolved takes");
+          }}
+        >
+          Clear resolved takes
+        </Button>
       )}
+      {groups.map((group) => (
+        <section key={group.sourceImageId}>
+          {group.sourceLinkId ? (
+            <Link
+              to="/gallery/$imageId"
+              params={{ imageId: group.sourceLinkId }}
+              className="mb-3 text-sm font-medium text-muted-foreground hover:underline"
+            >
+              {group.sourceFileName}
+            </Link>
+          ) : (
+            <span className="mb-3 block text-sm font-medium text-muted-foreground">
+              {group.sourceFileName}
+            </span>
+          )}
+          <div className="space-y-2">
+            {group.takes.map((take) => {
+              if (take.status === "overQuota") {
+                return <OverQuotaTakeRow key={take._id} job={take} />;
+              }
+              if (take.status !== "completed") {
+                return <PendingTakeRow key={take._id} job={take} />;
+              }
+              return <CompletedTakeRow key={take._id} job={take} />;
+            })}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }
