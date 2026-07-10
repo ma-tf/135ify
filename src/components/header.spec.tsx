@@ -12,7 +12,10 @@ const { mockUseQuery, mockUseTakesNotificationStore, mockUseLocation, mockUseCon
   }));
 
 vi.mock("@convex/_generated/api", () => ({
-  api: { aiGenerationJobs: { latestJobTimestamp: "latestJobTimestamp" } },
+  api: {
+    aiGenerationJobs: { latestJobTimestamp: "latestJobTimestamp" },
+    users: { current: "users.current" },
+  },
 }));
 
 vi.mock("@stores/takes-notification-store", () => ({
@@ -34,9 +37,11 @@ vi.mock("@components/sign-in-dialog", () => ({
 
 vi.mock("@components/user-menu", () => ({
   UserMenu: () => null,
+  getInitials: vi.fn(() => "?"),
 }));
 
 vi.mock("@config", () => ({
+  FEATURE_AI_GRAIN: false,
   FEATURE_SIGN_IN: true,
   BASE_PATH: "",
 }));
@@ -59,7 +64,11 @@ describe("Header", () => {
     mockUseConvexAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
     mockUseLocation.mockReturnValue({ pathname: "/gallery" });
     mockUseTakesNotificationStore.mockReturnValue({ lastSeenAt: null, markSeen: vi.fn() });
-    mockUseQuery.mockReturnValue({ status: "success", data: null });
+    mockUseQuery.mockImplementation(({ query }) =>
+      query === "users.current"
+        ? { status: "success", data: { name: "Test", email: "test@test.com", image: "test.jpg" } }
+        : { status: "success", data: null },
+    );
   });
 
   it("hides nav links when user is not authenticated", () => {
@@ -81,7 +90,11 @@ describe("Header", () => {
   });
 
   it("shows notification dot when latest take is newer than lastSeenAt", () => {
-    mockUseQuery.mockReturnValue({ status: "success", data: { _creationTime: 200 } });
+    mockUseQuery.mockImplementation(({ query }) =>
+      query === "users.current"
+        ? { status: "success", data: { name: "Test", email: "test@test.com", image: "test.jpg" } }
+        : { status: "success", data: { _creationTime: 200 } },
+    );
 
     render(<Header />);
 
@@ -91,7 +104,11 @@ describe("Header", () => {
 
   it("hides notification dot when on /takes page", () => {
     mockUseLocation.mockReturnValue({ pathname: "/takes" });
-    mockUseQuery.mockReturnValue({ status: "success", data: { _creationTime: 200 } });
+    mockUseQuery.mockImplementation(({ query }) =>
+      query === "users.current"
+        ? { status: "success", data: { name: "Test", email: "test@test.com", image: "test.jpg" } }
+        : { status: "success", data: { _creationTime: 200 } },
+    );
 
     render(<Header />);
 
@@ -108,7 +125,11 @@ describe("Header", () => {
 
   it("hides notification dot when lastSeenAt is after latest take", () => {
     mockUseTakesNotificationStore.mockReturnValue({ lastSeenAt: 300, markSeen: vi.fn() });
-    mockUseQuery.mockReturnValue({ status: "success", data: { _creationTime: 200 } });
+    mockUseQuery.mockImplementation(({ query }) =>
+      query === "users.current"
+        ? { status: "success", data: { name: "Test", email: "test@test.com", image: "test.jpg" } }
+        : { status: "success", data: { _creationTime: 200 } },
+    );
 
     render(<Header />);
 

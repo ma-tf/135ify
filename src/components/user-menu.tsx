@@ -18,7 +18,7 @@ import { useQuery_experimental as useQuery } from "convex/react";
 import { ImageIcon, KeyIcon, LogOut } from "lucide-react";
 import { type ComponentProps, useState } from "react";
 
-function getInitials(name?: string | null, email?: string | null): string {
+export function getInitials(name?: string | null, email?: string | null): string {
   if (name) {
     return name
       .split(" ")

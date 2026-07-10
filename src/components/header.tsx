@@ -1,16 +1,20 @@
+import { AiKeyDialog } from "@components/ai-key-dialog";
 import { ModeToggle } from "@components/mode-toggle";
 import { SignInButtons } from "@components/sign-in-dialog";
 import { useTheme } from "@components/theme-provider";
+import { Avatar, AvatarFallback, AvatarImage } from "@components/ui/avatar";
 import { Button } from "@components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
-import { UserMenu } from "@components/user-menu";
-import { BASE_PATH, FEATURE_SIGN_IN } from "@config";
+import { Skeleton } from "@components/ui/skeleton";
+import { UserMenu, getInitials } from "@components/user-menu";
+import { BASE_PATH, FEATURE_AI_GRAIN, FEATURE_SIGN_IN } from "@config";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "@convex/_generated/api";
 import { useAuth } from "@hooks/use-auth";
 import { useTakesNotificationStore } from "@stores/takes-notification-store";
 import { Link, useLocation } from "@tanstack/react-router";
 import { useQuery_experimental as useQuery } from "convex/react";
-import { Menu } from "lucide-react";
+import { KeyIcon, LogOut, Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 
 function FilmStripLink() {
@@ -85,48 +89,89 @@ function TakesLink() {
 
 function MobileNav() {
   const [open, setOpen] = useState(false);
+  const [keyDialogOpen, setKeyDialogOpen] = useState(false);
   const { setTheme } = useTheme();
+  const { signOut } = useAuthActions();
   const location = useLocation();
+  const user = useQuery({ query: api.users.current, args: {} });
 
   useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" className="md:hidden">
-          <Menu className="mr-2 size-4" />
-          Menu
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        side="bottom"
-        align="end"
-        sideOffset={4}
-        className="w-screen max-w-none rounded-none border-x-0 px-6 py-4"
-      >
-        <nav className="flex flex-col gap-3">
-          <FilmStripLink />
-          <GalleryLink />
-          <TakesLink />
-        </nav>
-        <div className="mt-4 flex flex-col gap-2 border-t pt-4">
-          <span className="text-xs font-medium text-muted-foreground">Theme</span>
-          <div className="flex gap-1">
-            <Button variant="ghost" size="sm" onClick={() => setTheme("light")}>
-              Light
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => setTheme("dark")}>
-              Dark
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => setTheme("system")}>
-              System
+    <>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="sm" className="md:hidden">
+            <Menu className="mr-2 size-4" />
+            Menu
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          side="bottom"
+          align="end"
+          sideOffset={4}
+          className="w-screen max-w-none rounded-none border-x-0 px-6 py-4"
+        >
+          {user.status === "pending" ? (
+            <Skeleton className="size-8 rounded-full" />
+          ) : user.status === "success" ? (
+            <div className="flex items-center gap-3">
+              <Avatar size="sm">
+                <AvatarImage src={user.data.image} alt={user.data.name} />
+                <AvatarFallback>{getInitials(user.data.name, user.data.email)}</AvatarFallback>
+              </Avatar>
+              <span className="text-sm font-medium">
+                {user.data.name ?? user.data.email ?? "?"}
+              </span>
+            </div>
+          ) : null}
+          <nav className="mt-4 flex flex-col gap-3">
+            <FilmStripLink />
+            <GalleryLink />
+            <TakesLink />
+          </nav>
+          {FEATURE_AI_GRAIN && (
+            <div className="mt-4 border-t pt-4">
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => setKeyDialogOpen(true)}
+              >
+                <KeyIcon className="mr-2 size-4" />
+                API Key
+              </Button>
+            </div>
+          )}
+          <div className="mt-4 border-t pt-4">
+            <span className="text-xs font-medium text-muted-foreground">Theme</span>
+            <div className="mt-2 flex flex-col gap-1">
+              <Button variant="ghost" className="justify-start" onClick={() => setTheme("light")}>
+                Light
+              </Button>
+              <Button variant="ghost" className="justify-start" onClick={() => setTheme("dark")}>
+                Dark
+              </Button>
+              <Button variant="ghost" className="justify-start" onClick={() => setTheme("system")}>
+                System
+              </Button>
+            </div>
+          </div>
+          <div className="mt-4 border-t pt-4">
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-destructive"
+              onClick={() => void signOut()}
+            >
+              <LogOut className="mr-2 size-4" />
+              Sign out
             </Button>
           </div>
-        </div>
-      </PopoverContent>
-    </Popover>
+        </PopoverContent>
+      </Popover>
+      {FEATURE_AI_GRAIN && keyDialogOpen && <AiKeyDialog onOpenChange={setKeyDialogOpen} />}
+    </>
   );
 }
 
@@ -163,7 +208,9 @@ export function Header() {
         {FEATURE_SIGN_IN && (
           <>
             <SignInButtons />
-            <UserMenu />
+            <div className="hidden md:block">
+              <UserMenu />
+            </div>
           </>
         )}
         {FEATURE_SIGN_IN && isAuthenticated ? (
