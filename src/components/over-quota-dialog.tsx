@@ -7,13 +7,16 @@ import {
   AlertDialogTitle,
 } from "@components/ui/alert-dialog";
 import { Button } from "@components/ui/button";
+import { formatBytes } from "@lib/utils";
 import { useCallback } from "react";
 
 export function OverQuotaDialog({
   downloadUrl,
+  size,
   onDiscard,
 }: {
   downloadUrl: string;
+  size?: number | null;
   onDiscard: () => void;
 }) {
   const handleDownload = useCallback(async () => {
@@ -39,6 +42,7 @@ export function OverQuotaDialog({
           <AlertDialogTitle>Gallery storage full</AlertDialogTitle>
           <AlertDialogDescription>
             Your gallery is over capacity. Download the AI-generated image now or discard it.
+            {size != null && <span className="mt-1 block">Image size: {formatBytes(size)}</span>}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="flex justify-center">

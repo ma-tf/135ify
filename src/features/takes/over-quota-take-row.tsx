@@ -17,7 +17,15 @@ function OverQuotaBadge({ resolved }: { resolved?: boolean }) {
   );
 }
 
-function OverQuotaDialogWithUrl({ jobId, onDiscard }: { jobId: string; onDiscard: () => void }) {
+function OverQuotaDialogWithUrl({
+  jobId,
+  size,
+  onDiscard,
+}: {
+  jobId: string;
+  size: number | null;
+  onDiscard: () => void;
+}) {
   const result = useQuery({
     query: api.aiGenerationJobs.getOverQuotaUrl,
     args: { jobId: jobId as any },
@@ -26,7 +34,7 @@ function OverQuotaDialogWithUrl({ jobId, onDiscard }: { jobId: string; onDiscard
 
   if (!downloadUrl) return null;
 
-  return <OverQuotaDialog downloadUrl={downloadUrl} onDiscard={onDiscard} />;
+  return <OverQuotaDialog downloadUrl={downloadUrl} size={size} onDiscard={onDiscard} />;
 }
 
 export function OverQuotaTakeRow({ job }: { job: TakeRowJob }) {
@@ -83,7 +91,7 @@ export function OverQuotaTakeRow({ job }: { job: TakeRowJob }) {
         </div>
       </div>
       {overQuotaDialogOpen && job.overQuotaStorageId && (
-        <OverQuotaDialogWithUrl jobId={job._id} onDiscard={handleDiscard} />
+        <OverQuotaDialogWithUrl jobId={job._id} size={job.size} onDiscard={handleDiscard} />
       )}
     </>
   );
