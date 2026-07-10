@@ -22,6 +22,19 @@ export function formatTimestamp(creationTime: number): string {
   );
 }
 
+export function getInitials(name?: string | null, email?: string | null): string {
+  if (name) {
+    return name
+      .split(" ")
+      .map((part) => part[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+  }
+  if (email) return email[0].toUpperCase();
+  return "?";
+}
+
 export function formatBytes(bytes: number, decimals = 2): string {
   if (bytes === 0) return "0 Bytes";
 

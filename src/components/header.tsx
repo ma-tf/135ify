@@ -6,16 +6,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@components/ui/avatar";
 import { Button } from "@components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { Skeleton } from "@components/ui/skeleton";
-import { UserMenu, getInitials } from "@components/user-menu";
+import { UserMenu } from "@components/user-menu";
 import { BASE_PATH, FEATURE_AI_GRAIN, FEATURE_SIGN_IN } from "@config";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "@convex/_generated/api";
 import { useAuth } from "@hooks/use-auth";
+import { getInitials } from "@lib/utils";
 import { useTakesNotificationStore } from "@stores/takes-notification-store";
 import { Link, useLocation } from "@tanstack/react-router";
 import { useQuery_experimental as useQuery } from "convex/react";
 import { KeyIcon, LogOut, Menu } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 function FilmStripLink() {
   return (
@@ -95,13 +96,9 @@ function MobileNav() {
   const location = useLocation();
   const user = useQuery({ query: api.users.current, args: {} });
 
-  useEffect(() => {
-    setOpen(false);
-  }, [location.pathname]);
-
   return (
     <>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover key={location.pathname} open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="sm" className="md:hidden">
             <Menu className="mr-2 size-4" />

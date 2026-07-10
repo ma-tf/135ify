@@ -13,23 +13,11 @@ import { FEATURE_AI_GRAIN } from "@config";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "@convex/_generated/api";
 import { useAuth } from "@hooks/use-auth";
+import { getInitials } from "@lib/utils";
 import { Link } from "@tanstack/react-router";
 import { useQuery_experimental as useQuery } from "convex/react";
 import { ImageIcon, KeyIcon, LogOut } from "lucide-react";
 import { type ComponentProps, useState } from "react";
-
-export function getInitials(name?: string | null, email?: string | null): string {
-  if (name) {
-    return name
-      .split(" ")
-      .map((part) => part[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
-  }
-  if (email) return email[0].toUpperCase();
-  return "?";
-}
 
 function UserAvatar(props: ComponentProps<typeof Button>) {
   const user = useQuery({ query: api.users.current, args: {} });

@@ -35,9 +35,13 @@ vi.mock("@components/sign-in-dialog", () => ({
   SignInButtons: () => null,
 }));
 
+vi.mock(import("@lib/utils"), async (importOriginal) => {
+  const actual = await importOriginal();
+  return { ...actual, getInitials: vi.fn(() => "?") };
+});
+
 vi.mock("@components/user-menu", () => ({
   UserMenu: () => null,
-  getInitials: vi.fn(() => "?"),
 }));
 
 vi.mock("@config", () => ({

@@ -1,4 +1,4 @@
-import type { Doc } from "@convex/_generated/dataModel";
+import type { Doc, Id } from "@convex/_generated/dataModel";
 
 import { Button } from "@components/ui/button";
 import { api } from "@convex/_generated/api";
@@ -68,9 +68,14 @@ export function TakesPage() {
   const errored = result.status === "error";
 
   const jobs = result.status === "success" ? result.data : null;
-  const resolvedJobIds = jobs
-    ? jobs.filter((j) => j.status === "overQuota" && !j.overQuotaStorageId).map((j) => j._id as any)
-    : [];
+  const resolvedJobIds: Id<"aiGenerationJobs">[] = [];
+  if (jobs) {
+    for (const j of jobs) {
+      if (j.status === "overQuota" && !j.overQuotaStorageId) {
+        resolvedJobIds.push(j._id);
+      }
+    }
+  }
   const groups = jobs ? groupBySourceImage(jobs) : [];
 
   return (
