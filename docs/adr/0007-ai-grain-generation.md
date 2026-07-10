@@ -4,9 +4,10 @@ Pre-scanned grain textures (ADR 0001) produce authentic film grain but are stati
 We are adding an AI-based grain generation path that produces a complete film-grain image from a Source Image in a
 single model call, without user parameterization.
 
-**How it works**: The user presses a button in the Edit View. A Convex action sends the Source Image to GPT-4o with a
-fixed prompt and returns an immutable rendered image. The output is stored as an **AI Take** — a distinct Render variant
-alongside the Manual Render. AI Takes are viewed and managed on the `/takes` route.
+**How it works**: The user presses a button in the Edit View. A Convex action sends the Source Image to `gpt-5.4` via
+the OpenAI Responses API (`image_generation` tool) with a fixed prompt and returns an immutable rendered image. The
+output is stored as an **AI Take** — a distinct Render variant alongside the Manual Render. AI Takes are viewed and
+managed on the `/takes` route.
 
 ## Key decisions
 
@@ -35,7 +36,7 @@ appears in the Takes route when done.
 
 ## Considered options
 
-- **Procedural AI grain (in-browser model)**: Rejected — in-browser models cannot match the quality of GPT-4o for
+- **Procedural AI grain (in-browser model)**: Rejected — in-browser models cannot match the quality of `gpt-5.4` for
   image-to-image tasks. Introduces WebGPU/ONNX compatibility matrix and model loading UX.
 - **Server-side key storage**: Rejected for MVP — introduces key custody liability. Provider abstraction makes migration
   trivial later.

@@ -34,8 +34,8 @@ inspection).
 **Manual Render**: The existing deterministic Render produced by Halation → Film Tint → Vignette → Grain. A Source Image
 has exactly one Manual Render, distinct from any AI Takes. _Avoid_: Default render, manual output
 
-**AI Take**: A single AI-generated film grain rendering of a Source Image, produced by GPT-4o via a one-button action in
-the Edit View. Immutable — once generated, it is not re-processable. Stored as Preview and Full Render in Convex file
+**AI Take**: A single AI-generated film grain rendering of a Source Image, produced by `gpt-5.4` via a one-button action
+in the Edit View. Immutable — once generated, it is not re-processable. Stored as Preview and Full Render in Convex file
 storage. A Source Image can have multiple AI Takes, each in a separate Convex table. _Avoid_: AI Render, Generated
 Render
 
