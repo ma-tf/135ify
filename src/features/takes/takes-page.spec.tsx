@@ -3,7 +3,7 @@ import type { Doc } from "@convex/_generated/dataModel";
 import { TakesPage } from "@features/takes/takes-page";
 import { setupTests } from "@test-utils/setup.spec";
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 const { mockUseQuery, mockMarkSeen } = vi.hoisted(() => ({
   mockUseQuery: vi.fn(),
@@ -80,21 +80,10 @@ function renderPage(jobs: unknown[]) {
   mockUseQuery.mockReturnValue({ status: "success", data: jobs });
 
   const result = render(<TakesPage />);
-  act(() => {
-    vi.advanceTimersByTime(3000);
-  });
   return result;
 }
 
 describe("TakesPage", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it("shows empty state message and CTA link when user has no AI Takes", () => {
     renderPage([]);
 
@@ -116,9 +105,6 @@ describe("TakesPage", () => {
     mockUseQuery.mockReturnValue({ status: "error", error: new Error("Failed") });
 
     render(<TakesPage />);
-    act(() => {
-      vi.advanceTimersByTime(3000);
-    });
 
     expect(screen.getByText(/failed to load/i)).toBeDefined();
   });

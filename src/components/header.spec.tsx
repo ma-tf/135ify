@@ -1,15 +1,21 @@
 import { Header } from "@components/header";
 import { setupTests } from "@test-utils/setup.spec";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-const { mockUseQuery, mockUseTakesNotificationStore, mockUseLocation, mockUseConvexAuth } =
-  vi.hoisted(() => ({
-    mockUseQuery: vi.fn(),
-    mockUseTakesNotificationStore: vi.fn(),
-    mockUseLocation: vi.fn(),
-    mockUseConvexAuth: vi.fn(),
-  }));
+const {
+  mockUseQuery,
+  mockUseTakesNotificationStore,
+  mockUseLocation,
+  mockUseConvexAuth,
+  mockUseTheme,
+} = vi.hoisted(() => ({
+  mockUseQuery: vi.fn(),
+  mockUseTakesNotificationStore: vi.fn(),
+  mockUseLocation: vi.fn(),
+  mockUseConvexAuth: vi.fn(),
+  mockUseTheme: vi.fn(() => ({ theme: "light", setTheme: vi.fn() })),
+}));
 
 vi.mock("@convex/_generated/api", () => ({
   api: {
@@ -33,6 +39,11 @@ vi.mock("@components/mode-toggle", () => ({
 
 vi.mock("@components/sign-in-dialog", () => ({
   SignInButtons: () => null,
+}));
+
+vi.mock("@components/theme-provider", () => ({
+  useTheme: mockUseTheme,
+  ThemeProvider: ({ children }: any) => <>{children}</>,
 }));
 
 vi.mock(import("@lib/utils"), async (importOriginal) => {
@@ -153,5 +164,45 @@ describe("Header", () => {
 
     const takesLink = screen.getByRole("link", { name: /takes/i });
     expect(takesLink.querySelector(".rounded-full")).toBeNull();
+  });
+
+  it("opens MobileNav popover with theme buttons when Menu is clicked", () => {
+    render(<Header />);
+
+    fireEvent.click(screen.getByText("Menu"));
+
+    expect(screen.getByText("Light")).toBeDefined();
+    expect(screen.getByText("Dark")).toBeDefined();
+    expect(screen.getByText("System")).toBeDefined();
+  });
+
+  it("calls setTheme when Dark button is clicked in MobileNav", () => {
+    const setTheme = vi.fn();
+    mockUseTheme.mockReturnValue({ theme: "light", setTheme });
+
+    render(<Header />);
+    fireEvent.click(screen.getByText("Menu"));
+    fireEvent.click(screen.getByText("Dark"));
+
+    expect(setTheme).toHaveBeenCalledWith("dark");
+  });
+
+  it("shows Sign out button in MobileNav", () => {
+    render(<Header />);
+
+    fireEvent.click(screen.getByText("Menu"));
+
+    expect(screen.getByText("Sign out")).toBeDefined();
+  });
+
+  it("shows skeleton in MobileNav when user query is pending", () => {
+    mockUseQuery.mockImplementation(({ query }) =>
+      query === "users.current" ? { status: "pending" } : { status: "success", data: null },
+    );
+
+    render(<Header />);
+    fireEvent.click(screen.getByText("Menu"));
+
+    expect(document.querySelector(".animate-pulse")).toBeTruthy();
   });
 });

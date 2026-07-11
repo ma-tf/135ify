@@ -59,12 +59,10 @@ function mockJob(overrides: Partial<TakeRowJob> = {}): TakeRowJob {
 
 describe("OverQuotaTakeRow", () => {
   beforeEach(() => {
-    vi.useFakeTimers();
     mockOverQuotaUrl = null;
   });
 
   afterEach(() => {
-    vi.useRealTimers();
     mockOverQuotaUrl = null;
   });
 

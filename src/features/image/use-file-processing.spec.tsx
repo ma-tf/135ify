@@ -51,6 +51,7 @@ describe("useFileProcessing", () => {
     cleanup();
     vi.useRealTimers();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   describe("setParam", () => {
@@ -230,6 +231,35 @@ describe("useFileProcessing", () => {
 
       expect(processToBlobUrl).toHaveBeenCalledWith("blob:preview-url", DEFAULT_PARAMS);
       clickSpy.mockRestore();
+    });
+
+    it("downloads original source when showOriginal is true", async () => {
+      seedFile();
+      const { result } = renderHook(() => useFileProcessing(), {
+        wrapper: Wrapper,
+      });
+
+      const fetchSpy = vi
+        .fn()
+        .mockResolvedValue({ blob: () => Promise.resolve(new Blob(["test"])) });
+      vi.stubGlobal("fetch", fetchSpy);
+      const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+      const createObjSpy = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:download-url");
+      const revokeObjSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+
+      await act(async () => {
+        await result.current.downloadFullSize(true);
+      });
+
+      expect(fetchSpy).toHaveBeenCalledWith("blob:preview-url");
+      expect(createObjSpy).toHaveBeenCalled();
+      expect(clickSpy).toHaveBeenCalled();
+      expect(revokeObjSpy).toHaveBeenCalled();
+
+      clickSpy.mockRestore();
+      createObjSpy.mockRestore();
+      revokeObjSpy.mockRestore();
+      vi.unstubAllGlobals();
     });
   });
 

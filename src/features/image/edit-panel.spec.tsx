@@ -6,7 +6,6 @@ import { useFileStore } from "@stores/file-store";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { setupTests } from "@test-utils/setup.spec";
 import { TEST_FILE_RECORD_PHOTO } from "@test-utils/test-fixtures.spec";
-import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -64,6 +63,14 @@ vi.mock("@features/gallery/use-save-to-gallery", () => ({
   useSaveToGallery: () => ({ save: vi.fn(), isSaving: false }),
 }));
 
+vi.mock("@providers/storage-context", () => ({
+  useStorage: () => ({
+    removeFile: (id: string) => {
+      useFileStore.setState((s) => ({ files: s.files.filter((f) => f.id !== id) }));
+    },
+  }),
+}));
+
 vi.mock("@providers/file-context", () => ({
   FileProvider: ({ children }: any) => <>{children}</>,
   useFile: () => TEST_FILE_RECORD_PHOTO,
@@ -116,15 +123,13 @@ function renderEditPanel() {
   });
 
   return render(
-    <TestStorageProvider>
-      <FileProvider fileId={TEST_FILE_RECORD_PHOTO.id}>
-        <EditViewCloseProvider onClose={vi.fn()}>
-          <EditViewProvider>
-            <EditPanel />
-          </EditViewProvider>
-        </EditViewCloseProvider>
-      </FileProvider>
-    </TestStorageProvider>,
+    <FileProvider fileId={TEST_FILE_RECORD_PHOTO.id}>
+      <EditViewCloseProvider onClose={vi.fn()}>
+        <EditViewProvider>
+          <EditPanel />
+        </EditViewProvider>
+      </EditViewCloseProvider>
+    </FileProvider>,
   );
 }
 
@@ -186,15 +191,13 @@ describe("EditPanel", () => {
     });
 
     render(
-      <TestStorageProvider>
-        <FileProvider fileId={TEST_FILE_RECORD_PHOTO.id}>
-          <EditViewCloseProvider onClose={onClose}>
-            <EditViewProvider>
-              <EditPanel />
-            </EditViewProvider>
-          </EditViewCloseProvider>
-        </FileProvider>
-      </TestStorageProvider>,
+      <FileProvider fileId={TEST_FILE_RECORD_PHOTO.id}>
+        <EditViewCloseProvider onClose={onClose}>
+          <EditViewProvider>
+            <EditPanel />
+          </EditViewProvider>
+        </EditViewCloseProvider>
+      </FileProvider>,
     );
 
     fireEvent.click(screen.getByText("Delete"));
@@ -203,5 +206,41 @@ describe("EditPanel", () => {
       useFileStore.getState().files.find((f) => f.id === TEST_FILE_RECORD_PHOTO.id),
     ).toBeUndefined();
     expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it("clicking ISO preset calls setParam with correct intensity", () => {
+    renderEditPanel();
+    fireEvent.click(screen.getByText("400"));
+    expect(mockSetParam).toHaveBeenCalledWith({ grainIntensity: 75 });
+  });
+
+  it("clicking a different ISO preset calls setParam with different intensity", () => {
+    renderEditPanel();
+    fireEvent.click(screen.getByText("200"));
+    expect(mockSetParam).toHaveBeenCalledWith({ grainIntensity: 50 });
+  });
+
+  it("toggles Original/Processed buttons and applies active class", () => {
+    renderEditPanel();
+
+    const processedBtn = screen.getByText("Processed");
+    fireEvent.click(processedBtn);
+
+    expect(processedBtn.className).toContain("bg-background");
+  });
+
+  it("switches active state between Original and Processed", () => {
+    renderEditPanel();
+
+    const originalBtn = screen.getByText("Original");
+    const processedBtn = screen.getByText("Processed");
+
+    fireEvent.click(originalBtn);
+    expect(originalBtn.className).toContain("bg-background");
+    expect(processedBtn.className).not.toContain("bg-background");
+
+    fireEvent.click(processedBtn);
+    expect(processedBtn.className).toContain("bg-background");
+    expect(originalBtn.className).not.toContain("bg-background");
   });
 });

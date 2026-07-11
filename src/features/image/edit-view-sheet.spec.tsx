@@ -1,3 +1,5 @@
+import type { FileRecord } from "@stores/file-store-types";
+
 import { EditViewCloseProvider } from "@features/image/edit-view-close-context";
 import { EditViewProvider } from "@features/image/edit-view-context";
 import { EditViewSheet } from "@features/image/edit-view-sheet";
@@ -5,12 +7,39 @@ import { FileProvider } from "@providers/file-context";
 import { useFileStore } from "@stores/file-store";
 import { setupTests } from "@test-utils/setup.spec";
 import { TEST_FILE_RECORD_WITH_RENDER } from "@test-utils/test-fixtures.spec";
-import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
+vi.mock("@components/ui/spinner", () => ({
+  Spinner: ({ className }: any) => <div data-testid="spinner" className={className} />,
+}));
+
 vi.mock("@features/image/edit-panel", () => ({
   EditPanel: () => <div data-testid="edit-panel" />,
+}));
+
+const { mockUseFileReturn } = vi.hoisted(() => ({
+  mockUseFileReturn: {
+    value: {
+      id: "file-1",
+      fileName: "test.jpg",
+      sourceUrl: "blob:preview-url",
+      params: {
+        selectedFilmId: "none",
+        halationIntensity: 0,
+        halationSpread: 0,
+        halationThreshold: 0,
+        vignetteIntensity: 0,
+        vignetteFeather: 0,
+        grainIntensity: 0,
+      },
+      convexId: null,
+      createdAt: Date.now(),
+      renderUrl: "blob:render-url",
+      isProcessing: false,
+      renderError: null,
+    } as FileRecord,
+  },
 }));
 
 vi.mock("@tanstack/react-router", () => ({
@@ -23,7 +52,7 @@ vi.mock("@hooks/use-mobile", () => ({
 
 vi.mock("@providers/file-context", () => ({
   FileProvider: ({ children }: any) => <>{children}</>,
-  useFile: () => TEST_FILE_RECORD_WITH_RENDER,
+  useFile: () => mockUseFileReturn.value,
 }));
 
 import { useIsMobile } from "@hooks/use-mobile";
@@ -41,15 +70,13 @@ function renderSheet() {
   useFileStore.setState({ files: [TEST_FILE_RECORD_WITH_RENDER] });
 
   return render(
-    <TestStorageProvider>
-      <FileProvider fileId={TEST_FILE_RECORD_WITH_RENDER.id}>
-        <EditViewCloseProvider onClose={mockOnClose}>
-          <EditViewProvider>
-            <EditViewSheet />
-          </EditViewProvider>
-        </EditViewCloseProvider>
-      </FileProvider>
-    </TestStorageProvider>,
+    <FileProvider fileId={TEST_FILE_RECORD_WITH_RENDER.id}>
+      <EditViewCloseProvider onClose={mockOnClose}>
+        <EditViewProvider>
+          <EditViewSheet />
+        </EditViewProvider>
+      </EditViewCloseProvider>
+    </FileProvider>,
   );
 }
 
@@ -94,5 +121,25 @@ describe("EditViewSheet", () => {
     renderSheet();
     const img = screen.getByAltText(TEST_FILE_RECORD_WITH_RENDER.fileName);
     expect(img.className).toContain("max-h-[50vh]");
+  });
+
+  it("shows spinner in overlay when desktop and no renderUrl", () => {
+    vi.mocked(useIsMobile).mockReturnValue(false);
+    mockUseFileReturn.value = { ...TEST_FILE_RECORD_WITH_RENDER, renderUrl: null, sourceUrl: "" };
+
+    renderSheet();
+
+    const spinners = screen.getAllByTestId("spinner");
+    expect(spinners.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("shows spinner in content when mobile and no renderUrl", () => {
+    vi.mocked(useIsMobile).mockReturnValue(true);
+    mockUseFileReturn.value = { ...TEST_FILE_RECORD_WITH_RENDER, renderUrl: null, sourceUrl: "" };
+
+    renderSheet();
+
+    const spinners = screen.getAllByTestId("spinner");
+    expect(spinners.length).toBeGreaterThanOrEqual(1);
   });
 });
