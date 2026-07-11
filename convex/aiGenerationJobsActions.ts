@@ -16,6 +16,64 @@ const FILM_GRAIN_PROMPT = [
   "No heavy retouching, no artificial sharpening, no watermark.",
 ].join(" ");
 
+function computeOutputSize(origW: number, origH: number): string {
+  const roundTo16 = (n: number) => Math.round(n / 16) * 16;
+  let outW = roundTo16(origW);
+  let outH = roundTo16(origH);
+  const maxPixels = 8_294_400;
+  if (outW * outH > maxPixels) {
+    const scale = Math.sqrt(maxPixels / (outW * outH));
+    outW = roundTo16(outW * scale);
+    outH = roundTo16(outH * scale);
+  }
+  return `${outW}x${outH}`;
+}
+
+async function resizeImageForInput(buffer: Buffer): Promise<Buffer> {
+  return sharp(buffer)
+    .resize(1536, 1536, { fit: "inside", withoutEnlargement: true })
+    .webp({ quality: 85 })
+    .toBuffer();
+}
+
+async function callOpenAI(
+  apiKey: string,
+  prompt: string,
+  imageBase64: string,
+  outputSize: string,
+): Promise<string> {
+  const openai = new OpenAI({ apiKey });
+  const genResponse = await openai.responses.create({
+    model: "gpt-5.4",
+    input: [
+      {
+        role: "user",
+        content: [
+          { type: "input_text", text: prompt },
+          {
+            type: "input_image",
+            detail: "auto" as const,
+            image_url: `data:image/webp;base64,${imageBase64}`,
+          },
+        ],
+      },
+    ],
+    tools: [{ type: "image_generation", size: outputSize, quality: "auto", action: "edit" }],
+  });
+
+  const resultB64 = genResponse.output
+    .filter((o) => o.type === "image_generation_call")
+    .map((o) => o.result)[0];
+
+  if (!resultB64) throw new Error("No image data in OpenAI response");
+  return resultB64;
+}
+
+async function generateThumbnail(buffer: Buffer): Promise<string> {
+  const thumbnailBuffer = await sharp(buffer).resize(128, 128, { fit: "cover" }).jpeg().toBuffer();
+  return thumbnailBuffer.toString("base64");
+}
+
 export const processJob = action({
   args: {
     jobId: v.id("aiGenerationJobs"),
@@ -31,43 +89,25 @@ export const processJob = action({
 
       const response = await fetch(sourceUrl);
       if (!response.ok) throw new Error("Failed to fetch source image");
+      const sourceBuffer = Buffer.from(await response.arrayBuffer());
 
-      const sourceArrayBuffer = await response.arrayBuffer();
-      const sourceBase64 = Buffer.from(sourceArrayBuffer).toString("base64");
+      const metadata = await sharp(sourceBuffer).metadata();
+      if (!metadata.width || !metadata.height) {
+        throw new Error("Could not read source image dimensions");
+      }
 
-      const openai = new OpenAI({ apiKey: args.apiKey });
-
-      const genResponse = await openai.responses.create({
-        model: "gpt-5.4",
-        input: [
-          {
-            role: "user",
-            content: [
-              { type: "input_text", text: FILM_GRAIN_PROMPT },
-              {
-                type: "input_image",
-                detail: "auto" as const,
-                image_url: `data:image/png;base64,${sourceBase64}`,
-              },
-            ],
-          },
-        ],
-        tools: [{ type: "image_generation" }],
-      });
-
-      const resultB64 = genResponse.output
-        .filter((o) => o.type === "image_generation_call")
-        .map((o) => o.result)[0];
-
-      if (!resultB64) throw new Error("No image data in OpenAI response");
+      const outputSize = computeOutputSize(metadata.width, metadata.height);
+      const processedBuffer = await resizeImageForInput(sourceBuffer);
+      const resultB64 = await callOpenAI(
+        args.apiKey,
+        FILM_GRAIN_PROMPT,
+        processedBuffer.toString("base64"),
+        outputSize,
+      );
 
       const generatedBuffer = Buffer.from(resultB64, "base64");
 
-      const thumbnailBuffer = await sharp(generatedBuffer)
-        .resize(128, 128, { fit: "cover" })
-        .jpeg()
-        .toBuffer();
-      const thumbnailBase64 = thumbnailBuffer.toString("base64");
+      const thumbnailBase64 = await generateThumbnail(generatedBuffer);
 
       const { imageCount, imageLimit, usedBytes, storageLimitBytes } = await ctx.runQuery(
         api.images.getStorageUsage,
