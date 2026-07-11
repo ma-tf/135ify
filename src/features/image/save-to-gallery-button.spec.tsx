@@ -12,7 +12,7 @@ const { mockUseAuth, mockUseFile, mockSaveToGallery, mockUseQuery } = vi.hoisted
   mockUseAuth: vi.fn(() => ({ isAuthenticated: true })),
   mockUseFile: vi.fn(() => TEST_FILE_RECORD),
   mockSaveToGallery: vi.fn(() => ({ save: vi.fn(), isSaving: false })),
-  mockUseQuery: vi.fn(() => ({ status: "success", data: { atLimit: false } })),
+  mockUseQuery: vi.fn(() => ({ status: "success", data: { atLimit: false, tier: "free" } })),
 }));
 
 vi.mock("@hooks/use-auth", () => ({
@@ -76,7 +76,7 @@ describe("SaveToGalleryButton", () => {
     vi.clearAllMocks();
     mockUseAuth.mockReturnValue({ isAuthenticated: true });
     mockUseFile.mockReturnValue(TEST_FILE_RECORD);
-    mockUseQuery.mockReturnValue({ status: "success", data: { atLimit: false } });
+    mockUseQuery.mockReturnValue({ status: "success", data: { atLimit: false, tier: "free" } });
     mockSaveToGallery.mockReturnValue({ save: mockSave, isSaving: false });
   });
 
@@ -104,7 +104,7 @@ describe("SaveToGalleryButton", () => {
   });
 
   it("disables button when at limit", () => {
-    mockUseQuery.mockReturnValue({ status: "success", data: { atLimit: true } });
+    mockUseQuery.mockReturnValue({ status: "success", data: { atLimit: true, tier: "free" } });
 
     renderButton();
     expect(screen.getByText("Save to Gallery").getAttribute("disabled")).toBe("");

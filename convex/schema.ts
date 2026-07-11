@@ -12,6 +12,7 @@ export default defineSchema({
     phone: v.optional(v.string()),
     phoneVerificationTime: v.optional(v.number()),
     isAnonymous: v.optional(v.boolean()),
+    storageTier: v.optional(v.union(v.literal("free"), v.literal("paid"))),
   }).index("email", ["email"]),
   aiGenerationSuspension: defineTable({
     userId: v.id("users"),

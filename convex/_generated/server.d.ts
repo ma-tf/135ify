@@ -25,9 +25,12 @@ import type { DataModel } from "./dataModel.js";
  * Typesafe environment variables declared in `convex.config.ts`.
  */
 type Env = {
-  readonly FILE_SIZE_LIMIT_BYTES: string | undefined;
-  readonly GALLERY_IMAGE_LIMIT: string | undefined;
-  readonly GALLERY_STORAGE_LIMIT_BYTES: string | undefined;
+  readonly FREE_TIER_FILE_SIZE_MB: string | undefined;
+  readonly FREE_TIER_IMAGE_LIMIT: string | undefined;
+  readonly FREE_TIER_STORAGE_MB: string | undefined;
+  readonly PAID_TIER_FILE_SIZE_MB: string | undefined;
+  readonly PAID_TIER_IMAGE_LIMIT: string | undefined;
+  readonly PAID_TIER_STORAGE_MB: string | undefined;
 };
 
 /**

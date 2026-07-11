@@ -3,9 +3,12 @@ import { v } from "convex/values";
 
 const app = defineApp({
   env: {
-    GALLERY_IMAGE_LIMIT: v.optional(v.string()),
-    FILE_SIZE_LIMIT_BYTES: v.optional(v.string()),
-    GALLERY_STORAGE_LIMIT_BYTES: v.optional(v.string()),
+    FREE_TIER_IMAGE_LIMIT: v.optional(v.string()),
+    FREE_TIER_FILE_SIZE_MB: v.optional(v.string()),
+    FREE_TIER_STORAGE_MB: v.optional(v.string()),
+    PAID_TIER_IMAGE_LIMIT: v.optional(v.string()),
+    PAID_TIER_FILE_SIZE_MB: v.optional(v.string()),
+    PAID_TIER_STORAGE_MB: v.optional(v.string()),
   },
 });
 

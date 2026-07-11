@@ -80,6 +80,7 @@ describe("Generate AI Film Grain button", () => {
         atLimit: false,
         usedBytes: 0,
         storageLimitBytes: 52428800,
+        tier: "free",
       },
     });
   });
@@ -133,7 +134,7 @@ describe("Generate AI Film Grain button", () => {
     mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
     mockUseQuery.mockReturnValue({
       status: "success",
-      data: { imageCount: 10, imageLimit: 10, atLimit: true },
+      data: { imageCount: 10, imageLimit: 10, atLimit: true, tier: "free" },
     });
 
     render(<GenerateAiGrainButton showOriginal={false} />);

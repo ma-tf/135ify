@@ -19,6 +19,7 @@ const fullData = {
   imageCount: 3,
   imageLimit: 10,
   storageLimitBytes: 50 * 1024 * 1024,
+  tier: "free" as const,
 };
 
 describe("UsageBarSkeleton", () => {

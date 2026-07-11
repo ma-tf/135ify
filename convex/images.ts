@@ -3,7 +3,7 @@ import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 
 import { mutation, query } from "./_generated/server";
-import { FILE_SIZE_LIMIT_BYTES, GALLERY_IMAGE_LIMIT, GALLERY_STORAGE_LIMIT_BYTES } from "./config";
+import { getTierLimits } from "./config";
 import { requireAuth } from "./lib";
 export { generateUploadUrl } from "./lib";
 
@@ -38,6 +38,8 @@ export const getById = query({
 export const getStorageUsage = query({
   handler: async (ctx) => {
     const userId = await requireAuth(ctx);
+    const user = await ctx.db.get(userId);
+    const limits = getTierLimits(user?.storageTier ?? "free");
     const docs = await ctx.db
       .query("images")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
@@ -53,9 +55,10 @@ export const getStorageUsage = query({
     return {
       usedBytes,
       imageCount: docs.length,
-      imageLimit: GALLERY_IMAGE_LIMIT,
-      atLimit: docs.length >= GALLERY_IMAGE_LIMIT || usedBytes >= GALLERY_STORAGE_LIMIT_BYTES,
-      storageLimitBytes: GALLERY_STORAGE_LIMIT_BYTES,
+      imageLimit: limits.imageLimit,
+      atLimit: docs.length >= limits.imageLimit || usedBytes >= limits.storageLimitBytes,
+      storageLimitBytes: limits.storageLimitBytes,
+      tier: user?.storageTier ?? "free",
     };
   },
 });
@@ -118,15 +121,17 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
+    const user = await ctx.db.get(userId);
+    const limits = getTierLimits(user?.storageTier ?? "free");
     const existing = await ctx.db
       .query("images")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
       .collect();
-    if (existing.length >= GALLERY_IMAGE_LIMIT) throw new Error("Gallery image limit reached");
+    if (existing.length >= limits.imageLimit) throw new Error("Gallery image limit reached");
 
     const metadata = await ctx.db.system.get("_storage", args.storageId);
     if (!metadata) throw new Error("File not found in storage");
-    if (metadata.size > FILE_SIZE_LIMIT_BYTES) throw new Error("File exceeds 5MB limit");
+    if (metadata.size > limits.fileSizeLimitBytes) throw new Error("File exceeds file size limit");
 
     let usedBytes = 0;
     for (const doc of existing) {
@@ -134,7 +139,7 @@ export const create = mutation({
       const meta = await ctx.db.system.get("_storage", doc.sourceStorageId);
       if (meta) usedBytes += meta.size;
     }
-    if (usedBytes + metadata.size > GALLERY_STORAGE_LIMIT_BYTES)
+    if (usedBytes + metadata.size > limits.storageLimitBytes)
       throw new Error("Gallery storage limit reached");
 
     const imageId = ctx.db.insert("images", {
