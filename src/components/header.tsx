@@ -127,7 +127,7 @@ function MobileNav() {
           <nav className="mt-4 flex flex-col gap-3">
             <FilmStripLink />
             <GalleryLink />
-            <TakesLink />
+            {FEATURE_AI_GRAIN && <TakesLink />}
           </nav>
           {FEATURE_AI_GRAIN && (
             <div className="mt-4 border-t pt-4">
@@ -197,7 +197,7 @@ export function Header() {
         <nav className="hidden items-center justify-center gap-6 md:flex">
           <FilmStripLink />
           <GalleryLink />
-          <TakesLink />
+          {FEATURE_AI_GRAIN && <TakesLink />}
         </nav>
       )}
       <div className="flex items-center justify-end gap-2">
