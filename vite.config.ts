@@ -50,7 +50,23 @@ export default defineConfig({
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     rules: {
       "vite-plus/prefer-vite-plus-imports": "error",
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["./*"],
+              message: "Use a path alias (e.g. @/...) instead of ./ relative imports",
+            },
+          ],
+        },
+      ],
     },
+    overrides: [
+      { files: ["convex/**/*"], rules: { "no-restricted-imports": "off" } },
+      { files: ["src/main.tsx"], rules: { "no-restricted-imports": "off" } },
+      { files: ["src/routeTree.gen.ts"], rules: { "no-restricted-imports": "off" } },
+    ],
     ignorePatterns: [".agents/"],
     options: { typeAware: true, typeCheck: true },
   },
