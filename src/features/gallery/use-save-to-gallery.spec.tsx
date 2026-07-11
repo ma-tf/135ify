@@ -54,6 +54,7 @@ describe("useSaveToGallery", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(console, "error").mockImplementation(() => {});
     vi.stubGlobal("crypto", { randomUUID: () => "uuid-123" });
     mockUseMutation.mockReturnValue(mockGenerateUploadUrl);
     mockUseMutation.mockReturnValueOnce(mockGenerateUploadUrl);
@@ -144,6 +145,12 @@ describe("useSaveToGallery", () => {
     const { result } = renderHook(() => useSaveToGallery({ file: TEST_FILE, onSuccess: vi.fn() }), {
       wrapper,
     });
+
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: true, blob: () => Promise.resolve(new Blob(["test"])) })
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ storageId: "st123" }) });
+    vi.stubGlobal("fetch", mockFetch);
 
     let savePromise: Promise<void>;
     act(() => {
