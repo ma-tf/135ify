@@ -55,10 +55,10 @@ jobs:
     env:
       VITE_CONVEX_URL: ${{ vars.CONVEX_URL }}
       VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH }}
-      VITE_GALLERY_IMAGE_LIMIT: "10"
-      VITE_FILE_SIZE_LIMIT_MB: "0.5"
+      VITE_FILE_SIZE_LIMIT_MB: ${{ vars.VITE_FILE_SIZE_LIMIT_MB }}
+      VITE_GALLERY_IMAGE_LIMIT: ${{ vars.VITE_GALLERY_IMAGE_LIMIT }}
       VITE_FEATURE_AI_GRAIN: ${{ vars.VITE_FEATURE_AI_GRAIN }}
-      VITE_FEATURE_SIGN_IN: ${{ vars.FEATURE_SIGN_IN }}
+      VITE_FEATURE_SIGN_IN: ${{ vars.VITE_FEATURE_SIGN_IN }}
     steps:
       - uses: actions/checkout@v6
       - uses: voidzero-dev/setup-vp@v1
