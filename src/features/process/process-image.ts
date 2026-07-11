@@ -54,5 +54,5 @@ async function processImage(
   applyVignette(ctx, width, height, params);
   applyGrain(ctx, width, height, source.width, source.height, grain, params);
 
-  return canvas.convertToBlob({ type: "image/jpeg", quality: 0.92 });
+  return canvas.convertToBlob({ type: "image/webp", quality: 0.92 });
 }

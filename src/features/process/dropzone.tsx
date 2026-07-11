@@ -42,7 +42,7 @@ function DropzonePrompt({ maxSize }: { maxSize: number }) {
           Choose a file or drag & drop here.
         </h3>
         <p className="text-xs text-secondary-foreground">
-          JPEG, PNG, up to {formatBytes(maxSize)}.
+          JPEG, PNG, WebP, up to {formatBytes(maxSize)}.
         </p>
       </div>
       <Button size="sm" className="shadow-xs" asChild>

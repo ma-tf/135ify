@@ -48,7 +48,7 @@ export function useFileProcessing() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = file.fileName.replace(/\.[^.]+$/, "") + ".jpg";
+        a.download = file.fileName.replace(/\.[^.]+$/, "") + ".webp";
         a.click();
         URL.revokeObjectURL(url);
         return;
@@ -59,7 +59,7 @@ export function useFileProcessing() {
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = file.fileName.replace(/\.[^.]+$/, "") + ".jpg";
+      a.download = file.fileName.replace(/\.[^.]+$/, "") + ".webp";
       a.click();
       URL.revokeObjectURL(url);
     },
