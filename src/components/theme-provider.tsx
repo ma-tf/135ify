@@ -20,7 +20,7 @@ const initialState: ThemeProviderState = {
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
-function applyTheme(theme: Theme) {
+export function applyTheme(theme: Theme) {
   const root = window.document.documentElement;
   root.classList.remove("light", "dark");
   if (theme === "system") {

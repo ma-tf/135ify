@@ -162,6 +162,20 @@ describe("useFileStore updateFile", () => {
     expect(f.renderError).toBeNull();
   });
 
+  it("does not update non-matching files", () => {
+    useFileStore.setState({ files: [makeFile({ id: "f1" }), makeFile({ id: "f2" })] });
+    useFileStore.getState().updateFile("f1", { renderUrl: "blob:rendered" });
+    const files = useFileStore.getState().files;
+    expect(files[0].renderUrl).toBe("blob:rendered");
+    expect(files[1].renderUrl).toBeNull();
+  });
+
+  it("is a no-op when the id does not exist", () => {
+    useFileStore.setState({ files: [makeFile()] });
+    useFileStore.getState().updateFile("nonexistent", { renderUrl: "blob:rendered" });
+    expect(useFileStore.getState().files[0].renderUrl).toBeNull();
+  });
+
   it("hydrateFiles replaces all files", () => {
     useFileStore.setState({ files: [] });
     const record = {
@@ -177,5 +191,139 @@ describe("useFileStore updateFile", () => {
     };
     useFileStore.getState().hydrateFiles([record]);
     expect(useFileStore.getState().files).toEqual([record]);
+  });
+});
+
+describe("useFileStore addFiles", () => {
+  const makeFile = (id: string, overrides: Partial<FileRecord> = {}): FileRecord => ({
+    id,
+    fileName: `${id}.jpg`,
+    sourceUrl: "blob:src",
+    params: { ...DEFAULT_PARAMS },
+    convexId: null,
+    createdAt: Date.now(),
+    renderUrl: null,
+    isProcessing: false,
+    renderError: null,
+    ...overrides,
+  });
+
+  it("adds files to an empty store", () => {
+    useFileStore.setState({ files: [] });
+    const [a] = [makeFile("a")];
+    useFileStore.getState().addFiles([a]);
+    expect(useFileStore.getState().files).toHaveLength(1);
+    expect(useFileStore.getState().files[0].id).toBe("a");
+  });
+
+  it("prepends files to existing state", () => {
+    useFileStore.setState({ files: [makeFile("a")] });
+    useFileStore.getState().addFiles([makeFile("b")]);
+    const files = useFileStore.getState().files;
+    expect(files).toHaveLength(2);
+    expect(files[0].id).toBe("b");
+    expect(files[1].id).toBe("a");
+  });
+
+  it("handles multiple files at once", () => {
+    useFileStore.setState({ files: [] });
+    useFileStore.getState().addFiles([makeFile("a"), makeFile("b")]);
+    expect(useFileStore.getState().files).toHaveLength(2);
+  });
+});
+
+describe("useFileStore updateParams", () => {
+  const makeFile = (id: string, overrides: Partial<FileRecord> = {}): FileRecord => ({
+    id,
+    fileName: `${id}.jpg`,
+    sourceUrl: "blob:src",
+    params: { ...DEFAULT_PARAMS },
+    convexId: null,
+    createdAt: Date.now(),
+    renderUrl: null,
+    isProcessing: false,
+    renderError: null,
+    ...overrides,
+  });
+
+  it("updates a single param field", () => {
+    useFileStore.setState({ files: [makeFile("f1")] });
+    useFileStore.getState().updateParams("f1", { grainIntensity: 50 });
+    expect(useFileStore.getState().files[0].params.grainIntensity).toBe(50);
+  });
+
+  it("merges partial params without affecting other fields", () => {
+    useFileStore.setState({ files: [makeFile("f1")] });
+    useFileStore.getState().updateParams("f1", { grainIntensity: 50 });
+    expect(useFileStore.getState().files[0].params.vignetteIntensity).toBe(0);
+  });
+
+  it("does not affect other files", () => {
+    useFileStore.setState({ files: [makeFile("a"), makeFile("b")] });
+    useFileStore.getState().updateParams("a", { grainIntensity: 50 });
+    const files = useFileStore.getState().files;
+    expect(files[0].params.grainIntensity).toBe(50);
+    expect(files[1].params.grainIntensity).toBe(0);
+  });
+});
+
+describe("useFileStore removeFile", () => {
+  const makeFile = (id: string, overrides: Partial<FileRecord> = {}): FileRecord => ({
+    id,
+    fileName: `${id}.jpg`,
+    sourceUrl: "blob:src",
+    params: { ...DEFAULT_PARAMS },
+    convexId: null,
+    createdAt: Date.now(),
+    renderUrl: null,
+    isProcessing: false,
+    renderError: null,
+    ...overrides,
+  });
+
+  it("removes a file by id", () => {
+    useFileStore.setState({ files: [makeFile("a"), makeFile("b")] });
+    useFileStore.getState().removeFile("a");
+    expect(useFileStore.getState().files).toHaveLength(1);
+    expect(useFileStore.getState().files[0].id).toBe("b");
+  });
+
+  it("is a no-op for unknown id", () => {
+    useFileStore.setState({ files: [makeFile("a")] });
+    useFileStore.getState().removeFile("nope");
+    expect(useFileStore.getState().files).toHaveLength(1);
+  });
+
+  it("leaves the store empty when removing the last file", () => {
+    useFileStore.setState({ files: [makeFile("a")] });
+    useFileStore.getState().removeFile("a");
+    expect(useFileStore.getState().files).toEqual([]);
+  });
+});
+
+describe("useFileStore clearFiles", () => {
+  const makeFile = (id: string, overrides: Partial<FileRecord> = {}): FileRecord => ({
+    id,
+    fileName: `${id}.jpg`,
+    sourceUrl: "blob:src",
+    params: { ...DEFAULT_PARAMS },
+    convexId: null,
+    createdAt: Date.now(),
+    renderUrl: null,
+    isProcessing: false,
+    renderError: null,
+    ...overrides,
+  });
+
+  it("clears all files from the store", () => {
+    useFileStore.setState({ files: [makeFile("a"), makeFile("b")] });
+    useFileStore.getState().clearFiles();
+    expect(useFileStore.getState().files).toEqual([]);
+  });
+
+  it("is a no-op on an already empty store", () => {
+    useFileStore.setState({ files: [] });
+    useFileStore.getState().clearFiles();
+    expect(useFileStore.getState().files).toEqual([]);
   });
 });

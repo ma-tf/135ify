@@ -91,6 +91,14 @@ vi.mock("@components/ai-key-dialog", () => ({
   AiKeyDialog: () => <div data-testid="ai-key-dialog" />,
 }));
 
+vi.mock("@features/image/film-selector", () => ({
+  FilmSelector: () => <div>Film</div>,
+}));
+
+vi.mock("@features/image/parameter-slider", () => ({
+  ParameterSlider: () => <div data-testid="parameter-slider" />,
+}));
+
 import { useFileProcessing } from "@features/image/use-file-processing";
 
 setupTests();

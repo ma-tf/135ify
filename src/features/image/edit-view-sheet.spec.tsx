@@ -21,6 +21,11 @@ vi.mock("@hooks/use-mobile", () => ({
   useIsMobile: vi.fn(),
 }));
 
+vi.mock("@providers/file-context", () => ({
+  FileProvider: ({ children }: any) => <>{children}</>,
+  useFile: () => TEST_FILE_RECORD_WITH_RENDER,
+}));
+
 import { useIsMobile } from "@hooks/use-mobile";
 
 setupTests();
