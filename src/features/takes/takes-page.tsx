@@ -55,6 +55,40 @@ function groupBySourceImage(jobs: JobRow[]): TakeSection[] {
   return [...map.values()];
 }
 
+function TakesPagePending() {
+  return (
+    <div className="space-y-8 p-6">
+      <UsageBar />
+      <TakesSkeleton />
+    </div>
+  );
+}
+
+function TakesPageError() {
+  return (
+    <div className="space-y-8 p-6">
+      <UsageBar />
+      <div className="flex flex-col items-center justify-center gap-4 p-12">
+        <p className="text-destructive">Failed to load AI Takes</p>
+      </div>
+    </div>
+  );
+}
+
+function TakesPageEmpty() {
+  return (
+    <div className="space-y-8 p-6">
+      <UsageBar />
+      <div className="flex flex-col items-center justify-center gap-4 p-12">
+        <p className="text-muted-foreground">No AI Takes yet.</p>
+        <Link to="/" className="text-primary hover:underline">
+          Process your first image
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export function TakesPage() {
   const result = useQuery({ query: api.aiGenerationJobs.listByUser, args: {} });
   const markSeen = useTakesNotificationStore((s) => s.markSeen);
@@ -78,39 +112,9 @@ export function TakesPage() {
   }
   const groups = jobs ? groupBySourceImage(jobs) : [];
 
-  if (pending) {
-    return (
-      <div className="space-y-8 p-6">
-        <UsageBar />
-        <TakesSkeleton />
-      </div>
-    );
-  }
-
-  if (errored) {
-    return (
-      <div className="space-y-8 p-6">
-        <UsageBar />
-        <div className="flex flex-col items-center justify-center gap-4 p-12">
-          <p className="text-destructive">Failed to load AI Takes</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!jobs || jobs.length === 0) {
-    return (
-      <div className="space-y-8 p-6">
-        <UsageBar />
-        <div className="flex flex-col items-center justify-center gap-4 p-12">
-          <p className="text-muted-foreground">No AI Takes yet.</p>
-          <Link to="/" className="text-primary hover:underline">
-            Process your first image
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  if (pending) return <TakesPagePending />;
+  if (errored) return <TakesPageError />;
+  if (!jobs || jobs.length === 0) return <TakesPageEmpty />;
 
   return (
     <div className="space-y-8 p-6">

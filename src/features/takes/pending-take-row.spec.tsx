@@ -3,12 +3,15 @@ import type { TakeRowJob } from "@features/takes/take-row-thumbnail";
 import { PendingTakeRow } from "@features/takes/pending-take-row";
 import { setupTests } from "@test-utils/setup.spec";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vite-plus/test";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-const { mockRetryJob, mockProcessJob, mockUseAiProviderStore } = vi.hoisted(() => ({
-  mockRetryJob: vi.fn().mockResolvedValue(undefined),
-  mockProcessJob: vi.fn().mockResolvedValue(undefined),
-  mockUseAiProviderStore: vi.fn(() => ({ apiKey: "" })),
+const { mockUseRetryTake, mockRetryFn } = vi.hoisted(() => ({
+  mockUseRetryTake: vi.fn(),
+  mockRetryFn: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("@features/takes/use-retry-take", () => ({
+  useRetryTake: mockUseRetryTake,
 }));
 
 vi.mock("@tanstack/react-router", () => ({
@@ -23,16 +26,6 @@ vi.mock("@tanstack/react-router", () => ({
       <a href={href}>{typeof children === "function" ? children({ isActive: false }) : children}</a>
     );
   },
-}));
-
-vi.mock("convex/react", () => ({
-  useAction: () => mockProcessJob,
-  useMutation: () => mockRetryJob,
-  useQuery_experimental: vi.fn(),
-}));
-
-vi.mock("@stores/ai-provider-store", () => ({
-  useAiProviderStore: mockUseAiProviderStore,
 }));
 
 vi.mock("@components/ai-key-dialog", () => ({
@@ -62,6 +55,14 @@ function mockJob(overrides: Partial<TakeRowJob> = {}): TakeRowJob {
 }
 
 describe("PendingTakeRow", () => {
+  beforeEach(() => {
+    mockUseRetryTake.mockReturnValue({
+      retry: mockRetryFn,
+      isRetrying: false,
+      hasApiKey: true,
+    });
+  });
+
   it("renders processing row with skeleton, badge, and no action buttons", () => {
     const { container } = render(
       <PendingTakeRow job={mockJob({ status: "processing", thumbnailBase64: null })} />,
@@ -97,7 +98,11 @@ describe("PendingTakeRow", () => {
   });
 
   it("opens API key dialog when retry is clicked without an API key", () => {
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "" });
+    mockUseRetryTake.mockReturnValue({
+      retry: mockRetryFn,
+      isRetrying: false,
+      hasApiKey: false,
+    });
 
     render(
       <PendingTakeRow
@@ -109,12 +114,10 @@ describe("PendingTakeRow", () => {
     fireEvent.click(retryButton);
 
     expect(screen.getByTestId("ai-key-dialog")).toBeDefined();
-    expect(mockRetryJob).not.toHaveBeenCalled();
+    expect(mockRetryFn).not.toHaveBeenCalled();
   });
 
   it("retries the job when retry is clicked with an API key", () => {
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-existing" });
-
     render(
       <PendingTakeRow
         job={mockJob({ status: "failed", thumbnailBase64: null, failureReason: "API error" })}
@@ -124,6 +127,72 @@ describe("PendingTakeRow", () => {
     const retryButton = screen.getByRole("button");
     fireEvent.click(retryButton);
 
-    expect(mockRetryJob).toHaveBeenCalledWith({ jobId: "job-1" });
+    expect(mockRetryFn).toHaveBeenCalledWith("job-1");
+  });
+
+  it("shows spinner on retry button when isRetrying is true", () => {
+    mockUseRetryTake.mockReturnValue({
+      retry: mockRetryFn,
+      isRetrying: true,
+      hasApiKey: true,
+    });
+
+    render(
+      <PendingTakeRow
+        job={mockJob({ status: "failed", thumbnailBase64: null, failureReason: "API error" })}
+      />,
+    );
+
+    const retryButton = screen.getByRole("button");
+    expect(retryButton.getAttribute("disabled")).not.toBeNull();
+    expect(retryButton.querySelector("svg")).toBeDefined();
+  });
+
+  it("saves API key from dialog and calls retry with the provided key", () => {
+    mockUseRetryTake.mockReturnValue({
+      retry: mockRetryFn,
+      isRetrying: false,
+      hasApiKey: false,
+    });
+
+    render(
+      <PendingTakeRow
+        job={mockJob({ status: "failed", thumbnailBase64: null, failureReason: "API error" })}
+      />,
+    );
+
+    const retryButton = screen.getByRole("button");
+    fireEvent.click(retryButton);
+    expect(screen.getByTestId("ai-key-dialog")).toBeDefined();
+
+    const saveKeyButton = screen.getByText("Save Key");
+    fireEvent.click(saveKeyButton);
+
+    expect(mockRetryFn).toHaveBeenCalledWith("job-1", "sk-test-key");
+    expect(screen.queryByTestId("ai-key-dialog")).toBeNull();
+  });
+
+  it("closes API key dialog without retrying when cancelled", () => {
+    mockUseRetryTake.mockReturnValue({
+      retry: mockRetryFn,
+      isRetrying: false,
+      hasApiKey: false,
+    });
+
+    render(
+      <PendingTakeRow
+        job={mockJob({ status: "failed", thumbnailBase64: null, failureReason: "API error" })}
+      />,
+    );
+
+    const retryButton = screen.getByRole("button");
+    fireEvent.click(retryButton);
+    expect(screen.getByTestId("ai-key-dialog")).toBeDefined();
+
+    const cancelButton = screen.getByText("Cancel");
+    fireEvent.click(cancelButton);
+
+    expect(mockRetryFn).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("ai-key-dialog")).toBeNull();
   });
 });

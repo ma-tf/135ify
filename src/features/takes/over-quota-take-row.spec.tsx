@@ -5,6 +5,11 @@ import { setupTests } from "@test-utils/setup.spec";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
+const { mockClearOverQuota, mockToastError } = vi.hoisted(() => ({
+  mockClearOverQuota: vi.fn().mockResolvedValue(undefined),
+  mockToastError: vi.fn(),
+}));
+
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ to, params, children }: any) => {
     let href = to;
@@ -20,7 +25,7 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 vi.mock("sonner", () => ({
-  toast: { error: vi.fn() },
+  toast: { error: mockToastError },
 }));
 
 let mockOverQuotaUrl: string | null = null;
@@ -32,7 +37,7 @@ vi.mock("convex/react", () => ({
     }
     return { status: "success", data: [] };
   }),
-  useMutation: () => vi.fn(),
+  useMutation: () => mockClearOverQuota,
 }));
 
 setupTests();
@@ -143,6 +148,33 @@ describe("OverQuotaTakeRow", () => {
     const img = screen.getByRole("img") as HTMLImageElement;
     expect(img).toBeDefined();
     expect(img.className).toContain("opacity-50");
+    expect(screen.getByText("Resolved")).toBeDefined();
+  });
+
+  it("shows error toast when discard fails", async () => {
+    mockClearOverQuota.mockRejectedValueOnce(new Error("fail"));
+    mockOverQuotaUrl = "https://example.com/over-quota-image.jpg";
+
+    render(
+      <OverQuotaTakeRow
+        job={mockJob({
+          status: "overQuota",
+          thumbnailBase64: "dGVzdC1vdmVyLXF1b3Rh",
+          overQuotaStorageId: "storage-1",
+          takeImageId: undefined,
+        })}
+      />,
+    );
+
+    const [thumbnailButton] = screen.getAllByRole("button");
+    fireEvent.click(thumbnailButton);
+
+    const discardButton = screen.getByText("Discard");
+    await act(async () => {
+      fireEvent.click(discardButton);
+    });
+
+    expect(mockToastError).toHaveBeenCalledWith("Failed to clear over-quota image");
     expect(screen.getByText("Resolved")).toBeDefined();
   });
 });
