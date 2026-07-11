@@ -1,33 +1,36 @@
 import { CardClickProvider } from "@features/process/card-click-context";
 import { RenderCard } from "@features/process/render-card";
-import { FileProvider } from "@providers/file-context";
-import { useFileStore } from "@stores/file-store";
 import { TEST_FILE_RECORD, TEST_FILE_RECORD_WITH_RENDER } from "@test-utils/test-fixtures.spec";
-import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+
+const { mockUseFileReturn } = vi.hoisted(() => ({
+  mockUseFileReturn: { current: null as any },
+}));
+
+vi.mock("@providers/file-context", () => ({
+  FileProvider: ({ children }: any) => <>{children}</>,
+  useFile: () => mockUseFileReturn.current,
+}));
 
 const mockCardClick = vi.fn();
 
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  mockUseFileReturn.current = null;
 });
 
 describe("RenderCard", () => {
   function renderCard(withRenderState = false) {
-    useFileStore.setState({
-      files: [withRenderState ? TEST_FILE_RECORD_WITH_RENDER : TEST_FILE_RECORD],
-    });
+    mockUseFileReturn.current = withRenderState
+      ? { ...TEST_FILE_RECORD_WITH_RENDER }
+      : { ...TEST_FILE_RECORD };
 
     return render(
-      <TestStorageProvider>
-        <FileProvider fileId={TEST_FILE_RECORD.id}>
-          <CardClickProvider onCardClick={mockCardClick}>
-            <RenderCard />
-          </CardClickProvider>
-        </FileProvider>
-      </TestStorageProvider>,
+      <CardClickProvider onCardClick={mockCardClick}>
+        <RenderCard />
+      </CardClickProvider>,
     );
   }
 
@@ -61,17 +64,11 @@ describe("RenderCard", () => {
   });
 
   it("applies custom className", () => {
-    useFileStore.setState({
-      files: [TEST_FILE_RECORD_WITH_RENDER],
-    });
+    mockUseFileReturn.current = { ...TEST_FILE_RECORD_WITH_RENDER };
     render(
-      <TestStorageProvider>
-        <FileProvider fileId={TEST_FILE_RECORD_WITH_RENDER.id}>
-          <CardClickProvider onCardClick={mockCardClick}>
-            <RenderCard className="my-custom-class" />
-          </CardClickProvider>
-        </FileProvider>
-      </TestStorageProvider>,
+      <CardClickProvider onCardClick={mockCardClick}>
+        <RenderCard className="my-custom-class" />
+      </CardClickProvider>,
     );
     const card = screen.getByRole("img").parentElement!;
     expect(card.className).toContain("my-custom-class");

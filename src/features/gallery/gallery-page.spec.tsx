@@ -3,7 +3,7 @@ import type { Doc } from "@convex/_generated/dataModel";
 import { GalleryPage } from "@features/gallery/gallery-page";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { setupTests } from "@test-utils/setup.spec";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
 
 const { mockNavigate, mockUseQuery } = vi.hoisted(() => ({
@@ -71,7 +71,9 @@ describe("GalleryPage", () => {
 
     render(<GalleryPage />);
 
-    await act(async () => {});
+    await vi.waitFor(() => {
+      expect(screen.getAllByRole("img").length).toBeGreaterThan(0);
+    });
 
     const images = screen.getAllByRole("img");
     expect(images).toHaveLength(2);

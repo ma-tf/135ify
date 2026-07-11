@@ -2,8 +2,19 @@ import type { TakeRowJob } from "@features/takes/take-row-thumbnail";
 
 import { OverQuotaTakeRow } from "@features/takes/over-quota-take-row";
 import { setupTests } from "@test-utils/setup.spec";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
+
+vi.mock("@components/ui/alert-dialog", () => ({
+  AlertDialog: ({ children }: any) => <>{children}</>,
+  AlertDialogContent: ({ children }: any) => (
+    <div data-testid="alert-dialog-content">{children}</div>
+  ),
+  AlertDialogHeader: ({ children }: any) => <div>{children}</div>,
+  AlertDialogFooter: ({ children }: any) => <div>{children}</div>,
+  AlertDialogTitle: ({ children }: any) => <div>{children}</div>,
+  AlertDialogDescription: ({ children }: any) => <div>{children}</div>,
+}));
 
 const { mockClearOverQuota, mockToastError } = vi.hoisted(() => ({
   mockClearOverQuota: vi.fn().mockResolvedValue(undefined),
@@ -124,11 +135,11 @@ describe("OverQuotaTakeRow", () => {
     fireEvent.click(thumbnailButton);
 
     const discardButton = screen.getByText("Discard");
-    await act(async () => {
-      fireEvent.click(discardButton);
-    });
+    fireEvent.click(discardButton);
 
-    expect(screen.getByText("Resolved")).toBeDefined();
+    await vi.waitFor(() => {
+      expect(screen.getByText("Resolved")).toBeDefined();
+    });
   });
 
   it("renders overQuota row with non-interactive thumbnail when storage is already cleared", () => {
@@ -168,11 +179,11 @@ describe("OverQuotaTakeRow", () => {
     fireEvent.click(thumbnailButton);
 
     const discardButton = screen.getByText("Discard");
-    await act(async () => {
-      fireEvent.click(discardButton);
-    });
+    fireEvent.click(discardButton);
 
-    expect(mockToastError).toHaveBeenCalledWith("Failed to clear over-quota image");
+    await vi.waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith("Failed to clear over-quota image");
+    });
     expect(screen.getByText("Resolved")).toBeDefined();
   });
 });

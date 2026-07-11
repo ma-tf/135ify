@@ -18,6 +18,18 @@ vi.mock("@features/image/edit-panel", () => ({
   EditPanel: () => <div data-testid="edit-panel" />,
 }));
 
+vi.mock("@components/ui/sheet", () => ({
+  Sheet: ({ children }: any) => <>{children}</>,
+  SheetContent: ({ children, overlayContent }: any) => (
+    <div data-testid="sheet-content">
+      {overlayContent}
+      {children}
+    </div>
+  ),
+  SheetTitle: ({ children }: any) => <div data-testid="sheet-title">{children}</div>,
+  SheetDescription: ({ children }: any) => <div data-testid="sheet-description">{children}</div>,
+}));
+
 const { mockUseFileReturn } = vi.hoisted(() => ({
   mockUseFileReturn: {
     value: {

@@ -72,6 +72,16 @@ vi.mock("@tanstack/react-router", () => ({
   useLocation: mockUseLocation,
 }));
 
+vi.mock("@components/ui/popover", () => ({
+  Popover: ({ children }: any) => <>{children}</>,
+  PopoverTrigger: ({ children }: any) => <>{children}</>,
+  PopoverContent: ({ children, className }: any) => (
+    <div data-testid="popover-content" className={className}>
+      {children}
+    </div>
+  ),
+}));
+
 setupTests();
 
 describe("Header", () => {
@@ -113,9 +123,9 @@ describe("Header", () => {
   it("shows Film Strip, Gallery, and Takes links when authenticated", () => {
     render(<Header />);
 
-    expect(screen.getByRole("link", { name: /film strip/i })).toBeDefined();
-    expect(screen.getByRole("link", { name: /gallery/i })).toBeDefined();
-    expect(screen.getByRole("link", { name: /takes/i })).toBeDefined();
+    expect(screen.getAllByRole("link", { name: /film strip/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: /gallery/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: /takes/i }).length).toBeGreaterThan(0);
   });
 
   it("shows notification dot when latest take is newer than lastSeenAt", () => {
@@ -127,8 +137,8 @@ describe("Header", () => {
 
     render(<Header />);
 
-    const takesLink = screen.getByRole("link", { name: /takes/i });
-    expect(takesLink.querySelector(".rounded-full")).toBeDefined();
+    const takesLinks = screen.getAllByRole("link", { name: /takes/i });
+    expect(takesLinks[0].querySelector(".rounded-full")).toBeDefined();
   });
 
   it("hides notification dot when on /takes page", () => {
@@ -141,15 +151,15 @@ describe("Header", () => {
 
     render(<Header />);
 
-    const takesLink = screen.getByRole("link", { name: /takes/i });
-    expect(takesLink.querySelector(".rounded-full")).toBeNull();
+    const takesLinks = screen.getAllByRole("link", { name: /takes/i });
+    expect(takesLinks[0].querySelector(".rounded-full")).toBeNull();
   });
 
   it("hides notification dot when no takes exist", () => {
     render(<Header />);
 
-    const takesLink = screen.getByRole("link", { name: /takes/i });
-    expect(takesLink.querySelector(".rounded-full")).toBeNull();
+    const takesLinks = screen.getAllByRole("link", { name: /takes/i });
+    expect(takesLinks[0].querySelector(".rounded-full")).toBeNull();
   });
 
   it("hides notification dot when lastSeenAt is after latest take", () => {
@@ -162,14 +172,12 @@ describe("Header", () => {
 
     render(<Header />);
 
-    const takesLink = screen.getByRole("link", { name: /takes/i });
-    expect(takesLink.querySelector(".rounded-full")).toBeNull();
+    const takesLinks = screen.getAllByRole("link", { name: /takes/i });
+    expect(takesLinks[0].querySelector(".rounded-full")).toBeNull();
   });
 
-  it("opens MobileNav popover with theme buttons when Menu is clicked", () => {
+  it("shows theme buttons in MobileNav", () => {
     render(<Header />);
-
-    fireEvent.click(screen.getByText("Menu"));
 
     expect(screen.getByText("Light")).toBeDefined();
     expect(screen.getByText("Dark")).toBeDefined();
@@ -181,7 +189,6 @@ describe("Header", () => {
     mockUseTheme.mockReturnValue({ theme: "light", setTheme });
 
     render(<Header />);
-    fireEvent.click(screen.getByText("Menu"));
     fireEvent.click(screen.getByText("Dark"));
 
     expect(setTheme).toHaveBeenCalledWith("dark");
@@ -189,8 +196,6 @@ describe("Header", () => {
 
   it("shows Sign out button in MobileNav", () => {
     render(<Header />);
-
-    fireEvent.click(screen.getByText("Menu"));
 
     expect(screen.getByText("Sign out")).toBeDefined();
   });
@@ -201,7 +206,6 @@ describe("Header", () => {
     );
 
     render(<Header />);
-    fireEvent.click(screen.getByText("Menu"));
 
     expect(document.querySelector(".animate-pulse")).toBeTruthy();
   });

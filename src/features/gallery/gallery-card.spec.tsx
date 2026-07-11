@@ -68,34 +68,14 @@ describe("GalleryCard", () => {
     expect(screen.getByText("1 Jan 2024, 00:00 UTC")).toBeDefined();
   });
 
-  it("navigates to gallery detail on click", () => {
+  it.each([
+    ["click", () => fireEvent.click(screen.getByRole("button"))],
+    ["Enter keydown", () => fireEvent.keyDown(screen.getByRole("button"), { key: "Enter" })],
+    ["Space keydown", () => fireEvent.keyDown(screen.getByRole("button"), { key: " " })],
+  ])("navigates to gallery detail on %s", (_, action) => {
     render(<GalleryCard image={TEST_FILE_RECORD_WITH_RENDER} />);
 
-    fireEvent.click(screen.getByRole("button"));
-
-    expect(mockNavigate).toHaveBeenCalledWith({
-      to: "/gallery/$imageId",
-      params: { imageId: "file-1" },
-    });
-  });
-
-  it("navigates to gallery detail on Enter keydown", () => {
-    render(<GalleryCard image={TEST_FILE_RECORD_WITH_RENDER} />);
-
-    const button = screen.getByRole("button");
-    fireEvent.keyDown(button, { key: "Enter" });
-
-    expect(mockNavigate).toHaveBeenCalledWith({
-      to: "/gallery/$imageId",
-      params: { imageId: "file-1" },
-    });
-  });
-
-  it("navigates to gallery detail on Space keydown", () => {
-    render(<GalleryCard image={TEST_FILE_RECORD_WITH_RENDER} />);
-
-    const button = screen.getByRole("button");
-    fireEvent.keyDown(button, { key: " " });
+    action();
 
     expect(mockNavigate).toHaveBeenCalledWith({
       to: "/gallery/$imageId",

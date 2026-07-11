@@ -165,9 +165,9 @@ describe("Generate AI Film Grain button", () => {
 
     fireEvent.click(screen.getByText("Generate AI Film Grain"));
 
-    await vi.waitFor(() => {
-      expect(trigger).toHaveBeenCalledWith("sk-test", false);
-    });
+    await Promise.resolve();
+
+    expect(trigger).toHaveBeenCalledWith("sk-test", false);
   });
 
   it("calls trigger with key from dialog when no apiKey is set", async () => {
@@ -183,8 +183,8 @@ describe("Generate AI Film Grain button", () => {
 
     fireEvent.click(screen.getByText("Save Key"));
 
-    await vi.waitFor(() => {
-      expect(trigger).toHaveBeenCalledWith("sk-from-dialog", false);
-    });
+    await Promise.resolve();
+
+    expect(trigger).toHaveBeenCalledWith("sk-from-dialog", false);
   });
 });

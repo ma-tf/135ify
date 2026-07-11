@@ -2,7 +2,7 @@ import type { Doc } from "@convex/_generated/dataModel";
 
 import { TakesPage } from "@features/takes/takes-page";
 import { setupTests } from "@test-utils/setup.spec";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
 
 const { mockUseQuery, mockMarkSeen } = vi.hoisted(() => ({
@@ -210,9 +210,9 @@ describe("TakesPage", () => {
     const downloadButton = screen.getByRole("button");
     fireEvent.click(downloadButton);
 
-    await act(async () => {});
-
-    expect(fetchSpy).toHaveBeenCalledWith(job.takeImageUrl);
+    await vi.waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(job.takeImageUrl);
+    });
 
     fetchSpy.mockRestore();
   });

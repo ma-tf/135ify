@@ -2,7 +2,7 @@ import type { TakeRowJob } from "@features/takes/take-row-thumbnail";
 
 import { CompletedTakeRow } from "@features/takes/completed-take-row";
 import { setupTests } from "@test-utils/setup.spec";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
 
 vi.mock("@tanstack/react-router", () => ({
@@ -73,9 +73,9 @@ describe("CompletedTakeRow", () => {
     const downloadButton = screen.getByRole("button");
     fireEvent.click(downloadButton);
 
-    await act(async () => {});
-
-    expect(fetchSpy).toHaveBeenCalledWith("https://example.com/full-image.jpg");
+    await vi.waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith("https://example.com/full-image.jpg");
+    });
 
     fetchSpy.mockRestore();
   });

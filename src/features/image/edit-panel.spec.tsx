@@ -168,9 +168,9 @@ describe("EditPanel", () => {
     renderEditPanel();
     fireEvent.click(screen.getByText("Download"));
 
-    await vi.waitFor(() => {
-      expect(mockDownloadFullSize).toHaveBeenCalledOnce();
-    });
+    await Promise.resolve();
+
+    expect(mockDownloadFullSize).toHaveBeenCalledOnce();
   });
 
   it("renders Halation, Vignette, and Grain section headings", () => {

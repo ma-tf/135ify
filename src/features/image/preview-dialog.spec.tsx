@@ -1,12 +1,21 @@
 import { EditViewProvider, useEditView } from "@features/image/edit-view-context";
 import { PreviewDialog } from "@features/image/preview-dialog";
-import { FileProvider } from "@providers/file-context";
 import { useFileStore } from "@stores/file-store";
 import { TEST_FILE_RECORD } from "@test-utils/test-fixtures.spec";
-import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { useEffect } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+
+vi.mock("@components/ui/dialog", () => ({
+  Dialog: ({ open, children }: any) => (open ? <>{children}</> : null),
+  DialogPortal: ({ children }: any) => <>{children}</>,
+  DialogOverlay: ({ className }: any) => <div data-testid="dialog-overlay" className={className} />,
+}));
+
+vi.mock("@providers/file-context", () => ({
+  FileProvider: ({ children }: any) => <>{children}</>,
+  useFile: () => TEST_FILE_RECORD,
+}));
 
 function SetInspectUrl({ url }: { url: string | null }) {
   const { setInspectUrl } = useEditView();
@@ -18,22 +27,14 @@ function SetInspectUrl({ url }: { url: string | null }) {
 
 afterEach(cleanup);
 
-beforeEach(() => {
-  vi.stubGlobal("URL", { ...URL, revokeObjectURL: vi.fn() });
-});
-
 function renderDialog(inspectUrl: string | null = null) {
   useFileStore.setState({ files: [TEST_FILE_RECORD] });
 
   return render(
-    <TestStorageProvider>
-      <FileProvider fileId={TEST_FILE_RECORD.id}>
-        <EditViewProvider>
-          {inspectUrl && <SetInspectUrl url={inspectUrl} />}
-          <PreviewDialog />
-        </EditViewProvider>
-      </FileProvider>
-    </TestStorageProvider>,
+    <EditViewProvider>
+      {inspectUrl && <SetInspectUrl url={inspectUrl} />}
+      <PreviewDialog />
+    </EditViewProvider>,
   );
 }
 
