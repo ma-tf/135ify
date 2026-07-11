@@ -4,6 +4,7 @@ import { ToggleGroup, ToggleGroupItem } from "@components/ui/toggle-group";
 import { EditPanelButtons } from "@features/image/edit-panel-buttons";
 import { useEditView } from "@features/image/edit-view-context";
 import { FilmSelector } from "@features/image/film-selector";
+import { GenerateAiGrainButton } from "@features/image/generate-ai-grain-button";
 import { ParameterSlider } from "@features/image/parameter-slider";
 import { useFileProcessing } from "@features/image/use-file-processing";
 import { cn } from "@lib/utils";
@@ -74,6 +75,7 @@ function GrainControls({ setParam }: { setParam: (partial: Partial<ProcessParams
   return (
     <div className="flex flex-col gap-3">
       <h3 className="text-sm font-semibold text-foreground">Grain</h3>
+      <GenerateAiGrainButton />
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">ISO</span>
         <ToggleGroup

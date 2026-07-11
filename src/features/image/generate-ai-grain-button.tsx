@@ -33,6 +33,7 @@ export function GenerateAiGrainButton() {
     <>
       <Button
         disabled={isGenerating || atLimit}
+        variant="outline"
         size="sm"
         className="gap-1.5"
         onClick={handleClick}
