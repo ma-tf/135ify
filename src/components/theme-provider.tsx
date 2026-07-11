@@ -1,6 +1,6 @@
 import { createContext, use, useCallback, useEffect, useMemo, useState } from "react";
 
-type Theme = "dark" | "light" | "system";
+import { applyTheme, type Theme } from "./apply-theme";
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -19,19 +19,6 @@ const initialState: ThemeProviderState = {
 };
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
-
-export function applyTheme(theme: Theme) {
-  const root = window.document.documentElement;
-  root.classList.remove("light", "dark");
-  if (theme === "system") {
-    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-    root.classList.add(systemTheme);
-    return;
-  }
-  root.classList.add(theme);
-}
 
 export function ThemeProvider({
   children,

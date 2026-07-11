@@ -13,7 +13,15 @@ vi.mock("@components/ui/select", () => ({
     return <>{children}</>;
   },
   SelectTrigger: ({ children, id, className, ...props }: any) => (
-    <button data-testid="select-trigger" id={id} className={className} role="combobox" {...props}>
+    <button
+      data-testid="select-trigger"
+      id={id}
+      className={className}
+      role="combobox"
+      aria-controls="mock-listbox"
+      aria-expanded={false}
+      {...props}
+    >
       {children}
     </button>
   ),
@@ -24,6 +32,7 @@ vi.mock("@components/ui/select", () => ({
       data-testid="select-item"
       data-value={value}
       role="option"
+      aria-selected={false}
       onClick={() => mockSelectOnValueChange.current?.(value)}
       {...props}
     >

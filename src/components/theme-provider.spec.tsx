@@ -7,14 +7,14 @@ describe("applyTheme", () => {
   });
 
   it("adds the light class for light theme", async () => {
-    const { applyTheme } = await import("./theme-provider");
+    const { applyTheme } = await import("./apply-theme");
     applyTheme("light");
     expect(document.documentElement.classList.contains("light")).toBe(true);
     expect(document.documentElement.classList.contains("dark")).toBe(false);
   });
 
   it("adds the dark class for dark theme", async () => {
-    const { applyTheme } = await import("./theme-provider");
+    const { applyTheme } = await import("./apply-theme");
     applyTheme("dark");
     expect(document.documentElement.classList.contains("dark")).toBe(true);
     expect(document.documentElement.classList.contains("light")).toBe(false);
@@ -34,7 +34,7 @@ describe("applyTheme", () => {
         dispatchEvent: vi.fn(),
       })),
     );
-    const { applyTheme } = await import("./theme-provider");
+    const { applyTheme } = await import("./apply-theme");
     applyTheme("system");
     expect(document.documentElement.classList.contains("dark")).toBe(true);
     expect(document.documentElement.classList.contains("light")).toBe(false);
@@ -55,7 +55,7 @@ describe("applyTheme", () => {
         dispatchEvent: vi.fn(),
       })),
     );
-    const { applyTheme } = await import("./theme-provider");
+    const { applyTheme } = await import("./apply-theme");
     applyTheme("system");
     expect(document.documentElement.classList.contains("light")).toBe(true);
     expect(document.documentElement.classList.contains("dark")).toBe(false);
@@ -63,7 +63,7 @@ describe("applyTheme", () => {
   });
 
   it("removes opposite class when switching themes", async () => {
-    const { applyTheme } = await import("./theme-provider");
+    const { applyTheme } = await import("./apply-theme");
     applyTheme("dark");
     expect(document.documentElement.classList.contains("dark")).toBe(true);
     applyTheme("light");
