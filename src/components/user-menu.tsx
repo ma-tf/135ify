@@ -64,12 +64,14 @@ export function UserMenu() {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           {FEATURE_AI_GRAIN && (
-            <DropdownMenuItem onClick={() => setKeyDialogOpen(true)}>
-              <KeyIcon className="mr-2 size-4" />
-              API Key
-            </DropdownMenuItem>
+            <>
+              <DropdownMenuItem onClick={() => setKeyDialogOpen(true)}>
+                <KeyIcon className="mr-2 size-4" />
+                API Key
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
           )}
-          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => void signOut()}>
             <LogOut className="mr-2 size-4" />
             Sign out

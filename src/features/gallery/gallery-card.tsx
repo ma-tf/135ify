@@ -12,7 +12,7 @@ export function GalleryCard({ image }: { image: FileRecord }) {
     <button
       type="button"
       tabIndex={0}
-      className="cursor-pointer overflow-hidden rounded-lg border text-left transition hover:ring-2"
+      className="group relative aspect-square cursor-pointer overflow-hidden rounded-sm bg-card text-left shadow-xl transition hover:ring-2 hover:ring-amber-400/50"
       onClick={() => navigate({ to: "/gallery/$imageId", params: { imageId: image.id } })}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -21,31 +21,37 @@ export function GalleryCard({ image }: { image: FileRecord }) {
         }
       }}
     >
-      <div className="aspect-square">
+      <div className="absolute inset-[26%_14%] overflow-hidden bg-amber-700/10">
         {image.renderUrl ? (
-          <img src={image.renderUrl} alt={image.fileName} className="h-full w-full object-cover" />
+          <img
+            src={image.renderUrl}
+            alt={image.fileName}
+            className="h-full w-full object-contain"
+          />
         ) : !image.isProcessing ? (
-          <img src={image.sourceUrl} alt={image.fileName} className="h-full w-full object-cover" />
+          <img
+            src={image.sourceUrl}
+            alt={image.fileName}
+            className="h-full w-full object-contain"
+          />
         ) : (
           <Skeleton className="h-full w-full" />
         )}
       </div>
-      <div className="space-y-1 p-3">
-        {image.renderUrl || !image.isProcessing ? (
-          <>
-            <p className="truncate font-medium">{image.fileName}</p>
-            <p className="text-xs text-muted-foreground">
-              {formattedDate}
-              {image.size != null && ` · ${formatBytes(image.size)}`}
-            </p>
-          </>
-        ) : (
-          <>
-            <Skeleton className="h-5 w-full" />
-            <Skeleton className="h-4 w-1/3" />
-          </>
-        )}
-      </div>
+      {image.renderUrl || !image.isProcessing ? (
+        <div className="absolute right-0 bottom-0 left-0 px-[14%] pb-[6%]">
+          <p className="truncate text-[10px] font-medium text-foreground/80">{image.fileName}</p>
+          <p className="text-[9px] text-muted-foreground/60">
+            {formattedDate}
+            {image.size != null && ` · ${formatBytes(image.size)}`}
+          </p>
+        </div>
+      ) : (
+        <div className="absolute right-0 bottom-0 left-0 space-y-1 px-[14%] pb-[6%]">
+          <Skeleton className="h-2.5 w-full" />
+          <Skeleton className="h-2 w-1/3" />
+        </div>
+      )}
     </button>
   );
 }
