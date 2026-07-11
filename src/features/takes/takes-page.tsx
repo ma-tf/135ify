@@ -89,19 +89,9 @@ function TakesPageEmpty() {
   );
 }
 
-export function TakesPage() {
-  const result = useQuery({ query: api.aiGenerationJobs.listByUser, args: {} });
-  const markSeen = useTakesNotificationStore((s) => s.markSeen);
+function ClearResolvedButton({ jobs }: { jobs: JobRow[] | null }) {
   const clearResolved = useMutation(api.aiGenerationJobs.clearResolvedTakes);
 
-  useEffect(() => {
-    markSeen();
-  }, [markSeen]);
-
-  const pending = result.status === "pending";
-  const errored = result.status === "error";
-
-  const jobs = result.status === "success" ? result.data : null;
   const resolvedJobIds: Id<"aiGenerationJobs">[] = [];
   if (jobs) {
     for (const j of jobs) {
@@ -110,6 +100,34 @@ export function TakesPage() {
       }
     }
   }
+
+  if (resolvedJobIds.length === 0) return null;
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={async () => {
+        await clearResolved({ jobIds: resolvedJobIds });
+        toast.success("Cleared resolved takes");
+      }}
+    >
+      Clear resolved takes
+    </Button>
+  );
+}
+
+export function TakesPage() {
+  const result = useQuery({ query: api.aiGenerationJobs.listByUser, args: {} });
+  const markSeen = useTakesNotificationStore((s) => s.markSeen);
+  useEffect(() => {
+    markSeen();
+  }, [markSeen]);
+
+  const pending = result.status === "pending";
+  const errored = result.status === "error";
+
+  const jobs = result.status === "success" ? result.data : null;
   const groups = jobs ? groupBySourceImage(jobs) : [];
 
   if (pending) return <TakesPagePending />;
@@ -119,18 +137,7 @@ export function TakesPage() {
   return (
     <div className="space-y-8 p-6">
       <UsageBar />
-      {resolvedJobIds.length > 0 && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={async () => {
-            await clearResolved({ jobIds: resolvedJobIds });
-            toast.success("Cleared resolved takes");
-          }}
-        >
-          Clear resolved takes
-        </Button>
-      )}
+      <ClearResolvedButton jobs={jobs} />
       {groups.map((group) => (
         <section key={group.sourceImageId}>
           {group.sourceLinkId ? (
