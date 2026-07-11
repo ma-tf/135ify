@@ -3,7 +3,7 @@ import type { TakeRowJob } from "@features/takes/take-row-thumbnail";
 import { CompletedTakeRow } from "@features/takes/completed-take-row";
 import { setupTests } from "@test-utils/setup.spec";
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ to, params, children }: any) => {
@@ -41,14 +41,6 @@ function mockJob(overrides: Partial<TakeRowJob> = {}): TakeRowJob {
 }
 
 describe("CompletedTakeRow", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it("renders completed row with thumbnail, filename link, and download button", () => {
     render(<CompletedTakeRow job={mockJob()} />);
 
