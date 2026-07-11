@@ -26,6 +26,12 @@ vi.mock("@convex-dev/auth/react", () => ({
   useConvexAuth: mockUseConvexAuth,
 }));
 
+const { mockSetTheme } = vi.hoisted(() => ({ mockSetTheme: vi.fn() }));
+
+vi.mock("@components/theme-provider", () => ({
+  useTheme: () => ({ setTheme: mockSetTheme }),
+}));
+
 vi.mock("@components/ai-key-dialog", () => ({
   AiKeyDialog: () => <div data-testid="ai-key-dialog" />,
 }));
@@ -63,6 +69,7 @@ setupTests();
 describe("UserMenu", () => {
   afterEach(() => {
     mockConfig.FEATURE_AI_GRAIN = true;
+    mockSetTheme.mockReset();
   });
 
   it("renders My Images link pointing to /gallery", () => {
@@ -126,5 +133,58 @@ describe("UserMenu", () => {
 
     expect(screen.queryByText("API Key")).toBeNull();
     expect(screen.queryByTestId("ai-key-dialog")).toBeNull();
+  });
+
+  it("renders Light theme item", () => {
+    mockUseConvexAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
+    mockUseQuery.mockReturnValue({
+      status: "success",
+      data: { name: "Test", image: null, email: "test@test.com" },
+    });
+
+    render(<UserMenu />);
+
+    expect(screen.getByText("Light")).toBeDefined();
+    expect(screen.getByText("Dark")).toBeDefined();
+    expect(screen.getByText("System")).toBeDefined();
+  });
+
+  it("sets theme to light when Light is clicked", () => {
+    mockUseConvexAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
+    mockUseQuery.mockReturnValue({
+      status: "success",
+      data: { name: "Test", image: null, email: "test@test.com" },
+    });
+
+    render(<UserMenu />);
+
+    fireEvent.click(screen.getByText("Light"));
+    expect(mockSetTheme).toHaveBeenCalledWith("light");
+  });
+
+  it("sets theme to dark when Dark is clicked", () => {
+    mockUseConvexAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
+    mockUseQuery.mockReturnValue({
+      status: "success",
+      data: { name: "Test", image: null, email: "test@test.com" },
+    });
+
+    render(<UserMenu />);
+
+    fireEvent.click(screen.getByText("Dark"));
+    expect(mockSetTheme).toHaveBeenCalledWith("dark");
+  });
+
+  it("sets theme to system when System is clicked", () => {
+    mockUseConvexAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
+    mockUseQuery.mockReturnValue({
+      status: "success",
+      data: { name: "Test", image: null, email: "test@test.com" },
+    });
+
+    render(<UserMenu />);
+
+    fireEvent.click(screen.getByText("System"));
+    expect(mockSetTheme).toHaveBeenCalledWith("system");
   });
 });

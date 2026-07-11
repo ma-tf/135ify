@@ -184,12 +184,12 @@ export function Header() {
           <img
             src={`${BASE_PATH}/assets/icon-d.png`}
             alt="135ify"
-            className="hidden h-6 w-6 transition-all hover:brightness-125 dark:block"
+            className="hidden h-6 w-6 shadow-sm transition-all hover:brightness-125 dark:block"
           />
           <img
             src={`${BASE_PATH}/assets/icon-l.png`}
             alt="135ify"
-            className="h-6 w-6 transition-all hover:brightness-125 dark:hidden"
+            className="h-6 w-6 shadow-sm transition-all hover:brightness-125 dark:hidden"
           />
         </Link>
       </div>
@@ -210,13 +210,7 @@ export function Header() {
             </div>
           </>
         )}
-        {FEATURE_SIGN_IN && isAuthenticated ? (
-          <span className="hidden md:block">
-            <ModeToggle />
-          </span>
-        ) : (
-          <ModeToggle />
-        )}
+        {FEATURE_SIGN_IN && isAuthenticated ? null : <ModeToggle />}
       </div>
     </div>
   );

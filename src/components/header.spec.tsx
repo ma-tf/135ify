@@ -85,6 +85,20 @@ describe("Header", () => {
     expect(screen.queryByRole("link", { name: /takes/i })).toBeNull();
   });
 
+  it("hides theme toggle when authenticated", () => {
+    render(<Header />);
+
+    expect(screen.queryByText("Toggle theme")).toBeNull();
+  });
+
+  it("shows theme toggle when not authenticated", () => {
+    mockUseConvexAuth.mockReturnValue({ isAuthenticated: false, isLoading: false });
+
+    render(<Header />);
+
+    expect(screen.getByText("Toggle theme")).toBeDefined();
+  });
+
   it("shows Film Strip, Gallery, and Takes links when authenticated", () => {
     render(<Header />);
 
