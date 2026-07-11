@@ -19,9 +19,53 @@ parameter-driven experience and avoids breaking changes.
 
 ### BYO API key, stored client-side
 
-The user provides their own OpenAI API key, stored in localStorage. The key never touches Convex storage. This avoids
-server-side custody liability. An AI Provider abstraction wraps the key lookup so switching to a platform subscription
-key later is a configuration change, not a schema migration.
+The user provides their own OpenAI API key. The key is never persisted server-side — it lives exclusively in browser
+localStorage and is passed as a Convex action argument at invocation time, used only in-memory during the action's
+lifetime, then discarded.
+
+**Full flow:**
+
+1. User enters their OpenAI key in the `AiKeyDialog` (a password-style input with show/hide toggle).
+2. Key is saved to a Zustand store (`ai-provider-store.ts`) persisted to localStorage under `"ai-provider-key"`. No
+   client-side format validation — an invalid key surfaces as a failed job with the OpenAI error in `failureReason`.
+3. On generation, the hook reads `apiKey` from the store and calls the Convex action `processJob({ jobId, apiKey })` —
+   passing the key as a plain string argument.
+4. The Convex action (Node.js runtime) instantiates `new OpenAI({ apiKey })` and makes the API call. The key is never
+   written to any Convex table or `_storage`.
+5. After the action returns, the key is garbage-collected with the runtime context.
+
+**Key lifecycle:**
+
+- One key at a time — there is no multi-key management, no key rotation UI, no provider selection.
+- The retry flow (failed takes) reads from the same store, or accepts an ad-hoc key argument if none is stored.
+- Clearing the key from the store does not invalidate any in-flight actions — those complete with the key already passed
+  as their argument.
+- The key is stored as plain text in localStorage (no encryption at rest).
+
+**Provider abstraction:**
+
+The `AI Provider` abstraction wraps the key lookup so switching from BYOK to a server-side platform subscription key
+later is a configuration change, not a schema migration. The mutation and action signatures (`processJob` accepting
+`{ jobId, apiKey }`) remain stable; the caller changes which source it resolves the key from.
+
+**UI entry points:**
+
+Three paths open the `AiKeyDialog`:
+
+1. **Generate button** — if no key is stored, the dialog appears before generation begins.
+2. **User menu** — "API Key" menu item (with `KeyIcon`), visible only when `VITE_FEATURE_AI_GRAIN` is enabled.
+3. **Retry on pending takes** — clicking retry on a failed job opens the dialog if no key is stored.
+
+**Feature gate:**
+
+The entire BYOK/AI system is gated behind `VITE_FEATURE_AI_GRAIN` env var (default `false`). When disabled, all key UI
+and AI grain buttons are hidden.
+
+**Usage tracking note:**
+
+Even though the user provides their own key, the app still records `inputTokens`, `outputTokens`, and `costCents` in the
+`aiGenerationJobs` table for display in the Takes UI. This is informational only — no billing is performed against these
+values.
 
 ### Over-quota: download before discard
 
