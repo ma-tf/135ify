@@ -17,11 +17,11 @@ export function useAiGrainGeneration() {
   const processJob = useAction(api.aiGenerationJobsActions.processJob);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const trigger = async (apiKey: string) => {
+  const trigger = async (apiKey: string, showOriginal: boolean) => {
     setIsGenerating(true);
 
     let sourceStorageId: Id<"_storage">;
-    if (file.convexId) {
+    if (file.convexId && showOriginal) {
       const image = await convex.query(api.images.getById, {
         imageId: file.convexId as Id<"images">,
       });
@@ -29,7 +29,8 @@ export function useAiGrainGeneration() {
       sourceStorageId = image.sourceStorageId as Id<"_storage">;
     } else {
       const uploadUrl = await generateUploadUrl();
-      const blob = await fetch(file.sourceUrl).then((r) => r.blob());
+      const blobUrl = showOriginal ? file.sourceUrl : (file.renderUrl ?? file.sourceUrl);
+      const blob = await fetch(blobUrl).then((r) => r.blob());
       const response = await fetch(uploadUrl, { method: "POST", body: blob });
       if (!response.ok) throw new Error("Failed to upload source image");
       const result = (await response.json()) as { storageId: Id<"_storage"> };

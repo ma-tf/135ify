@@ -40,16 +40,31 @@ export function useFileProcessing() {
     [file.params, updateParams, file.id, processDebounced],
   );
 
-  const downloadFullSize = useCallback(async () => {
-    const url = await processToBlobUrl(file.sourceUrl, file.params);
-    if (!url) return;
+  const downloadFullSize = useCallback(
+    async (showOriginal: boolean) => {
+      if (showOriginal) {
+        const res = await fetch(file.sourceUrl);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.fileName.replace(/\.[^.]+$/, "") + ".jpg";
+        a.click();
+        URL.revokeObjectURL(url);
+        return;
+      }
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = file.fileName.replace(/\.[^.]+$/, "") + ".jpg";
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [file.sourceUrl, file.params, file.fileName]);
+      const url = await processToBlobUrl(file.sourceUrl, file.params);
+      if (!url) return;
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.fileName.replace(/\.[^.]+$/, "") + ".jpg";
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+    [file.sourceUrl, file.params, file.fileName],
+  );
 
   return { params: file.params, setParam, downloadFullSize };
 }

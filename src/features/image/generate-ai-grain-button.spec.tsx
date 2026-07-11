@@ -92,7 +92,7 @@ describe("Generate AI Film Grain button", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
     mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton showOriginal={false} />);
 
     expect(screen.getByText("Generate AI Film Grain")).toBeDefined();
   });
@@ -101,7 +101,7 @@ describe("Generate AI Film Grain button", () => {
     mockConfig.FEATURE_AI_GRAIN = false;
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton showOriginal={false} />);
 
     expect(screen.queryByText("Generate AI Film Grain")).toBeNull();
   });
@@ -109,7 +109,7 @@ describe("Generate AI Film Grain button", () => {
   it("does not render when not authenticated", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: false, isLoading: false });
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton showOriginal={false} />);
 
     expect(screen.queryByText("Generate AI Film Grain")).toBeNull();
   });
@@ -122,7 +122,7 @@ describe("Generate AI Film Grain button", () => {
       isGenerating: true,
     });
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton showOriginal={false} />);
 
     const button = screen.getByRole("button", { name: /generate ai film grain/i });
     expect(button.hasAttribute("disabled")).toBe(true);
@@ -136,7 +136,7 @@ describe("Generate AI Film Grain button", () => {
       data: { imageCount: 10, imageLimit: 10, atLimit: true },
     });
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton showOriginal={false} />);
 
     const button = screen.getByRole("button", { name: /generate ai film grain/i });
     expect(button.hasAttribute("disabled")).toBe(true);
@@ -146,7 +146,7 @@ describe("Generate AI Film Grain button", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
     mockUseAiProviderStore.mockReturnValue({ apiKey: "" });
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton showOriginal={false} />);
 
     expect(screen.queryByTestId("ai-key-dialog")).toBeNull();
 
@@ -161,12 +161,12 @@ describe("Generate AI Film Grain button", () => {
     mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
     mockUseAiGrainGeneration.mockReturnValue({ trigger, isGenerating: false });
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton showOriginal={false} />);
 
     fireEvent.click(screen.getByText("Generate AI Film Grain"));
 
     await vi.waitFor(() => {
-      expect(trigger).toHaveBeenCalledWith("sk-test");
+      expect(trigger).toHaveBeenCalledWith("sk-test", false);
     });
   });
 
@@ -176,7 +176,7 @@ describe("Generate AI Film Grain button", () => {
     mockUseAiProviderStore.mockReturnValue({ apiKey: "" });
     mockUseAiGrainGeneration.mockReturnValue({ trigger, isGenerating: false });
 
-    render(<GenerateAiGrainButton />);
+    render(<GenerateAiGrainButton showOriginal={false} />);
 
     fireEvent.click(screen.getByText("Generate AI Film Grain"));
     expect(screen.getByTestId("ai-key-dialog")).toBeDefined();
@@ -184,7 +184,7 @@ describe("Generate AI Film Grain button", () => {
     fireEvent.click(screen.getByText("Save Key"));
 
     await vi.waitFor(() => {
-      expect(trigger).toHaveBeenCalledWith("sk-from-dialog");
+      expect(trigger).toHaveBeenCalledWith("sk-from-dialog", false);
     });
   });
 });

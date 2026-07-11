@@ -12,9 +12,13 @@ import { DownloadIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
 export function EditPanelButtons({
   setParam,
   downloadFullSize,
+  showOriginal,
+  setShowOriginal,
 }: {
   setParam: (partial: Partial<ProcessParams>) => void;
-  downloadFullSize: () => Promise<void>;
+  downloadFullSize: (showOriginal: boolean) => Promise<void>;
+  showOriginal: boolean;
+  setShowOriginal: (value: boolean) => void;
 }) {
   const file = useFile();
   const { removeFile } = useStorage();
@@ -22,6 +26,7 @@ export function EditPanelButtons({
 
   const handleReset = () => {
     setParam(DEFAULT_PARAMS);
+    setShowOriginal(false);
   };
 
   const handleDelete = () => {
@@ -30,7 +35,7 @@ export function EditPanelButtons({
   };
 
   const handleDownload = async () => {
-    await downloadFullSize();
+    await downloadFullSize(showOriginal);
   };
 
   return (

@@ -10,7 +10,7 @@ import { useQuery_experimental as useQuery } from "convex/react";
 import { SparklesIcon } from "lucide-react";
 import { useState } from "react";
 
-export function GenerateAiGrainButton() {
+export function GenerateAiGrainButton({ showOriginal }: { showOriginal: boolean }) {
   const { isAuthenticated } = useAuth();
   const { apiKey } = useAiProviderStore();
   const { trigger, isGenerating } = useAiGrainGeneration();
@@ -26,7 +26,7 @@ export function GenerateAiGrainButton() {
       setKeyDialogOpen(true);
       return;
     }
-    await trigger(apiKey);
+    await trigger(apiKey, showOriginal);
   };
 
   return (
@@ -42,7 +42,7 @@ export function GenerateAiGrainButton() {
         Generate AI Film Grain
       </Button>
       {keyDialogOpen && (
-        <AiKeyDialog onOpenChange={setKeyDialogOpen} onSave={(key) => trigger(key)} />
+        <AiKeyDialog onOpenChange={setKeyDialogOpen} onSave={(key) => trigger(key, showOriginal)} />
       )}
     </>
   );

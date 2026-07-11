@@ -70,12 +70,13 @@ const INTENSITY_TO_ISO: Record<number, string> = Object.fromEntries(
 
 function GrainControls({ setParam }: { setParam: (partial: Partial<ProcessParams>) => void }) {
   const { params } = useFile();
+  const { showOriginal } = useEditView();
   if (!params) return null;
 
   return (
     <div className="flex flex-col gap-3">
       <h3 className="text-sm font-semibold text-foreground">Grain</h3>
-      <GenerateAiGrainButton />
+      <GenerateAiGrainButton showOriginal={showOriginal} />
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">ISO</span>
         <ToggleGroup
@@ -143,7 +144,12 @@ export function EditPanel() {
       <VignetteControls setParam={setParam} />
       <GrainControls setParam={setParam} />
 
-      <EditPanelButtons setParam={setParam} downloadFullSize={downloadFullSize} />
+      <EditPanelButtons
+        setParam={setParam}
+        downloadFullSize={downloadFullSize}
+        showOriginal={showOriginal}
+        setShowOriginal={setShowOriginal}
+      />
     </div>
   );
 }
