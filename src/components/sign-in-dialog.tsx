@@ -83,8 +83,8 @@ export function SignInButtons() {
   if (isLoading) {
     return (
       <>
-        <Skeleton className="h-8 w-20" />
-        <Skeleton className="h-8 w-20" />
+        <Skeleton className="h-8 w-20 shadow-xs" />
+        <Skeleton className="h-8 w-20 shadow-xs" />
       </>
     );
   }
@@ -95,10 +95,10 @@ export function SignInButtons() {
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => setSignInOpen(true)}>
+      <Button variant="outline" size="sm" className="shadow-xs" onClick={() => setSignInOpen(true)}>
         Sign in
       </Button>
-      <Button variant="default" size="sm" onClick={() => setSignInOpen(true)}>
+      <Button variant="default" size="sm" className="shadow-xs" onClick={() => setSignInOpen(true)}>
         Sign up
       </Button>
       <SignInDialog open={signInOpen} onOpenChange={setSignInOpen} />

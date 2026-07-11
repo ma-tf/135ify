@@ -45,7 +45,7 @@ function DropzonePrompt({ maxSize }: { maxSize: number }) {
           JPEG, PNG, up to {formatBytes(maxSize)}.
         </p>
       </div>
-      <Button size="sm" asChild>
+      <Button size="sm" className="shadow-xs" asChild>
         <div>Browse File</div>
       </Button>
     </div>

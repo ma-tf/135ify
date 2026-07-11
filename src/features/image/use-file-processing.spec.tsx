@@ -225,7 +225,7 @@ describe("useFileProcessing", () => {
 
       vi.mocked(processToBlobUrl).mockResolvedValue("blob:fullsize-url");
       await act(async () => {
-        await result.current.downloadFullSize();
+        await result.current.downloadFullSize(false);
       });
 
       expect(processToBlobUrl).toHaveBeenCalledWith("blob:preview-url", DEFAULT_PARAMS);
