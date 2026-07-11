@@ -54,7 +54,7 @@ function DropzonePrompt({ maxSize }: { maxSize: number }) {
 
 export function Dropzone({
   maxSize = FILE_SIZE_LIMIT_BYTES,
-  accept = "image/*",
+  accept = "image/jpeg,image/png,image/webp",
   className,
   onFilesChange: onFilesChangeProp,
 }: DropzoneProps) {

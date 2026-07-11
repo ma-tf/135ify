@@ -16,7 +16,7 @@ export function prepareFiles(files: File[]) {
       );
       continue;
     }
-    if (!file.type.startsWith("image/")) {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
       errors.push(`File "${file.name}" is not an accepted file type.`);
       continue;
     }
