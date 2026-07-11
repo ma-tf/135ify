@@ -47,7 +47,7 @@ export function PendingTakeRow({ job }: { job: TakeRowJob }) {
   };
 
   return (
-    <div className="flex items-center gap-4 rounded-lg border p-3">
+    <div className="flex items-center gap-4 rounded-lg border p-3 shadow-md">
       <TakeRowThumbnail
         status={job.status}
         thumbnailBase64={job.thumbnailBase64}

@@ -26,7 +26,7 @@ export function RenderCarousel() {
       ref={ref}
       style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       className={cn(
-        "mx-auto inline-flex max-w-full flex-row overflow-x-auto [&::-webkit-scrollbar]:hidden",
+        "mx-auto inline-flex max-w-full flex-row overflow-x-auto shadow-xl [&::-webkit-scrollbar]:hidden",
         "cursor-grab touch-pan-x select-none",
         isDragging && "cursor-grabbing",
       )}

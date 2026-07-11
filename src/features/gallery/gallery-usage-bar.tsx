@@ -6,11 +6,11 @@ import { useQuery_experimental as useQuery } from "convex/react";
 export function UsageBarSkeleton() {
   return (
     <div className="flex flex-col gap-4 sm:flex-row">
-      <div className="w-full space-y-1 rounded-lg border p-4 sm:w-xs">
+      <div className="w-full space-y-1 rounded-lg border p-4 shadow-md sm:w-xs">
         <Skeleton className="h-4 w-24" />
         <Skeleton className="h-2 w-full" />
       </div>
-      <div className="w-full space-y-1 rounded-lg border p-4 sm:w-xs">
+      <div className="w-full space-y-1 rounded-lg border p-4 shadow-md sm:w-xs">
         <Skeleton className="h-4 w-32" />
         <Skeleton className="h-2 w-full" />
       </div>
@@ -29,7 +29,7 @@ export function UsageBar() {
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row">
-      <div className="w-full space-y-1 rounded-lg border p-4 sm:w-xs">
+      <div className="w-full space-y-1 rounded-lg border p-4 shadow-md sm:w-xs">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Images</span>
           <span className="font-medium">
@@ -43,7 +43,7 @@ export function UsageBar() {
           />
         </div>
       </div>
-      <div className="w-full space-y-1 rounded-lg border p-4 sm:w-xs">
+      <div className="w-full space-y-1 rounded-lg border p-4 shadow-md sm:w-xs">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Storage</span>
           <span className="font-medium">

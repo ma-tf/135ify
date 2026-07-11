@@ -8,7 +8,7 @@ export function TakesSkeleton() {
           <Skeleton className="h-4 w-32" />
           <div className="space-y-2">
             {Array.from({ length: 2 }).map((_, j) => (
-              <div key={j} className="flex items-center gap-4 rounded-lg border p-3">
+              <div key={j} className="flex items-center gap-4 rounded-lg border p-3 shadow-md">
                 <Skeleton className="h-16 w-16 rounded" />
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-48" />
