@@ -21,7 +21,7 @@ export function GalleryCard({ image }: { image: FileRecord }) {
         }
       }}
     >
-      <div className="absolute inset-[26%_14%] overflow-hidden bg-amber-700/10">
+      <div className="absolute inset-[26%_14%] overflow-hidden rounded-sm bg-amber-700/10 inset-shadow-sm">
         {image.renderUrl ? (
           <img
             src={image.renderUrl}
@@ -40,16 +40,16 @@ export function GalleryCard({ image }: { image: FileRecord }) {
       </div>
       {image.renderUrl || !image.isProcessing ? (
         <div className="absolute right-0 bottom-0 left-0 px-[14%] pb-[6%]">
-          <p className="truncate text-[10px] font-medium text-foreground/80">{image.fileName}</p>
-          <p className="text-[9px] text-muted-foreground/60">
+          <p className="truncate text-sm font-medium text-foreground/80">{image.fileName}</p>
+          <p className="text-xs text-muted-foreground/60">
             {formattedDate}
             {image.size != null && ` · ${formatBytes(image.size)}`}
           </p>
         </div>
       ) : (
         <div className="absolute right-0 bottom-0 left-0 space-y-1 px-[14%] pb-[6%]">
-          <Skeleton className="h-2.5 w-full" />
-          <Skeleton className="h-2 w-1/3" />
+          <Skeleton className="h-3.5 w-full" />
+          <Skeleton className="h-3 w-1/3" />
         </div>
       )}
     </button>
