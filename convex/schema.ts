@@ -13,6 +13,12 @@ export default defineSchema({
     phoneVerificationTime: v.optional(v.number()),
     isAnonymous: v.optional(v.boolean()),
   }).index("email", ["email"]),
+  aiGenerationSuspension: defineTable({
+    userId: v.id("users"),
+    suspendedAt: v.number(),
+    suspendedBy: v.optional(v.id("users")),
+    reason: v.optional(v.string()),
+  }).index("by_userId", ["userId"]),
   images: defineTable({
     userId: v.id("users"),
     sourceStorageId: v.optional(v.id("_storage")),
@@ -60,6 +66,14 @@ export default defineSchema({
       }),
     ),
     takeImageId: v.optional(v.id("images")),
+    usage: v.optional(
+      v.object({
+        inputTokens: v.number(),
+        outputTokens: v.number(),
+        costCents: v.number(),
+        model: v.string(),
+      }),
+    ),
     thumbnailBase64: v.optional(v.string()),
     failureReason: v.optional(v.string()),
     overQuotaStorageId: v.optional(v.id("_storage")),

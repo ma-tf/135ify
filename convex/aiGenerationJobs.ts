@@ -51,6 +51,14 @@ export const setJobStatus = mutation({
       v.literal("overQuota"),
     ),
     takeImageId: v.optional(v.id("images")),
+    usage: v.optional(
+      v.object({
+        inputTokens: v.number(),
+        outputTokens: v.number(),
+        costCents: v.number(),
+        model: v.string(),
+      }),
+    ),
     thumbnailBase64: v.optional(v.string()),
     failureReason: v.optional(v.string()),
     overQuotaStorageId: v.optional(v.id("_storage")),
@@ -61,6 +69,7 @@ export const setJobStatus = mutation({
     if (!doc || doc.userId !== userId) throw new Error("Unauthorized");
     const patch: Partial<Doc<"aiGenerationJobs">> = { status: args.status };
     if (args.takeImageId !== undefined) patch.takeImageId = args.takeImageId;
+    if (args.usage !== undefined) patch.usage = args.usage;
     if (args.thumbnailBase64 !== undefined) patch.thumbnailBase64 = args.thumbnailBase64;
     if (args.failureReason !== undefined) patch.failureReason = args.failureReason;
     if (args.overQuotaStorageId !== undefined) patch.overQuotaStorageId = args.overQuotaStorageId;

@@ -8,6 +8,7 @@ import type { Id } from "./_generated/dataModel";
 
 import { api } from "./_generated/api";
 import { action } from "./_generated/server";
+import { calculateCostCents } from "./modelPricing";
 
 const FILM_GRAIN_PROMPT = [
   "Apply natural 35mm analog film grain to this image.",
@@ -41,7 +42,10 @@ async function callOpenAI(
   prompt: string,
   imageBase64: string,
   outputSize: string,
-): Promise<string> {
+): Promise<{
+  resultB64: string;
+  usage: { inputTokens: number; outputTokens: number; model: string };
+}> {
   const openai = new OpenAI({ apiKey });
   const genResponse = await openai.responses.create({
     model: "gpt-5.4",
@@ -66,7 +70,14 @@ async function callOpenAI(
     .map((o) => o.result)[0];
 
   if (!resultB64) throw new Error("No image data in OpenAI response");
-  return resultB64;
+  return {
+    resultB64,
+    usage: {
+      inputTokens: genResponse.usage?.input_tokens ?? 0,
+      outputTokens: genResponse.usage?.output_tokens ?? 0,
+      model: genResponse.model,
+    },
+  };
 }
 
 async function generateThumbnail(buffer: Buffer): Promise<string> {
@@ -98,12 +109,15 @@ export const processJob = action({
 
       const outputSize = computeOutputSize(metadata.width, metadata.height);
       const processedBuffer = await resizeImageForInput(sourceBuffer);
-      const resultB64 = await callOpenAI(
+      const { resultB64, usage } = await callOpenAI(
         args.apiKey,
         FILM_GRAIN_PROMPT,
         processedBuffer.toString("base64"),
         outputSize,
       );
+
+      const costCents = calculateCostCents(usage.inputTokens, usage.outputTokens, usage.model);
+      const jobUsage = { ...usage, costCents };
 
       const generatedBuffer = Buffer.from(resultB64, "base64");
 
@@ -130,6 +144,7 @@ export const processJob = action({
         await ctx.runMutation(api.aiGenerationJobs.setJobStatus, {
           jobId: args.jobId,
           status: "overQuota",
+          usage: jobUsage,
           thumbnailBase64,
           overQuotaStorageId,
         });
@@ -161,6 +176,7 @@ export const processJob = action({
         jobId: args.jobId,
         status: "completed",
         takeImageId: imageId,
+        usage: jobUsage,
         thumbnailBase64,
       });
     } catch (error) {
