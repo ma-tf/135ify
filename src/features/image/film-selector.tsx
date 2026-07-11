@@ -27,7 +27,7 @@ export function FilmSelector({ value, onValueChange }: FilmSelectorProps) {
           onValueChange(v);
         }}
       >
-        <SelectTrigger id="film-select" className="w-full">
+        <SelectTrigger id="film-select" className="w-full shadow-xs">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

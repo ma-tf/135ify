@@ -41,7 +41,12 @@ export function EditPanelButtons({
   return (
     <div className="flex flex-col gap-2">
       <SaveToGalleryButton />
-      <Button disabled={file.isProcessing} size="sm" className="gap-1.5" onClick={handleDownload}>
+      <Button
+        disabled={file.isProcessing}
+        size="sm"
+        className="gap-1.5 shadow-xs"
+        onClick={handleDownload}
+      >
         {file.isProcessing ? (
           <Spinner className="size-3.5" />
         ) : (
@@ -49,11 +54,16 @@ export function EditPanelButtons({
         )}
         Download
       </Button>
-      <Button variant="outline" size="sm" className="gap-1.5" onClick={handleReset}>
+      <Button variant="outline" size="sm" className="gap-1.5 shadow-xs" onClick={handleReset}>
         <RotateCcwIcon className="size-3.5" />
         Reset
       </Button>
-      <Button variant="destructive" size="sm" className="gap-1.5" onClick={handleDelete}>
+      <Button
+        variant="destructive"
+        size="sm"
+        className="gap-1.5 border-0 shadow-xs"
+        onClick={handleDelete}
+      >
         <Trash2Icon className="size-3.5" />
         Delete
       </Button>

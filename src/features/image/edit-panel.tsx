@@ -89,7 +89,7 @@ function GrainControls({ setParam }: { setParam: (partial: Partial<ProcessParams
           }}
         >
           {ISO_PRESETS.map((p) => (
-            <ToggleGroupItem key={p.iso} value={p.iso}>
+            <ToggleGroupItem key={p.iso} value={p.iso} className="shadow-xs">
               {p.iso}
             </ToggleGroupItem>
           ))}
@@ -110,7 +110,7 @@ export function EditPanel() {
     <div className="flex flex-col gap-6 p-4">
       <div className="flex items-center justify-between">
         <h2 className="font-semibold text-foreground">Processing</h2>
-        <div className="flex rounded-lg border bg-muted p-0.5">
+        <div className="flex rounded-lg border bg-muted p-0.5 shadow-sm">
           <button
             type="button"
             onClick={() => setShowOriginal(true)}

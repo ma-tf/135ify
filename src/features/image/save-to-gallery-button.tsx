@@ -24,7 +24,7 @@ export function SaveToGalleryButton() {
     <Button
       disabled={isSaving || file.isProcessing || atLimit}
       size="sm"
-      className="gap-1.5"
+      className="gap-1.5 shadow-xs"
       onClick={save}
     >
       {isSaving ? <Spinner className="size-3.5" /> : <ImagePlusIcon className="size-3.5" />}

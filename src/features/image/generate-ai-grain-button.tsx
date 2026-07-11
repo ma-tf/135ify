@@ -35,7 +35,7 @@ export function GenerateAiGrainButton({ showOriginal }: { showOriginal: boolean 
         disabled={isGenerating || atLimit}
         variant="outline"
         size="sm"
-        className="gap-1.5"
+        className="gap-1.5 shadow-xs"
         onClick={handleClick}
       >
         {isGenerating ? <Spinner className="size-3.5" /> : <SparklesIcon className="size-3.5" />}
