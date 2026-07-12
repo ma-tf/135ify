@@ -42,6 +42,7 @@
     "react-scan",
     "shadcn",
     "sharp",
+    "stripe",
     "vaul",
     "zod"
   ]

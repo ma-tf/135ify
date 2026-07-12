@@ -28,9 +28,14 @@ type Env = {
   readonly FREE_TIER_FILE_SIZE_MB: string | undefined;
   readonly FREE_TIER_IMAGE_LIMIT: string | undefined;
   readonly FREE_TIER_STORAGE_MB: string | undefined;
+  readonly OPENAI_API_KEY: string;
+  readonly OPENAI_MONTHLY_SPEND_LIMIT_CENTS: string;
   readonly PAID_TIER_FILE_SIZE_MB: string | undefined;
   readonly PAID_TIER_IMAGE_LIMIT: string | undefined;
   readonly PAID_TIER_STORAGE_MB: string | undefined;
+  readonly SITE_URL: string | undefined;
+  readonly STRIPE_SECRET_KEY: string;
+  readonly STRIPE_WEBHOOK_SECRET: string;
 };
 
 /**

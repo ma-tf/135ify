@@ -13,7 +13,11 @@ export default defineSchema({
     phoneVerificationTime: v.optional(v.number()),
     isAnonymous: v.optional(v.boolean()),
     storageTier: v.optional(v.union(v.literal("free"), v.literal("paid"))),
-  }).index("email", ["email"]),
+    stripeCustomerId: v.optional(v.string()),
+    subscriptionStatus: v.optional(v.string()),
+  })
+    .index("email", ["email"])
+    .index("by_stripeCustomerId", ["stripeCustomerId"]),
   aiGenerationSuspension: defineTable({
     userId: v.id("users"),
     suspendedAt: v.number(),
@@ -50,6 +54,17 @@ export default defineSchema({
       }),
     ),
   }).index("by_userId", ["userId"]),
+  stripeEvents: defineTable({
+    body: v.string(),
+    signature: v.string(),
+    status: v.union(v.literal("pending"), v.literal("processed"), v.literal("failed")),
+    retries: v.float64(),
+    maxRetries: v.float64(),
+    backoffMs: v.float64(),
+    processedAt: v.optional(v.number()),
+    error: v.optional(v.string()),
+    eventType: v.optional(v.string()),
+  }).index("by_status", ["status"]),
   aiGenerationJobs: defineTable({
     userId: v.id("users"),
     status: v.union(

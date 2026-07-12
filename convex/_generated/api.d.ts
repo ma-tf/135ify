@@ -16,6 +16,10 @@ import type * as http from "../http.js";
 import type * as images from "../images.js";
 import type * as lib from "../lib.js";
 import type * as modelPricing from "../modelPricing.js";
+import type * as stripe from "../stripe.js";
+import type * as stripeProcessor from "../stripeProcessor.js";
+import type * as stripeSync from "../stripeSync.js";
+import type * as stripeWebhooks from "../stripeWebhooks.js";
 import type * as users from "../users.js";
 
 import type {
@@ -33,6 +37,10 @@ declare const fullApi: ApiFromModules<{
   images: typeof images;
   lib: typeof lib;
   modelPricing: typeof modelPricing;
+  stripe: typeof stripe;
+  stripeProcessor: typeof stripeProcessor;
+  stripeSync: typeof stripeSync;
+  stripeWebhooks: typeof stripeWebhooks;
   users: typeof users;
 }>;
 
