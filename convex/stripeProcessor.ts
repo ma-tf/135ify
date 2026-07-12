@@ -3,6 +3,8 @@
 import { v } from "convex/values";
 import Stripe from "stripe";
 
+import type { ActionCtx } from "./_generated/server";
+
 import { internal } from "./_generated/api";
 import { internalAction } from "./_generated/server";
 
@@ -33,31 +35,17 @@ export const processEvent = internalAction({
     try {
       switch (event.type) {
         case "customer.subscription.created":
+          await handleSubscriptionCreated(event, ctx);
+          break;
         case "customer.subscription.updated":
-        case "customer.subscription.deleted": {
-          const sub = event.data.object as Stripe.Subscription;
-          await ctx.runMutation(internal.stripeSync.syncSubscription, {
-            stripeCustomerId: sub.customer as string,
-            status: sub.status,
-            metadata: sub.metadata,
-          });
+          await handleSubscriptionUpdated(event, ctx);
           break;
-        }
-
-        case "entitlements.active_entitlement_summary.updated": {
-          const summary = event.data.object as Stripe.Entitlements.ActiveEntitlementSummary;
-          const stripeCustomerId = summary.customer;
-          const lookupKeys = summary.entitlements.data.map(
-            (e: Stripe.Entitlements.ActiveEntitlement) => e.lookup_key,
-          );
-
-          if (lookupKeys.includes("gallery-storage-paid")) {
-            await ctx.runMutation(internal.stripeSync.provisionAccess, { stripeCustomerId });
-          } else {
-            await ctx.runMutation(internal.stripeSync.revokeAccess, { stripeCustomerId });
-          }
+        case "customer.subscription.deleted":
+          await handleSubscriptionDeleted(event, ctx);
           break;
-        }
+        case "entitlements.active_entitlement_summary.updated":
+          await handleEntitlementEvent(event, ctx);
+          break;
       }
 
       await ctx.runMutation(internal.stripeWebhooks.markEventProcessed, {
@@ -72,3 +60,77 @@ export const processEvent = internalAction({
     }
   },
 });
+
+async function handleSubscriptionCreated(event: Stripe.Event, ctx: ActionCtx) {
+  const sub = event.data.object as Stripe.Subscription;
+  await ctx.runMutation(internal.stripeSync.syncSubscription, {
+    stripeCustomerId: sub.customer as string,
+    status: sub.status,
+    metadata: sub.metadata,
+  });
+
+  const productKey = sub.metadata?.productKey as string | undefined;
+  if (productKey) {
+    const raw = sub as any;
+    await ctx.runMutation(internal.subscriptions.upsert, {
+      productKey,
+      stripeSubscriptionId: raw.id,
+      stripeCustomerId: raw.customer,
+      status: raw.status,
+      currentPeriodEnd: raw.current_period_end ?? undefined,
+      cancelAtPeriodEnd: raw.cancel_at_period_end ?? undefined,
+    });
+  }
+}
+
+async function handleSubscriptionUpdated(event: Stripe.Event, ctx: ActionCtx) {
+  const sub = event.data.object as Stripe.Subscription;
+  await ctx.runMutation(internal.stripeSync.syncSubscription, {
+    stripeCustomerId: sub.customer as string,
+    status: sub.status,
+    metadata: sub.metadata,
+  });
+
+  const productKey = sub.metadata?.productKey as string | undefined;
+  if (productKey) {
+    const raw = sub as any;
+    await ctx.runMutation(internal.subscriptions.upsert, {
+      productKey,
+      stripeSubscriptionId: raw.id,
+      stripeCustomerId: raw.customer,
+      status: raw.status,
+      currentPeriodEnd: raw.current_period_end ?? undefined,
+      cancelAtPeriodEnd: raw.cancel_at_period_end ?? undefined,
+    });
+  }
+}
+
+async function handleSubscriptionDeleted(event: Stripe.Event, ctx: ActionCtx) {
+  const sub = event.data.object as Stripe.Subscription;
+  await ctx.runMutation(internal.stripeSync.syncSubscription, {
+    stripeCustomerId: sub.customer as string,
+    status: sub.status,
+    metadata: sub.metadata,
+  });
+
+  const productKey = sub.metadata?.productKey as string | undefined;
+  if (productKey) {
+    await ctx.runMutation(internal.subscriptions.remove, {
+      stripeSubscriptionId: sub.id,
+    });
+  }
+}
+
+async function handleEntitlementEvent(event: Stripe.Event, ctx: ActionCtx) {
+  const summary = event.data.object as Stripe.Entitlements.ActiveEntitlementSummary;
+  const stripeCustomerId = summary.customer;
+  const lookupKeys = summary.entitlements.data.map(
+    (e: Stripe.Entitlements.ActiveEntitlement) => e.lookup_key,
+  );
+
+  if (lookupKeys.includes("gallery-storage-paid")) {
+    await ctx.runMutation(internal.stripeSync.provisionAccess, { stripeCustomerId });
+  } else {
+    await ctx.runMutation(internal.stripeSync.revokeAccess, { stripeCustomerId });
+  }
+}

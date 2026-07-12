@@ -19,6 +19,7 @@ vi.mock("@config", () => ({
     return mockConfig.FEATURE_AI_GRAIN;
   },
   FEATURE_SIGN_IN: true,
+  FEATURE_SUBSCRIPTIONS: false,
 }));
 
 vi.mock("@convex-dev/auth/react", () => ({

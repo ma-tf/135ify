@@ -34,7 +34,9 @@ type Env = {
   readonly PAID_TIER_IMAGE_LIMIT: string | undefined;
   readonly PAID_TIER_STORAGE_MB: string | undefined;
   readonly SITE_URL: string | undefined;
+  readonly STRIPE_AI_PRICE_ID: string | undefined;
   readonly STRIPE_SECRET_KEY: string;
+  readonly STRIPE_STORAGE_PRICE_ID: string | undefined;
   readonly STRIPE_WEBHOOK_SECRET: string;
 };
 

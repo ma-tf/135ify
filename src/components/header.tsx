@@ -7,7 +7,7 @@ import { Button } from "@components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { Skeleton } from "@components/ui/skeleton";
 import { UserMenu } from "@components/user-menu";
-import { BASE_PATH, FEATURE_AI_GRAIN, FEATURE_SIGN_IN } from "@config";
+import { BASE_PATH, FEATURE_AI_GRAIN, FEATURE_SIGN_IN, FEATURE_SUBSCRIPTIONS } from "@config";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "@convex/_generated/api";
 import { useAuth } from "@hooks/use-auth";
@@ -48,6 +48,24 @@ function GalleryLink() {
           }
         >
           Gallery
+        </span>
+      )}
+    </Link>
+  );
+}
+
+function PricingLink() {
+  return (
+    <Link to="/pricing">
+      {({ isActive }) => (
+        <span
+          className={
+            isActive
+              ? "text-sm font-medium text-foreground"
+              : "text-sm text-muted-foreground transition-colors hover:text-foreground"
+          }
+        >
+          Pricing
         </span>
       )}
     </Link>
@@ -128,6 +146,7 @@ function MobileNav() {
             <FilmStripLink />
             <GalleryLink />
             {FEATURE_AI_GRAIN && <TakesLink />}
+            {FEATURE_SUBSCRIPTIONS && <PricingLink />}
           </nav>
           {FEATURE_AI_GRAIN && (
             <div className="mt-4 border-t pt-4">
@@ -198,6 +217,7 @@ export function Header() {
           <FilmStripLink />
           <GalleryLink />
           {FEATURE_AI_GRAIN && <TakesLink />}
+          {FEATURE_SUBSCRIPTIONS && <PricingLink />}
         </nav>
       )}
       <div className="flex items-center justify-end gap-2">

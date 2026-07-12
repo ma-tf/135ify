@@ -65,6 +65,18 @@ export default defineSchema({
     error: v.optional(v.string()),
     eventType: v.optional(v.string()),
   }).index("by_status", ["status"]),
+  subscriptions: defineTable({
+    userId: v.id("users"),
+    productKey: v.string(),
+    stripeSubscriptionId: v.string(),
+    stripeCustomerId: v.string(),
+    status: v.string(),
+    currentPeriodEnd: v.optional(v.number()),
+    cancelAtPeriodEnd: v.optional(v.boolean()),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_stripeSubscriptionId", ["stripeSubscriptionId"])
+    .index("by_stripeCustomerId", ["stripeCustomerId"]),
   aiGenerationJobs: defineTable({
     userId: v.id("users"),
     status: v.union(

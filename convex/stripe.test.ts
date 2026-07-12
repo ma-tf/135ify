@@ -102,6 +102,46 @@ describe("syncSubscription", () => {
       await handleSyncSubscription(ctx, "cus_unknown", "active", {});
     });
   });
+
+  test("preserves trialing status as subscriptionStatus", async () => {
+    const t = setup();
+
+    const userId = await t.run(async (ctx) => {
+      return await ctx.db.insert("users", { email: null });
+    });
+
+    await t.run(async (ctx) => {
+      await handleSyncSubscription(ctx, "cus_trialing", "trialing", { convexUserId: userId });
+    });
+
+    const user = await t.run(async (ctx) => {
+      return await ctx.db.get(userId);
+    });
+
+    expect(user!.subscriptionStatus).toBe("trialing");
+  });
+
+  test("clears subscriptionStatus on unpaid subscription", async () => {
+    const t = setup();
+
+    const userId = await t.run(async (ctx) => {
+      return await ctx.db.insert("users", {
+        email: null,
+        stripeCustomerId: "cus_unpaid",
+        subscriptionStatus: "active",
+      });
+    });
+
+    await t.run(async (ctx) => {
+      await handleSyncSubscription(ctx, "cus_unpaid", "unpaid", {});
+    });
+
+    const user = await t.run(async (ctx) => {
+      return await ctx.db.get(userId);
+    });
+
+    expect(user!.subscriptionStatus).toBeUndefined();
+  });
 });
 
 describe("provisionAccess", () => {

@@ -1,6 +1,7 @@
 import { GalleryCard } from "@features/gallery/gallery-card";
 import { GallerySkeleton } from "@features/gallery/gallery-skeleton";
 import { UsageBar } from "@features/gallery/gallery-usage-bar";
+import { UpgradePrompt } from "@features/gallery/upgrade-prompt";
 import { useGalleryData } from "@features/gallery/use-gallery-data";
 import { EnsureProcessedOrchestrator } from "@features/image/use-ensure-processed";
 import { StorageContext } from "@providers/storage-context";
@@ -29,6 +30,7 @@ export function GalleryPage() {
       <EnsureProcessedOrchestrator pendingFiles={pendingFiles} />
       <div className="space-y-6 p-6">
         <UsageBar />
+        <UpgradePrompt />
         {images.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-4">
             <p className="text-muted-foreground">No saved images yet.</p>

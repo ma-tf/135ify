@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TakesRouteImport } from './routes/takes'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as GalleryRouteImport } from './routes/gallery'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TakesIndexRouteImport } from './routes/takes.index'
 import { Route as GalleryIndexRouteImport } from './routes/gallery.index'
@@ -21,9 +23,19 @@ const TakesRoute = TakesRouteImport.update({
   path: '/takes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GalleryRoute = GalleryRouteImport.update({
   id: '/gallery',
   path: '/gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -49,7 +61,9 @@ const GalleryImageIdRoute = GalleryImageIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/gallery': typeof GalleryRouteWithChildren
+  '/pricing': typeof PricingRoute
   '/takes': typeof TakesRouteWithChildren
   '/gallery/$imageId': typeof GalleryImageIdRoute
   '/gallery/': typeof GalleryIndexRoute
@@ -57,6 +71,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/pricing': typeof PricingRoute
   '/gallery/$imageId': typeof GalleryImageIdRoute
   '/gallery': typeof GalleryIndexRoute
   '/takes': typeof TakesIndexRoute
@@ -64,7 +80,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/gallery': typeof GalleryRouteWithChildren
+  '/pricing': typeof PricingRoute
   '/takes': typeof TakesRouteWithChildren
   '/gallery/$imageId': typeof GalleryImageIdRoute
   '/gallery/': typeof GalleryIndexRoute
@@ -73,13 +91,23 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/gallery' | '/takes' | '/gallery/$imageId' | '/gallery/' | '/takes/'
+    | '/'
+    | '/account'
+    | '/gallery'
+    | '/pricing'
+    | '/takes'
+    | '/gallery/$imageId'
+    | '/gallery/'
+    | '/takes/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/gallery/$imageId' | '/gallery' | '/takes'
+  to:
+    '/' | '/account' | '/pricing' | '/gallery/$imageId' | '/gallery' | '/takes'
   id:
     | '__root__'
     | '/'
+    | '/account'
     | '/gallery'
+    | '/pricing'
     | '/takes'
     | '/gallery/$imageId'
     | '/gallery/'
@@ -88,7 +116,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
   GalleryRoute: typeof GalleryRouteWithChildren
+  PricingRoute: typeof PricingRoute
   TakesRoute: typeof TakesRouteWithChildren
 }
 
@@ -101,11 +131,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TakesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gallery': {
       id: '/gallery'
       path: '/gallery'
       fullPath: '/gallery'
       preLoaderRoute: typeof GalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -164,7 +208,9 @@ const TakesRouteWithChildren = TakesRoute._addFileChildren(TakesRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
   GalleryRoute: GalleryRouteWithChildren,
+  PricingRoute: PricingRoute,
   TakesRoute: TakesRouteWithChildren,
 }
 export const routeTree = rootRouteImport

@@ -14,6 +14,8 @@ const app = defineApp({
     OPENAI_API_KEY: v.string(),
     OPENAI_MONTHLY_SPEND_LIMIT_CENTS: v.string(),
     SITE_URL: v.optional(v.string()),
+    STRIPE_STORAGE_PRICE_ID: v.optional(v.string()),
+    STRIPE_AI_PRICE_ID: v.optional(v.string()),
   },
 });
 

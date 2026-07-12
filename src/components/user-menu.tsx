@@ -12,14 +12,14 @@ import {
   DropdownMenuLabel,
 } from "@components/ui/dropdown-menu";
 import { Skeleton } from "@components/ui/skeleton";
-import { FEATURE_AI_GRAIN } from "@config";
+import { FEATURE_AI_GRAIN, FEATURE_SUBSCRIPTIONS } from "@config";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "@convex/_generated/api";
 import { useAuth } from "@hooks/use-auth";
 import { getInitials } from "@lib/utils";
 import { Link } from "@tanstack/react-router";
 import { useQuery_experimental as useQuery } from "convex/react";
-import { ImageIcon, KeyIcon, LogOut, Monitor, Moon, Sun } from "lucide-react";
+import { CreditCardIcon, ImageIcon, KeyIcon, LogOut, Monitor, Moon, Sun } from "lucide-react";
 import { type ComponentProps, useState } from "react";
 
 function UserAvatar(props: ComponentProps<typeof Button>) {
@@ -68,6 +68,14 @@ export function UserMenu() {
                 Gallery
               </Link>
             </DropdownMenuItem>
+            {FEATURE_SUBSCRIPTIONS && (
+              <DropdownMenuItem asChild>
+                <Link to="/account">
+                  <CreditCardIcon className="mr-2 size-4" />
+                  Account
+                </Link>
+              </DropdownMenuItem>
+            )}
             {FEATURE_AI_GRAIN && (
               <>
                 <DropdownMenuItem onClick={() => setKeyDialogOpen(true)}>

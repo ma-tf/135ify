@@ -58,6 +58,7 @@ vi.mock("@components/user-menu", () => ({
 vi.mock("@config", () => ({
   FEATURE_AI_GRAIN: true,
   FEATURE_SIGN_IN: true,
+  FEATURE_SUBSCRIPTIONS: false,
   BASE_PATH: "",
 }));
 
