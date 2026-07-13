@@ -1,6 +1,17 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
+vi.mock("@config", () => ({
+  BASE_PATH: "",
+  FEATURE_AI_GRAIN: false,
+  FEATURE_SIGN_IN: false,
+  FEATURE_SUBSCRIPTIONS: false,
+  FILE_SIZE_LIMIT_BYTES: 5 * 1024 * 1024,
+  GRAIN_URL: "",
+  STRIPE_STORAGE_PRICE_ID: "",
+  STRIPE_AI_PRICE_ID: "",
+}));
+
 vi.mock("@features/process/use-file-upload", () => ({
   useFileUpload: vi.fn(),
 }));

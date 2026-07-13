@@ -10,11 +10,7 @@ export const GRAIN_URL = `${import.meta.env.BASE_URL}grain.jpg`;
 export const STRIPE_STORAGE_PRICE_ID = import.meta.env.VITE_STRIPE_STORAGE_PRICE_ID ?? "";
 export const STRIPE_AI_PRICE_ID = import.meta.env.VITE_STRIPE_AI_PRICE_ID ?? "";
 
-if (
-  import.meta.env.MODE !== "test" &&
-  FEATURE_SUBSCRIPTIONS &&
-  (!STRIPE_STORAGE_PRICE_ID || !STRIPE_AI_PRICE_ID)
-) {
+if (FEATURE_SUBSCRIPTIONS && (!STRIPE_STORAGE_PRICE_ID || !STRIPE_AI_PRICE_ID)) {
   throw new Error(
     "FEATURE_SUBSCRIPTIONS enabled but STRIPE_STORAGE_PRICE_ID or STRIPE_AI_PRICE_ID is not set",
   );
