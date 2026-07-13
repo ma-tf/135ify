@@ -1,32 +1,9 @@
 import { Button } from "@components/ui/button";
-import { STRIPE_AI_PRICE_ID, STRIPE_STORAGE_PRICE_ID } from "@config";
+import { PLANS, type Plan } from "@config";
 import { api } from "@convex/_generated/api";
 import { useAction, useQuery_experimental as useQuery } from "convex/react";
 import { CheckIcon, Loader2 } from "lucide-react";
 import { useCallback, useState } from "react";
-
-const PLANS = [
-  {
-    key: "storage_paid",
-    name: "Storage",
-    price: "$2/mo",
-    description: "More gallery space for your 135 scans.",
-    features: ["360 images (up from 36)", "25 MB per file (up from 10 MB)", "~9 GB total storage"],
-    priceId: STRIPE_STORAGE_PRICE_ID,
-  },
-  {
-    key: "ai_generation_platform",
-    name: "AI Generation",
-    price: "$2/mo",
-    description: "Platform-managed AI grain. No BYO key needed.",
-    features: [
-      "OpenAI-powered film grain generation",
-      "No separate API key required",
-      "Managed monthly usage allowance",
-    ],
-    priceId: STRIPE_AI_PRICE_ID,
-  },
-] as const;
 
 export function PricingPage() {
   return (
@@ -64,7 +41,7 @@ function PlanGrid() {
   );
 
   const handleSubscribe = useCallback(
-    function handleSubscribe(plan: (typeof PLANS)[number]) {
+    function handleSubscribe(plan: Plan) {
       setSubscribing(plan.key);
       void createCheckoutSession({ priceId: plan.priceId })
         .then((result) => {

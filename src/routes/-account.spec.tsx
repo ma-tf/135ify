@@ -5,9 +5,44 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 setupTests();
 
-const { mockUseQuery, mockUseAction } = vi.hoisted(() => ({
+const { mockUseQuery, mockUseAction, mockPlans } = vi.hoisted(() => ({
   mockUseQuery: vi.fn(),
   mockUseAction: vi.fn(),
+  mockPlans: [
+    {
+      key: "storage_paid",
+      name: "Storage",
+      price: "$2/mo",
+      description: "More gallery space for your 135 scans.",
+      features: [
+        "360 images (up from 36)",
+        "25 MB per file (up from 10 MB)",
+        "~9 GB total storage",
+      ],
+      priceId: "price_storage_123",
+    },
+    {
+      key: "ai_generation_platform",
+      name: "AI Generation",
+      price: "$2/mo",
+      description: "Platform-managed AI grain. No BYO key needed.",
+      features: [
+        "OpenAI-powered film grain generation",
+        "No separate API key required",
+        "Managed monthly usage allowance",
+      ],
+      priceId: "price_ai_456",
+    },
+  ],
+}));
+
+vi.mock("@config", () => ({
+  FEATURE_SUBSCRIPTIONS: true,
+  FEATURE_AI_GRAIN: false,
+  FEATURE_SIGN_IN: true,
+  BASE_PATH: "",
+  PLANS: mockPlans,
+  getPlan: (key: string) => mockPlans.find((p: any) => p.key === key),
 }));
 
 vi.mock("convex/react", () => ({

@@ -13,8 +13,6 @@ vi.mock("@config", () => ({
   FEATURE_SUBSCRIPTIONS: false,
   FILE_SIZE_LIMIT_BYTES: 5 * 1024 * 1024,
   GRAIN_URL: "",
-  STRIPE_STORAGE_PRICE_ID: "",
-  STRIPE_AI_PRICE_ID: "",
 }));
 
 const { mockNavigate, mockUseQuery } = vi.hoisted(() => ({
