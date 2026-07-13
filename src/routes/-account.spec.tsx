@@ -5,9 +5,10 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 setupTests();
 
-const { mockUseQuery, mockUseAction, mockPlans } = vi.hoisted(() => ({
+const { mockUseQuery, mockGetPlan, mockCreatePortalSession, mockPlans } = vi.hoisted(() => ({
   mockUseQuery: vi.fn(),
-  mockUseAction: vi.fn(),
+  mockGetPlan: vi.fn(),
+  mockCreatePortalSession: vi.fn(),
   mockPlans: [
     {
       key: "storage_paid",
@@ -41,18 +42,23 @@ vi.mock("@config", () => ({
   FEATURE_AI_GRAIN: false,
   FEATURE_SIGN_IN: true,
   BASE_PATH: "",
-  PLANS: mockPlans,
-  getPlan: (key: string) => mockPlans.find((p: any) => p.key === key),
+  getPlan: (plans: any[], key: string) => plans.find((p) => p.key === key),
 }));
 
 vi.mock("convex/react", () => ({
-  useAction: () => mockUseAction,
+  useAction: (ref: any) => {
+    if (ref === "getPlan") return mockGetPlan;
+    return mockCreatePortalSession;
+  },
   useQuery_experimental: mockUseQuery,
 }));
 
 vi.mock("@convex/_generated/api", () => ({
   api: {
-    stripe: { createPortalSession: "createPortalSession" },
+    stripe: {
+      getPlan: "getPlan",
+      createPortalSession: "createPortalSession",
+    },
     subscriptions: { byUser: "subscriptions.byUser" },
   },
 }));
@@ -78,7 +84,10 @@ describe("AccountPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
-    mockUseAction.mockResolvedValue({ url: "https://billing.stripe.com/session_123" });
+    mockGetPlan.mockResolvedValue(mockPlans);
+    mockCreatePortalSession.mockResolvedValue({
+      url: "https://billing.stripe.com/session_123",
+    });
   });
 
   it("shows empty state when user has no subscriptions", () => {
@@ -87,7 +96,7 @@ describe("AccountPage", () => {
     expect(screen.getByText("View plans")).toBeDefined();
   });
 
-  it("renders active subscriptions", () => {
+  it("renders active subscriptions", async () => {
     mockUseQuery.mockReturnValue({
       status: "success",
       data: [
@@ -101,17 +110,21 @@ describe("AccountPage", () => {
       ],
     });
     render(<AccountPage />);
-    expect(screen.getByText("Storage")).toBeDefined();
+    await vi.waitFor(() => {
+      expect(screen.getByText("Storage")).toBeDefined();
+    });
     expect(screen.getByText("active")).toBeDefined();
   });
 
-  it("shows Manage Subscription button when subscriptions exist", () => {
+  it("shows Manage Subscription button when subscriptions exist", async () => {
     mockUseQuery.mockReturnValue({
       status: "success",
       data: [{ _id: "sub1", productKey: "storage_paid", status: "active" }],
     });
     render(<AccountPage />);
-    expect(screen.getByText("Manage Subscription")).toBeDefined();
+    await vi.waitFor(() => {
+      expect(screen.getByText("Manage Subscription")).toBeDefined();
+    });
   });
 
   it("hides Manage Subscription button when no active subscriptions", () => {
@@ -119,14 +132,17 @@ describe("AccountPage", () => {
     expect(screen.queryByText("Manage Subscription")).toBeNull();
   });
 
-  it("calls createPortalSession on Manage Subscription click", () => {
+  it("calls createPortalSession on Manage Subscription click", async () => {
     mockUseQuery.mockReturnValue({
       status: "success",
       data: [{ _id: "sub1", productKey: "storage_paid", status: "active" }],
     });
     render(<AccountPage />);
+    await vi.waitFor(() => {
+      expect(screen.getByText("Manage Subscription")).toBeDefined();
+    });
     fireEvent.click(screen.getByText("Manage Subscription"));
-    expect(mockUseAction).toHaveBeenCalledWith({});
+    expect(mockCreatePortalSession).toHaveBeenCalledWith({});
   });
 
   it("redirects to Stripe Portal URL after successful manage", async () => {
@@ -142,6 +158,9 @@ describe("AccountPage", () => {
     });
 
     render(<AccountPage />);
+    await vi.waitFor(() => {
+      expect(screen.getByText("Manage Subscription")).toBeDefined();
+    });
     fireEvent.click(screen.getByText("Manage Subscription"));
 
     await vi.waitFor(() => {
@@ -155,7 +174,7 @@ describe("AccountPage", () => {
   });
 
   it("shows loading state while redirecting to portal", () => {
-    mockUseAction.mockReturnValue(new Promise(() => {}));
+    mockCreatePortalSession.mockReturnValue(new Promise(() => {}));
     mockUseQuery.mockReturnValue({
       status: "success",
       data: [{ _id: "sub1", productKey: "storage_paid", status: "active" }],

@@ -5,12 +5,10 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 setupTests();
 
-const { mockUseQuery, mockUseAction, mockConfig, mockPlans } = vi.hoisted(() => ({
+const { mockUseQuery, mockGetPlan, mockCreateCheckoutSession, mockPlans } = vi.hoisted(() => ({
   mockUseQuery: vi.fn(),
-  mockUseAction: vi.fn(),
-  mockConfig: {
-    FEATURE_SUBSCRIPTIONS: true,
-  },
+  mockGetPlan: vi.fn(),
+  mockCreateCheckoutSession: vi.fn(),
   mockPlans: [
     {
       key: "storage_paid",
@@ -40,24 +38,27 @@ const { mockUseQuery, mockUseAction, mockConfig, mockPlans } = vi.hoisted(() => 
 }));
 
 vi.mock("@config", () => ({
-  get FEATURE_SUBSCRIPTIONS() {
-    return mockConfig.FEATURE_SUBSCRIPTIONS;
-  },
+  FEATURE_SUBSCRIPTIONS: true,
   FEATURE_AI_GRAIN: false,
   FEATURE_SIGN_IN: true,
   BASE_PATH: "",
-  PLANS: mockPlans,
-  getPlan: (key: string) => mockPlans.find((p: any) => p.key === key),
+  getPlan: (plans: any[], key: string) => plans.find((p) => p.key === key),
 }));
 
 vi.mock("convex/react", () => ({
-  useAction: () => mockUseAction,
+  useAction: (ref: any) => {
+    if (ref === "getPlan") return mockGetPlan;
+    return mockCreateCheckoutSession;
+  },
   useQuery_experimental: mockUseQuery,
 }));
 
 vi.mock("@convex/_generated/api", () => ({
   api: {
-    stripe: { createCheckoutSession: "createCheckoutSession" },
+    stripe: {
+      createCheckoutSession: "createCheckoutSession",
+      getPlan: "getPlan",
+    },
     subscriptions: { byUser: "subscriptions.byUser" },
   },
 }));
@@ -83,37 +84,50 @@ describe("PricingPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
-    mockUseAction.mockResolvedValue({ url: "https://checkout.stripe.com/session_123" });
+    mockGetPlan.mockResolvedValue(mockPlans);
+    mockCreateCheckoutSession.mockResolvedValue({
+      url: "https://checkout.stripe.com/session_123",
+    });
   });
 
-  it("renders plan cards", () => {
+  it("renders plan cards", async () => {
     render(<PricingPage />);
-    expect(screen.getByText("Storage")).toBeDefined();
+    await vi.waitFor(() => {
+      expect(screen.getByText("Storage")).toBeDefined();
+    });
     expect(screen.getByText("AI Generation")).toBeDefined();
   });
 
-  it("shows Subscribe buttons for unsubscribed products", () => {
+  it("shows Subscribe buttons for unsubscribed products", async () => {
     render(<PricingPage />);
-    const subscribeButtons = screen.getAllByText("Subscribe");
-    expect(subscribeButtons).toHaveLength(2);
+    await vi.waitFor(() => {
+      const subscribeButtons = screen.getAllByText("Subscribe");
+      expect(subscribeButtons).toHaveLength(2);
+    });
   });
 
-  it("shows Subscribed badge for active subscriptions", () => {
+  it("shows Subscribed badge for active subscriptions", async () => {
     mockUseQuery.mockReturnValue({
       status: "success",
       data: [{ productKey: "storage_paid", status: "active", _id: "s1" }],
     });
     render(<PricingPage />);
-    const subscribedElements = screen.getAllByText("Subscribed");
-    expect(subscribedElements.length).toBeGreaterThanOrEqual(1);
+    await vi.waitFor(() => {
+      const subscribedElements = screen.getAllByText("Subscribed");
+      expect(subscribedElements.length).toBeGreaterThanOrEqual(1);
+    });
     const subscribeButtons = screen.getAllByText("Subscribe");
     expect(subscribeButtons).toHaveLength(1);
   });
 
-  it("calls createCheckoutSession with correct priceId on Subscribe click", () => {
+  it("calls createCheckoutSession with correct priceId on Subscribe click", async () => {
     render(<PricingPage />);
-    const subscribeButtons = screen.getAllByText("Subscribe");
-    fireEvent.click(subscribeButtons[0]);
-    expect(mockUseAction).toHaveBeenCalledWith({ priceId: "price_storage_123" });
+    await vi.waitFor(() => {
+      expect(screen.getAllByText("Subscribe").length).toBeGreaterThanOrEqual(1);
+    });
+    fireEvent.click(screen.getAllByText("Subscribe")[0]);
+    expect(mockCreateCheckoutSession).toHaveBeenCalledWith({
+      priceId: "price_storage_123",
+    });
   });
 });

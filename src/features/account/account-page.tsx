@@ -1,10 +1,9 @@
-import { Button } from "@components/ui/button";
 import { Skeleton } from "@components/ui/skeleton";
-import { getPlan } from "@config";
 import { api } from "@convex/_generated/api";
-import { useAction, useQuery_experimental as useQuery } from "convex/react";
-import { Loader2, ShoppingBag } from "lucide-react";
-import { useCallback, useState } from "react";
+import { ActiveSubscriptions } from "@features/account/active-subscriptions";
+import { ManageSubscriptionButton } from "@features/account/manage-subscription-button";
+import { useQuery_experimental as useQuery } from "convex/react";
+import { ShoppingBag } from "lucide-react";
 
 export function AccountPage() {
   const subscriptions = useQuery({ query: api.subscriptions.byUser, args: {} });
@@ -58,31 +57,6 @@ function SubscriptionsError() {
   return <p className="text-sm text-destructive">Failed to load subscriptions.</p>;
 }
 
-function ActiveSubscriptions({ subs }: { subs: any[] }) {
-  return subs.map((sub: any) => {
-    const plan = getPlan(sub.productKey);
-    return (
-      <div key={sub._id} className="flex items-center justify-between rounded-lg border p-4">
-        <div className="flex items-center gap-3">
-          <ShoppingBag className="size-5 text-muted-foreground" />
-          <div>
-            <p className="font-medium">{plan?.name ?? sub.productKey}</p>
-            <p className="text-sm text-muted-foreground">
-              {plan ? `${plan.price} · ${plan.description}` : ""}
-              {sub.cancelAtPeriodEnd && sub.currentPeriodEnd
-                ? ` · Cancels ${new Date(sub.currentPeriodEnd * 1000).toLocaleDateString()}`
-                : sub.currentPeriodEnd
-                  ? ` · Renews ${new Date(sub.currentPeriodEnd * 1000).toLocaleDateString()}`
-                  : ""}
-            </p>
-          </div>
-        </div>
-        <span className="text-sm text-muted-foreground">{sub.status}</span>
-      </div>
-    );
-  });
-}
-
 function EmptySubscriptions() {
   return (
     <div className="py-6 text-center">
@@ -92,34 +66,5 @@ function EmptySubscriptions() {
         View plans
       </a>
     </div>
-  );
-}
-
-function ManageSubscriptionButton() {
-  const [managing, setManaging] = useState(false);
-  const createPortalSession = useAction(api.stripe.createPortalSession);
-
-  const handleClick = useCallback(() => {
-    setManaging(true);
-    void createPortalSession({})
-      .then((result) => {
-        if (result.url) {
-          window.location.href = result.url;
-        }
-      })
-      .finally(() => setManaging(false));
-  }, [createPortalSession]);
-
-  return (
-    <Button className="w-full" disabled={managing} onClick={handleClick}>
-      {managing ? (
-        <>
-          <Loader2 className="mr-2 size-4 animate-spin" />
-          Redirecting...
-        </>
-      ) : (
-        "Manage Subscription"
-      )}
-    </Button>
   );
 }

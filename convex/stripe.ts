@@ -7,12 +7,14 @@ import { internal } from "./_generated/api";
 import { action } from "./_generated/server";
 import { requireAuth } from "./lib";
 
+export type ProductKey = "storage_paid" | "ai_generation_platform";
+
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!);
 }
 
-function getProductKey(priceId: string): string {
-  const mapping: Record<string, string> = {};
+function getProductKey(priceId: string): ProductKey {
+  const mapping: Record<string, ProductKey> = {};
   if (process.env.STRIPE_STORAGE_PRICE_ID) {
     mapping[process.env.STRIPE_STORAGE_PRICE_ID] = "storage_paid";
   }
@@ -23,6 +25,43 @@ function getProductKey(priceId: string): string {
   if (!key) throw new Error(`Unknown price ID: ${priceId}`);
   return key;
 }
+
+export const getPlan = action({
+  args: {},
+  handler: async (_ctx) => {
+    const stripe = getStripe();
+    const priceIds = [process.env.STRIPE_STORAGE_PRICE_ID, process.env.STRIPE_AI_PRICE_ID].filter(
+      Boolean,
+    ) as string[];
+
+    if (priceIds.length === 0) {
+      return [];
+    }
+
+    const prices = await Promise.all(
+      priceIds.map((id) => stripe.prices.retrieve(id, { expand: ["product"] })),
+    );
+
+    return prices.map((price) => {
+      const product = price.product as Stripe.Product;
+      const amount = (price.unit_amount ?? 0) / 100;
+      const interval = price.recurring?.interval ?? "month";
+      const displayPrice = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: price.currency,
+        minimumFractionDigits: amount % 1 === 0 ? 0 : 2,
+      }).format(amount);
+      return {
+        key: getProductKey(price.id),
+        name: product.name,
+        price: `${displayPrice}/${interval}`,
+        description: product.description ?? "",
+        priceId: price.id,
+        features: product.marketing_features?.flatMap((f) => (f.name ? [f.name] : [])) ?? [],
+      };
+    });
+  },
+});
 
 export const createCheckoutSession = action({
   args: { priceId: v.string() },
