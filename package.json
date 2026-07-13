@@ -60,7 +60,7 @@
     "jose": "^6.2.3",
     "jsdom": "^29.1.1",
     "netlify-cli": "^26.2.0",
-    "react-doctor": "^0.7.3",
+    "react-doctor": "^0.7.6",
     "react-scan": "^0.5.7",
     "shadcn": "^4.13.0",
     "typescript": "~7.0.2",

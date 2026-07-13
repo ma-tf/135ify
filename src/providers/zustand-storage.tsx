@@ -8,7 +8,7 @@ export function ZustandStorageProvider({ children }: { children: ReactNode }) {
   const files = useFileStore((s) => s.files);
   const storeAddFiles = useFileStore((s) => s.addFiles);
   const storeRemoveFile = useFileStore((s) => s.removeFile);
-  const storeUpdateFile = useFileStore((s) => s.updateFile);
+  const updateFile = useFileStore((s) => s.updateFile);
 
   const removeFile = useCallback(
     (id: string) => {
@@ -22,7 +22,6 @@ export function ZustandStorageProvider({ children }: { children: ReactNode }) {
     [files, storeRemoveFile],
   );
   const updateParams = useFileStore((s) => s.updateParams);
-  const updateFile = storeUpdateFile;
 
   const addFiles = useCallback(
     (newFiles: File[]) => {

@@ -5,7 +5,8 @@ import { useFileStore } from "@stores/file-store";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { TestStorageProvider } from "@test-utils/test-storage-provider.spec";
 import { act, cleanup, render } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
+import { useEffect } from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 afterEach(cleanup);
 
@@ -26,12 +27,15 @@ beforeEach(() => {
 });
 
 function UseFile({ onValue }: { onValue: (v: ReturnType<typeof useFile>) => void }) {
-  onValue(useFile());
+  const value = useFile();
+  useEffect(() => {
+    onValue(value);
+  });
   return null;
 }
 
 describe("useFile", () => {
-  it("returns matching file from store", () => {
+  it("returns matching file from store", async () => {
     let captured: ReturnType<typeof useFile> | undefined;
 
     render(
@@ -46,7 +50,9 @@ describe("useFile", () => {
       </TestStorageProvider>,
     );
 
-    expect(captured).toBeDefined();
+    await vi.waitFor(() => {
+      expect(captured).toBeDefined();
+    });
     expect(captured!.id).toBe(TEST_FILE_RECORD.id);
     expect(captured!.sourceUrl).toBe(TEST_FILE_RECORD.sourceUrl);
   });
@@ -57,7 +63,7 @@ describe("useFile", () => {
     }).toThrow("useFile must be used within FileProvider");
   });
 
-  it("reflects render state updates", () => {
+  it("reflects render state updates", async () => {
     let captured: ReturnType<typeof useFile> | undefined;
 
     render(
@@ -72,13 +78,18 @@ describe("useFile", () => {
       </TestStorageProvider>,
     );
 
+    await vi.waitFor(() => {
+      expect(captured).toBeDefined();
+    });
     expect(captured!.renderUrl).toBeNull();
 
     act(() => {
       useFileStore.getState().updateFile(TEST_FILE_RECORD.id, { renderUrl: "blob:new" });
     });
 
-    expect(captured!.renderUrl).toBe("blob:new");
+    await vi.waitFor(() => {
+      expect(captured!.renderUrl).toBe("blob:new");
+    });
   });
 
   it("throws when file is removed from store", () => {

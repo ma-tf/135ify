@@ -51,7 +51,6 @@ export function PricingPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [plansLoading, setPlansLoading] = useState(true);
   const [plansError, setPlansError] = useState(false);
-  const [retryKey, setRetryKey] = useState(0);
   const subscriptions = useQuery({ query: api.subscriptions.byUser, args: {} });
   const getPlanAction = useAction(api.stripe.getPlan);
 
@@ -73,9 +72,9 @@ export function PricingPage() {
 
   useEffect(() => {
     fetchPlans();
-  }, [fetchPlans, retryKey]);
+  }, [fetchPlans]);
 
-  const handleRetry = useCallback(() => setRetryKey((k) => k + 1), []);
+  const handleRetry = useCallback(() => fetchPlans(), [fetchPlans]);
 
   const subscribedKeys = new Set(
     subscriptions.status === "success"
