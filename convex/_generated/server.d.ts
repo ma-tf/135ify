@@ -33,7 +33,7 @@ type Env = {
   readonly FREE_TIER_IMAGE_LIMIT: string | undefined;
   readonly FREE_TIER_STORAGE_MB: string | undefined;
   readonly OPENAI_API_KEY: string;
-  readonly OPENAI_MONTHLY_SPEND_LIMIT_CENTS: string;
+  readonly OPENAI_MONTHLY_SPEND_LIMIT_CENTS: string | undefined;
   readonly PAID_TIER_FILE_SIZE_MB: string | undefined;
   readonly PAID_TIER_IMAGE_LIMIT: string | undefined;
   readonly PAID_TIER_STORAGE_MB: string | undefined;

@@ -4,13 +4,17 @@ const MODEL_PRICING: Record<string, { inputPerMillion: number; outputPerMillion:
   "gpt-5.4": { inputPerMillion: 500, outputPerMillion: 1500 },
 };
 
+const FALLBACK_PRICING = { inputPerMillion: 500, outputPerMillion: 1500 };
+
 export function calculateCostCents(
   inputTokens: number,
   outputTokens: number,
   model: string,
 ): number {
   const pricing = MODEL_PRICING[model];
-  return Math.ceil(
-    (inputTokens * pricing.inputPerMillion + outputTokens * pricing.outputPerMillion) / 1_000_000,
-  );
+  if (!pricing) {
+    console.error(`calculateCostCents: unknown model "${model}" — using fallback pricing`);
+  }
+  const { inputPerMillion, outputPerMillion } = pricing ?? FALLBACK_PRICING;
+  return Math.ceil((inputTokens * inputPerMillion + outputTokens * outputPerMillion) / 1_000_000);
 }

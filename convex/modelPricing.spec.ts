@@ -27,4 +27,9 @@ describe("calculateCostCents", () => {
     const result = calculateCostCents(5000, 1000, "gpt-5.4");
     expect(result).toBe(4);
   });
+
+  it("uses fallback pricing for unknown models", () => {
+    const result = calculateCostCents(1_000_000, 0, "some-unknown-model");
+    expect(result).toBe(500);
+  });
 });

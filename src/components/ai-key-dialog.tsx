@@ -45,7 +45,8 @@ export function AiKeyDialog({
         <DialogHeader>
           <DialogTitle>OpenAI API Key</DialogTitle>
           <DialogDescription>
-            Enter your OpenAI API key to enable AI grain generation.
+            Enter your OpenAI API key to enable AI grain generation. If you have an active AI
+            generation subscription, the platform key takes priority.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-2">

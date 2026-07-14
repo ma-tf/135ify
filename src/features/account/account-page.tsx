@@ -1,6 +1,8 @@
 import { Skeleton } from "@components/ui/skeleton";
+import { FEATURE_AI_GRAIN } from "@config";
 import { api } from "@convex/_generated/api";
 import { ActiveSubscriptions } from "@features/account/active-subscriptions";
+import { ApiKeyForm } from "@features/account/api-key-form";
 import { ManageSubscriptionButton } from "@features/account/manage-subscription-button";
 import { useQuery_experimental as useQuery } from "convex/react";
 import { ShoppingBag } from "lucide-react";
@@ -19,7 +21,7 @@ export function AccountPage() {
 
   return (
     <>
-      <div className="rounded-lg border p-6 shadow-md">
+      <div>
         <h2 className="text-lg font-semibold">Subscriptions</h2>
         <p className="text-sm text-muted-foreground">Manage your plan subscriptions and billing.</p>
         <div className="mt-4 space-y-4">
@@ -33,6 +35,7 @@ export function AccountPage() {
         </div>
       </div>
       {activeSubs.length > 0 && <ManageSubscriptionButton />}
+      {FEATURE_AI_GRAIN && <ApiKeyForm />}
     </>
   );
 }
@@ -40,13 +43,11 @@ export function AccountPage() {
 function SubscriptionsSkeleton() {
   return (
     <div className="space-y-8">
-      <div className="rounded-lg border p-6 shadow-md">
-        <Skeleton className="h-6 w-32" />
-        <Skeleton className="mt-1 h-4 w-48" />
-        <div className="mt-4 space-y-3">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-        </div>
+      <Skeleton className="h-6 w-32" />
+      <Skeleton className="h-4 w-48" />
+      <div className="space-y-3">
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
       </div>
       <Skeleton className="h-10 w-full" />
     </div>

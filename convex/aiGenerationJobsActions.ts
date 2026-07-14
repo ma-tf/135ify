@@ -8,6 +8,7 @@ import type { Id } from "./_generated/dataModel";
 
 import { api, internal } from "./_generated/api";
 import { action } from "./_generated/server";
+import { OPENAI_MONTHLY_SPEND_LIMIT_CENTS } from "./config";
 import { requireAuth } from "./lib";
 import { calculateCostCents } from "./modelPricing";
 
@@ -120,7 +121,7 @@ export const processJob = action({
       const usedCents = await ctx.runQuery(internal.aiGenerationJobs.getMonthlyCost, {
         sinceMs: periodStart,
       });
-      const limitCents = Number(process.env.OPENAI_MONTHLY_SPEND_LIMIT_CENTS);
+      const limitCents = OPENAI_MONTHLY_SPEND_LIMIT_CENTS;
       if (usedCents >= limitCents) {
         const capMsg = `Monthly AI generation cost cap ($${(limitCents / 100).toFixed(2)}) exceeded. Resets ${new Date(periodEnd).toLocaleDateString()}.`;
         await ctx.runMutation(api.aiGenerationJobs.setJobStatus, {
@@ -137,6 +138,8 @@ export const processJob = action({
     });
     if (!job) throw new Error("Job not found");
 
+    let usage: { inputTokens: number; outputTokens: number; model: string } | undefined;
+
     try {
       const sourceUrl = await ctx.storage.getUrl(job.sourceStorageId);
       if (!sourceUrl) throw new Error("Source image not found in storage");
@@ -152,12 +155,13 @@ export const processJob = action({
 
       const outputSize = computeOutputSize(metadata.width, metadata.height);
       const processedBuffer = await resizeImageForInput(sourceBuffer);
-      const { resultB64, usage } = await callOpenAI(
+      const { resultB64, usage: callUsage } = await callOpenAI(
         resolvedKey,
         FILM_GRAIN_PROMPT,
         processedBuffer.toString("base64"),
         outputSize,
       );
+      usage = callUsage;
 
       const costCents = calculateCostCents(usage.inputTokens, usage.outputTokens, usage.model);
       const jobUsage = { ...usage, costCents };
@@ -227,6 +231,12 @@ export const processJob = action({
         jobId: args.jobId,
         status: "failed",
         failureReason: error instanceof Error ? error.message : "Unknown error",
+        usage: usage
+          ? {
+              ...usage,
+              costCents: calculateCostCents(usage.inputTokens, usage.outputTokens, usage.model),
+            }
+          : undefined,
       });
       throw error;
     }

@@ -89,6 +89,9 @@ export function GrainControls({
     <div className="flex flex-col gap-3">
       <h3 className="text-sm font-semibold text-foreground">Grain</h3>
       <GenerateAiGrainButton showOriginal={showOriginal} />
+      <p className="text-xs text-muted-foreground">
+        AI subscribers use the platform key by default.
+      </p>
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">ISO</span>
         <ToggleGroup

@@ -5,44 +5,63 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 setupTests();
 
-const { mockUseQuery, mockGetPlan, mockCreatePortalSession, mockPlans } = vi.hoisted(() => ({
-  mockUseQuery: vi.fn(),
-  mockGetPlan: vi.fn(),
-  mockCreatePortalSession: vi.fn(),
-  mockPlans: [
-    {
-      key: "storage_paid",
-      name: "Storage",
-      price: "$2/mo",
-      description: "More gallery space for your 135 scans.",
-      features: [
-        "360 images (up from 36)",
-        "25 MB per file (up from 10 MB)",
-        "~9 GB total storage",
-      ],
-      priceId: "price_storage_123",
-    },
-    {
-      key: "ai_generation_platform",
-      name: "AI Generation",
-      price: "$2/mo",
-      description: "Platform-managed AI grain. No BYO key needed.",
-      features: [
-        "OpenAI-powered film grain generation",
-        "No separate API key required",
-        "Managed monthly usage allowance",
-      ],
-      priceId: "price_ai_456",
-    },
-  ],
-}));
+const { mockUseQuery, mockGetPlan, mockCreatePortalSession, mockPlans, mockUseAiProviderStore } =
+  vi.hoisted(() => ({
+    mockUseQuery: vi.fn(),
+    mockGetPlan: vi.fn(),
+    mockCreatePortalSession: vi.fn(),
+    mockUseAiProviderStore: vi.fn(),
+    mockPlans: [
+      {
+        key: "storage_paid",
+        name: "Storage",
+        price: "$2/mo",
+        description: "More gallery space for your 135 scans.",
+        features: [
+          "360 images (up from 36)",
+          "25 MB per file (up from 10 MB)",
+          "~9 GB total storage",
+        ],
+        priceId: "price_storage_123",
+      },
+      {
+        key: "ai_generation_platform",
+        name: "AI Generation",
+        price: "$2/mo",
+        description: "Platform-managed AI grain. No BYO key needed.",
+        features: [
+          "OpenAI-powered film grain generation",
+          "No separate API key required",
+          "Managed monthly usage allowance",
+        ],
+        priceId: "price_ai_456",
+      },
+    ],
+  }));
 
 vi.mock("@config", () => ({
   FEATURE_SUBSCRIPTIONS: true,
-  FEATURE_AI_GRAIN: false,
+  FEATURE_AI_GRAIN: true,
   FEATURE_SIGN_IN: true,
   BASE_PATH: "",
   getPlan: (plans: any[], key: string) => plans.find((p) => p.key === key),
+}));
+
+vi.mock("sonner", () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
+}));
+
+vi.mock("@components/ui/field", () => ({
+  Field: ({ children }: any) => <div>{children}</div>,
+  FieldLabel: ({ children, htmlFor }: any) => <label htmlFor={htmlFor}>{children}</label>,
+}));
+
+vi.mock("@components/ui/input", () => ({
+  Input: (props: any) => <input {...props} />,
+}));
+
+vi.mock("@stores/ai-provider-store", () => ({
+  useAiProviderStore: mockUseAiProviderStore,
 }));
 
 vi.mock("convex/react", () => ({
@@ -78,7 +97,11 @@ vi.mock("@components/ui/skeleton", () => ({
 vi.mock("lucide-react", () => ({
   ShoppingBag: () => <span data-testid="shopping-bag" />,
   Loader2: ({ className }: any) => <span data-testid="loader" className={className} />,
+  EyeOffIcon: () => <span data-testid="eye-off" />,
+  EyeIcon: () => <span data-testid="eye-on" />,
 }));
+
+import { toast } from "sonner";
 
 describe("AccountPage", () => {
   beforeEach(() => {
@@ -87,6 +110,11 @@ describe("AccountPage", () => {
     mockGetPlan.mockResolvedValue(mockPlans);
     mockCreatePortalSession.mockResolvedValue({
       url: "https://billing.stripe.com/session_123",
+    });
+    mockUseAiProviderStore.mockReturnValue({
+      apiKey: "",
+      setApiKey: vi.fn(),
+      clearApiKey: vi.fn(),
     });
   });
 
@@ -188,5 +216,56 @@ describe("AccountPage", () => {
     mockUseQuery.mockReturnValue({ status: "error", error: new Error("fail") });
     render(<AccountPage />);
     expect(screen.getByText("Failed to load subscriptions.")).toBeDefined();
+  });
+
+  describe("ApiKeyForm", () => {
+    it("renders the API key form", () => {
+      render(<AccountPage />);
+      expect(screen.getByText("API Key")).toBeDefined();
+      expect(screen.getByLabelText("OpenAI API Key")).toBeDefined();
+      expect(screen.getByText("Save")).toBeDefined();
+      expect(screen.getByText("Clear")).toBeDefined();
+    });
+
+    it("Save button is disabled when input is empty", () => {
+      render(<AccountPage />);
+      const saveButton = screen.getByText("Save");
+      expect((saveButton as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    it("Clear button is disabled when no key is stored", () => {
+      render(<AccountPage />);
+      const clearButton = screen.getByText("Clear");
+      expect((clearButton as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    it("Save persists the key and shows a success toast", () => {
+      const setApiKey = vi.fn();
+      mockUseAiProviderStore.mockReturnValue({
+        apiKey: "",
+        setApiKey,
+        clearApiKey: vi.fn(),
+      });
+      render(<AccountPage />);
+      const input = screen.getByLabelText("OpenAI API Key");
+      fireEvent.change(input, { target: { value: "sk-new-key" } });
+      fireEvent.click(screen.getByText("Save"));
+      expect(setApiKey).toHaveBeenCalledWith("sk-new-key");
+      expect(toast.success).toHaveBeenCalledWith("API key saved");
+    });
+
+    it("Clear removes the key and resets the input", () => {
+      const clearApiKey = vi.fn();
+      mockUseAiProviderStore.mockReturnValue({
+        apiKey: "sk-to-clear",
+        setApiKey: vi.fn(),
+        clearApiKey,
+      });
+      render(<AccountPage />);
+      fireEvent.click(screen.getByText("Clear"));
+      expect(clearApiKey).toHaveBeenCalled();
+      const input = screen.getByLabelText("OpenAI API Key") as HTMLInputElement;
+      expect(input.value).toBe("");
+    });
   });
 });

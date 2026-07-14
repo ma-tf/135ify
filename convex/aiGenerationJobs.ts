@@ -4,6 +4,7 @@ import type { Doc } from "./_generated/dataModel";
 
 import { internal } from "./_generated/api";
 import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
+import { OPENAI_MONTHLY_SPEND_LIMIT_CENTS } from "./config";
 import { requireAuth } from "./lib";
 import { rateLimiter } from "./rateLimiter";
 
@@ -279,7 +280,7 @@ export const getAiUsage = query({
       (sum, doc) => (doc._creationTime >= periodStart ? sum + (doc.usage?.costCents ?? 0) : sum),
       0,
     );
-    const limitCents = Number(process.env.OPENAI_MONTHLY_SPEND_LIMIT_CENTS);
+    const limitCents = OPENAI_MONTHLY_SPEND_LIMIT_CENTS;
 
     return {
       usedCents,

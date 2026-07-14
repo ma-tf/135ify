@@ -1,19 +1,23 @@
 import { env } from "./_generated/server";
 
-const freeImage = Number(env.FREE_TIER_IMAGE_LIMIT);
-const freeFile = Number(env.FREE_TIER_FILE_SIZE_MB);
-const freeStorage = Number(env.FREE_TIER_STORAGE_MB);
-const paidImage = Number(env.PAID_TIER_IMAGE_LIMIT);
-const paidFile = Number(env.PAID_TIER_FILE_SIZE_MB);
-const paidStorage = Number(env.PAID_TIER_STORAGE_MB);
+const freeImage = Number(env.FREE_TIER_IMAGE_LIMIT || "36");
+const freeFile = Number(env.FREE_TIER_FILE_SIZE_MB || "10");
+const freeStorage = Number(env.FREE_TIER_STORAGE_MB || "360");
+const paidImage = Number(env.PAID_TIER_IMAGE_LIMIT || "360");
+const paidFile = Number(env.PAID_TIER_FILE_SIZE_MB || "25");
+const paidStorage = Number(env.PAID_TIER_STORAGE_MB || "9216");
 
 if ([freeImage, freeFile, freeStorage, paidImage, paidFile, paidStorage].some(isNaN)) {
   throw new Error(
-    "Missing required tier config env vars: " +
+    "Invalid tier config env vars: " +
       "FREE_TIER_IMAGE_LIMIT, FREE_TIER_FILE_SIZE_MB, FREE_TIER_STORAGE_MB, " +
       "PAID_TIER_IMAGE_LIMIT, PAID_TIER_FILE_SIZE_MB, PAID_TIER_STORAGE_MB",
   );
 }
+
+export const OPENAI_MONTHLY_SPEND_LIMIT_CENTS = Number(
+  env.OPENAI_MONTHLY_SPEND_LIMIT_CENTS || "500",
+);
 
 export const TIER_CONFIG = {
   free: {
