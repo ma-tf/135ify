@@ -6,8 +6,9 @@ import sharp from "sharp";
 
 import type { Id } from "./_generated/dataModel";
 
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 import { action } from "./_generated/server";
+import { requireAuth } from "./lib";
 import { calculateCostCents } from "./modelPricing";
 
 const FILM_GRAIN_PROMPT = [
@@ -88,10 +89,52 @@ async function generateThumbnail(buffer: Buffer): Promise<string> {
 export const processJob = action({
   args: {
     jobId: v.id("aiGenerationJobs"),
-    apiKey: v.string(),
+    apiKey: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const job = await ctx.runQuery(api.aiGenerationJobs.getJob, { jobId: args.jobId });
+    await requireAuth(ctx);
+
+    const subResult = await ctx.runQuery(internal.subscriptions.hasActive, {
+      productKey: "ai_generation_platform",
+    });
+
+    const resolvedKey = subResult.active ? process.env.OPENAI_API_KEY! : args.apiKey;
+
+    if (!resolvedKey) {
+      await ctx.runMutation(api.aiGenerationJobs.setJobStatus, {
+        jobId: args.jobId,
+        status: "failed",
+        failureReason: "No API key available. Subscribe to AI Generation or provide your own key.",
+      });
+      return;
+    }
+
+    if (subResult.active) {
+      const now = Date.now();
+      const date = new Date(now);
+      const periodEnd = subResult.currentPeriodEnd
+        ? subResult.currentPeriodEnd * 1000
+        : new Date(date.getFullYear(), date.getMonth() + 1, 1).getTime();
+      const periodStart = periodEnd - 30 * 24 * 60 * 60 * 1000;
+
+      const usedCents = await ctx.runQuery(internal.aiGenerationJobs.getMonthlyCost, {
+        sinceMs: periodStart,
+      });
+      const limitCents = Number(process.env.OPENAI_MONTHLY_SPEND_LIMIT_CENTS);
+      if (usedCents >= limitCents) {
+        const capMsg = `Monthly AI generation cost cap ($${(limitCents / 100).toFixed(2)}) exceeded. Resets ${new Date(periodEnd).toLocaleDateString()}.`;
+        await ctx.runMutation(api.aiGenerationJobs.setJobStatus, {
+          jobId: args.jobId,
+          status: "failed",
+          failureReason: capMsg,
+        });
+        return;
+      }
+    }
+
+    const job = await ctx.runQuery(api.aiGenerationJobs.getJob, {
+      jobId: args.jobId,
+    });
     if (!job) throw new Error("Job not found");
 
     try {
@@ -110,7 +153,7 @@ export const processJob = action({
       const outputSize = computeOutputSize(metadata.width, metadata.height);
       const processedBuffer = await resizeImageForInput(sourceBuffer);
       const { resultB64, usage } = await callOpenAI(
-        args.apiKey,
+        resolvedKey,
         FILM_GRAIN_PROMPT,
         processedBuffer.toString("base64"),
         outputSize,

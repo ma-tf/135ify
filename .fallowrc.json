@@ -24,7 +24,7 @@
   "duplicates": {
     "skipLocal": true
   },
-  "ignorePatterns": ["src/components/ui/**", "convex/**", "generateKeys.mjs"],
+  "ignorePatterns": ["src/components/ui/**", "convex/**", "scripts/**"],
   "ignoreDependencies": [
     "@ai-hero/sandcastle",
     "@components/ui",

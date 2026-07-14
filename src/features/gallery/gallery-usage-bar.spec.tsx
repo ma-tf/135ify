@@ -26,7 +26,7 @@ describe("UsageBarSkeleton", () => {
   it("renders 4 skeleton elements", () => {
     const { container } = render(<UsageBarSkeleton />);
     const skeletons = container.querySelectorAll(".animate-pulse");
-    expect(skeletons).toHaveLength(4);
+    expect(skeletons).toHaveLength(6);
   });
 });
 

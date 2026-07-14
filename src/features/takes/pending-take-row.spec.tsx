@@ -58,8 +58,8 @@ describe("PendingTakeRow", () => {
   beforeEach(() => {
     mockUseRetryTake.mockReturnValue({
       retry: mockRetryFn,
-      isRetrying: false,
-      hasApiKey: true,
+      status: "idle" as const,
+      canRetry: true,
     });
   });
 
@@ -100,8 +100,8 @@ describe("PendingTakeRow", () => {
   it("opens API key dialog when retry is clicked without an API key", () => {
     mockUseRetryTake.mockReturnValue({
       retry: mockRetryFn,
-      isRetrying: false,
-      hasApiKey: false,
+      status: "idle" as const,
+      canRetry: false,
     });
 
     render(
@@ -133,8 +133,8 @@ describe("PendingTakeRow", () => {
   it("shows spinner on retry button when isRetrying is true", () => {
     mockUseRetryTake.mockReturnValue({
       retry: mockRetryFn,
-      isRetrying: true,
-      hasApiKey: true,
+      status: "retrying" as const,
+      canRetry: true,
     });
 
     render(
@@ -151,8 +151,8 @@ describe("PendingTakeRow", () => {
   it("saves API key from dialog and calls retry with the provided key", () => {
     mockUseRetryTake.mockReturnValue({
       retry: mockRetryFn,
-      isRetrying: false,
-      hasApiKey: false,
+      status: "idle" as const,
+      canRetry: false,
     });
 
     render(
@@ -175,8 +175,8 @@ describe("PendingTakeRow", () => {
   it("closes API key dialog without retrying when cancelled", () => {
     mockUseRetryTake.mockReturnValue({
       retry: mockRetryFn,
-      isRetrying: false,
-      hasApiKey: false,
+      status: "idle" as const,
+      canRetry: false,
     });
 
     render(

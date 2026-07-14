@@ -1,11 +1,16 @@
 import { Skeleton } from "@components/ui/skeleton";
 import { api } from "@convex/_generated/api";
+import { AiUsageBar } from "@features/takes/ai-usage-bar";
 import { formatBytes } from "@lib/utils";
 import { useQuery_experimental as useQuery } from "convex/react";
 
 export function UsageBarSkeleton() {
   return (
     <div className="flex flex-col gap-4 sm:flex-row">
+      <div className="w-full space-y-1 rounded-lg border p-4 shadow-md sm:w-xs">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-2 w-full" />
+      </div>
       <div className="w-full space-y-1 rounded-lg border p-4 shadow-md sm:w-xs">
         <Skeleton className="h-4 w-24" />
         <Skeleton className="h-2 w-full" />
@@ -29,6 +34,7 @@ export function UsageBar() {
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row">
+      <AiUsageBar />
       <div className="w-full space-y-1 rounded-lg border p-4 shadow-md sm:w-xs">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Images</span>

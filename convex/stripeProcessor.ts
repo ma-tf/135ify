@@ -69,16 +69,20 @@ async function handleSubscriptionCreated(event: Stripe.Event, ctx: ActionCtx) {
     metadata: sub.metadata,
   });
 
-  const productKey = sub.metadata?.productKey as string | undefined;
+  const productKey = sub.metadata.productKey as string | undefined;
   if (productKey) {
-    const raw = sub as any;
+    const matchingItem = sub.items.data.find(
+      (item) =>
+        item.price.id === process.env.STRIPE_STORAGE_PRICE_ID ||
+        item.price.id === process.env.STRIPE_AI_PRICE_ID,
+    );
     await ctx.runMutation(internal.subscriptions.upsert, {
       productKey,
-      stripeSubscriptionId: raw.id,
-      stripeCustomerId: raw.customer,
-      status: raw.status,
-      currentPeriodEnd: raw.current_period_end ?? undefined,
-      cancelAtPeriodEnd: raw.cancel_at_period_end ?? undefined,
+      stripeSubscriptionId: sub.id,
+      stripeCustomerId: sub.customer as string,
+      status: sub.status,
+      currentPeriodEnd: matchingItem?.current_period_end ?? undefined,
+      cancelAtPeriodEnd: sub.cancel_at_period_end ?? undefined,
     });
   }
 }
@@ -91,16 +95,20 @@ async function handleSubscriptionUpdated(event: Stripe.Event, ctx: ActionCtx) {
     metadata: sub.metadata,
   });
 
-  const productKey = sub.metadata?.productKey as string | undefined;
+  const productKey = sub.metadata.productKey as string | undefined;
   if (productKey) {
-    const raw = sub as any;
+    const matchingItem = sub.items.data.find(
+      (item) =>
+        item.price.id === process.env.STRIPE_STORAGE_PRICE_ID ||
+        item.price.id === process.env.STRIPE_AI_PRICE_ID,
+    );
     await ctx.runMutation(internal.subscriptions.upsert, {
       productKey,
-      stripeSubscriptionId: raw.id,
-      stripeCustomerId: raw.customer,
-      status: raw.status,
-      currentPeriodEnd: raw.current_period_end ?? undefined,
-      cancelAtPeriodEnd: raw.cancel_at_period_end ?? undefined,
+      stripeSubscriptionId: sub.id,
+      stripeCustomerId: sub.customer as string,
+      status: sub.status,
+      currentPeriodEnd: matchingItem?.current_period_end ?? undefined,
+      cancelAtPeriodEnd: sub.cancel_at_period_end ?? undefined,
     });
   }
 }
@@ -113,7 +121,7 @@ async function handleSubscriptionDeleted(event: Stripe.Event, ctx: ActionCtx) {
     metadata: sub.metadata,
   });
 
-  const productKey = sub.metadata?.productKey as string | undefined;
+  const productKey = sub.metadata.productKey as string | undefined;
   if (productKey) {
     await ctx.runMutation(internal.subscriptions.remove, {
       stripeSubscriptionId: sub.id,

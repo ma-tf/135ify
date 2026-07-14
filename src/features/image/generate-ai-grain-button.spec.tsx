@@ -4,16 +4,19 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const { mockUseAuth, mockUseAiProviderStore, mockConfig, mockUseAiGrainGeneration, mockUseQuery } =
-  vi.hoisted(() => ({
+  vi.hoisted((): any => ({
     mockUseAuth: vi.fn(() => ({ isAuthenticated: false, isLoading: false })),
     mockUseAiProviderStore: vi.fn(() => ({ apiKey: "" })),
-    mockConfig: { FEATURE_AI_GRAIN: true, GALLERY_IMAGE_LIMIT: 10 },
+    mockConfig: { FEATURE_AI_GRAIN: true, FEATURE_SUBSCRIPTIONS: false },
     mockUseAiGrainGeneration: vi.fn(() => ({
       trigger: vi.fn().mockResolvedValue(undefined),
       isGenerating: false,
     })),
     mockUseQuery: vi.fn(),
   }));
+
+let mockAiSubscriptions: any = { status: "success", data: [] };
+let mockAiUsage: any = { status: "success", data: null };
 
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => vi.fn(),
@@ -36,17 +39,32 @@ vi.mock("@config", () => ({
   get FEATURE_AI_GRAIN() {
     return mockConfig.FEATURE_AI_GRAIN;
   },
-  get GALLERY_IMAGE_LIMIT() {
-    return mockConfig.GALLERY_IMAGE_LIMIT;
+  get FEATURE_SUBSCRIPTIONS() {
+    return mockConfig.FEATURE_SUBSCRIPTIONS;
   },
 }));
 
 vi.mock("convex/react", () => ({
-  useQuery_experimental: mockUseQuery,
+  useQuery_experimental: (args: any) => {
+    if (args.query === "getStorageUsage") {
+      return mockUseQuery();
+    }
+    if (args.query === "subscriptions.byUser") {
+      return mockAiSubscriptions;
+    }
+    if (args.query === "aiGenerationJobs.getAiUsage") {
+      return mockAiUsage;
+    }
+    return { status: "pending" };
+  },
 }));
 
 vi.mock("@convex/_generated/api", () => ({
-  api: { images: { getStorageUsage: "getStorageUsage" } },
+  api: {
+    images: { getStorageUsage: "getStorageUsage" },
+    subscriptions: { byUser: "subscriptions.byUser" },
+    aiGenerationJobs: { getAiUsage: "aiGenerationJobs.getAiUsage" },
+  },
 }));
 
 vi.mock("@stores/ai-provider-store", () => ({
@@ -67,7 +85,9 @@ describe("Generate AI Film Grain button", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockConfig.FEATURE_AI_GRAIN = true;
-    mockConfig.GALLERY_IMAGE_LIMIT = 10;
+    mockConfig.FEATURE_SUBSCRIPTIONS = false;
+    mockAiSubscriptions = { status: "success", data: [] };
+    mockAiUsage = { status: "success", data: null };
     mockUseAiGrainGeneration.mockReturnValue({
       trigger: vi.fn().mockResolvedValue(undefined),
       isGenerating: false,
@@ -187,5 +207,59 @@ describe("Generate AI Film Grain button", () => {
     await Promise.resolve();
 
     expect(trigger).toHaveBeenCalledWith("sk-from-dialog", false);
+  });
+
+  describe("subscriber fast-path", () => {
+    beforeEach(() => {
+      mockConfig.FEATURE_SUBSCRIPTIONS = true;
+      mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
+    });
+
+    it("skips key dialog for AI subscribers and calls trigger without apiKey", async () => {
+      const trigger = vi.fn().mockResolvedValue(undefined);
+      mockUseAiGrainGeneration.mockReturnValue({ trigger, isGenerating: false });
+      mockUseAiProviderStore.mockReturnValue({ apiKey: "" });
+      mockAiSubscriptions = {
+        status: "success",
+        data: [{ productKey: "ai_generation_platform", status: "active" }],
+      };
+
+      render(<GenerateAiGrainButton showOriginal={false} />);
+
+      fireEvent.click(screen.getByText("Generate AI Film Grain"));
+
+      await Promise.resolve();
+
+      expect(screen.queryByTestId("ai-key-dialog")).toBeNull();
+      expect(trigger).toHaveBeenCalledWith(undefined, false);
+    });
+
+    it("disables button when at AI cost cap", () => {
+      mockUseAiProviderStore.mockReturnValue({ apiKey: "" });
+      mockAiSubscriptions = {
+        status: "success",
+        data: [{ productKey: "ai_generation_platform", status: "active" }],
+      };
+      mockAiUsage = {
+        status: "success",
+        data: { usedCents: 200, limitCents: 200, atLimit: true, resetsAt: 1700000000000 },
+      };
+
+      render(<GenerateAiGrainButton showOriginal={false} />);
+
+      const button = screen.getByRole("button", { name: /generate ai film grain/i });
+      expect(button.hasAttribute("disabled")).toBe(true);
+    });
+
+    it("still shows key dialog for non-subscribers when FEATURE_SUBSCRIPTIONS is true", () => {
+      mockUseAiProviderStore.mockReturnValue({ apiKey: "" });
+      mockAiSubscriptions = { status: "success", data: [] };
+
+      render(<GenerateAiGrainButton showOriginal={false} />);
+
+      fireEvent.click(screen.getByText("Generate AI Film Grain"));
+
+      expect(screen.getByTestId("ai-key-dialog")).toBeDefined();
+    });
   });
 });

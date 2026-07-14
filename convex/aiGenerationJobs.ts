@@ -2,7 +2,8 @@ import { v } from "convex/values";
 
 import type { Doc } from "./_generated/dataModel";
 
-import { mutation, query } from "./_generated/server";
+import { internal } from "./_generated/api";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { requireAuth } from "./lib";
 
 const BOUNDED_LIMIT = 100;
@@ -163,5 +164,64 @@ export const latestJobTimestamp = query({
       .order("desc")
       .take(1);
     return docs[0] ? { _creationTime: docs[0]._creationTime } : null;
+  },
+});
+
+export const getMonthlyCost = internalQuery({
+  args: { sinceMs: v.number() },
+  handler: async (ctx, args) => {
+    const userId = await requireAuth(ctx);
+    const docs = await ctx.db
+      .query("aiGenerationJobs")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .collect();
+
+    return docs.reduce(
+      (sum, doc) => (doc._creationTime >= args.sinceMs ? sum + (doc.usage?.costCents ?? 0) : sum),
+      0,
+    );
+  },
+});
+
+export const getAiUsage = query({
+  args: {},
+  handler: async (
+    ctx,
+  ): Promise<{
+    usedCents: number;
+    limitCents: number;
+    atLimit: boolean;
+    resetsAt: number;
+  } | null> => {
+    const userId = await requireAuth(ctx);
+    const subResult = await ctx.runQuery(internal.subscriptions.hasActive, {
+      productKey: "ai_generation_platform",
+    });
+    if (!subResult.active) return null;
+
+    const now = Date.now();
+    const date = new Date(now);
+    const periodEnd = subResult.currentPeriodEnd
+      ? subResult.currentPeriodEnd * 1000
+      : new Date(date.getFullYear(), date.getMonth() + 1, 1).getTime();
+    const periodStart = periodEnd - 30 * 24 * 60 * 60 * 1000;
+
+    const docs = await ctx.db
+      .query("aiGenerationJobs")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .collect();
+
+    const usedCents = docs.reduce(
+      (sum, doc) => (doc._creationTime >= periodStart ? sum + (doc.usage?.costCents ?? 0) : sum),
+      0,
+    );
+    const limitCents = Number(process.env.OPENAI_MONTHLY_SPEND_LIMIT_CENTS);
+
+    return {
+      usedCents,
+      limitCents,
+      atLimit: usedCents >= limitCents,
+      resetsAt: periodEnd,
+    };
   },
 });

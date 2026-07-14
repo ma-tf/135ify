@@ -30,11 +30,13 @@ function FailedBadge({ failureReason }: { failureReason?: string | null }) {
 }
 
 export function PendingTakeRow({ job }: { job: TakeRowJob }) {
-  const { retry, isRetrying, hasApiKey } = useRetryTake();
+  const { retry, status, canRetry } = useRetryTake();
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
 
+  const isRetrying = status === "retrying";
+
   const handleRetry = () => {
-    if (hasApiKey) {
+    if (canRetry) {
       void retry(job._id);
     } else {
       setKeyDialogOpen(true);
@@ -63,11 +65,15 @@ export function PendingTakeRow({ job }: { job: TakeRowJob }) {
         </div>
       </div>
       {job.status === "failed" && (
-        <div className="ml-auto flex items-center gap-1">
-          <Button variant="ghost" size="icon-lg" onClick={handleRetry} disabled={isRetrying}>
-            {isRetrying ? <Spinner /> : <RotateCw />}
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="icon-lg"
+          className="ml-auto"
+          onClick={handleRetry}
+          disabled={isRetrying}
+        >
+          {isRetrying ? <Spinner /> : <RotateCw />}
+        </Button>
       )}
       {keyDialogOpen && <AiKeyDialog onOpenChange={setKeyDialogOpen} onSave={handleSaveKey} />}
     </div>

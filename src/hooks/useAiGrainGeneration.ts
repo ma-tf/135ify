@@ -17,7 +17,7 @@ export function useAiGrainGeneration() {
   const processJob = useAction(api.aiGenerationJobsActions.processJob);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const trigger = async (apiKey: string, showOriginal: boolean) => {
+  const trigger = async (apiKey: string | undefined, showOriginal: boolean) => {
     setIsGenerating(true);
 
     let sourceStorageId: Id<"_storage">;
@@ -49,7 +49,7 @@ export function useAiGrainGeneration() {
       parent,
     });
 
-    void processJob({ jobId, apiKey });
+    void processJob({ jobId, ...(apiKey ? { apiKey } : {}) });
 
     onClose();
     void navigate({ to: "/takes" });

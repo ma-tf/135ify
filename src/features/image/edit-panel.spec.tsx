@@ -14,7 +14,7 @@ const { mockUseAuth, mockUseLocation, mockUseAiProviderStore, mockConfig, mockTo
     mockUseAuth: vi.fn(() => ({ isAuthenticated: false, isLoading: false })),
     mockUseLocation: vi.fn(() => ({ pathname: "/" })),
     mockUseAiProviderStore: vi.fn(() => ({ apiKey: "" })),
-    mockConfig: { FEATURE_AI_GRAIN: true },
+    mockConfig: { FEATURE_AI_GRAIN: true, FEATURE_SUBSCRIPTIONS: false },
     mockToast: { success: vi.fn(), error: vi.fn() },
   }),
 );
@@ -38,16 +38,24 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 vi.mock("convex/react", () => ({
-  useQuery_experimental: vi.fn(() => ({
-    status: "success",
-    data: {
-      imageCount: 0,
-      imageLimit: 10,
-      atLimit: false,
-      usedBytes: 0,
-      storageLimitBytes: 52428800,
-    },
-  })),
+  useQuery_experimental: (args: any) => {
+    if (args.query === "subscriptions.byUser") {
+      return { status: "success", data: [] };
+    }
+    if (args.query === "aiGenerationJobs.getAiUsage") {
+      return { status: "success", data: null };
+    }
+    return {
+      status: "success",
+      data: {
+        imageCount: 0,
+        imageLimit: 10,
+        atLimit: false,
+        usedBytes: 0,
+        storageLimitBytes: 52428800,
+      },
+    };
+  },
   useMutation: vi.fn(),
 }));
 
@@ -80,10 +88,23 @@ vi.mock("@config", () => ({
   get FEATURE_AI_GRAIN() {
     return mockConfig.FEATURE_AI_GRAIN;
   },
+  get FEATURE_SUBSCRIPTIONS() {
+    return mockConfig.FEATURE_SUBSCRIPTIONS;
+  },
   GALLERY_IMAGE_LIMIT: 10,
   FILE_SIZE_LIMIT_BYTES: 5 * 1024 * 1024,
   GRAIN_URL: "",
   BASE_PATH: "",
+}));
+
+vi.mock("@convex/_generated/api", () => ({
+  api: {
+    images: { getStorageUsage: "getStorageUsage", getById: "getById" },
+    subscriptions: { byUser: "subscriptions.byUser" },
+    aiGenerationJobs: { getAiUsage: "aiGenerationJobs.getAiUsage", createJob: "createJob" },
+    aiGenerationJobsActions: { processJob: "processJob" },
+    lib: { generateUploadUrl: "generateUploadUrl" },
+  },
 }));
 
 vi.mock("sonner", () => ({
