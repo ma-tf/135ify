@@ -16,6 +16,7 @@ import type * as http from "../http.js";
 import type * as images from "../images.js";
 import type * as lib from "../lib.js";
 import type * as modelPricing from "../modelPricing.js";
+import type * as rateLimiter from "../rateLimiter.js";
 import type * as stripe from "../stripe.js";
 import type * as stripeProcessor from "../stripeProcessor.js";
 import type * as stripeSync from "../stripeSync.js";
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   images: typeof images;
   lib: typeof lib;
   modelPricing: typeof modelPricing;
+  rateLimiter: typeof rateLimiter;
   stripe: typeof stripe;
   stripeProcessor: typeof stripeProcessor;
   stripeSync: typeof stripeSync;
@@ -72,4 +74,6 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {};
+export declare const components: {
+  rateLimiter: import("@convex-dev/rate-limiter/_generated/component.js").ComponentApi<"rateLimiter">;
+};

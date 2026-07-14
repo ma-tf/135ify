@@ -1,3 +1,4 @@
+import rateLimiter from "@convex-dev/rate-limiter/convex.config.js";
 import { defineApp } from "convex/server";
 import { v } from "convex/values";
 
@@ -16,7 +17,13 @@ const app = defineApp({
     SITE_URL: v.optional(v.string()),
     STRIPE_STORAGE_PRICE_ID: v.optional(v.string()),
     STRIPE_AI_PRICE_ID: v.optional(v.string()),
+    AI_GENERATION_RATE_LIMIT_RATE: v.optional(v.string()),
+    AI_GENERATION_RATE_LIMIT_PERIOD_MS: v.optional(v.string()),
+    AI_GENERATION_GLOBAL_RATE: v.optional(v.string()),
+    AI_GENERATION_GLOBAL_PERIOD_MS: v.optional(v.string()),
   },
 });
+
+app.use(rateLimiter);
 
 export default app;

@@ -25,6 +25,10 @@ import type { DataModel } from "./dataModel.js";
  * Typesafe environment variables declared in `convex.config.ts`.
  */
 type Env = {
+  readonly AI_GENERATION_GLOBAL_PERIOD_MS: string | undefined;
+  readonly AI_GENERATION_GLOBAL_RATE: string | undefined;
+  readonly AI_GENERATION_RATE_LIMIT_PERIOD_MS: string | undefined;
+  readonly AI_GENERATION_RATE_LIMIT_RATE: string | undefined;
   readonly FREE_TIER_FILE_SIZE_MB: string | undefined;
   readonly FREE_TIER_IMAGE_LIMIT: string | undefined;
   readonly FREE_TIER_STORAGE_MB: string | undefined;

@@ -5,6 +5,7 @@ import type { Doc } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import { internalQuery, mutation, query } from "./_generated/server";
 import { requireAuth } from "./lib";
+import { rateLimiter } from "./rateLimiter";
 
 const BOUNDED_LIMIT = 100;
 
@@ -22,6 +23,17 @@ export const createJob = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
+
+    const suspended = await ctx.db
+      .query("aiGenerationSuspension")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+    if (suspended) {
+      throw new Error(suspended.reason ?? "Your AI generation access has been suspended.");
+    }
+
+    await rateLimiter.limit(ctx, "aiGenerationGlobal", { throws: true });
+    await rateLimiter.limit(ctx, "aiGenerationPerUser", { key: userId, throws: true });
 
     const subResult = await ctx.db
       .query("subscriptions")
@@ -139,6 +151,17 @@ export const retryJob = mutation({
   args: { jobId: v.id("aiGenerationJobs"), apiKey: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
+
+    const suspended = await ctx.db
+      .query("aiGenerationSuspension")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+    if (suspended) {
+      throw new Error(suspended.reason ?? "Your AI generation access has been suspended.");
+    }
+
+    await rateLimiter.limit(ctx, "aiGenerationGlobal", { throws: true });
+    await rateLimiter.limit(ctx, "aiGenerationPerUser", { key: userId, throws: true });
 
     const subResult = await ctx.db
       .query("subscriptions")
