@@ -61,6 +61,7 @@ describe("aiGenerationJobs usage tracking", () => {
     const jobId = await authed.mutation(api.aiGenerationJobs.createJob, {
       sourceStorageId,
       fileName: "test.png",
+      apiKey: "sk-test",
     });
 
     await authed.mutation(api.aiGenerationJobs.setJobStatus, {
@@ -86,6 +87,7 @@ describe("aiGenerationJobs usage tracking", () => {
     const jobId = await authed.mutation(api.aiGenerationJobs.createJob, {
       sourceStorageId,
       fileName: "test.png",
+      apiKey: "sk-test",
     });
 
     await authed.mutation(api.aiGenerationJobs.setJobStatus, {
@@ -177,11 +179,12 @@ describe("aiGenerationJobs cost aggregation", () => {
     const sourceStorageId = await authed.run(async (ctx) => {
       return await ctx.storage.store(new Blob(["fake-image"], { type: "image/png" }));
     });
-
     const jobId = await authed.mutation(api.aiGenerationJobs.createJob, {
       sourceStorageId,
       fileName: "test.png",
+      apiKey: "sk-test",
     });
+
     await authed.mutation(api.aiGenerationJobs.setJobStatus, {
       jobId,
       status: "completed",

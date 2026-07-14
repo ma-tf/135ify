@@ -12,6 +12,7 @@ export const createJob = mutation({
   args: {
     sourceStorageId: v.id("_storage"),
     fileName: v.string(),
+    apiKey: v.optional(v.string()),
     parent: v.optional(
       v.object({
         imageId: v.optional(v.id("images")),
@@ -21,6 +22,26 @@ export const createJob = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
+
+    const subResult = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("productKey"), "ai_generation_platform"),
+          q.and(
+            q.neq(q.field("status"), "canceled"),
+            q.neq(q.field("status"), "unpaid"),
+            q.neq(q.field("status"), "incomplete_expired"),
+          ),
+        ),
+      )
+      .first();
+
+    if (!subResult && !args.apiKey) {
+      throw new Error("No API key available. Subscribe to AI Generation or provide your own key.");
+    }
+
     const jobId = await ctx.db.insert("aiGenerationJobs", {
       userId,
       status: "processing",
@@ -115,9 +136,29 @@ export const clearOverQuota = mutation({
 });
 
 export const retryJob = mutation({
-  args: { jobId: v.id("aiGenerationJobs") },
+  args: { jobId: v.id("aiGenerationJobs"), apiKey: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
+
+    const subResult = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("productKey"), "ai_generation_platform"),
+          q.and(
+            q.neq(q.field("status"), "canceled"),
+            q.neq(q.field("status"), "unpaid"),
+            q.neq(q.field("status"), "incomplete_expired"),
+          ),
+        ),
+      )
+      .first();
+
+    if (!subResult && !args.apiKey) {
+      throw new Error("No API key available. Subscribe to AI Generation or provide your own key.");
+    }
+
     const doc = await ctx.db.get("aiGenerationJobs", args.jobId);
     if (!doc || doc.userId !== userId) throw new Error("Unauthorized");
     if (doc.status !== "failed") throw new Error("Only failed jobs can be retried");

@@ -39,7 +39,10 @@ export function useRetryTake() {
       setError(null);
       setStatus("retrying");
       try {
-        await retryJob({ jobId: jobId as Id<"aiGenerationJobs"> });
+        await retryJob({
+          jobId: jobId as Id<"aiGenerationJobs">,
+          ...(resolvedKey ? { apiKey: resolvedKey } : {}),
+        });
         const args: { jobId: Id<"aiGenerationJobs">; apiKey?: string } = {
           jobId: jobId as Id<"aiGenerationJobs">,
         };

@@ -47,6 +47,7 @@ export function useAiGrainGeneration() {
       sourceStorageId,
       fileName: crypto.randomUUID(),
       parent,
+      ...(apiKey ? { apiKey } : {}),
     });
 
     void processJob({ jobId, ...(apiKey ? { apiKey } : {}) });
