@@ -7,6 +7,12 @@ import type { ActionCtx } from "./_generated/server";
 
 import { internal } from "./_generated/api";
 import { internalAction } from "./_generated/server";
+import {
+  STRIPE_AI_PRICE_ID,
+  STRIPE_SECRET_KEY,
+  STRIPE_STORAGE_PRICE_ID,
+  STRIPE_WEBHOOK_SECRET,
+} from "./config";
 
 export const processEvent = internalAction({
   args: { eventId: v.id("stripeEvents") },
@@ -18,12 +24,8 @@ export const processEvent = internalAction({
 
     let event: Stripe.Event;
     try {
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-      event = stripe.webhooks.constructEvent(
-        raw.body,
-        raw.signature,
-        process.env.STRIPE_WEBHOOK_SECRET!,
-      );
+      const stripe = new Stripe(STRIPE_SECRET_KEY);
+      event = stripe.webhooks.constructEvent(raw.body, raw.signature, STRIPE_WEBHOOK_SECRET);
     } catch (error) {
       await ctx.runMutation(internal.stripeWebhooks.markEventFailed, {
         eventId: args.eventId,
@@ -72,9 +74,7 @@ async function handleSubscriptionCreated(event: Stripe.Event, ctx: ActionCtx) {
   const productKey = sub.metadata.productKey as string | undefined;
   if (productKey) {
     const matchingItem = sub.items.data.find(
-      (item) =>
-        item.price.id === process.env.STRIPE_STORAGE_PRICE_ID ||
-        item.price.id === process.env.STRIPE_AI_PRICE_ID,
+      (item) => item.price.id === STRIPE_STORAGE_PRICE_ID || item.price.id === STRIPE_AI_PRICE_ID,
     );
     await ctx.runMutation(internal.subscriptions.upsert, {
       productKey,
@@ -98,9 +98,7 @@ async function handleSubscriptionUpdated(event: Stripe.Event, ctx: ActionCtx) {
   const productKey = sub.metadata.productKey as string | undefined;
   if (productKey) {
     const matchingItem = sub.items.data.find(
-      (item) =>
-        item.price.id === process.env.STRIPE_STORAGE_PRICE_ID ||
-        item.price.id === process.env.STRIPE_AI_PRICE_ID,
+      (item) => item.price.id === STRIPE_STORAGE_PRICE_ID || item.price.id === STRIPE_AI_PRICE_ID,
     );
     await ctx.runMutation(internal.subscriptions.upsert, {
       productKey,

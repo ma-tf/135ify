@@ -5,21 +5,22 @@ import Stripe from "stripe";
 
 import { internal } from "./_generated/api";
 import { action } from "./_generated/server";
+import { SITE_URL, STRIPE_AI_PRICE_ID, STRIPE_SECRET_KEY, STRIPE_STORAGE_PRICE_ID } from "./config";
 import { requireAuth } from "./lib";
 
 export type ProductKey = "storage_paid" | "ai_generation_platform";
 
 function getStripe() {
-  return new Stripe(process.env.STRIPE_SECRET_KEY!);
+  return new Stripe(STRIPE_SECRET_KEY);
 }
 
 function getProductKey(priceId: string): ProductKey {
   const mapping: Record<string, ProductKey> = {};
-  if (process.env.STRIPE_STORAGE_PRICE_ID) {
-    mapping[process.env.STRIPE_STORAGE_PRICE_ID] = "storage_paid";
+  if (STRIPE_STORAGE_PRICE_ID) {
+    mapping[STRIPE_STORAGE_PRICE_ID] = "storage_paid";
   }
-  if (process.env.STRIPE_AI_PRICE_ID) {
-    mapping[process.env.STRIPE_AI_PRICE_ID] = "ai_generation_platform";
+  if (STRIPE_AI_PRICE_ID) {
+    mapping[STRIPE_AI_PRICE_ID] = "ai_generation_platform";
   }
   const key = mapping[priceId];
   if (!key) throw new Error(`Unknown price ID: ${priceId}`);
@@ -30,9 +31,7 @@ export const getPlan = action({
   args: {},
   handler: async (_ctx) => {
     const stripe = getStripe();
-    const priceIds = [process.env.STRIPE_STORAGE_PRICE_ID, process.env.STRIPE_AI_PRICE_ID].filter(
-      Boolean,
-    ) as string[];
+    const priceIds = [STRIPE_STORAGE_PRICE_ID, STRIPE_AI_PRICE_ID].filter(Boolean) as string[];
 
     if (priceIds.length === 0) {
       return [];
@@ -72,8 +71,8 @@ export const createCheckoutSession = action({
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: args.priceId, quantity: 1 }],
-      success_url: `${process.env.SITE_URL}/account?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.SITE_URL}/pricing`,
+      success_url: `${SITE_URL}/account?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${SITE_URL}/pricing`,
       subscription_data: { metadata: { convexUserId: userId, productKey } },
     });
     return { url: session.url };
@@ -91,7 +90,7 @@ export const createPortalSession = action({
     const stripe = getStripe();
     const session = await stripe.billingPortal.sessions.create({
       customer: user.stripeCustomerId,
-      return_url: `${process.env.SITE_URL}/account`,
+      return_url: `${SITE_URL}/account`,
     });
     return { url: session.url };
   },

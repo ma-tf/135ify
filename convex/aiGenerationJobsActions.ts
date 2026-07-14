@@ -8,7 +8,7 @@ import type { Id } from "./_generated/dataModel";
 
 import { api, internal } from "./_generated/api";
 import { action } from "./_generated/server";
-import { OPENAI_MONTHLY_SPEND_LIMIT_CENTS } from "./config";
+import { OPENAI_API_KEY, OPENAI_MONTHLY_SPEND_LIMIT_CENTS } from "./config";
 import { requireAuth } from "./lib";
 import { calculateCostCents } from "./modelPricing";
 
@@ -99,7 +99,7 @@ export const processJob = action({
       productKey: "ai_generation_platform",
     });
 
-    const resolvedKey = subResult.active ? process.env.OPENAI_API_KEY! : args.apiKey;
+    const resolvedKey = subResult.active ? OPENAI_API_KEY : args.apiKey;
 
     if (!resolvedKey) {
       await ctx.runMutation(api.aiGenerationJobs.setJobStatus, {

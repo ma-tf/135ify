@@ -18,6 +18,18 @@ if ([freeImage, freeFile, freeStorage, paidImage, paidFile, paidStorage].some(is
 export const OPENAI_MONTHLY_SPEND_LIMIT_CENTS = Number(
   env.OPENAI_MONTHLY_SPEND_LIMIT_CENTS || "500",
 );
+export const OPENAI_API_KEY = env.OPENAI_API_KEY;
+export const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
+export const STRIPE_WEBHOOK_SECRET = env.STRIPE_WEBHOOK_SECRET;
+export const STRIPE_STORAGE_PRICE_ID = env.STRIPE_STORAGE_PRICE_ID || "";
+export const STRIPE_AI_PRICE_ID = env.STRIPE_AI_PRICE_ID || "";
+export const SITE_URL = env.SITE_URL || "";
+export const AI_GENERATION_RATE_LIMIT_RATE = Number(env.AI_GENERATION_RATE_LIMIT_RATE || "5");
+export const AI_GENERATION_RATE_LIMIT_PERIOD_MS = Number(
+  env.AI_GENERATION_RATE_LIMIT_PERIOD_MS || "60000",
+);
+export const AI_GENERATION_GLOBAL_RATE = Number(env.AI_GENERATION_GLOBAL_RATE || "60");
+export const AI_GENERATION_GLOBAL_PERIOD_MS = Number(env.AI_GENERATION_GLOBAL_PERIOD_MS || "60000");
 
 export const TIER_CONFIG = {
   free: {
