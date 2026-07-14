@@ -9,15 +9,28 @@ import { TEST_FILE_RECORD_PHOTO } from "@test-utils/test-fixtures.spec";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-const { mockUseAuth, mockUseLocation, mockUseAiProviderStore, mockConfig, mockToast } = vi.hoisted(
-  () => ({
+const {
+  mockUseAuth,
+  mockUseLocation,
+  mockUseAiProviderStore,
+  mockConfig,
+  mockToast,
+  mockParamSliderCalls,
+  mockFilmSelectorProps,
+} = vi.hoisted(() => {
+  const calls: Array<{ label: string; onValueChange: (v: number) => void }> = [];
+  return {
     mockUseAuth: vi.fn(() => ({ isAuthenticated: false, isLoading: false })),
     mockUseLocation: vi.fn(() => ({ pathname: "/" })),
     mockUseAiProviderStore: vi.fn(() => ({ apiKey: "" })),
     mockConfig: { FEATURE_AI_GRAIN: true, FEATURE_SUBSCRIPTIONS: false },
     mockToast: { success: vi.fn(), error: vi.fn() },
-  }),
-);
+    mockParamSliderCalls: calls,
+    mockFilmSelectorProps: {
+      current: null as { value: string; onValueChange: (v: string) => void } | null,
+    },
+  };
+});
 
 vi.mock("@features/image/use-file-processing", () => ({
   useFileProcessing: vi.fn(() => ({
@@ -120,11 +133,17 @@ vi.mock("@components/ai-key-dialog", () => ({
 }));
 
 vi.mock("@features/image/film-selector", () => ({
-  FilmSelector: () => <div>Film</div>,
+  FilmSelector: vi.fn((props: any) => {
+    mockFilmSelectorProps.current = props;
+    return <div>Film</div>;
+  }),
 }));
 
 vi.mock("@features/image/parameter-slider", () => ({
-  ParameterSlider: () => <div data-testid="parameter-slider" />,
+  ParameterSlider: vi.fn(({ label, onValueChange }: any) => {
+    mockParamSliderCalls.push({ label, onValueChange });
+    return <div data-testid="parameter-slider" data-label={label} />;
+  }),
 }));
 
 import { useFileProcessing } from "@features/image/use-file-processing";
@@ -157,6 +176,8 @@ function renderEditPanel() {
 describe("EditPanel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockParamSliderCalls.length = 0;
+    mockFilmSelectorProps.current = null;
   });
 
   afterEach(() => {
@@ -263,5 +284,55 @@ describe("EditPanel", () => {
     fireEvent.click(processedBtn);
     expect(processedBtn.className).toContain("bg-background");
     expect(originalBtn.className).not.toContain("bg-background");
+  });
+
+  describe("ParameterSlider wiring", () => {
+    it("renders 5 parameter sliders", () => {
+      renderEditPanel();
+      expect(screen.getAllByTestId("parameter-slider")).toHaveLength(5);
+    });
+
+    it("halation intensity slider calls setParam", () => {
+      renderEditPanel();
+      mockParamSliderCalls[0].onValueChange(42);
+      expect(mockSetParam).toHaveBeenCalledWith({ halationIntensity: 42 });
+    });
+
+    it("halation spread slider calls setParam", () => {
+      renderEditPanel();
+      mockParamSliderCalls[1].onValueChange(55);
+      expect(mockSetParam).toHaveBeenCalledWith({ halationSpread: 55 });
+    });
+
+    it("halation threshold slider calls setParam", () => {
+      renderEditPanel();
+      mockParamSliderCalls[2].onValueChange(30);
+      expect(mockSetParam).toHaveBeenCalledWith({ halationThreshold: 30 });
+    });
+
+    it("vignette intensity slider calls setParam", () => {
+      renderEditPanel();
+      mockParamSliderCalls[3].onValueChange(70);
+      expect(mockSetParam).toHaveBeenCalledWith({ vignetteIntensity: 70 });
+    });
+
+    it("vignette feather slider calls setParam", () => {
+      renderEditPanel();
+      mockParamSliderCalls[4].onValueChange(80);
+      expect(mockSetParam).toHaveBeenCalledWith({ vignetteFeather: 80 });
+    });
+  });
+
+  describe("FilmSelector wiring", () => {
+    it("passes selectedFilmId as value to FilmSelector", () => {
+      renderEditPanel();
+      expect(mockFilmSelectorProps.current?.value).toBe("none");
+    });
+
+    it("calls setParam on film selection", () => {
+      renderEditPanel();
+      mockFilmSelectorProps.current?.onValueChange("gold");
+      expect(mockSetParam).toHaveBeenCalledWith({ selectedFilmId: "gold" });
+    });
   });
 });

@@ -18,13 +18,29 @@ vi.mock("@features/image/edit-panel", () => ({
   EditPanel: () => <div data-testid="edit-panel" />,
 }));
 
-const { mockOnSheetClose } = vi.hoisted(() => ({
-  mockOnSheetClose: vi.fn(),
+const { mockEditViewValue, mockOnSheetClose, mockOnSheetOpen } = vi.hoisted(() => {
+  const editViewValue = {
+    showOriginal: false,
+    setShowOriginal: vi.fn(),
+    inspectUrl: null,
+    setInspectUrl: vi.fn(),
+  };
+  return {
+    mockEditViewValue: editViewValue,
+    mockOnSheetClose: vi.fn(),
+    mockOnSheetOpen: vi.fn(),
+  };
+});
+
+vi.mock("@features/image/edit-view-context", () => ({
+  EditViewProvider: ({ children }: any) => <>{children}</>,
+  useEditView: () => mockEditViewValue,
 }));
 
 vi.mock("@components/ui/sheet", () => ({
   Sheet: ({ children, onOpenChange }: any) => {
     mockOnSheetClose.mockImplementation(() => onOpenChange(false));
+    mockOnSheetOpen.mockImplementation(() => onOpenChange(true));
     return <>{children}</>;
   },
   SheetContent: ({ children, overlayContent }: any) => (
@@ -105,6 +121,8 @@ describe("EditViewSheet", () => {
   beforeEach(() => {
     vi.mocked(useIsMobile).mockReturnValue(false);
     mockUseFileReturn.value = { ...defaultFileRecord };
+    mockEditViewValue.showOriginal = false;
+    mockEditViewValue.inspectUrl = null;
   });
 
   it("renders EditPanel inside the sheet", () => {
@@ -169,6 +187,20 @@ describe("EditViewSheet", () => {
     renderSheet();
     mockOnSheetClose();
     expect(mockOnClose).toHaveBeenCalledOnce();
+  });
+
+  it("does not call onClose when onOpenChange fires with true", () => {
+    renderSheet();
+    mockOnSheetOpen();
+    expect(mockOnClose).not.toHaveBeenCalled();
+  });
+
+  it("renders image with sourceUrl when showOriginal is true", () => {
+    mockEditViewValue.showOriginal = true;
+    renderSheet();
+
+    const img = screen.getByAltText(TEST_FILE_RECORD_WITH_RENDER.fileName);
+    expect(img.getAttribute("src")).toBe(TEST_FILE_RECORD_WITH_RENDER.sourceUrl);
   });
 
   it("stops propagation on pointer down on desktop image", () => {
