@@ -22,27 +22,33 @@ afterEach(cleanup);
 const mockAddFiles = vi.fn();
 const mockResetDragging = vi.fn();
 const mockOpenFileDialog = vi.fn();
+let lastUseFileUploadConfig: Record<string, unknown> | null = null;
 
 function stubUseFileUpload(
   overrides: Partial<ReturnType<typeof useFileUpload>[1]> = {},
   stateOverrides: Partial<ReturnType<typeof useFileUpload>[0]> = {},
 ) {
-  (useFileUpload as ReturnType<typeof vi.fn>).mockReturnValue([
-    { isDragging: false, errors: [] as string[], files: [], ...stateOverrides },
-    {
-      handleDragEnter: vi.fn(),
-      handleDragLeave: vi.fn(),
-      handleDragOver: vi.fn(),
-      openFileDialog: mockOpenFileDialog,
-      getInputProps: () => ({ type: "file" as const, ref: { current: null } }),
-      addFiles: mockAddFiles,
-      resetDragging: mockResetDragging,
-      removeFile: vi.fn(),
-      clearErrors: vi.fn(),
-      handleFileChange: vi.fn(),
-      ...overrides,
+  (useFileUpload as ReturnType<typeof vi.fn>).mockImplementation(
+    (config: Record<string, unknown>) => {
+      lastUseFileUploadConfig = config;
+      return [
+        { isDragging: false, errors: [] as string[], files: [], ...stateOverrides },
+        {
+          handleDragEnter: vi.fn(),
+          handleDragLeave: vi.fn(),
+          handleDragOver: vi.fn(),
+          openFileDialog: mockOpenFileDialog,
+          getInputProps: () => ({ type: "file" as const, ref: { current: null } }),
+          addFiles: mockAddFiles,
+          resetDragging: mockResetDragging,
+          removeFile: vi.fn(),
+          clearErrors: vi.fn(),
+          handleFileChange: vi.fn(),
+          ...overrides,
+        },
+      ];
     },
-  ]);
+  );
 }
 
 describe("Dropzone", () => {
@@ -95,6 +101,17 @@ describe("Dropzone", () => {
     fireEvent.click(dropzone);
 
     expect(mockOpenFileDialog).toHaveBeenCalled();
+  });
+
+  it("calls onFilesChange callback when provided", () => {
+    const onFilesChange = vi.fn();
+    stubUseFileUpload();
+    render(<Dropzone onFilesChange={onFilesChange} />);
+
+    const files = [{ id: "test", fileName: "test.jpg" }];
+    (lastUseFileUploadConfig!.onFilesChange as (f: unknown) => void)(files);
+
+    expect(onFilesChange).toHaveBeenCalledWith(files);
   });
 
   it("shows formatted max size", () => {
