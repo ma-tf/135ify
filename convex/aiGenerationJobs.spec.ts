@@ -502,3 +502,86 @@ describe("aiGenerationJobs rate limiting", () => {
     ).resolves.toBeTruthy();
   });
 });
+
+describe("aiGenerationJobs suspend/unsuspend admin mutations", () => {
+  async function setupWithUser() {
+    const t = convexTest({ schema, modules });
+    registerRateLimiter(t);
+    const userId = await t.run(async (ctx) => {
+      return await ctx.db.insert("users", { email: null });
+    });
+    return {
+      t,
+      userId,
+      authed: t.withIdentity({ subject: `${userId}|session` }),
+    };
+  }
+
+  test("suspendUser creates a suspension record that blocks generation", async () => {
+    const { authed, userId } = await setupWithUser();
+
+    await authed.mutation(internal.aiGenerationJobs.suspendUser, {
+      userId,
+      reason: "Test suspension",
+    });
+
+    const sourceStorageId = await authed.run(async (ctx) => {
+      return await ctx.storage.store(new Blob(["fake-image"], { type: "image/png" }));
+    });
+
+    await expect(
+      authed.mutation(api.aiGenerationJobs.createJob, {
+        sourceStorageId,
+        fileName: "test.png",
+        apiKey: "sk-test",
+      }),
+    ).rejects.toThrow("Test suspension");
+  });
+
+  test("suspendUser is idempotent when already suspended", async () => {
+    const { t, authed, userId } = await setupWithUser();
+
+    await authed.mutation(internal.aiGenerationJobs.suspendUser, {
+      userId,
+      reason: "First",
+    });
+
+    await authed.mutation(internal.aiGenerationJobs.suspendUser, {
+      userId,
+      reason: "Second",
+    });
+
+    const records = await t.run(async (ctx) => {
+      return await ctx.db
+        .query("aiGenerationSuspension")
+        .withIndex("by_userId", (q) => q.eq("userId", userId))
+        .collect();
+    });
+    expect(records).toHaveLength(1);
+  });
+
+  test("unsuspendUser restores generation access", async () => {
+    const { authed, userId } = await setupWithUser();
+
+    await authed.mutation(internal.aiGenerationJobs.suspendUser, { userId });
+    await authed.mutation(internal.aiGenerationJobs.unsuspendUser, { userId });
+
+    const sourceStorageId = await authed.run(async (ctx) => {
+      return await ctx.storage.store(new Blob(["fake-image"], { type: "image/png" }));
+    });
+
+    await expect(
+      authed.mutation(api.aiGenerationJobs.createJob, {
+        sourceStorageId,
+        fileName: "test.png",
+        apiKey: "sk-test",
+      }),
+    ).resolves.toBeTruthy();
+  });
+
+  test("unsuspendUser is a no-op when not suspended", async () => {
+    const { authed, userId } = await setupWithUser();
+
+    await authed.mutation(internal.aiGenerationJobs.unsuspendUser, { userId });
+  });
+});

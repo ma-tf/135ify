@@ -3,7 +3,7 @@ import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 
 import { internal } from "./_generated/api";
-import { internalQuery, mutation, query } from "./_generated/server";
+import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { requireAuth } from "./lib";
 import { rateLimiter } from "./rateLimiter";
 
@@ -287,5 +287,47 @@ export const getAiUsage = query({
       atLimit: usedCents >= limitCents,
       resetsAt: periodEnd,
     };
+  },
+});
+
+export const suspendUser = internalMutation({
+  args: {
+    userId: v.id("users"),
+    reason: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const adminId = await requireAuth(ctx);
+
+    const existing = await ctx.db
+      .query("aiGenerationSuspension")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .first();
+
+    if (existing) return;
+
+    await ctx.db.insert("aiGenerationSuspension", {
+      userId: args.userId,
+      suspendedAt: Date.now(),
+      suspendedBy: adminId,
+      reason: args.reason,
+    });
+  },
+});
+
+export const unsuspendUser = internalMutation({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    await requireAuth(ctx);
+
+    const existing = await ctx.db
+      .query("aiGenerationSuspension")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .first();
+
+    if (!existing) return;
+
+    await ctx.db.delete(existing._id);
   },
 });
