@@ -110,4 +110,18 @@ describe("CompletedTakeRow", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();
   });
+
+  it("renders filename as plain span when takeImageId is absent", () => {
+    render(<CompletedTakeRow job={mockJob({ takeImageId: undefined })} />);
+
+    const filename = screen.getByText("photo.jpg");
+    expect(filename.closest("a")).toBeNull();
+    expect(filename.tagName).toBe("SPAN");
+  });
+
+  it("shows formatted file size when available", () => {
+    render(<CompletedTakeRow job={mockJob({ size: 1048576 })} />);
+
+    expect(screen.getByText(/1MB/)).toBeDefined();
+  });
 });

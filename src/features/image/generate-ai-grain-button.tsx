@@ -48,7 +48,7 @@ function GenerateAiGrainButtonSkeleton() {
 export function GenerateAiGrainButton({ showOriginal }: { showOriginal: boolean }) {
   const { isAuthenticated } = useAuth();
   const { apiKey } = useAiProviderStore();
-  const { trigger, isGenerating } = useAiGrainGeneration();
+  const { trigger, isGenerating, errorState } = useAiGrainGeneration();
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
   const { atStorageLimit, hasAiSub, atAiLimit, capResetsAt, isPending } = useAiSubUsage();
 
@@ -67,7 +67,19 @@ export function GenerateAiGrainButton({ showOriginal }: { showOriginal: boolean 
     }
   };
 
-  const disabled = isGenerating || atStorageLimit || atAiLimit;
+  const disabled = isGenerating || atStorageLimit || atAiLimit || !!errorState;
+
+  function getTitle() {
+    if (errorState) {
+      return errorState.kind === "suspended"
+        ? errorState.reason
+        : "Generation rate limited. Try again soon.";
+    }
+    if (atAiLimit && capResetsAt) {
+      return `Monthly AI generation cap reached. Resets ${capResetsAt}.`;
+    }
+    return undefined;
+  }
 
   return (
     <>
@@ -77,11 +89,7 @@ export function GenerateAiGrainButton({ showOriginal }: { showOriginal: boolean 
         size="sm"
         className="gap-1.5 shadow-xs"
         onClick={handleClick}
-        title={
-          atAiLimit && capResetsAt
-            ? `Monthly AI generation cap reached. Resets ${capResetsAt}.`
-            : undefined
-        }
+        title={getTitle()}
       >
         {isGenerating ? <Spinner className="size-3.5" /> : <SparklesIcon className="size-3.5" />}
         Generate AI Film Grain

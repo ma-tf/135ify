@@ -5,9 +5,11 @@ import { setupTests } from "@test-utils/setup.spec";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
 
-const { mockUseQuery, mockMarkSeen } = vi.hoisted(() => ({
+const { mockUseQuery, mockMarkSeen, mockToastError, mockToastSuccess } = vi.hoisted(() => ({
   mockUseQuery: vi.fn(),
   mockMarkSeen: vi.fn(),
+  mockToastError: vi.fn(),
+  mockToastSuccess: vi.fn(),
 }));
 
 vi.mock("@tanstack/react-router", () => ({
@@ -36,8 +38,24 @@ vi.mock("@stores/takes-notification-store", () => ({
   },
 }));
 
+vi.mock("@features/takes/over-quota-take-row", () => ({
+  OverQuotaTakeRow: ({ job }: any) => (
+    <div data-testid="over-quota-row" data-job-id={job._id}>
+      {job.fileName}
+    </div>
+  ),
+}));
+
+vi.mock("@features/takes/pending-take-row", () => ({
+  PendingTakeRow: ({ job }: any) => (
+    <div data-testid="pending-row" data-job-id={job._id}>
+      {job.fileName}
+    </div>
+  ),
+}));
+
 vi.mock("sonner", () => ({
-  toast: { error: vi.fn() },
+  toast: { error: mockToastError, success: mockToastSuccess },
 }));
 
 setupTests();
@@ -260,5 +278,47 @@ describe("TakesPage", () => {
 
     const groupHeader = screen.getByText("source-photo.jpg");
     expect(groupHeader.closest("a")?.getAttribute("href")).toBe("/gallery/source1");
+  });
+
+  it("renders OverQuotaTakeRow for overQuota-status jobs", () => {
+    const job = mockJob({
+      status: "overQuota",
+      overQuotaStorageId: "storage-1" as Doc<"aiGenerationJobs">["overQuotaStorageId"],
+    });
+    renderPage([job]);
+
+    expect(screen.getByTestId("over-quota-row")).toBeDefined();
+  });
+
+  it("renders PendingTakeRow for processing jobs", () => {
+    const job = mockJob({ status: "processing" });
+    renderPage([job]);
+
+    expect(screen.getByTestId("pending-row")).toBeDefined();
+  });
+
+  it("shows Clear resolved takes button when resolved overQuota jobs exist", () => {
+    const job = mockJob({
+      status: "overQuota",
+      overQuotaStorageId: undefined,
+    });
+    renderPage([job]);
+
+    expect(screen.getByText("Clear resolved takes")).toBeDefined();
+  });
+
+  it("clears resolved takes when button is clicked", async () => {
+    const job = mockJob({
+      status: "overQuota",
+      overQuotaStorageId: undefined,
+    });
+    renderPage([job]);
+
+    const clearButton = screen.getByText("Clear resolved takes");
+    fireEvent.click(clearButton);
+
+    await vi.waitFor(() => {
+      expect(mockToastSuccess).toHaveBeenCalledWith("Cleared resolved takes");
+    });
   });
 });

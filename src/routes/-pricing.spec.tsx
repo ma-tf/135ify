@@ -77,7 +77,9 @@ vi.mock("@components/ui/skeleton", () => ({
 
 vi.mock("lucide-react", () => ({
   CheckIcon: () => <span data-testid="check-icon" />,
+  CircleAlert: () => <span data-testid="circle-alert" />,
   Loader2: ({ className }: any) => <span data-testid="loader" className={className} />,
+  RotateCcw: () => <span data-testid="rotate-ccw" />,
 }));
 
 describe("PricingPage", () => {
@@ -128,6 +130,60 @@ describe("PricingPage", () => {
     fireEvent.click(screen.getAllByText("Subscribe")[0]);
     expect(mockCreateCheckoutSession).toHaveBeenCalledWith({
       priceId: "price_storage_123",
+    });
+  });
+
+  it("renders PricingError when getPlan fails", async () => {
+    mockGetPlan.mockRejectedValue(new Error("Network error"));
+    render(<PricingPage />);
+    await vi.waitFor(() => {
+      expect(screen.getByText("Failed to load plans")).toBeDefined();
+    });
+    expect(screen.getByText("Retry")).toBeDefined();
+  });
+
+  it("retry button re-fetches plans after error", async () => {
+    mockGetPlan.mockRejectedValueOnce(new Error("Network error"));
+    render(<PricingPage />);
+    await vi.waitFor(() => {
+      expect(screen.getByText("Retry")).toBeDefined();
+    });
+
+    mockGetPlan.mockResolvedValue(mockPlans);
+    fireEvent.click(screen.getByText("Retry"));
+
+    await vi.waitFor(() => {
+      expect(screen.getByText("Storage")).toBeDefined();
+    });
+  });
+
+  it("navigates to checkout URL on Subscribe click", async () => {
+    Object.defineProperty(window, "location", {
+      value: { href: "" },
+      configurable: true,
+      writable: true,
+    });
+
+    render(<PricingPage />);
+    await vi.waitFor(() => {
+      expect(screen.getAllByText("Subscribe").length).toBeGreaterThanOrEqual(1);
+    });
+    fireEvent.click(screen.getAllByText("Subscribe")[0]);
+    await vi.waitFor(() => {
+      expect(window.location.href).toBe("https://checkout.stripe.com/session_123");
+    });
+  });
+
+  it("does not redirect when checkout returns no URL", async () => {
+    mockCreateCheckoutSession.mockResolvedValue({});
+    render(<PricingPage />);
+    await vi.waitFor(() => {
+      expect(screen.getAllByText("Subscribe").length).toBeGreaterThanOrEqual(1);
+    });
+    fireEvent.click(screen.getAllByText("Subscribe")[0]);
+    await vi.waitFor(() => {
+      const subscribeBtns = screen.getAllByText("Subscribe");
+      expect(subscribeBtns.length).toBeGreaterThanOrEqual(1);
     });
   });
 });

@@ -11,6 +11,7 @@ const { mockUseAuth, mockUseAiProviderStore, mockConfig, mockUseAiGrainGeneratio
     mockUseAiGrainGeneration: vi.fn(() => ({
       trigger: vi.fn().mockResolvedValue(undefined),
       isGenerating: false,
+      errorState: null,
     })),
     mockUseQuery: vi.fn(),
   }));
@@ -91,6 +92,7 @@ describe("Generate AI Film Grain button", () => {
     mockUseAiGrainGeneration.mockReturnValue({
       trigger: vi.fn().mockResolvedValue(undefined),
       isGenerating: false,
+      errorState: null,
     });
     mockUseQuery.mockReturnValue({
       status: "success",
@@ -260,6 +262,41 @@ describe("Generate AI Film Grain button", () => {
       fireEvent.click(screen.getByText("Generate AI Film Grain"));
 
       expect(screen.getByTestId("ai-key-dialog")).toBeDefined();
+    });
+  });
+
+  describe("abuse prevention", () => {
+    beforeEach(() => {
+      mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
+      mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
+    });
+
+    it("disables button when rate-limited", () => {
+      mockUseAiGrainGeneration.mockReturnValue({
+        trigger: vi.fn().mockResolvedValue(undefined),
+        isGenerating: false,
+        errorState: { kind: "rateLimited" },
+      });
+
+      render(<GenerateAiGrainButton showOriginal={false} />);
+
+      const button = screen.getByRole("button", { name: /generate ai film grain/i });
+      expect(button.hasAttribute("disabled")).toBe(true);
+      expect(button.getAttribute("title")).toBe("Generation rate limited. Try again soon.");
+    });
+
+    it("disables button when suspended", () => {
+      mockUseAiGrainGeneration.mockReturnValue({
+        trigger: vi.fn().mockResolvedValue(undefined),
+        isGenerating: false,
+        errorState: { kind: "suspended", reason: "Abuse detected." },
+      });
+
+      render(<GenerateAiGrainButton showOriginal={false} />);
+
+      const button = screen.getByRole("button", { name: /generate ai film grain/i });
+      expect(button.hasAttribute("disabled")).toBe(true);
+      expect(button.getAttribute("title")).toBe("Abuse detected.");
     });
   });
 });

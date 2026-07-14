@@ -213,6 +213,25 @@ describe("useFileProcessing", () => {
       const file = useFileStore.getState().files.find((f) => f.id === "file-1")!;
       expect(file.renderError).toBe("Processing failed");
     });
+
+    it("revokes old renderUrl before re-processing", async () => {
+      const revokeSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+      seedFile({ ...fakeFileRecord, renderUrl: "blob:old-render" });
+      const { result } = renderHook(() => useFileProcessing(), {
+        wrapper: Wrapper,
+      });
+
+      act(() => {
+        result.current.setParam({ grainIntensity: 50 });
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(200);
+      });
+
+      expect(revokeSpy).toHaveBeenCalledWith("blob:old-render");
+      revokeSpy.mockRestore();
+    });
   });
 
   describe("downloadFullSize", () => {
@@ -260,6 +279,23 @@ describe("useFileProcessing", () => {
       createObjSpy.mockRestore();
       revokeObjSpy.mockRestore();
       vi.unstubAllGlobals();
+    });
+
+    it("does not download when processToBlobUrl returns falsy", async () => {
+      seedFile();
+      const { result } = renderHook(() => useFileProcessing(), {
+        wrapper: Wrapper,
+      });
+
+      const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+
+      vi.mocked(processToBlobUrl).mockResolvedValue("");
+      await act(async () => {
+        await result.current.downloadFullSize(false);
+      });
+
+      expect(clickSpy).not.toHaveBeenCalled();
+      clickSpy.mockRestore();
     });
   });
 

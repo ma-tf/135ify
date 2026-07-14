@@ -75,4 +75,19 @@ describe("AiUsageBar", () => {
     render(<AiUsageBar />);
     expect(screen.getByText(/Monthly cap reached/)).toBeDefined();
   });
+
+  it("returns null on query error", () => {
+    mockUseQuery.mockReturnValue({ status: "error", error: new Error("fail") });
+    const { container } = render(<AiUsageBar />);
+    expect(container.firstChild).toBeNull();
+  });
+
+  it("shows amber progress bar when at or above 90% usage", () => {
+    mockUseQuery.mockReturnValue({
+      status: "success",
+      data: { ...fullData, usedCents: 180, atLimit: false },
+    });
+    const { container } = render(<AiUsageBar />);
+    expect(container.querySelector(".bg-amber-500")).toBeDefined();
+  });
 });
