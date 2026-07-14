@@ -15,7 +15,7 @@ vi.mock("convex/react", () => ({
   useMutation: mockUseMutation,
   useAction: mockUseAction,
   useQuery_experimental: (args: any) => {
-    if (args.query === "subscriptions.byUser") {
+    if (args.query === "entitlements.byUser") {
       return mockUseQuery();
     }
     return { status: "pending" };
@@ -29,6 +29,7 @@ vi.mock("@stores/ai-provider-store", () => ({
 vi.mock("@convex/_generated/api", () => ({
   api: {
     subscriptions: { byUser: "subscriptions.byUser" },
+    entitlements: { byUser: "entitlements.byUser" },
     aiGenerationJobs: { retryJob: "retryJob" },
     aiGenerationJobsActions: { processJob: "processJob" },
   },
@@ -46,7 +47,7 @@ describe("useRetryTake", () => {
     mockAiProviderState.preferPlatformKey = true;
     mockUseQuery.mockReturnValue({
       status: "success",
-      data: [{ productKey: "ai_generation_platform", status: "active" }],
+      data: { lookupKeys: ["ai_generation_platform"] },
     });
     const { useRetryTake } = await import("./use-retry-take");
     const { result } = renderHook(() => useRetryTake());
@@ -56,7 +57,7 @@ describe("useRetryTake", () => {
   it("canRetry is false when no apiKey and no subscription", async () => {
     mockAiProviderState.apiKey = "";
     mockAiProviderState.preferPlatformKey = true;
-    mockUseQuery.mockReturnValue({ status: "success", data: [] });
+    mockUseQuery.mockReturnValue({ status: "success", data: { lookupKeys: [] } });
     const { useRetryTake } = await import("./use-retry-take");
     const { result } = renderHook(() => useRetryTake());
     expect(result.current.canRetry).toBe(false);
@@ -69,7 +70,7 @@ describe("useRetryTake", () => {
     mockUseAction.mockReturnValue(mockProcessJob);
     mockAiProviderState.apiKey = "sk-123";
     mockAiProviderState.preferPlatformKey = true;
-    mockUseQuery.mockReturnValue({ status: "success", data: [] });
+    mockUseQuery.mockReturnValue({ status: "success", data: { lookupKeys: [] } });
 
     const { useRetryTake } = await import("./use-retry-take");
     const { result } = renderHook(() => useRetryTake());
@@ -91,7 +92,7 @@ describe("useRetryTake", () => {
     mockAiProviderState.preferPlatformKey = true;
     mockUseQuery.mockReturnValue({
       status: "success",
-      data: [{ productKey: "ai_generation_platform", status: "active" }],
+      data: { lookupKeys: ["ai_generation_platform"] },
     });
 
     const { useRetryTake } = await import("./use-retry-take");
@@ -110,7 +111,7 @@ describe("useRetryTake", () => {
     mockAiProviderState.preferPlatformKey = false;
     mockUseQuery.mockReturnValue({
       status: "success",
-      data: [{ productKey: "ai_generation_platform", status: "active" }],
+      data: { lookupKeys: ["ai_generation_platform"] },
     });
     const { useRetryTake } = await import("./use-retry-take");
     const { result } = renderHook(() => useRetryTake());
@@ -126,7 +127,7 @@ describe("useRetryTake", () => {
     mockAiProviderState.preferPlatformKey = false;
     mockUseQuery.mockReturnValue({
       status: "success",
-      data: [{ productKey: "ai_generation_platform", status: "active" }],
+      data: { lookupKeys: ["ai_generation_platform"] },
     });
 
     const { useRetryTake } = await import("./use-retry-take");
@@ -147,7 +148,7 @@ describe("useRetryTake", () => {
     mockUseAction.mockReturnValue(mockProcessJob);
     mockAiProviderState.apiKey = "";
     mockAiProviderState.preferPlatformKey = true;
-    mockUseQuery.mockReturnValue({ status: "success", data: [] });
+    mockUseQuery.mockReturnValue({ status: "success", data: { lookupKeys: [] } });
 
     const { useRetryTake } = await import("./use-retry-take");
     const { result } = renderHook(() => useRetryTake());
@@ -169,7 +170,7 @@ describe("useRetryTake", () => {
     mockUseAction.mockReturnValue(mockProcessJob);
     mockAiProviderState.apiKey = "";
     mockAiProviderState.preferPlatformKey = true;
-    mockUseQuery.mockReturnValue({ status: "success", data: [] });
+    mockUseQuery.mockReturnValue({ status: "success", data: { lookupKeys: [] } });
 
     const { useRetryTake } = await import("./use-retry-take");
     const { result } = renderHook(() => useRetryTake());
@@ -193,7 +194,7 @@ describe("useRetryTake", () => {
     mockUseAction.mockReturnValue(mockProcessJob);
     mockAiProviderState.apiKey = "sk-123";
     mockAiProviderState.preferPlatformKey = true;
-    mockUseQuery.mockReturnValue({ status: "success", data: [] });
+    mockUseQuery.mockReturnValue({ status: "success", data: { lookupKeys: [] } });
 
     const { useRetryTake } = await import("./use-retry-take");
     const { result } = renderHook(() => useRetryTake());
@@ -220,7 +221,7 @@ describe("useRetryTake", () => {
     mockUseAction.mockReturnValue(mockProcessJob);
     mockAiProviderState.apiKey = "sk-123";
     mockAiProviderState.preferPlatformKey = true;
-    mockUseQuery.mockReturnValue({ status: "success", data: [] });
+    mockUseQuery.mockReturnValue({ status: "success", data: { lookupKeys: [] } });
 
     const { useRetryTake } = await import("./use-retry-take");
     const { result } = renderHook(() => useRetryTake());
@@ -233,5 +234,34 @@ describe("useRetryTake", () => {
     expect(returned).toBeUndefined();
     expect(result.current.status).toBe("error");
     expect(result.current.error).toBe("fail");
+  });
+
+  it("sets generic error message on non-Error rejection", async () => {
+    const mockRetryJob = vi.fn();
+    const mockProcessJob = vi.fn().mockRejectedValue("network error");
+    mockUseMutation.mockReturnValue(mockRetryJob);
+    mockUseAction.mockReturnValue(mockProcessJob);
+    mockAiProviderState.apiKey = "sk-123";
+    mockAiProviderState.preferPlatformKey = true;
+    mockUseQuery.mockReturnValue({ status: "success", data: { lookupKeys: [] } });
+
+    const { useRetryTake } = await import("./use-retry-take");
+    const { result } = renderHook(() => useRetryTake());
+
+    await act(async () => {
+      await result.current.retry("job-1");
+    });
+
+    expect(result.current.status).toBe("error");
+    expect(result.current.error).toBe("Retry failed");
+  });
+
+  it("canRetry is false when subscriptions are still loading", async () => {
+    mockAiProviderState.apiKey = "";
+    mockAiProviderState.preferPlatformKey = true;
+    mockUseQuery.mockReturnValue({ status: "pending" });
+    const { useRetryTake } = await import("./use-retry-take");
+    const { result } = renderHook(() => useRetryTake());
+    expect(result.current.canRetry).toBe(false);
   });
 });

@@ -13,24 +13,20 @@ import { useState } from "react";
 
 function useAiSubUsage() {
   const storageResult = useQuery({ query: api.images.getStorageUsage, args: {} });
-  const subscriptionsResult = useQuery({ query: api.subscriptions.byUser, args: {} });
+  const entitlementsResult = useQuery({ query: api.entitlements.byUser, args: {} });
   const aiUsageResult = useQuery({ query: api.usage.getAiUsage, args: {} });
 
   const isPending =
     storageResult.status === "pending" ||
-    subscriptionsResult.status === "pending" ||
+    entitlementsResult.status === "pending" ||
     aiUsageResult.status === "pending";
 
   const atStorageLimit = storageResult.status === "success" && storageResult.data.atLimit;
 
   const hasAiSub =
     FEATURE_SUBSCRIPTIONS &&
-    subscriptionsResult.status === "success" &&
-    subscriptionsResult.data.some(
-      (s) =>
-        s.productKey === "ai_generation_platform" &&
-        (s.status === "active" || s.status === "trialing"),
-    );
+    entitlementsResult.status === "success" &&
+    (entitlementsResult.data?.lookupKeys ?? []).includes("ai_generation_platform");
 
   const atAiLimit = aiUsageResult.status === "success" && aiUsageResult.data?.atLimit;
   const capResetsAt =

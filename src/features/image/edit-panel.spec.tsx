@@ -121,6 +121,7 @@ vi.mock("@convex/_generated/api", () => ({
   api: {
     images: { getStorageUsage: "getStorageUsage", getById: "getById" },
     subscriptions: { byUser: "subscriptions.byUser" },
+    entitlements: { byUser: "entitlements.byUser" },
     aiGenerationJobs: { createJob: "createJob" },
     usage: { getAiUsage: "usage.getAiUsage" },
     aiGenerationJobsActions: { processJob: "processJob" },

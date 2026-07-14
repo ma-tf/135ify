@@ -26,7 +26,7 @@ function PricingRoute() {
     <div className="mx-auto max-w-4xl space-y-8 p-6">
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-bold">Plans & Pricing</h1>
-        <p className="text-muted-foreground">Stackable subscriptions — buy only what you need.</p>
+        <p className="text-muted-foreground">One plan, one bill — add the features you need.</p>
       </div>
       <PricingPage />
       <p className="text-center text-sm text-muted-foreground">

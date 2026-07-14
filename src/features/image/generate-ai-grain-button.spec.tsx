@@ -16,7 +16,7 @@ const { mockUseAuth, mockUseAiProviderStore, mockConfig, mockUseAiGrainGeneratio
     mockUseQuery: vi.fn(),
   }));
 
-let mockAiSubscriptions: any = { status: "success", data: [] };
+let mockAiEntitlements: any = { status: "success", data: { lookupKeys: [] } };
 let mockAiUsage: any = { status: "success", data: null };
 
 vi.mock("@tanstack/react-router", () => ({
@@ -50,8 +50,8 @@ vi.mock("convex/react", () => ({
     if (args.query === "getStorageUsage") {
       return mockUseQuery();
     }
-    if (args.query === "subscriptions.byUser") {
-      return mockAiSubscriptions;
+    if (args.query === "entitlements.byUser") {
+      return mockAiEntitlements;
     }
     if (args.query === "usage.getAiUsage") {
       return mockAiUsage;
@@ -68,6 +68,7 @@ vi.mock("@convex/_generated/api", () => ({
   api: {
     images: { getStorageUsage: "getStorageUsage" },
     subscriptions: { byUser: "subscriptions.byUser" },
+    entitlements: { byUser: "entitlements.byUser" },
     usage: { getAiUsage: "usage.getAiUsage" },
   },
 }));
@@ -91,7 +92,7 @@ describe("Generate AI Film Grain button", () => {
     vi.clearAllMocks();
     mockConfig.FEATURE_AI_GRAIN = true;
     mockConfig.FEATURE_SUBSCRIPTIONS = false;
-    mockAiSubscriptions = { status: "success", data: [] };
+    mockAiEntitlements = { status: "success", data: { lookupKeys: [] } };
     mockAiUsage = { status: "success", data: null };
     mockUseAiGrainGeneration.mockReturnValue({
       trigger: vi.fn().mockResolvedValue(undefined),
@@ -143,7 +144,7 @@ describe("Generate AI Film Grain button", () => {
 
   it("shows skeleton while queries are pending", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
-    mockAiSubscriptions = { status: "pending" };
+    mockAiEntitlements = { status: "pending" };
 
     render(<GenerateAiGrainButton showOriginal={false} />);
 
@@ -235,9 +236,9 @@ describe("Generate AI Film Grain button", () => {
       const trigger = vi.fn().mockResolvedValue(undefined);
       mockUseAiGrainGeneration.mockReturnValue({ trigger, isGenerating: false });
       mockUseAiProviderStore.mockReturnValue({ apiKey: "", preferPlatformKey: true });
-      mockAiSubscriptions = {
+      mockAiEntitlements = {
         status: "success",
-        data: [{ productKey: "ai_generation_platform", status: "active" }],
+        data: { lookupKeys: ["ai_generation_platform"] },
       };
 
       render(<GenerateAiGrainButton showOriginal={false} />);
@@ -252,9 +253,9 @@ describe("Generate AI Film Grain button", () => {
 
     it("disables button when at AI cost cap", () => {
       mockUseAiProviderStore.mockReturnValue({ apiKey: "", preferPlatformKey: true });
-      mockAiSubscriptions = {
+      mockAiEntitlements = {
         status: "success",
-        data: [{ productKey: "ai_generation_platform", status: "active" }],
+        data: { lookupKeys: ["ai_generation_platform"] },
       };
       mockAiUsage = {
         status: "success",
@@ -269,7 +270,7 @@ describe("Generate AI Film Grain button", () => {
 
     it("still shows key dialog for non-subscribers when FEATURE_SUBSCRIPTIONS is true", () => {
       mockUseAiProviderStore.mockReturnValue({ apiKey: "", preferPlatformKey: true });
-      mockAiSubscriptions = { status: "success", data: [] };
+      mockAiEntitlements = { status: "success", data: { lookupKeys: [] } };
 
       render(<GenerateAiGrainButton showOriginal={false} />);
 
@@ -285,9 +286,9 @@ describe("Generate AI Film Grain button", () => {
         apiKey: "sk-byo",
         preferPlatformKey: false,
       });
-      mockAiSubscriptions = {
+      mockAiEntitlements = {
         status: "success",
-        data: [{ productKey: "ai_generation_platform", status: "active" }],
+        data: { lookupKeys: ["ai_generation_platform"] },
       };
 
       render(<GenerateAiGrainButton showOriginal={false} />);
@@ -304,9 +305,9 @@ describe("Generate AI Film Grain button", () => {
         apiKey: "",
         preferPlatformKey: false,
       });
-      mockAiSubscriptions = {
+      mockAiEntitlements = {
         status: "success",
-        data: [{ productKey: "ai_generation_platform", status: "active" }],
+        data: { lookupKeys: ["ai_generation_platform"] },
       };
 
       render(<GenerateAiGrainButton showOriginal={false} />);
@@ -321,9 +322,9 @@ describe("Generate AI Film Grain button", () => {
         apiKey: "sk-byo",
         preferPlatformKey: false,
       });
-      mockAiSubscriptions = {
+      mockAiEntitlements = {
         status: "success",
-        data: [{ productKey: "ai_generation_platform", status: "active" }],
+        data: { lookupKeys: ["ai_generation_platform"] },
       };
       mockAiUsage = {
         status: "success",

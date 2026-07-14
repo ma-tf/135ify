@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 
-import { internalMutation, internalQuery, query } from "./_generated/server";
+import { internalMutation, query } from "./_generated/server";
 import { requireAuth } from "./lib";
 
 export const byUser = query({
@@ -16,12 +16,11 @@ export const byUser = query({
 export const upsert = internalMutation({
   args: {
     userId: v.optional(v.id("users")),
-    productKey: v.string(),
     stripeSubscriptionId: v.string(),
     stripeCustomerId: v.string(),
     status: v.string(),
     currentPeriodEnd: v.optional(v.number()),
-    cancelAtPeriodEnd: v.optional(v.boolean()),
+    cancelAtPeriodEnd: v.boolean(),
   },
   handler: async (ctx, args) => {
     let userId = args.userId;
@@ -50,7 +49,6 @@ export const upsert = internalMutation({
     } else {
       await ctx.db.insert("subscriptions", {
         userId,
-        productKey: args.productKey,
         stripeSubscriptionId: args.stripeSubscriptionId,
         stripeCustomerId: args.stripeCustomerId,
         status: args.status,
@@ -61,33 +59,10 @@ export const upsert = internalMutation({
   },
 });
 
-export const hasActive = internalQuery({
-  args: { productKey: v.string() },
-  handler: async (ctx, args) => {
-    const userId = await requireAuth(ctx);
-    const sub = await ctx.db
-      .query("subscriptions")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("productKey"), args.productKey),
-          q.and(
-            q.neq(q.field("status"), "canceled"),
-            q.neq(q.field("status"), "unpaid"),
-            q.neq(q.field("status"), "incomplete_expired"),
-          ),
-        ),
-      )
-      .first();
-    return {
-      active: !!sub,
-      currentPeriodEnd: sub?.currentPeriodEnd ?? undefined,
-    };
-  },
-});
-
 export const remove = internalMutation({
-  args: { stripeSubscriptionId: v.string() },
+  args: {
+    stripeSubscriptionId: v.string(),
+  },
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("subscriptions")

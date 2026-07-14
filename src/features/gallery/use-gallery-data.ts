@@ -1,3 +1,4 @@
+import type { Doc } from "@convex/_generated/dataModel";
 import type { FileRecord } from "@stores/file-store-types";
 
 import { api } from "@convex/_generated/api";
@@ -14,29 +15,31 @@ export function useGalleryData() {
 
   const images = useMemo(
     () =>
-      (queryData ?? []).map((doc) => {
-        const cached = imageCache[doc._id];
-        return {
-          id: doc._id,
-          fileName: doc.fileName,
-          sourceUrl: doc.sourceUrl ?? "",
-          params: {
-            ...doc.params,
-            selectedFilmId: doc.params.selectedFilmId as FileRecord["params"]["selectedFilmId"],
-          },
-          convexId: doc._id,
-          createdAt: doc._creationTime,
-          renderUrl: cached?.renderUrl ?? null,
-          isProcessing: cached?.isProcessing ?? false,
-          renderError: cached?.renderError ?? null,
-          size: doc.size ?? null,
-        } satisfies FileRecord;
-      }),
+      (queryData ?? []).map(
+        (doc: Doc<"images"> & { sourceUrl: string | null; size: number | null }) => {
+          const cached = imageCache[doc._id];
+          return {
+            id: doc._id,
+            fileName: doc.fileName,
+            sourceUrl: doc.sourceUrl ?? "",
+            params: {
+              ...doc.params,
+              selectedFilmId: doc.params.selectedFilmId as FileRecord["params"]["selectedFilmId"],
+            },
+            convexId: doc._id,
+            createdAt: doc._creationTime,
+            renderUrl: cached?.renderUrl ?? null,
+            isProcessing: cached?.isProcessing ?? false,
+            renderError: cached?.renderError ?? null,
+            size: doc.size ?? null,
+          } satisfies FileRecord;
+        },
+      ),
     [queryData, imageCache],
   );
 
   const pendingFiles = useMemo(
-    () => images.filter((f) => !f.renderUrl && !f.isProcessing),
+    () => images.filter((f: FileRecord) => !f.renderUrl && !f.isProcessing),
     [images],
   );
 

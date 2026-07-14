@@ -60,6 +60,7 @@ vi.mock("@convex/_generated/api", () => ({
       getPlan: "getPlan",
     },
     subscriptions: { byUser: "subscriptions.byUser" },
+    entitlements: { byUser: "entitlements.byUser" },
   },
 }));
 
@@ -79,7 +80,6 @@ vi.mock("lucide-react", () => ({
   CheckIcon: () => <span data-testid="check-icon" />,
   CircleAlert: () => <span data-testid="circle-alert" />,
   Loader2: ({ className }: any) => <span data-testid="loader" className={className} />,
-  RotateCcw: () => <span data-testid="rotate-ccw" />,
 }));
 
 let locationHref = "";
@@ -96,7 +96,10 @@ describe("PricingPage", () => {
         locationHref = v;
       },
     });
-    mockUseQuery.mockReturnValue({ status: "success", data: [] });
+    mockUseQuery.mockImplementation(({ query }: any) => {
+      if (query === "subscriptions.byUser") return { status: "success", data: [] };
+      return { status: "success", data: { lookupKeys: [] } };
+    });
     mockGetPlan.mockResolvedValue(mockPlans);
     mockCreateCheckoutSession.mockResolvedValue({
       url: "https://checkout.stripe.com/session_123",
@@ -120,56 +123,36 @@ describe("PricingPage", () => {
   });
 
   it("shows Subscribed badge for active subscriptions", async () => {
-    mockUseQuery.mockReturnValue({
-      status: "success",
-      data: [{ productKey: "storage_paid", status: "active", _id: "s1" }],
+    mockUseQuery.mockImplementation(({ query }: any) => {
+      if (query === "subscriptions.byUser") return { status: "success", data: [] };
+      return { status: "success", data: { lookupKeys: ["storage_paid"] } };
     });
     render(<PricingPage />);
     await vi.waitFor(() => {
       const subscribedElements = screen.getAllByText("Subscribed");
       expect(subscribedElements.length).toBeGreaterThanOrEqual(1);
     });
-    const subscribeButtons = screen.getAllByText("Subscribe");
-    expect(subscribeButtons).toHaveLength(1);
+    const addToPlanButtons = screen.getAllByText("Add to My Plan");
+    expect(addToPlanButtons).toHaveLength(1);
   });
 
-  it("calls createCheckoutSession with correct priceId on Subscribe click", async () => {
+  it("calls createCheckoutSession with correct productKey on Subscribe click", async () => {
     render(<PricingPage />);
     await vi.waitFor(() => {
       expect(screen.getAllByText("Subscribe").length).toBeGreaterThanOrEqual(1);
     });
     fireEvent.click(screen.getAllByText("Subscribe")[0]);
     expect(mockCreateCheckoutSession).toHaveBeenCalledWith({
-      priceId: "price_storage_123",
+      productKey: "storage_paid",
     });
   });
 
   it("renders PricingError when getPlan fails", async () => {
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockGetPlan.mockRejectedValue(new Error("Network error"));
     render(<PricingPage />);
     await vi.waitFor(() => {
       expect(screen.getByText("Failed to load plans")).toBeDefined();
     });
-    expect(screen.getByText("Retry")).toBeDefined();
-    errorSpy.mockRestore();
-  });
-
-  it("retry button re-fetches plans after error", async () => {
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    mockGetPlan.mockRejectedValueOnce(new Error("Network error"));
-    render(<PricingPage />);
-    await vi.waitFor(() => {
-      expect(screen.getByText("Retry")).toBeDefined();
-    });
-
-    mockGetPlan.mockResolvedValue(mockPlans);
-    fireEvent.click(screen.getByText("Retry"));
-
-    await vi.waitFor(() => {
-      expect(screen.getByText("Storage")).toBeDefined();
-    });
-    errorSpy.mockRestore();
   });
 
   it("navigates to checkout URL on Subscribe click", async () => {

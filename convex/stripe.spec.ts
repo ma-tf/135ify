@@ -3,7 +3,7 @@ import { convexTest } from "convex-test";
 import { afterEach, beforeEach, describe, expect, test } from "vite-plus/test";
 
 import schema from "./schema";
-import { handleSyncSubscription, handleProvisionAccess, handleRevokeAccess } from "./stripeSync";
+import { handleSyncSubscription, handleSyncEntitlements } from "./stripeSync";
 
 const modules = import.meta.glob("./**/*.ts");
 
@@ -144,111 +144,64 @@ describe("syncSubscription", () => {
   });
 });
 
-describe("provisionAccess", () => {
-  test("sets storageTier to paid", async () => {
+describe("syncEntitlements", () => {
+  test("creates entitlement record with lookup keys", async () => {
     const t = setup();
 
     const userId = await t.run(async (ctx) => {
       return await ctx.db.insert("users", {
         email: null,
-        stripeCustomerId: "cus_provision",
+        stripeCustomerId: "cus_entitled",
       });
     });
 
     await t.run(async (ctx) => {
-      await handleProvisionAccess(ctx, "cus_provision");
+      await handleSyncEntitlements(ctx, "cus_entitled", ["storage_paid", "ai_generation_platform"]);
     });
 
-    const user = await t.run(async (ctx) => {
-      return await ctx.db.get(userId);
+    const entitlements = await t.run(async (ctx) => {
+      return await ctx.db
+        .query("userEntitlements")
+        .withIndex("by_userId", (q) => q.eq("userId", userId))
+        .first();
     });
 
-    expect(user!.storageTier).toBe("paid");
+    expect(entitlements?.lookupKeys).toEqual(["storage_paid", "ai_generation_platform"]);
   });
 
-  test("is idempotent", async () => {
+  test("updates existing entitlement record", async () => {
     const t = setup();
 
     const userId = await t.run(async (ctx) => {
       return await ctx.db.insert("users", {
         email: null,
-        stripeCustomerId: "cus_idempotent",
-        storageTier: "paid",
+        stripeCustomerId: "cus_update",
       });
     });
 
     await t.run(async (ctx) => {
-      await handleProvisionAccess(ctx, "cus_idempotent");
-      await handleProvisionAccess(ctx, "cus_idempotent");
+      await handleSyncEntitlements(ctx, "cus_update", ["storage_paid"]);
     });
 
-    const user = await t.run(async (ctx) => {
-      return await ctx.db.get(userId);
+    await t.run(async (ctx) => {
+      await handleSyncEntitlements(ctx, "cus_update", []);
     });
 
-    expect(user!.storageTier).toBe("paid");
+    const entitlements = await t.run(async (ctx) => {
+      return await ctx.db
+        .query("userEntitlements")
+        .withIndex("by_userId", (q) => q.eq("userId", userId))
+        .first();
+    });
+
+    expect(entitlements?.lookupKeys).toEqual([]);
   });
 
   test("unknown stripeCustomerId is a no-op", async () => {
     const t = setup();
 
     await t.run(async (ctx) => {
-      await handleProvisionAccess(ctx, "cus_nobody");
-    });
-  });
-});
-
-describe("revokeAccess", () => {
-  test("sets storageTier to free", async () => {
-    const t = setup();
-
-    const userId = await t.run(async (ctx) => {
-      return await ctx.db.insert("users", {
-        email: null,
-        stripeCustomerId: "cus_revoke",
-        storageTier: "paid",
-      });
-    });
-
-    await t.run(async (ctx) => {
-      await handleRevokeAccess(ctx, "cus_revoke");
-    });
-
-    const user = await t.run(async (ctx) => {
-      return await ctx.db.get(userId);
-    });
-
-    expect(user!.storageTier).toBe("free");
-  });
-
-  test("is idempotent", async () => {
-    const t = setup();
-
-    const userId = await t.run(async (ctx) => {
-      return await ctx.db.insert("users", {
-        email: null,
-        stripeCustomerId: "cus_revoke_idem",
-        storageTier: "free",
-      });
-    });
-
-    await t.run(async (ctx) => {
-      await handleRevokeAccess(ctx, "cus_revoke_idem");
-      await handleRevokeAccess(ctx, "cus_revoke_idem");
-    });
-
-    const user = await t.run(async (ctx) => {
-      return await ctx.db.get(userId);
-    });
-
-    expect(user!.storageTier).toBe("free");
-  });
-
-  test("unknown stripeCustomerId is a no-op", async () => {
-    const t = setup();
-
-    await t.run(async (ctx) => {
-      await handleRevokeAccess(ctx, "cus_nobody");
+      await handleSyncEntitlements(ctx, "cus_nobody", ["storage_paid"]);
     });
   });
 });

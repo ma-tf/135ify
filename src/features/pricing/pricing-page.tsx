@@ -1,11 +1,7 @@
-import { Button } from "@components/ui/button";
 import { Skeleton } from "@components/ui/skeleton";
-import { api } from "@convex/_generated/api";
-import { PlanCard, type Plan } from "@features/pricing/plan-card";
-import { useAction, useQuery_experimental as useQuery } from "convex/react";
-import { CircleAlert, RotateCcw } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useSubscriptions } from "@features/account/use-subscriptions";
+import { PlanCard } from "@features/pricing/plan-card";
+import { CircleAlert, PackageOpen } from "lucide-react";
 
 function PlanGridSkeleton() {
   return (
@@ -29,76 +25,53 @@ function PlanGridSkeleton() {
   );
 }
 
-function PricingError({ onRetry }: { onRetry: () => void }) {
+function PricingError() {
   return (
     <div className="flex flex-col items-center justify-center space-y-4 rounded-lg border border-destructive/50 p-12">
       <CircleAlert className="size-12 text-destructive" />
       <div className="space-y-1 text-center">
         <p className="font-semibold">Failed to load plans</p>
         <p className="text-sm text-muted-foreground">
-          Something went wrong while fetching pricing. Please try again.
+          Something went wrong while fetching pricing.
         </p>
       </div>
-      <Button onClick={onRetry}>
-        <RotateCcw className="mr-2 size-4" />
-        Retry
-      </Button>
+    </div>
+  );
+}
+
+function PlansEmpty() {
+  return (
+    <div className="flex flex-col items-center justify-center space-y-4 rounded-lg border p-12">
+      <PackageOpen className="size-12 text-muted-foreground" />
+      <div className="space-y-1 text-center">
+        <p className="font-semibold">No plans available</p>
+        <p className="text-sm text-muted-foreground">
+          Check back soon for available pricing plans.
+        </p>
+      </div>
     </div>
   );
 }
 
 export function PricingPage() {
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [plansLoading, setPlansLoading] = useState(true);
-  const [plansError, setPlansError] = useState(false);
-  const subscriptions = useQuery({ query: api.subscriptions.byUser, args: {} });
-  const getPlanAction = useAction(api.stripe.getPlan);
+  const { status, activePlans, plans } = useSubscriptions();
 
-  const fetchPlans = useCallback(() => {
-    setPlansError(false);
-    setPlansLoading(true);
-    void getPlanAction()
-      .then((results) => {
-        setPlans(results as Plan[]);
-        setPlansLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to load plans:", err);
-        toast.error("Failed to load plans");
-        setPlansError(true);
-        setPlansLoading(false);
-      });
-  }, [getPlanAction]);
-
-  useEffect(() => {
-    fetchPlans();
-  }, [fetchPlans]);
-
-  const handleRetry = useCallback(() => fetchPlans(), [fetchPlans]);
-
-  const subscribedKeys = new Set(
-    subscriptions.status === "success"
-      ? subscriptions.data.reduce((keys: string[], s: any) => {
-          if (s.status === "active" || s.status === "trialing") {
-            keys.push(s.productKey);
-          }
-          return keys;
-        }, [])
-      : [],
-  );
-
-  if (plansLoading) {
+  if (status === "pending") {
     return <PlanGridSkeleton />;
   }
 
-  if (plansError) {
-    return <PricingError onRetry={handleRetry} />;
+  if (status === "error") {
+    return <PricingError />;
+  }
+
+  if (plans.length === 0) {
+    return <PlansEmpty />;
   }
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {plans.map((plan) => (
-        <PlanCard key={plan.key} plan={plan} subscribedKeys={subscribedKeys} />
+        <PlanCard key={plan.key} plan={plan} activePlans={activePlans} />
       ))}
     </div>
   );

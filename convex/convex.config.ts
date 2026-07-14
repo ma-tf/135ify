@@ -15,8 +15,6 @@ const app = defineApp({
     OPENAI_API_KEY: v.string(),
     OPENAI_MONTHLY_SPEND_LIMIT_CENTS: v.optional(v.string()),
     SITE_URL: v.optional(v.string()),
-    STRIPE_STORAGE_PRICE_ID: v.optional(v.string()),
-    STRIPE_AI_PRICE_ID: v.optional(v.string()),
     AI_GENERATION_RATE_LIMIT_RATE: v.optional(v.string()),
     AI_GENERATION_RATE_LIMIT_PERIOD_MS: v.optional(v.string()),
     AI_GENERATION_GLOBAL_RATE: v.optional(v.string()),

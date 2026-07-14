@@ -7,12 +7,7 @@ import type { ActionCtx } from "./_generated/server";
 
 import { internal } from "./_generated/api";
 import { internalAction } from "./_generated/server";
-import {
-  STRIPE_AI_PRICE_ID,
-  STRIPE_SECRET_KEY,
-  STRIPE_STORAGE_PRICE_ID,
-  STRIPE_WEBHOOK_SECRET,
-} from "./config";
+import { STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } from "./config";
 
 export const processEvent = internalAction({
   args: { eventId: v.id("stripeEvents") },
@@ -71,20 +66,13 @@ async function handleSubscriptionCreated(event: Stripe.Event, ctx: ActionCtx) {
     metadata: sub.metadata,
   });
 
-  const productKey = sub.metadata.productKey as string | undefined;
-  if (productKey) {
-    const matchingItem = sub.items.data.find(
-      (item) => item.price.id === STRIPE_STORAGE_PRICE_ID || item.price.id === STRIPE_AI_PRICE_ID,
-    );
-    await ctx.runMutation(internal.subscriptions.upsert, {
-      productKey,
-      stripeSubscriptionId: sub.id,
-      stripeCustomerId: sub.customer as string,
-      status: sub.status,
-      currentPeriodEnd: matchingItem?.current_period_end ?? undefined,
-      cancelAtPeriodEnd: sub.cancel_at_period_end ?? undefined,
-    });
-  }
+  await ctx.runMutation(internal.subscriptions.upsert, {
+    stripeSubscriptionId: sub.id,
+    stripeCustomerId: sub.customer as string,
+    status: sub.status,
+    currentPeriodEnd: sub.items.data[0]?.current_period_end,
+    cancelAtPeriodEnd: sub.cancel_at_period_end,
+  });
 }
 
 async function handleSubscriptionUpdated(event: Stripe.Event, ctx: ActionCtx) {
@@ -95,20 +83,13 @@ async function handleSubscriptionUpdated(event: Stripe.Event, ctx: ActionCtx) {
     metadata: sub.metadata,
   });
 
-  const productKey = sub.metadata.productKey as string | undefined;
-  if (productKey) {
-    const matchingItem = sub.items.data.find(
-      (item) => item.price.id === STRIPE_STORAGE_PRICE_ID || item.price.id === STRIPE_AI_PRICE_ID,
-    );
-    await ctx.runMutation(internal.subscriptions.upsert, {
-      productKey,
-      stripeSubscriptionId: sub.id,
-      stripeCustomerId: sub.customer as string,
-      status: sub.status,
-      currentPeriodEnd: matchingItem?.current_period_end ?? undefined,
-      cancelAtPeriodEnd: sub.cancel_at_period_end ?? undefined,
-    });
-  }
+  await ctx.runMutation(internal.subscriptions.upsert, {
+    stripeSubscriptionId: sub.id,
+    stripeCustomerId: sub.customer as string,
+    status: sub.status,
+    currentPeriodEnd: sub.items.data[0]?.current_period_end,
+    cancelAtPeriodEnd: sub.cancel_at_period_end,
+  });
 }
 
 async function handleSubscriptionDeleted(event: Stripe.Event, ctx: ActionCtx) {
@@ -119,12 +100,9 @@ async function handleSubscriptionDeleted(event: Stripe.Event, ctx: ActionCtx) {
     metadata: sub.metadata,
   });
 
-  const productKey = sub.metadata.productKey as string | undefined;
-  if (productKey) {
-    await ctx.runMutation(internal.subscriptions.remove, {
-      stripeSubscriptionId: sub.id,
-    });
-  }
+  await ctx.runMutation(internal.subscriptions.remove, {
+    stripeSubscriptionId: sub.id,
+  });
 }
 
 async function handleEntitlementEvent(event: Stripe.Event, ctx: ActionCtx) {
@@ -134,9 +112,5 @@ async function handleEntitlementEvent(event: Stripe.Event, ctx: ActionCtx) {
     (e: Stripe.Entitlements.ActiveEntitlement) => e.lookup_key,
   );
 
-  if (lookupKeys.includes("gallery-storage-paid")) {
-    await ctx.runMutation(internal.stripeSync.provisionAccess, { stripeCustomerId });
-  } else {
-    await ctx.runMutation(internal.stripeSync.revokeAccess, { stripeCustomerId });
-  }
+  await ctx.runMutation(internal.stripeSync.syncEntitlements, { stripeCustomerId, lookupKeys });
 }

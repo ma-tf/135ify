@@ -1,3 +1,5 @@
+import type { FileRecord } from "@stores/file-store-types";
+
 import { GalleryCard } from "@features/gallery/gallery-card";
 import { GallerySkeleton } from "@features/gallery/gallery-skeleton";
 import { UsageBar } from "@features/gallery/gallery-usage-bar";
@@ -40,7 +42,7 @@ export function GalleryPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {images.map((image) => (
+            {images.map((image: FileRecord) => (
               <GalleryCard key={image.id} image={image} />
             ))}
           </div>

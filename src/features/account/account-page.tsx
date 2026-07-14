@@ -1,27 +1,23 @@
 import { AiKeyForm } from "@components/ai-key-form";
 import { Skeleton } from "@components/ui/skeleton";
 import { FEATURE_AI_GRAIN } from "@config";
-import { api } from "@convex/_generated/api";
 import { ActiveSubscriptions } from "@features/account/active-subscriptions";
 import { ManageSubscriptionButton } from "@features/account/manage-subscription-button";
-import { useQuery_experimental as useQuery } from "convex/react";
+import { useSubscriptions } from "@features/account/use-subscriptions";
 import { ShoppingBag } from "lucide-react";
 
 export function AccountPage() {
-  const subscriptions = useQuery({ query: api.subscriptions.byUser, args: {} });
+  const { status, subscription, activePlans, plans } = useSubscriptions();
 
-  if (subscriptions.status === "pending") {
+  if (status === "pending") {
     return <SubscriptionsSkeleton />;
   }
 
-  if (subscriptions.status === "error") {
+  if (status === "error") {
     return <SubscriptionsError />;
   }
 
-  const activeSubs = subscriptions.data.filter(
-    (s: any) => s.status === "active" || s.status === "trialing",
-  );
-  const hasAiSub = activeSubs.some((s: any) => s.productKey === "ai_generation_platform");
+  const hasAiSub = activePlans.some((p) => p.key === "ai_generation_platform");
 
   return (
     <>
@@ -29,14 +25,18 @@ export function AccountPage() {
         <h2 className="text-lg font-semibold">Subscriptions</h2>
         <p className="text-sm text-muted-foreground">Manage your plan subscriptions and billing.</p>
         <div className="mt-4 space-y-4">
-          {activeSubs.length > 0 ? (
-            <ActiveSubscriptions subs={activeSubs} />
+          {subscription ? (
+            <ActiveSubscriptions
+              subscription={subscription}
+              activePlans={activePlans}
+              plans={plans}
+            />
           ) : (
             <EmptySubscriptions />
           )}
         </div>
       </div>
-      {activeSubs.length > 0 && <ManageSubscriptionButton />}
+      {subscription && <ManageSubscriptionButton />}
       {FEATURE_AI_GRAIN && (
         <section className="space-y-4">
           <div>
@@ -67,7 +67,7 @@ function SubscriptionsSkeleton() {
 }
 
 function SubscriptionsError() {
-  return <p className="text-sm text-destructive">Failed to load subscriptions.</p>;
+  return <p className="text-sm text-destructive">Failed to load subscription data.</p>;
 }
 
 function EmptySubscriptions() {

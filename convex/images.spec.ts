@@ -28,27 +28,22 @@ afterEach(() => {
 async function setup(tier?: string) {
   const t = convexTest({ schema, modules });
   const userId = await t.run(async (ctx) => {
-    return await ctx.db.insert("users", {
-      email: null,
-      ...(tier ? { storageTier: tier as "free" | "paid" } : {}),
-    });
+    const userId = await ctx.db.insert("users", { email: null });
+    if (tier === "paid") {
+      await ctx.db.insert("userEntitlements", {
+        userId,
+        lookupKeys: ["storage_paid"],
+        updated: Date.now(),
+      });
+    }
+    return userId;
   });
   return t.withIdentity({ subject: `${userId}|session` });
 }
 
 describe("getStorageUsage", () => {
-  test("returns free tier limits for user with no tier set", async () => {
+  test("returns free tier limits for user with no entitlements", async () => {
     const authed = await setup();
-
-    const result = await authed.query(api.images.getStorageUsage);
-
-    expect(result.imageLimit).toBe(36);
-    expect(result.storageLimitBytes).toBe(360 * 1024 * 1024);
-    expect(result.tier).toBe("free");
-  });
-
-  test("returns free tier limits for free user", async () => {
-    const authed = await setup("free");
 
     const result = await authed.query(api.images.getStorageUsage);
 

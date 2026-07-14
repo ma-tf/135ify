@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 import type { Doc } from "./_generated/dataModel";
 
+import { internal } from "./_generated/api";
 import { internalMutation, mutation, query } from "./_generated/server";
 import { requireAuth } from "./lib";
 import { rateLimiter } from "./rateLimiter";
@@ -34,22 +35,11 @@ export const createJob = mutation({
     await rateLimiter.limit(ctx, "aiGenerationGlobal", { throws: true });
     await rateLimiter.limit(ctx, "aiGenerationPerUser", { key: userId, throws: true });
 
-    const subResult = await ctx.db
-      .query("subscriptions")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("productKey"), "ai_generation_platform"),
-          q.and(
-            q.neq(q.field("status"), "canceled"),
-            q.neq(q.field("status"), "unpaid"),
-            q.neq(q.field("status"), "incomplete_expired"),
-          ),
-        ),
-      )
-      .first();
+    const hasAiGeneration: boolean = await ctx.runQuery(internal.entitlements.hasEntitlement, {
+      entitlement: "ai_generation_platform",
+    });
 
-    if (!subResult && !args.apiKey) {
+    if (!hasAiGeneration && !args.apiKey) {
       throw new Error("No API key available. Subscribe to AI Generation or provide your own key.");
     }
 
@@ -141,22 +131,11 @@ export const retryJob = mutation({
     await rateLimiter.limit(ctx, "aiGenerationGlobal", { throws: true });
     await rateLimiter.limit(ctx, "aiGenerationPerUser", { key: userId, throws: true });
 
-    const subResult = await ctx.db
-      .query("subscriptions")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("productKey"), "ai_generation_platform"),
-          q.and(
-            q.neq(q.field("status"), "canceled"),
-            q.neq(q.field("status"), "unpaid"),
-            q.neq(q.field("status"), "incomplete_expired"),
-          ),
-        ),
-      )
-      .first();
+    const hasAiGeneration: boolean = await ctx.runQuery(internal.entitlements.hasEntitlement, {
+      entitlement: "ai_generation_platform",
+    });
 
-    if (!subResult && !args.apiKey) {
+    if (!hasAiGeneration && !args.apiKey) {
       throw new Error("No API key available. Subscribe to AI Generation or provide your own key.");
     }
 

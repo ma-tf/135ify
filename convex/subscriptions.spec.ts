@@ -22,10 +22,10 @@ describe("byUser", () => {
     await authed.run(async (ctx) => {
       await ctx.db.insert("subscriptions", {
         userId,
-        productKey: "ai_generation_platform",
         stripeSubscriptionId: "sub_1",
         stripeCustomerId: "cus_test",
         status: "active",
+        cancelAtPeriodEnd: false,
       });
     });
 
@@ -48,10 +48,10 @@ describe("upsert", () => {
 
     await authed.mutation(internal.subscriptions.upsert, {
       userId,
-      productKey: "ai_generation_platform",
       stripeSubscriptionId: "sub_new",
       stripeCustomerId: "cus_new",
       status: "active",
+      cancelAtPeriodEnd: false,
     });
 
     const subs = await authed.run(async (ctx) => {
@@ -67,16 +67,15 @@ describe("upsert", () => {
     await authed.run(async (ctx) => {
       await ctx.db.insert("subscriptions", {
         userId,
-        productKey: "ai_generation_platform",
         stripeSubscriptionId: "sub_existing",
         stripeCustomerId: "cus_existing",
         status: "active",
+        cancelAtPeriodEnd: false,
       });
     });
 
     await authed.mutation(internal.subscriptions.upsert, {
       userId,
-      productKey: "ai_generation_platform",
       stripeSubscriptionId: "sub_existing",
       stripeCustomerId: "cus_existing",
       status: "past_due",
@@ -101,10 +100,10 @@ describe("upsert", () => {
     });
 
     await authed.mutation(internal.subscriptions.upsert, {
-      productKey: "ai_generation_platform",
       stripeSubscriptionId: "sub_lookup",
       stripeCustomerId: "cus_lookup",
       status: "active",
+      cancelAtPeriodEnd: false,
     });
 
     const subs = await authed.run(async (ctx) => {
@@ -118,10 +117,10 @@ describe("upsert", () => {
     const { t: authed } = await setup();
 
     await authed.mutation(internal.subscriptions.upsert, {
-      productKey: "ai_generation_platform",
       stripeSubscriptionId: "sub_no_user",
       stripeCustomerId: "cus_nobody",
       status: "active",
+      cancelAtPeriodEnd: false,
     });
 
     const subs = await authed.run(async (ctx) => {
@@ -138,10 +137,10 @@ describe("remove", () => {
     await authed.run(async (ctx) => {
       await ctx.db.insert("subscriptions", {
         userId,
-        productKey: "ai_generation_platform",
         stripeSubscriptionId: "sub_delete",
         stripeCustomerId: "cus_delete",
         status: "active",
+        cancelAtPeriodEnd: false,
       });
     });
 

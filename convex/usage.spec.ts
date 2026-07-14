@@ -109,39 +109,40 @@ describe("getAiUsage", () => {
     expect(result).toBeNull();
   });
 
-  async function setupWithSub(overrides?: { currentPeriodEnd?: number }) {
+  async function setupWithSub() {
     const t = convexTest({ schema, modules });
     registerRateLimiter(t);
     const userId = await t.run(async (ctx) => {
       return await ctx.db.insert("users", { email: null });
     });
     await t.run(async (ctx) => {
-      await ctx.db.insert("subscriptions", {
+      await ctx.db.insert("userEntitlements", {
         userId,
-        productKey: "ai_generation_platform",
-        stripeSubscriptionId: `sub_${Math.random()}`,
-        stripeCustomerId: `cus_${Math.random()}`,
-        status: "active",
-        currentPeriodEnd: overrides?.currentPeriodEnd,
+        lookupKeys: ["ai_generation_platform"],
+        updated: Date.now(),
       });
     });
     return t.withIdentity({ subject: `${userId}|session` });
   }
 
   test("returns usage for a subscriber with no recorded usage", async () => {
-    const futurePeriodEnd = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
-    const authed = await setupWithSub({ currentPeriodEnd: futurePeriodEnd });
+    const authed = await setupWithSub();
     const result = await authed.query(api.usage.getAiUsage, {});
     expect(result).not.toBeNull();
     expect(result!.usedCents).toBe(0);
     expect(result!.limitCents).toBe(500);
     expect(result!.atLimit).toBe(false);
-    expect(result!.resetsAt).toBe(futurePeriodEnd * 1000);
+    expect(result!.resetsAt).toBe(
+      new Date(
+        new Date(Date.now()).getFullYear(),
+        new Date(Date.now()).getMonth() + 1,
+        1,
+      ).getTime(),
+    );
   });
 
   test("returns usage with correct sum for a subscriber with recorded usage", async () => {
-    const futurePeriodEnd = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
-    const authed = await setupWithSub({ currentPeriodEnd: futurePeriodEnd });
+    const authed = await setupWithSub();
 
     const sourceStorageId = await authed.run(async (ctx) => {
       return await ctx.storage.store(new Blob(["fake"], { type: "image/png" }));
@@ -177,7 +178,13 @@ describe("getAiUsage", () => {
     expect(result!.usedCents).toBe(30);
     expect(result!.limitCents).toBe(500);
     expect(result!.atLimit).toBe(false);
-    expect(result!.resetsAt).toBe(futurePeriodEnd * 1000);
+    expect(result!.resetsAt).toBe(
+      new Date(
+        new Date(Date.now()).getFullYear(),
+        new Date(Date.now()).getMonth() + 1,
+        1,
+      ).getTime(),
+    );
   });
 
   test("falls back to end-of-month when subscription has no currentPeriodEnd", async () => {
@@ -193,8 +200,7 @@ describe("getAiUsage", () => {
   });
 
   test("returns atLimit: true when usedCents >= limitCents", async () => {
-    const futurePeriodEnd = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
-    const authed = await setupWithSub({ currentPeriodEnd: futurePeriodEnd });
+    const authed = await setupWithSub();
 
     const sourceStorageId = await authed.run(async (ctx) => {
       return await ctx.storage.store(new Blob(["fake"], { type: "image/png" }));

@@ -12,6 +12,7 @@ import type * as aiGenerationJobs from "../aiGenerationJobs.js";
 import type * as aiGenerationJobsActions from "../aiGenerationJobsActions.js";
 import type * as auth from "../auth.js";
 import type * as config from "../config.js";
+import type * as entitlements from "../entitlements.js";
 import type * as http from "../http.js";
 import type * as images from "../images.js";
 import type * as lib from "../lib.js";
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   aiGenerationJobsActions: typeof aiGenerationJobsActions;
   auth: typeof auth;
   config: typeof config;
+  entitlements: typeof entitlements;
   http: typeof http;
   images: typeof images;
   lib: typeof lib;

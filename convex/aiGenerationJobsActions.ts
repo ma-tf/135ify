@@ -100,11 +100,11 @@ async function guardAiGeneration(
   jobId: Id<"aiGenerationJobs">,
   providedKey: string | undefined,
 ): Promise<string | null> {
-  const subResult = await ctx.runQuery(internal.subscriptions.hasActive, {
-    productKey: "ai_generation_platform",
+  const hasAiGeneration = await ctx.runQuery(internal.entitlements.hasEntitlement, {
+    entitlement: "ai_generation_platform",
   });
 
-  const resolvedKey = subResult.active ? OPENAI_API_KEY : providedKey;
+  const resolvedKey = hasAiGeneration ? OPENAI_API_KEY : providedKey;
 
   if (!resolvedKey) {
     await ctx.runMutation(api.aiGenerationJobs.setJobStatus, {
@@ -115,12 +115,10 @@ async function guardAiGeneration(
     return null;
   }
 
-  if (subResult.active) {
+  if (hasAiGeneration) {
     const now = Date.now();
     const date = new Date(now);
-    const periodEnd = subResult.currentPeriodEnd
-      ? subResult.currentPeriodEnd * 1000
-      : new Date(date.getFullYear(), date.getMonth() + 1, 1).getTime();
+    const periodEnd = new Date(date.getFullYear(), date.getMonth() + 1, 1).getTime();
     const periodStart = periodEnd - 30 * 24 * 60 * 60 * 1000;
 
     const usedCents = await ctx.runQuery(internal.usage.getMonthlyCost, {

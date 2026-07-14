@@ -47,19 +47,17 @@ describe("aiGenerationJobs setJobStatus", () => {
 });
 
 describe("aiGenerationJobs subscription gating", () => {
-  async function setupWithSub(status = "active") {
+  async function setupWithSub() {
     const t = convexTest({ schema, modules });
     registerRateLimiter(t);
     const userId = await t.run(async (ctx) => {
       return await ctx.db.insert("users", { email: null });
     });
     await t.run(async (ctx) => {
-      await ctx.db.insert("subscriptions", {
+      await ctx.db.insert("userEntitlements", {
         userId,
-        productKey: "ai_generation_platform",
-        stripeSubscriptionId: `sub_${Math.random()}`,
-        stripeCustomerId: `cus_${Math.random()}`,
-        status,
+        lookupKeys: ["ai_generation_platform"],
+        updated: Date.now(),
       });
     });
     return t.withIdentity({ subject: `${userId}|session` });
@@ -111,8 +109,8 @@ describe("aiGenerationJobs subscription gating", () => {
     ).rejects.toThrow("No API key available");
   });
 
-  test("createJob throws for user with canceled subscription without apiKey", async () => {
-    const authed = await setupWithSub("canceled");
+  test("createJob throws for user without entitlement without apiKey", async () => {
+    const authed = await setup();
 
     const sourceStorageId = await authed.run(async (ctx) => {
       return await ctx.storage.store(new Blob(["fake-image"], { type: "image/png" }));

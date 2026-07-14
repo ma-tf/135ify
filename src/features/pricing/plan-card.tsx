@@ -5,26 +5,58 @@ import { api } from "@convex/_generated/api";
 import { useAction } from "convex/react";
 import { CheckIcon, Loader2 } from "lucide-react";
 import { useCallback, useState } from "react";
+import { toast } from "sonner";
 
 export type Plan = FunctionReturnType<typeof api.stripe.getPlan>[number];
 
-export function PlanCard({ plan, subscribedKeys }: { plan: Plan; subscribedKeys: Set<string> }) {
-  const isSubscribed = subscribedKeys.has(plan.key);
+function usePlanAction(planKey: string, activePlans: Plan[]) {
+  const isSubscribed = activePlans.some((p) => p.key === planKey);
+  const hasExistingSubscription = activePlans.length > 0;
   const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const createCheckoutSession = useAction(api.stripe.createCheckoutSession);
+  const addToSubscription = useAction(api.stripe.addToSubscription);
 
-  const handleSubscribe = useCallback(() => {
+  const subscribe = useCallback(() => {
+    setError(null);
     setIsPending(true);
-    void createCheckoutSession({ priceId: plan.priceId })
+    void createCheckoutSession({ productKey: planKey })
       .then((result) => {
-        if (result.url) {
-          window.location.href = result.url;
-        }
+        if (result.url) window.location.href = result.url;
       })
-      .finally(() => {
-        setIsPending(false);
-      });
-  }, [createCheckoutSession, plan.priceId]);
+      .catch((err: Error) => {
+        setError(err.message);
+        toast.error(err.message);
+      })
+      .finally(() => setIsPending(false));
+  }, [createCheckoutSession, planKey]);
+
+  const addToPlan = useCallback(() => {
+    setError(null);
+    setIsPending(true);
+    void addToSubscription({ productKey: planKey })
+      .then((result) => {
+        if (result.url) window.location.href = result.url;
+      })
+      .catch((err: Error) => {
+        setError(err.message);
+        toast.error(err.message);
+      })
+      .finally(() => setIsPending(false));
+  }, [addToSubscription, planKey]);
+
+  const action = isSubscribed ? null : hasExistingSubscription ? addToPlan : subscribe;
+  const label = isSubscribed
+    ? "Subscribed"
+    : hasExistingSubscription
+      ? "Add to My Plan"
+      : "Subscribe";
+
+  return { action, label, isPending, error, isSubscribed };
+}
+
+export function PlanCard({ plan, activePlans }: { plan: Plan; activePlans: Plan[] }) {
+  const { action, label, isPending, error, isSubscribed } = usePlanAction(plan.key, activePlans);
 
   return (
     <div
@@ -53,23 +85,26 @@ export function PlanCard({ plan, subscribedKeys }: { plan: Plan; subscribedKeys:
       <div className="mt-6">
         {isSubscribed ? (
           <Button variant="outline" className="w-full" disabled>
-            Subscribed
+            {label}
           </Button>
         ) : (
-          <Button
-            className="w-full"
-            disabled={!plan.priceId || isPending}
-            onClick={handleSubscribe}
-          >
-            {isPending ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
-                Redirecting...
-              </>
-            ) : (
-              "Subscribe"
-            )}
-          </Button>
+          <>
+            <Button
+              className="w-full"
+              disabled={!plan.priceId || isPending}
+              onClick={action ?? undefined}
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  Redirecting...
+                </>
+              ) : (
+                label
+              )}
+            </Button>
+            {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+          </>
         )}
       </div>
     </div>

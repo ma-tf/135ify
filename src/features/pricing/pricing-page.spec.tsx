@@ -11,6 +11,7 @@ const { mockUseQuery, mockUseAction } = vi.hoisted(() => ({
 vi.mock("@convex/_generated/api", () => ({
   api: {
     subscriptions: { byUser: "subscriptions.byUser" },
+    entitlements: { byUser: "entitlements.byUser" },
     stripe: {
       getPlan: "stripe.getPlan",
       createCheckoutSession: "stripe.createCheckoutSession",
@@ -28,9 +29,10 @@ vi.mock("@components/ui/skeleton", () => ({
 }));
 
 vi.mock("@features/pricing/plan-card", () => ({
-  PlanCard: vi.fn(({ plan, subscribedKeys }: any) => (
+  PlanCard: vi.fn(({ plan, activePlans }: any) => (
     <div data-testid="plan-card">
-      {plan.key}: {subscribedKeys.has(plan.key) ? "subscribed" : "not-subscribed"}
+      {plan.key}:{" "}
+      {activePlans.some((p: any) => p.key === plan.key) ? "subscribed" : "not-subscribed"}
     </div>
   )),
 }));
@@ -69,13 +71,21 @@ describe("PricingPage", () => {
     features: ["Feature B"],
   };
 
-  function mockResolved(plans: Plan[], subs: { status: string; productKey: string }[]) {
-    mockUseQuery.mockReturnValue({ status: "success", data: subs });
+  function mockResolved(plans: Plan[], lookupKeys: string[]) {
+    mockUseQuery.mockImplementation((args: any) => {
+      if (args.query === "subscriptions.byUser") {
+        return { status: "success" as const, data: [] };
+      }
+      if (args.query === "entitlements.byUser") {
+        return { status: "success" as const, data: { lookupKeys } };
+      }
+      return { status: "pending" as const };
+    });
     mockUseAction.mockReturnValue(vi.fn().mockResolvedValue(plans));
   }
 
   it("includes active subscriptions in subscribedKeys", async () => {
-    mockResolved([proPlan], [{ status: "active", productKey: "pro" }]);
+    mockResolved([proPlan], ["pro"]);
 
     render(<PricingPage />);
 
@@ -85,7 +95,7 @@ describe("PricingPage", () => {
   });
 
   it("includes trialing subscriptions in subscribedKeys", async () => {
-    mockResolved([proPlan], [{ status: "trialing", productKey: "pro" }]);
+    mockResolved([proPlan], ["pro"]);
 
     render(<PricingPage />);
 
@@ -95,16 +105,6 @@ describe("PricingPage", () => {
   });
 
   it("excludes canceled subscriptions from subscribedKeys", async () => {
-    mockResolved([proPlan], [{ status: "canceled", productKey: "pro" }]);
-
-    render(<PricingPage />);
-
-    await waitFor(() => {
-      expect(screen.getByText("pro: not-subscribed")).toBeDefined();
-    });
-  });
-
-  it("handles empty subscriptions array", async () => {
     mockResolved([proPlan], []);
 
     render(<PricingPage />);
@@ -114,8 +114,26 @@ describe("PricingPage", () => {
     });
   });
 
-  it("uses empty Set when subscription query is not success", async () => {
-    mockUseQuery.mockReturnValue({ status: "pending" });
+  it("handles empty entitlements array", async () => {
+    mockResolved([proPlan], []);
+
+    render(<PricingPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("pro: not-subscribed")).toBeDefined();
+    });
+  });
+
+  it("uses empty Set when entitlement data is null", async () => {
+    mockUseQuery.mockImplementation((args: any) => {
+      if (args.query === "subscriptions.byUser") {
+        return { status: "success" as const, data: [] };
+      }
+      if (args.query === "entitlements.byUser") {
+        return { status: "success" as const, data: null };
+      }
+      return { status: "pending" as const };
+    });
     mockUseAction.mockReturnValue(vi.fn().mockResolvedValue([proPlan]));
 
     render(<PricingPage />);
@@ -126,7 +144,7 @@ describe("PricingPage", () => {
   });
 
   it("correctly distinguishes subscribed vs unsubscribed across multiple plans", async () => {
-    mockResolved([basicPlan, proPlan], [{ status: "active", productKey: "pro" }]);
+    mockResolved([basicPlan, proPlan], ["pro"]);
 
     render(<PricingPage />);
 

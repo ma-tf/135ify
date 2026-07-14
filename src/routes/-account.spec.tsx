@@ -79,6 +79,7 @@ vi.mock("@convex/_generated/api", () => ({
       createPortalSession: "createPortalSession",
     },
     subscriptions: { byUser: "subscriptions.byUser" },
+    entitlements: { byUser: "entitlements.byUser" },
   },
 }));
 
@@ -130,10 +131,12 @@ describe("AccountPage", () => {
     });
   });
 
-  it("shows empty state when user has no subscriptions", () => {
+  it("shows empty state when user has no subscriptions", async () => {
     render(<AccountPage />);
-    expect(screen.getByText("No active subscriptions")).toBeDefined();
-    expect(screen.getByText("View plans")).toBeDefined();
+    await vi.waitFor(() => {
+      expect(screen.getByText("No active subscriptions")).toBeDefined();
+      expect(screen.getByText("View plans")).toBeDefined();
+    });
   });
 
   it("shows skeleton loading state while subscriptions are pending", () => {
@@ -149,12 +152,31 @@ describe("AccountPage", () => {
       data: [
         {
           _id: "sub1",
-          productKey: "storage_paid",
           status: "active",
           currentPeriodEnd: Math.floor(Date.now() / 1000) + 86400 * 30,
           cancelAtPeriodEnd: false,
         },
       ],
+    });
+    mockUseQuery.mockImplementation(({ query }: any) => {
+      if (query === "subscriptions.byUser")
+        return {
+          status: "success",
+          data: [
+            {
+              _id: "sub1",
+              status: "active",
+              currentPeriodEnd: Math.floor(Date.now() / 1000) + 86400 * 30,
+              cancelAtPeriodEnd: false,
+            },
+          ],
+        };
+      if (query === "entitlements.byUser")
+        return {
+          status: "success",
+          data: { lookupKeys: ["storage_paid"] },
+        };
+      return { status: "success", data: null };
     });
     render(<AccountPage />);
     await vi.waitFor(() => {
@@ -166,7 +188,7 @@ describe("AccountPage", () => {
   it("shows Manage Subscription button when subscriptions exist", async () => {
     mockUseQuery.mockReturnValue({
       status: "success",
-      data: [{ _id: "sub1", productKey: "storage_paid", status: "active" }],
+      data: [{ _id: "sub1", status: "active" }],
     });
     render(<AccountPage />);
     await vi.waitFor(() => {
@@ -182,7 +204,7 @@ describe("AccountPage", () => {
   it("calls createPortalSession on Manage Subscription click", async () => {
     mockUseQuery.mockReturnValue({
       status: "success",
-      data: [{ _id: "sub1", productKey: "storage_paid", status: "active" }],
+      data: [{ _id: "sub1", status: "active" }],
     });
     render(<AccountPage />);
     await vi.waitFor(() => {
@@ -195,7 +217,7 @@ describe("AccountPage", () => {
   it("redirects to Stripe Portal URL after successful manage", async () => {
     mockUseQuery.mockReturnValue({
       status: "success",
-      data: [{ _id: "sub1", productKey: "storage_paid", status: "active" }],
+      data: [{ _id: "sub1", status: "active" }],
     });
 
     const originalHref = window.location.href;
@@ -220,44 +242,69 @@ describe("AccountPage", () => {
     });
   });
 
-  it("shows loading state while redirecting to portal", () => {
+  it("shows loading state while redirecting to portal", async () => {
     mockCreatePortalSession.mockReturnValue(new Promise(() => {}));
     mockUseQuery.mockReturnValue({
       status: "success",
-      data: [{ _id: "sub1", productKey: "storage_paid", status: "active" }],
+      data: [{ _id: "sub1", status: "active" }],
     });
     render(<AccountPage />);
+    await vi.waitFor(() => {
+      expect(screen.getByText("Manage Subscription")).toBeDefined();
+    });
     fireEvent.click(screen.getByText("Manage Subscription"));
     expect(screen.getByText("Redirecting...")).toBeDefined();
   });
 
-  it("shows error state when subscriptions fail to load", () => {
+  it("handles portal session response without a url", async () => {
+    mockCreatePortalSession.mockResolvedValue({});
+    mockUseQuery.mockReturnValue({
+      status: "success",
+      data: [{ _id: "sub1", status: "active" }],
+    });
+
+    render(<AccountPage />);
+    await vi.waitFor(() => {
+      expect(screen.getByText("Manage Subscription")).toBeDefined();
+    });
+    fireEvent.click(screen.getByText("Manage Subscription"));
+  });
+
+  it("shows error state when subscriptions fail to load", async () => {
     mockUseQuery.mockReturnValue({ status: "error", error: new Error("fail") });
     render(<AccountPage />);
-    expect(screen.getByText("Failed to load subscriptions.")).toBeDefined();
+    await vi.waitFor(() => {
+      expect(screen.getByText("Failed to load subscription data.")).toBeDefined();
+    });
   });
 
   describe("ApiKeyForm", () => {
-    it("renders the API key form", () => {
+    it("renders the API key form", async () => {
       render(<AccountPage />);
-      expect(screen.getByLabelText("API Key")).toBeDefined();
-      expect(screen.getByText("Save")).toBeDefined();
-      expect(screen.getByText("Clear")).toBeDefined();
+      await vi.waitFor(() => {
+        expect(screen.getByLabelText("API Key")).toBeDefined();
+        expect(screen.getByText("Save")).toBeDefined();
+        expect(screen.getByText("Clear")).toBeDefined();
+      });
     });
 
-    it("Save button is disabled when input is empty", () => {
+    it("Save button is disabled when input is empty", async () => {
       render(<AccountPage />);
-      const saveButton = screen.getByText("Save");
-      expect((saveButton as HTMLButtonElement).disabled).toBe(true);
+      await vi.waitFor(() => {
+        const saveButton = screen.getByText("Save");
+        expect((saveButton as HTMLButtonElement).disabled).toBe(true);
+      });
     });
 
-    it("Clear button is disabled when no key is stored", () => {
+    it("Clear button is disabled when no key is stored", async () => {
       render(<AccountPage />);
-      const clearButton = screen.getByText("Clear");
-      expect((clearButton as HTMLButtonElement).disabled).toBe(true);
+      await vi.waitFor(() => {
+        const clearButton = screen.getByText("Clear");
+        expect((clearButton as HTMLButtonElement).disabled).toBe(true);
+      });
     });
 
-    it("Save persists the key and shows a success toast", () => {
+    it("Save persists the key and shows a success toast", async () => {
       const setApiKey = vi.fn();
       mockUseAiProviderStore.mockReturnValue({
         apiKey: "",
@@ -267,6 +314,9 @@ describe("AccountPage", () => {
         setPreferPlatformKey: vi.fn(),
       });
       render(<AccountPage />);
+      await vi.waitFor(() => {
+        expect(screen.getByLabelText("API Key")).toBeDefined();
+      });
       const input = screen.getByLabelText("API Key");
       fireEvent.change(input, { target: { value: "sk-new-key" } });
       fireEvent.click(screen.getByText("Save"));
@@ -274,7 +324,7 @@ describe("AccountPage", () => {
       expect(toast.success).toHaveBeenCalledWith("API key saved");
     });
 
-    it("Clear removes the key and resets the input", () => {
+    it("Clear removes the key and resets the input", async () => {
       const clearApiKey = vi.fn();
       mockUseAiProviderStore.mockReturnValue({
         apiKey: "sk-to-clear",
@@ -284,16 +334,23 @@ describe("AccountPage", () => {
         setPreferPlatformKey: vi.fn(),
       });
       render(<AccountPage />);
+      await vi.waitFor(() => {
+        expect(screen.getByText("Clear")).toBeDefined();
+      });
       fireEvent.click(screen.getByText("Clear"));
       expect(clearApiKey).toHaveBeenCalled();
       const input = screen.getByLabelText("API Key") as HTMLInputElement;
       expect(input.value).toBe("");
     });
 
-    it("shows platform key toggle when user has AI subscription and api key", () => {
-      mockUseQuery.mockReturnValue({
-        status: "success",
-        data: [{ productKey: "ai_generation_platform", status: "active" }],
+    it("shows platform key toggle when user has AI subscription and api key", async () => {
+      mockUseQuery.mockImplementation(({ query }: any) => {
+        if (query === "subscriptions.byUser")
+          return {
+            status: "success",
+            data: [{ _id: "sub1", status: "active" }],
+          };
+        return { status: "success", data: { lookupKeys: ["ai_generation_platform"] } };
       });
       mockUseAiProviderStore.mockReturnValue({
         apiKey: "sk-test",
@@ -303,7 +360,9 @@ describe("AccountPage", () => {
         setPreferPlatformKey: vi.fn(),
       });
       render(<AccountPage />);
-      expect(screen.getByText("Use my own API key")).toBeDefined();
+      await vi.waitFor(() => {
+        expect(screen.getByText("Use my own API key")).toBeDefined();
+      });
     });
 
     it("hides platform key toggle when no AI subscription", () => {
@@ -319,19 +378,27 @@ describe("AccountPage", () => {
     });
 
     it("hides platform key toggle when no API key set", () => {
-      mockUseQuery.mockReturnValue({
-        status: "success",
-        data: [{ productKey: "ai_generation_platform", status: "active" }],
+      mockUseQuery.mockImplementation(({ query }: any) => {
+        if (query === "subscriptions.byUser")
+          return {
+            status: "success",
+            data: [{ _id: "sub1", status: "active" }],
+          };
+        return { status: "success", data: { lookupKeys: ["ai_generation_platform"] } };
       });
       render(<AccountPage />);
       expect(screen.queryByText("Use my own API key")).toBeNull();
     });
 
-    it("toggles platform key preference on click", () => {
+    it("toggles platform key preference on click", async () => {
       const setPreferPlatformKey = vi.fn();
-      mockUseQuery.mockReturnValue({
-        status: "success",
-        data: [{ productKey: "ai_generation_platform", status: "active" }],
+      mockUseQuery.mockImplementation(({ query }: any) => {
+        if (query === "subscriptions.byUser")
+          return {
+            status: "success",
+            data: [{ _id: "sub1", status: "active" }],
+          };
+        return { status: "success", data: { lookupKeys: ["ai_generation_platform"] } };
       });
       mockUseAiProviderStore.mockReturnValue({
         apiKey: "sk-test",
@@ -341,6 +408,9 @@ describe("AccountPage", () => {
         setPreferPlatformKey,
       });
       render(<AccountPage />);
+      await vi.waitFor(() => {
+        expect(screen.getByRole("switch")).toBeDefined();
+      });
       fireEvent.click(screen.getByRole("switch"));
       expect(setPreferPlatformKey).toHaveBeenCalledWith(false);
     });

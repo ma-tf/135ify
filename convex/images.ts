@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 import type { Doc } from "./_generated/dataModel";
 
+import { internal } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 import { getTierLimits } from "./config";
 import { requireAuth } from "./lib";
@@ -36,10 +37,22 @@ export const getById = query({
 });
 
 export const getStorageUsage = query({
-  handler: async (ctx) => {
+  handler: async (
+    ctx,
+  ): Promise<{
+    usedBytes: number;
+    imageCount: number;
+    imageLimit: number;
+    atLimit: boolean;
+    storageLimitBytes: number;
+    tier: string;
+  }> => {
     const userId = await requireAuth(ctx);
-    const user = await ctx.db.get(userId);
-    const limits = getTierLimits(user?.storageTier ?? "free");
+    const hasStoragePaid: boolean = await ctx.runQuery(internal.entitlements.hasEntitlement, {
+      entitlement: "storage_paid",
+    });
+    const tier = hasStoragePaid ? "paid" : "free";
+    const limits = getTierLimits(tier);
     const docs = await ctx.db
       .query("images")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
@@ -58,7 +71,7 @@ export const getStorageUsage = query({
       imageLimit: limits.imageLimit,
       atLimit: docs.length >= limits.imageLimit || usedBytes >= limits.storageLimitBytes,
       storageLimitBytes: limits.storageLimitBytes,
-      tier: user?.storageTier ?? "free",
+      tier,
     };
   },
 });
@@ -121,8 +134,11 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
-    const user = await ctx.db.get(userId);
-    const limits = getTierLimits(user?.storageTier ?? "free");
+    const hasStoragePaid: boolean = await ctx.runQuery(internal.entitlements.hasEntitlement, {
+      entitlement: "storage_paid",
+    });
+    const tier = hasStoragePaid ? "paid" : "free";
+    const limits = getTierLimits(tier);
     const existing = await ctx.db
       .query("images")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
