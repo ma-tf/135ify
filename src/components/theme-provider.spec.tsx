@@ -223,4 +223,14 @@ describe("useTheme", () => {
     render(<Reader />);
     expect(screen.getByTestId("outside-theme").textContent).toBe("system");
   });
+
+  it("setTheme is a no-op when used outside ThemeProvider", async () => {
+    const { useTheme } = await import("./theme-provider");
+    function Caller() {
+      const { setTheme } = useTheme();
+      setTheme("dark");
+      return null;
+    }
+    render(<Caller />);
+  });
 });

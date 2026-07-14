@@ -136,6 +136,13 @@ describe("AccountPage", () => {
     expect(screen.getByText("View plans")).toBeDefined();
   });
 
+  it("shows skeleton loading state while subscriptions are pending", () => {
+    mockUseQuery.mockReturnValue({ status: "pending" });
+    const { container } = render(<AccountPage />);
+    expect(container.querySelector(".h-6")).toBeTruthy();
+    expect(container.querySelector(".h-4")).toBeTruthy();
+  });
+
   it("renders active subscriptions", async () => {
     mockUseQuery.mockReturnValue({
       status: "success",

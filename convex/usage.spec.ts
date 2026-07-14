@@ -108,4 +108,116 @@ describe("getAiUsage", () => {
     const result = await authed.query(api.usage.getAiUsage, {});
     expect(result).toBeNull();
   });
+
+  async function setupWithSub(overrides?: { currentPeriodEnd?: number }) {
+    const t = convexTest({ schema, modules });
+    registerRateLimiter(t);
+    const userId = await t.run(async (ctx) => {
+      return await ctx.db.insert("users", { email: null });
+    });
+    await t.run(async (ctx) => {
+      await ctx.db.insert("subscriptions", {
+        userId,
+        productKey: "ai_generation_platform",
+        stripeSubscriptionId: `sub_${Math.random()}`,
+        stripeCustomerId: `cus_${Math.random()}`,
+        status: "active",
+        currentPeriodEnd: overrides?.currentPeriodEnd,
+      });
+    });
+    return t.withIdentity({ subject: `${userId}|session` });
+  }
+
+  test("returns usage for a subscriber with no recorded usage", async () => {
+    const futurePeriodEnd = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
+    const authed = await setupWithSub({ currentPeriodEnd: futurePeriodEnd });
+    const result = await authed.query(api.usage.getAiUsage, {});
+    expect(result).not.toBeNull();
+    expect(result!.usedCents).toBe(0);
+    expect(result!.limitCents).toBe(500);
+    expect(result!.atLimit).toBe(false);
+    expect(result!.resetsAt).toBe(futurePeriodEnd * 1000);
+  });
+
+  test("returns usage with correct sum for a subscriber with recorded usage", async () => {
+    const futurePeriodEnd = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
+    const authed = await setupWithSub({ currentPeriodEnd: futurePeriodEnd });
+
+    const sourceStorageId = await authed.run(async (ctx) => {
+      return await ctx.storage.store(new Blob(["fake"], { type: "image/png" }));
+    });
+    const jobId = await authed.mutation(api.aiGenerationJobs.createJob, {
+      sourceStorageId,
+      fileName: "test.png",
+    });
+
+    await authed.mutation(internal.usage.insertRawUsage, {
+      jobId,
+      model: "gpt-5.4",
+      provider: "openai",
+      inputTokens: 100,
+      outputTokens: 50,
+      costCents: 10,
+      responseId: "resp_1",
+      createdAt: Date.now(),
+    });
+    await authed.mutation(internal.usage.insertRawUsage, {
+      jobId,
+      model: "gpt-5.4",
+      provider: "openai",
+      inputTokens: 200,
+      outputTokens: 100,
+      costCents: 20,
+      responseId: "resp_2",
+      createdAt: Date.now(),
+    });
+
+    const result = await authed.query(api.usage.getAiUsage, {});
+    expect(result).not.toBeNull();
+    expect(result!.usedCents).toBe(30);
+    expect(result!.limitCents).toBe(500);
+    expect(result!.atLimit).toBe(false);
+    expect(result!.resetsAt).toBe(futurePeriodEnd * 1000);
+  });
+
+  test("falls back to end-of-month when subscription has no currentPeriodEnd", async () => {
+    const authed = await setupWithSub();
+    const now = Date.now();
+    const date = new Date(now);
+    const expectedPeriodEnd = new Date(date.getFullYear(), date.getMonth() + 1, 1).getTime();
+
+    const result = await authed.query(api.usage.getAiUsage, {});
+    expect(result).not.toBeNull();
+    expect(result!.usedCents).toBe(0);
+    expect(result!.resetsAt).toBe(expectedPeriodEnd);
+  });
+
+  test("returns atLimit: true when usedCents >= limitCents", async () => {
+    const futurePeriodEnd = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
+    const authed = await setupWithSub({ currentPeriodEnd: futurePeriodEnd });
+
+    const sourceStorageId = await authed.run(async (ctx) => {
+      return await ctx.storage.store(new Blob(["fake"], { type: "image/png" }));
+    });
+    const jobId = await authed.mutation(api.aiGenerationJobs.createJob, {
+      sourceStorageId,
+      fileName: "test.png",
+    });
+
+    await authed.mutation(internal.usage.insertRawUsage, {
+      jobId,
+      model: "gpt-5.4",
+      provider: "openai",
+      inputTokens: 10000,
+      outputTokens: 5000,
+      costCents: 500,
+      responseId: "resp_limit",
+      createdAt: Date.now(),
+    });
+
+    const result = await authed.query(api.usage.getAiUsage, {});
+    expect(result).not.toBeNull();
+    expect(result!.usedCents).toBe(500);
+    expect(result!.atLimit).toBe(true);
+  });
 });

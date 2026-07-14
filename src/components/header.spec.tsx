@@ -9,12 +9,14 @@ const {
   mockUseLocation,
   mockUseConvexAuth,
   mockUseTheme,
+  mockSignOut,
 } = vi.hoisted(() => ({
   mockUseQuery: vi.fn(),
   mockUseTakesNotificationStore: vi.fn(),
   mockUseLocation: vi.fn(),
   mockUseConvexAuth: vi.fn(),
   mockUseTheme: vi.fn(() => ({ theme: "light", setTheme: vi.fn() })),
+  mockSignOut: vi.fn(),
 }));
 
 vi.mock("@convex/_generated/api", () => ({
@@ -30,7 +32,7 @@ vi.mock("@stores/takes-notification-store", () => ({
 
 vi.mock("@convex-dev/auth/react", () => ({
   useConvexAuth: mockUseConvexAuth,
-  useAuthActions: () => ({ signIn: vi.fn(), signOut: vi.fn() }),
+  useAuthActions: () => ({ signIn: vi.fn(), signOut: mockSignOut }),
 }));
 
 vi.mock("@components/mode-toggle", () => ({
@@ -55,10 +57,14 @@ vi.mock("@components/user-menu", () => ({
   UserMenu: () => null,
 }));
 
+vi.mock("@components/ai-key-dialog", () => ({
+  AiKeyDialog: vi.fn(() => <div>AI Key Dialog</div>),
+}));
+
 vi.mock("@config", () => ({
   FEATURE_AI_GRAIN: true,
   FEATURE_SIGN_IN: true,
-  FEATURE_SUBSCRIPTIONS: false,
+  FEATURE_SUBSCRIPTIONS: true,
   BASE_PATH: "",
 }));
 
@@ -209,5 +215,51 @@ describe("Header", () => {
     render(<Header />);
 
     expect(document.querySelector(".animate-pulse")).toBeTruthy();
+  });
+
+  it("shows Pricing link when authenticated and FEATURE_SUBSCRIPTIONS is true", () => {
+    render(<Header />);
+
+    expect(screen.getAllByRole("link", { name: /pricing/i }).length).toBeGreaterThan(0);
+  });
+
+  it("calls setTheme when Light button is clicked in MobileNav", () => {
+    const setTheme = vi.fn();
+    mockUseTheme.mockReturnValue({ theme: "dark", setTheme });
+
+    render(<Header />);
+    fireEvent.click(screen.getByText("Light"));
+
+    expect(setTheme).toHaveBeenCalledWith("light");
+  });
+
+  it("calls setTheme when System button is clicked in MobileNav", () => {
+    const setTheme = vi.fn();
+    mockUseTheme.mockReturnValue({ theme: "light", setTheme });
+
+    render(<Header />);
+    fireEvent.click(screen.getByText("System"));
+
+    expect(setTheme).toHaveBeenCalledWith("system");
+  });
+
+  it("shows API Key button in MobileNav", () => {
+    render(<Header />);
+
+    expect(screen.getByText("API Key")).toBeDefined();
+  });
+
+  it("opens AiKeyDialog when API Key button is clicked in MobileNav", () => {
+    render(<Header />);
+    fireEvent.click(screen.getByText("API Key"));
+
+    expect(screen.getByText("AI Key Dialog")).toBeDefined();
+  });
+
+  it("calls signOut when Sign out button is clicked in MobileNav", () => {
+    render(<Header />);
+    fireEvent.click(screen.getByText("Sign out"));
+
+    expect(mockSignOut).toHaveBeenCalledOnce();
   });
 });

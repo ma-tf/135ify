@@ -3,10 +3,11 @@ import { setupTests } from "@test-utils/setup.spec";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
-const { mockUseConvexAuth, mockUseQuery, mockConfig } = vi.hoisted(() => ({
+const { mockUseConvexAuth, mockUseQuery, mockConfig, mockSignOut } = vi.hoisted(() => ({
   mockUseConvexAuth: vi.fn(),
   mockUseQuery: vi.fn(),
   mockConfig: { FEATURE_AI_GRAIN: true },
+  mockSignOut: vi.fn(),
 }));
 
 vi.mock("convex/react", () => ({
@@ -23,7 +24,7 @@ vi.mock("@config", () => ({
 }));
 
 vi.mock("@convex-dev/auth/react", () => ({
-  useAuthActions: () => ({ signIn: vi.fn(), signOut: vi.fn() }),
+  useAuthActions: () => ({ signIn: vi.fn(), signOut: mockSignOut }),
   useConvexAuth: mockUseConvexAuth,
 }));
 
@@ -60,6 +61,10 @@ vi.mock("@components/ui/dropdown-menu", () => ({
   DropdownMenuItem: ({ children, asChild, onClick }: any) =>
     asChild ? <>{children}</> : <div onClick={onClick}>{children}</div>,
   DropdownMenuSeparator: () => <hr />,
+}));
+
+vi.mock("@components/ui/skeleton", () => ({
+  Skeleton: ({ className }: any) => <div className={className} data-testid="skeleton" />,
 }));
 
 vi.mock("radix-ui", async (importOriginal) => {
@@ -189,5 +194,37 @@ describe("UserMenu", () => {
 
     fireEvent.click(screen.getByText("System"));
     expect(mockSetTheme).toHaveBeenCalledWith("system");
+  });
+
+  it("renders skeleton when user query is pending", () => {
+    mockUseConvexAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
+    mockUseQuery.mockReturnValue({ status: "pending" });
+
+    render(<UserMenu />);
+
+    expect(screen.getByTestId("skeleton")).toBeDefined();
+  });
+
+  it("renders menu but no skeleton when user query errors", () => {
+    mockUseConvexAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
+    mockUseQuery.mockReturnValue({ status: "error" });
+
+    render(<UserMenu />);
+
+    expect(screen.queryByTestId("skeleton")).toBeNull();
+    expect(screen.getByText(/gallery/i)).toBeDefined();
+  });
+
+  it("calls signOut when Sign out is clicked", () => {
+    mockUseConvexAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
+    mockUseQuery.mockReturnValue({
+      status: "success",
+      data: { name: "Test", image: null, email: "test@test.com" },
+    });
+
+    render(<UserMenu />);
+
+    fireEvent.click(screen.getByText("Sign out"));
+    expect(mockSignOut).toHaveBeenCalledOnce();
   });
 });
