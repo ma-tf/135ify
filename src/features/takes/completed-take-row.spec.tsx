@@ -19,8 +19,12 @@ vi.mock("@tanstack/react-router", () => ({
   },
 }));
 
+const { mockToastError } = vi.hoisted(() => ({
+  mockToastError: vi.fn(),
+}));
+
 vi.mock("sonner", () => ({
-  toast: { error: vi.fn() },
+  toast: { error: mockToastError },
 }));
 
 setupTests();
@@ -77,6 +81,33 @@ describe("CompletedTakeRow", () => {
       expect(fetchSpy).toHaveBeenCalledWith("https://example.com/full-image.jpg");
     });
 
+    fetchSpy.mockRestore();
+  });
+
+  it("shows error toast when download fails", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("network error"));
+
+    render(<CompletedTakeRow job={mockJob()} />);
+
+    const downloadButton = screen.getByRole("button");
+    fireEvent.click(downloadButton);
+
+    await vi.waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith("Failed to download AI Take");
+    });
+
+    fetchSpy.mockRestore();
+  });
+
+  it("does not download when takeImageUrl is absent", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+    render(<CompletedTakeRow job={mockJob({ takeImageUrl: null })} />);
+
+    const downloadButton = screen.getByRole("button");
+    fireEvent.click(downloadButton);
+
+    expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();
   });
 });

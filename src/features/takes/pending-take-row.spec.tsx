@@ -97,6 +97,17 @@ describe("PendingTakeRow", () => {
     expect(badge.getAttribute("title")).toBe("overQuota");
   });
 
+  it("does not set title attribute when failureReason is absent", () => {
+    render(
+      <PendingTakeRow
+        job={mockJob({ status: "failed", thumbnailBase64: null, failureReason: null })}
+      />,
+    );
+
+    const badge = screen.getByText("Failed");
+    expect(badge.hasAttribute("title")).toBe(false);
+  });
+
   it("opens API key dialog when retry is clicked without an API key", () => {
     mockUseRetryTake.mockReturnValue({
       retry: mockRetryFn,

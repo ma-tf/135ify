@@ -29,6 +29,7 @@
     "@ai-hero/sandcastle",
     "@components/ui",
     "@convex/_generated",
+    "@convex-dev/rate-limiter",
     "@edge-runtime/vm",
     "@tanstack/react-router-devtools",
     "class-variance-authority",

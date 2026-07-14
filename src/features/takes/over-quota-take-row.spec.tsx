@@ -40,11 +40,12 @@ vi.mock("sonner", () => ({
 }));
 
 let mockOverQuotaUrl: string | null = null;
+let mockOverQuotaQueryStatus: string = "success";
 
 vi.mock("convex/react", () => ({
   useQuery_experimental: vi.fn((opts: any): any => {
     if (opts.args?.jobId) {
-      return { status: "success", data: mockOverQuotaUrl };
+      return { status: mockOverQuotaQueryStatus, data: mockOverQuotaUrl };
     }
     return { status: "success", data: [] };
   }),
@@ -71,10 +72,12 @@ function mockJob(overrides: Partial<TakeRowJob> = {}): TakeRowJob {
 describe("OverQuotaTakeRow", () => {
   beforeEach(() => {
     mockOverQuotaUrl = null;
+    mockOverQuotaQueryStatus = "success";
   });
 
   afterEach(() => {
     mockOverQuotaUrl = null;
+    mockOverQuotaQueryStatus = "success";
   });
 
   it("renders overQuota row with thumbnail, over quota badge, and no download button", () => {
@@ -185,5 +188,41 @@ describe("OverQuotaTakeRow", () => {
       expect(mockToastError).toHaveBeenCalledWith("Failed to clear over-quota image");
     });
     expect(screen.getByText("Resolved")).toBeDefined();
+  });
+
+  it("shows formatted file size when available", () => {
+    render(
+      <OverQuotaTakeRow
+        job={mockJob({
+          status: "overQuota",
+          thumbnailBase64: "dGVzdC1vdmVyLXF1b3Rh",
+          overQuotaStorageId: "storage-1",
+          takeImageId: undefined,
+          size: 1048576,
+        })}
+      />,
+    );
+
+    expect(screen.getByText(/1MB/)).toBeDefined();
+  });
+
+  it("renders nothing from OverQuotaDialogWithUrl when query status is not success", () => {
+    mockOverQuotaQueryStatus = "pending";
+
+    render(
+      <OverQuotaTakeRow
+        job={mockJob({
+          status: "overQuota",
+          thumbnailBase64: "dGVzdC1vdmVyLXF1b3Rh",
+          overQuotaStorageId: "storage-1",
+          takeImageId: undefined,
+        })}
+      />,
+    );
+
+    const [thumbnailButton] = screen.getAllByRole("button");
+    fireEvent.click(thumbnailButton);
+
+    expect(screen.queryByTestId("alert-dialog-content")).toBeNull();
   });
 });
