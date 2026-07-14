@@ -7,34 +7,39 @@ import { useCallback, useMemo, useState } from "react";
 
 type RetryStatus = "idle" | "retrying" | "error";
 
+function useResolvedAiKey() {
+  const { apiKey, preferPlatformKey } = useAiProviderStore();
+
+  const subscriptionsResult = useQuery({ query: api.subscriptions.byUser, args: {} });
+
+  const hasActiveAiSub = useMemo(() => {
+    if (subscriptionsResult.status !== "success") return false;
+    return subscriptionsResult.data.some(
+      (s) =>
+        s.productKey === "ai_generation_platform" &&
+        s.status !== "canceled" &&
+        s.status !== "unpaid" &&
+        s.status !== "incomplete_expired",
+    );
+  }, [subscriptionsResult]);
+
+  const usePlatform = hasActiveAiSub && preferPlatformKey;
+  const canRetry = usePlatform || !!apiKey;
+
+  return { apiKey, usePlatform, canRetry };
+}
+
 export function useRetryTake() {
-  const { apiKey } = useAiProviderStore();
+  const { apiKey, usePlatform, canRetry } = useResolvedAiKey();
   const retryJob = useMutation(api.aiGenerationJobs.retryJob);
   const processJob = useAction(api.aiGenerationJobsActions.processJob);
   const [status, setStatus] = useState<RetryStatus>("idle");
   const [error, setError] = useState<string | null>(null);
 
-  const subscriptionsResult = useQuery({ query: api.subscriptions.byUser, args: {} });
-
-  const subscriptions = useMemo(
-    () => (subscriptionsResult.status === "success" ? subscriptionsResult.data : []),
-    [subscriptionsResult],
-  );
-
-  const hasAiSub = subscriptions.some(
-    (s) =>
-      s.productKey === "ai_generation_platform" &&
-      s.status !== "canceled" &&
-      s.status !== "unpaid" &&
-      s.status !== "incomplete_expired",
-  );
-
-  const canRetry = hasAiSub || !!apiKey;
-
   const retry = useCallback(
     async (jobId: string, key?: string) => {
       const resolvedKey = key ?? apiKey;
-      if (!hasAiSub && !resolvedKey) return false;
+      if (!usePlatform && !resolvedKey) return false;
 
       setError(null);
       setStatus("retrying");
@@ -54,7 +59,7 @@ export function useRetryTake() {
         setError(e instanceof Error ? e.message : "Retry failed");
       }
     },
-    [apiKey, hasAiSub, retryJob, processJob],
+    [apiKey, usePlatform, retryJob, processJob],
   );
 
   return { retry, status, canRetry, error };

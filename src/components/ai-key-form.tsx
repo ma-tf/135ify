@@ -1,19 +1,31 @@
 import { Button } from "@components/ui/button";
 import { Field, FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
+import { Switch } from "@components/ui/switch";
+import { FEATURE_SUBSCRIPTIONS } from "@config";
 import { useAiProviderStore } from "@stores/ai-provider-store";
 import { EyeOffIcon, EyeIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export function ApiKeyForm() {
-  const { apiKey, setApiKey, clearApiKey } = useAiProviderStore();
+export function AiKeyForm({
+  hasAiSub,
+  onSaved,
+  onCancel,
+}: {
+  hasAiSub?: boolean;
+  onSaved?: (apiKey: string) => void;
+  onCancel?: () => void;
+}) {
+  const { apiKey, preferPlatformKey, setApiKey, clearApiKey, setPreferPlatformKey } =
+    useAiProviderStore();
   const [inputValue, setInputValue] = useState(apiKey);
   const [isVisible, setIsVisible] = useState(false);
 
   const handleSave = () => {
     setApiKey(inputValue);
     toast.success("API key saved");
+    onSaved?.(inputValue);
   };
 
   const handleClear = () => {
@@ -22,16 +34,19 @@ export function ApiKeyForm() {
   };
 
   return (
-    <section className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold">API Key</h2>
-        <p className="text-sm text-muted-foreground">
-          Your API key is stored locally and never sent to our servers. If you have an active AI
-          generation subscription, the platform key takes priority.
-        </p>
-      </div>
+    <div className="flex flex-col gap-4">
+      {FEATURE_SUBSCRIPTIONS && hasAiSub && apiKey && (
+        <Field orientation="horizontal">
+          <Switch
+            id="use-platform-key"
+            checked={!preferPlatformKey}
+            onCheckedChange={(checked) => setPreferPlatformKey(!checked)}
+          />
+          <FieldLabel htmlFor="use-platform-key">Use my own API key</FieldLabel>
+        </Field>
+      )}
       <Field>
-        <FieldLabel htmlFor="api-key">OpenAI API Key</FieldLabel>
+        <FieldLabel htmlFor="api-key">API Key</FieldLabel>
         <div className="relative">
           <Input
             id="api-key"
@@ -51,6 +66,11 @@ export function ApiKeyForm() {
         </div>
       </Field>
       <div className="flex gap-2">
+        {onCancel && (
+          <Button variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+        )}
         <Button variant="destructive" disabled={!apiKey} onClick={handleClear}>
           Clear
         </Button>
@@ -58,6 +78,6 @@ export function ApiKeyForm() {
           Save
         </Button>
       </div>
-    </section>
+    </div>
   );
 }

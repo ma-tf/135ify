@@ -62,7 +62,7 @@ vi.mock("convex/react", () => ({
     if (args.query === "subscriptions.byUser") {
       return { status: "success", data: [] };
     }
-    if (args.query === "aiGenerationJobs.getAiUsage") {
+    if (args.query === "usage.getAiUsage") {
       return { status: "success", data: null };
     }
     return {
@@ -121,7 +121,8 @@ vi.mock("@convex/_generated/api", () => ({
   api: {
     images: { getStorageUsage: "getStorageUsage", getById: "getById" },
     subscriptions: { byUser: "subscriptions.byUser" },
-    aiGenerationJobs: { getAiUsage: "aiGenerationJobs.getAiUsage", createJob: "createJob" },
+    aiGenerationJobs: { createJob: "createJob" },
+    usage: { getAiUsage: "usage.getAiUsage" },
     aiGenerationJobsActions: { processJob: "processJob" },
     lib: { generateUploadUrl: "generateUploadUrl" },
   },

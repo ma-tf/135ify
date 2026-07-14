@@ -37,7 +37,9 @@ export function ActiveSubscriptions({ subs }: { subs: any[] }) {
             </p>
           </div>
         </div>
-        <span className="text-sm text-muted-foreground">{sub.status}</span>
+        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+          {sub.status}
+        </span>
       </div>
     );
   });

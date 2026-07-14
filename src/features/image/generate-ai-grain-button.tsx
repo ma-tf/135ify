@@ -14,7 +14,7 @@ import { useState } from "react";
 function useAiSubUsage() {
   const storageResult = useQuery({ query: api.images.getStorageUsage, args: {} });
   const subscriptionsResult = useQuery({ query: api.subscriptions.byUser, args: {} });
-  const aiUsageResult = useQuery({ query: api.aiGenerationJobs.getAiUsage, args: {} });
+  const aiUsageResult = useQuery({ query: api.usage.getAiUsage, args: {} });
 
   const isPending =
     storageResult.status === "pending" ||
@@ -47,7 +47,7 @@ function GenerateAiGrainButtonSkeleton() {
 
 export function GenerateAiGrainButton({ showOriginal }: { showOriginal: boolean }) {
   const { isAuthenticated } = useAuth();
-  const { apiKey } = useAiProviderStore();
+  const { apiKey, preferPlatformKey } = useAiProviderStore();
   const { trigger, isGenerating, errorState } = useAiGrainGeneration();
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
   const { atStorageLimit, hasAiSub, atAiLimit, capResetsAt, isPending } = useAiSubUsage();
@@ -56,8 +56,10 @@ export function GenerateAiGrainButton({ showOriginal }: { showOriginal: boolean 
   if (!isAuthenticated) return null;
   if (isPending) return <GenerateAiGrainButtonSkeleton />;
 
+  const usingPlatform = hasAiSub && preferPlatformKey;
+
   const handleClick = async () => {
-    if (hasAiSub) {
+    if (usingPlatform) {
       void trigger(undefined, showOriginal);
     } else if (!apiKey) {
       setKeyDialogOpen(true);
@@ -67,7 +69,7 @@ export function GenerateAiGrainButton({ showOriginal }: { showOriginal: boolean 
     }
   };
 
-  const disabled = isGenerating || atStorageLimit || atAiLimit || !!errorState;
+  const disabled = isGenerating || atStorageLimit || !!errorState || (atAiLimit && usingPlatform);
 
   function getTitle() {
     if (errorState) {
@@ -95,7 +97,11 @@ export function GenerateAiGrainButton({ showOriginal }: { showOriginal: boolean 
         Generate AI Film Grain
       </Button>
       {keyDialogOpen && (
-        <AiKeyDialog onOpenChange={setKeyDialogOpen} onSave={(key) => trigger(key, showOriginal)} />
+        <AiKeyDialog
+          onOpenChange={setKeyDialogOpen}
+          onSave={(key) => trigger(key, showOriginal)}
+          hasAiSub={hasAiSub}
+        />
       )}
     </>
   );

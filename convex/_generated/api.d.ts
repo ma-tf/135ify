@@ -22,6 +22,7 @@ import type * as stripeProcessor from "../stripeProcessor.js";
 import type * as stripeSync from "../stripeSync.js";
 import type * as stripeWebhooks from "../stripeWebhooks.js";
 import type * as subscriptions from "../subscriptions.js";
+import type * as usage from "../usage.js";
 import type * as users from "../users.js";
 
 import type {
@@ -45,6 +46,7 @@ declare const fullApi: ApiFromModules<{
   stripeSync: typeof stripeSync;
   stripeWebhooks: typeof stripeWebhooks;
   subscriptions: typeof subscriptions;
+  usage: typeof usage;
   users: typeof users;
 }>;
 

@@ -2,9 +2,7 @@ import { v } from "convex/values";
 
 import type { Doc } from "./_generated/dataModel";
 
-import { internal } from "./_generated/api";
-import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
-import { OPENAI_MONTHLY_SPEND_LIMIT_CENTS } from "./config";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { requireAuth } from "./lib";
 import { rateLimiter } from "./rateLimiter";
 
@@ -86,14 +84,6 @@ export const setJobStatus = mutation({
       v.literal("overQuota"),
     ),
     takeImageId: v.optional(v.id("images")),
-    usage: v.optional(
-      v.object({
-        inputTokens: v.number(),
-        outputTokens: v.number(),
-        costCents: v.number(),
-        model: v.string(),
-      }),
-    ),
     thumbnailBase64: v.optional(v.string()),
     failureReason: v.optional(v.string()),
     overQuotaStorageId: v.optional(v.id("_storage")),
@@ -104,7 +94,6 @@ export const setJobStatus = mutation({
     if (!doc || doc.userId !== userId) throw new Error("Unauthorized");
     const patch: Partial<Doc<"aiGenerationJobs">> = { status: args.status };
     if (args.takeImageId !== undefined) patch.takeImageId = args.takeImageId;
-    if (args.usage !== undefined) patch.usage = args.usage;
     if (args.thumbnailBase64 !== undefined) patch.thumbnailBase64 = args.thumbnailBase64;
     if (args.failureReason !== undefined) patch.failureReason = args.failureReason;
     if (args.overQuotaStorageId !== undefined) patch.overQuotaStorageId = args.overQuotaStorageId;
@@ -120,18 +109,6 @@ export const getOverQuotaUrl = query({
     if (!doc || doc.userId !== userId) return null;
     if (!doc.overQuotaStorageId) return null;
     return ctx.storage.getUrl(doc.overQuotaStorageId);
-  },
-});
-
-export const clearResolvedTakes = mutation({
-  args: { jobIds: v.array(v.id("aiGenerationJobs")) },
-  handler: async (ctx, args) => {
-    const userId = await requireAuth(ctx);
-    for (const jobId of args.jobIds) {
-      const doc = await ctx.db.get("aiGenerationJobs", jobId);
-      if (!doc || doc.userId !== userId) continue;
-      await ctx.db.delete("aiGenerationJobs", jobId);
-    }
   },
 });
 
@@ -229,65 +206,6 @@ export const latestJobTimestamp = query({
       .order("desc")
       .take(1);
     return docs[0] ? { _creationTime: docs[0]._creationTime } : null;
-  },
-});
-
-export const getMonthlyCost = internalQuery({
-  args: { sinceMs: v.number() },
-  handler: async (ctx, args) => {
-    const userId = await requireAuth(ctx);
-    const docs = await ctx.db
-      .query("aiGenerationJobs")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .collect();
-
-    return docs.reduce(
-      (sum, doc) => (doc._creationTime >= args.sinceMs ? sum + (doc.usage?.costCents ?? 0) : sum),
-      0,
-    );
-  },
-});
-
-export const getAiUsage = query({
-  args: {},
-  handler: async (
-    ctx,
-  ): Promise<{
-    usedCents: number;
-    limitCents: number;
-    atLimit: boolean;
-    resetsAt: number;
-  } | null> => {
-    const userId = await requireAuth(ctx);
-    const subResult = await ctx.runQuery(internal.subscriptions.hasActive, {
-      productKey: "ai_generation_platform",
-    });
-    if (!subResult.active) return null;
-
-    const now = Date.now();
-    const date = new Date(now);
-    const periodEnd = subResult.currentPeriodEnd
-      ? subResult.currentPeriodEnd * 1000
-      : new Date(date.getFullYear(), date.getMonth() + 1, 1).getTime();
-    const periodStart = periodEnd - 30 * 24 * 60 * 60 * 1000;
-
-    const docs = await ctx.db
-      .query("aiGenerationJobs")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .collect();
-
-    const usedCents = docs.reduce(
-      (sum, doc) => (doc._creationTime >= periodStart ? sum + (doc.usage?.costCents ?? 0) : sum),
-      0,
-    );
-    const limitCents = OPENAI_MONTHLY_SPEND_LIMIT_CENTS;
-
-    return {
-      usedCents,
-      limitCents,
-      atLimit: usedCents >= limitCents,
-      resetsAt: periodEnd,
-    };
   },
 });
 

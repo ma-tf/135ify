@@ -101,6 +101,16 @@ vi.mock("lucide-react", () => ({
   EyeIcon: () => <span data-testid="eye-on" />,
 }));
 
+vi.mock("@components/ui/switch", () => ({
+  Switch: ({ checked, onCheckedChange }: any) => (
+    <button role="switch" aria-checked={checked} onClick={() => onCheckedChange?.(!checked)} />
+  ),
+}));
+
+vi.mock("@lib/utils", () => ({
+  cn: (...args: any[]) => args.filter(Boolean).join(" "),
+}));
+
 import { toast } from "sonner";
 
 describe("AccountPage", () => {
@@ -113,8 +123,10 @@ describe("AccountPage", () => {
     });
     mockUseAiProviderStore.mockReturnValue({
       apiKey: "",
+      preferPlatformKey: true,
       setApiKey: vi.fn(),
       clearApiKey: vi.fn(),
+      setPreferPlatformKey: vi.fn(),
     });
   });
 
@@ -221,8 +233,7 @@ describe("AccountPage", () => {
   describe("ApiKeyForm", () => {
     it("renders the API key form", () => {
       render(<AccountPage />);
-      expect(screen.getByText("API Key")).toBeDefined();
-      expect(screen.getByLabelText("OpenAI API Key")).toBeDefined();
+      expect(screen.getByLabelText("API Key")).toBeDefined();
       expect(screen.getByText("Save")).toBeDefined();
       expect(screen.getByText("Clear")).toBeDefined();
     });
@@ -243,11 +254,13 @@ describe("AccountPage", () => {
       const setApiKey = vi.fn();
       mockUseAiProviderStore.mockReturnValue({
         apiKey: "",
+        preferPlatformKey: true,
         setApiKey,
         clearApiKey: vi.fn(),
+        setPreferPlatformKey: vi.fn(),
       });
       render(<AccountPage />);
-      const input = screen.getByLabelText("OpenAI API Key");
+      const input = screen.getByLabelText("API Key");
       fireEvent.change(input, { target: { value: "sk-new-key" } });
       fireEvent.click(screen.getByText("Save"));
       expect(setApiKey).toHaveBeenCalledWith("sk-new-key");
@@ -258,14 +271,71 @@ describe("AccountPage", () => {
       const clearApiKey = vi.fn();
       mockUseAiProviderStore.mockReturnValue({
         apiKey: "sk-to-clear",
+        preferPlatformKey: true,
         setApiKey: vi.fn(),
         clearApiKey,
+        setPreferPlatformKey: vi.fn(),
       });
       render(<AccountPage />);
       fireEvent.click(screen.getByText("Clear"));
       expect(clearApiKey).toHaveBeenCalled();
-      const input = screen.getByLabelText("OpenAI API Key") as HTMLInputElement;
+      const input = screen.getByLabelText("API Key") as HTMLInputElement;
       expect(input.value).toBe("");
+    });
+
+    it("shows platform key toggle when user has AI subscription and api key", () => {
+      mockUseQuery.mockReturnValue({
+        status: "success",
+        data: [{ productKey: "ai_generation_platform", status: "active" }],
+      });
+      mockUseAiProviderStore.mockReturnValue({
+        apiKey: "sk-test",
+        preferPlatformKey: true,
+        setApiKey: vi.fn(),
+        clearApiKey: vi.fn(),
+        setPreferPlatformKey: vi.fn(),
+      });
+      render(<AccountPage />);
+      expect(screen.getByText("Use my own API key")).toBeDefined();
+    });
+
+    it("hides platform key toggle when no AI subscription", () => {
+      mockUseAiProviderStore.mockReturnValue({
+        apiKey: "sk-test",
+        preferPlatformKey: true,
+        setApiKey: vi.fn(),
+        clearApiKey: vi.fn(),
+        setPreferPlatformKey: vi.fn(),
+      });
+      render(<AccountPage />);
+      expect(screen.queryByText("Use my own API key")).toBeNull();
+    });
+
+    it("hides platform key toggle when no API key set", () => {
+      mockUseQuery.mockReturnValue({
+        status: "success",
+        data: [{ productKey: "ai_generation_platform", status: "active" }],
+      });
+      render(<AccountPage />);
+      expect(screen.queryByText("Use my own API key")).toBeNull();
+    });
+
+    it("toggles platform key preference on click", () => {
+      const setPreferPlatformKey = vi.fn();
+      mockUseQuery.mockReturnValue({
+        status: "success",
+        data: [{ productKey: "ai_generation_platform", status: "active" }],
+      });
+      mockUseAiProviderStore.mockReturnValue({
+        apiKey: "sk-test",
+        preferPlatformKey: true,
+        setApiKey: vi.fn(),
+        clearApiKey: vi.fn(),
+        setPreferPlatformKey,
+      });
+      render(<AccountPage />);
+      fireEvent.click(screen.getByRole("switch"));
+      expect(setPreferPlatformKey).toHaveBeenCalledWith(false);
     });
   });
 });

@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test"
 const { mockUseAuth, mockUseAiProviderStore, mockConfig, mockUseAiGrainGeneration, mockUseQuery } =
   vi.hoisted((): any => ({
     mockUseAuth: vi.fn(() => ({ isAuthenticated: false, isLoading: false })),
-    mockUseAiProviderStore: vi.fn(() => ({ apiKey: "" })),
+    mockUseAiProviderStore: vi.fn(() => ({ apiKey: "", preferPlatformKey: true })),
     mockConfig: { FEATURE_AI_GRAIN: true, FEATURE_SUBSCRIPTIONS: false },
     mockUseAiGrainGeneration: vi.fn(() => ({
       trigger: vi.fn().mockResolvedValue(undefined),
@@ -53,7 +53,7 @@ vi.mock("convex/react", () => ({
     if (args.query === "subscriptions.byUser") {
       return mockAiSubscriptions;
     }
-    if (args.query === "aiGenerationJobs.getAiUsage") {
+    if (args.query === "usage.getAiUsage") {
       return mockAiUsage;
     }
     return { status: "pending" };
@@ -68,7 +68,7 @@ vi.mock("@convex/_generated/api", () => ({
   api: {
     images: { getStorageUsage: "getStorageUsage" },
     subscriptions: { byUser: "subscriptions.byUser" },
-    aiGenerationJobs: { getAiUsage: "aiGenerationJobs.getAiUsage" },
+    usage: { getAiUsage: "usage.getAiUsage" },
   },
 }));
 
@@ -117,7 +117,7 @@ describe("Generate AI Film Grain button", () => {
 
   it("renders when authenticated and feature flag enabled", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
+    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test", preferPlatformKey: true });
 
     render(<GenerateAiGrainButton showOriginal={false} />);
 
@@ -153,7 +153,7 @@ describe("Generate AI Film Grain button", () => {
 
   it("disables button and shows spinner while generating", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
+    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test", preferPlatformKey: true });
     mockUseAiGrainGeneration.mockReturnValue({
       trigger: vi.fn(() => new Promise(() => {})),
       isGenerating: true,
@@ -167,7 +167,7 @@ describe("Generate AI Film Grain button", () => {
 
   it("renders disabled when gallery is at image limit", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
+    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test", preferPlatformKey: true });
     mockUseQuery.mockReturnValue({
       status: "success",
       data: { imageCount: 10, imageLimit: 10, atLimit: true, tier: "free" },
@@ -181,7 +181,7 @@ describe("Generate AI Film Grain button", () => {
 
   it("opens AiKeyDialog when clicked with no API key", () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "" });
+    mockUseAiProviderStore.mockReturnValue({ apiKey: "", preferPlatformKey: true });
 
     render(<GenerateAiGrainButton showOriginal={false} />);
 
@@ -195,7 +195,7 @@ describe("Generate AI Film Grain button", () => {
   it("calls trigger with apiKey when button clicked", async () => {
     const trigger = vi.fn().mockResolvedValue(undefined);
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
+    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test", preferPlatformKey: true });
     mockUseAiGrainGeneration.mockReturnValue({ trigger, isGenerating: false });
 
     render(<GenerateAiGrainButton showOriginal={false} />);
@@ -210,7 +210,7 @@ describe("Generate AI Film Grain button", () => {
   it("calls trigger with key from dialog when no apiKey is set", async () => {
     const trigger = vi.fn().mockResolvedValue(undefined);
     mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "" });
+    mockUseAiProviderStore.mockReturnValue({ apiKey: "", preferPlatformKey: true });
     mockUseAiGrainGeneration.mockReturnValue({ trigger, isGenerating: false });
 
     render(<GenerateAiGrainButton showOriginal={false} />);
@@ -234,7 +234,7 @@ describe("Generate AI Film Grain button", () => {
     it("skips key dialog for AI subscribers and calls trigger without apiKey", async () => {
       const trigger = vi.fn().mockResolvedValue(undefined);
       mockUseAiGrainGeneration.mockReturnValue({ trigger, isGenerating: false });
-      mockUseAiProviderStore.mockReturnValue({ apiKey: "" });
+      mockUseAiProviderStore.mockReturnValue({ apiKey: "", preferPlatformKey: true });
       mockAiSubscriptions = {
         status: "success",
         data: [{ productKey: "ai_generation_platform", status: "active" }],
@@ -251,7 +251,7 @@ describe("Generate AI Film Grain button", () => {
     });
 
     it("disables button when at AI cost cap", () => {
-      mockUseAiProviderStore.mockReturnValue({ apiKey: "" });
+      mockUseAiProviderStore.mockReturnValue({ apiKey: "", preferPlatformKey: true });
       mockAiSubscriptions = {
         status: "success",
         data: [{ productKey: "ai_generation_platform", status: "active" }],
@@ -268,7 +268,7 @@ describe("Generate AI Film Grain button", () => {
     });
 
     it("still shows key dialog for non-subscribers when FEATURE_SUBSCRIPTIONS is true", () => {
-      mockUseAiProviderStore.mockReturnValue({ apiKey: "" });
+      mockUseAiProviderStore.mockReturnValue({ apiKey: "", preferPlatformKey: true });
       mockAiSubscriptions = { status: "success", data: [] };
 
       render(<GenerateAiGrainButton showOriginal={false} />);
@@ -277,12 +277,70 @@ describe("Generate AI Film Grain button", () => {
 
       expect(screen.getByTestId("ai-key-dialog")).toBeDefined();
     });
+
+    it("calls trigger with apiKey when subscriber has disabled platform key", async () => {
+      const trigger = vi.fn().mockResolvedValue(undefined);
+      mockUseAiGrainGeneration.mockReturnValue({ trigger, isGenerating: false });
+      mockUseAiProviderStore.mockReturnValue({
+        apiKey: "sk-byo",
+        preferPlatformKey: false,
+      });
+      mockAiSubscriptions = {
+        status: "success",
+        data: [{ productKey: "ai_generation_platform", status: "active" }],
+      };
+
+      render(<GenerateAiGrainButton showOriginal={false} />);
+
+      fireEvent.click(screen.getByText("Generate AI Film Grain"));
+
+      await Promise.resolve();
+
+      expect(trigger).toHaveBeenCalledWith("sk-byo", false);
+    });
+
+    it("opens key dialog for subscriber with platform key disabled and no BYO key", () => {
+      mockUseAiProviderStore.mockReturnValue({
+        apiKey: "",
+        preferPlatformKey: false,
+      });
+      mockAiSubscriptions = {
+        status: "success",
+        data: [{ productKey: "ai_generation_platform", status: "active" }],
+      };
+
+      render(<GenerateAiGrainButton showOriginal={false} />);
+
+      fireEvent.click(screen.getByText("Generate AI Film Grain"));
+
+      expect(screen.getByTestId("ai-key-dialog")).toBeDefined();
+    });
+
+    it("does not disable button at AI cap when platform key is disabled", () => {
+      mockUseAiProviderStore.mockReturnValue({
+        apiKey: "sk-byo",
+        preferPlatformKey: false,
+      });
+      mockAiSubscriptions = {
+        status: "success",
+        data: [{ productKey: "ai_generation_platform", status: "active" }],
+      };
+      mockAiUsage = {
+        status: "success",
+        data: { usedCents: 200, limitCents: 200, atLimit: true, resetsAt: 1700000000000 },
+      };
+
+      render(<GenerateAiGrainButton showOriginal={false} />);
+
+      const button = screen.getByRole("button", { name: /generate ai film grain/i });
+      expect(button.hasAttribute("disabled")).toBe(false);
+    });
   });
 
   describe("abuse prevention", () => {
     beforeEach(() => {
       mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
-      mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test" });
+      mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-test", preferPlatformKey: true });
     });
 
     it("disables button when rate-limited", () => {

@@ -77,6 +77,20 @@ export default defineSchema({
     .index("by_userId", ["userId"])
     .index("by_stripeSubscriptionId", ["stripeSubscriptionId"])
     .index("by_stripeCustomerId", ["stripeCustomerId"]),
+  rawUsage: defineTable({
+    userId: v.id("users"),
+    jobId: v.id("aiGenerationJobs"),
+    model: v.string(),
+    provider: v.string(),
+    inputTokens: v.number(),
+    outputTokens: v.number(),
+    costCents: v.number(),
+    responseId: v.string(),
+    createdAt: v.number(),
+    billingPeriod: v.string(),
+  })
+    .index("by_billingPeriod_userId", ["billingPeriod", "userId"])
+    .index("by_jobId", ["jobId"]),
   aiGenerationJobs: defineTable({
     userId: v.id("users"),
     status: v.union(
@@ -94,14 +108,6 @@ export default defineSchema({
       }),
     ),
     takeImageId: v.optional(v.id("images")),
-    usage: v.optional(
-      v.object({
-        inputTokens: v.number(),
-        outputTokens: v.number(),
-        costCents: v.number(),
-        model: v.string(),
-      }),
-    ),
     thumbnailBase64: v.optional(v.string()),
     failureReason: v.optional(v.string()),
     overQuotaStorageId: v.optional(v.id("_storage")),

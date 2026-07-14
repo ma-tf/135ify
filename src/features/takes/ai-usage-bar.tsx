@@ -12,7 +12,7 @@ export function AiUsageBarSkeleton() {
 }
 
 export function AiUsageBar() {
-  const result = useQuery({ query: api.aiGenerationJobs.getAiUsage, args: {} });
+  const result = useQuery({ query: api.usage.getAiUsage, args: {} });
   if (result.status === "pending") return <AiUsageBarSkeleton />;
   if (result.status === "error") return null;
 

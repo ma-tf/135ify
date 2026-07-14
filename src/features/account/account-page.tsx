@@ -1,8 +1,8 @@
+import { AiKeyForm } from "@components/ai-key-form";
 import { Skeleton } from "@components/ui/skeleton";
 import { FEATURE_AI_GRAIN } from "@config";
 import { api } from "@convex/_generated/api";
 import { ActiveSubscriptions } from "@features/account/active-subscriptions";
-import { ApiKeyForm } from "@features/account/api-key-form";
 import { ManageSubscriptionButton } from "@features/account/manage-subscription-button";
 import { useQuery_experimental as useQuery } from "convex/react";
 import { ShoppingBag } from "lucide-react";
@@ -14,10 +14,14 @@ export function AccountPage() {
     return <SubscriptionsSkeleton />;
   }
 
-  const activeSubs =
-    subscriptions.status === "success"
-      ? subscriptions.data.filter((s: any) => s.status === "active" || s.status === "trialing")
-      : [];
+  if (subscriptions.status === "error") {
+    return <SubscriptionsError />;
+  }
+
+  const activeSubs = subscriptions.data.filter(
+    (s: any) => s.status === "active" || s.status === "trialing",
+  );
+  const hasAiSub = activeSubs.some((s: any) => s.productKey === "ai_generation_platform");
 
   return (
     <>
@@ -25,9 +29,7 @@ export function AccountPage() {
         <h2 className="text-lg font-semibold">Subscriptions</h2>
         <p className="text-sm text-muted-foreground">Manage your plan subscriptions and billing.</p>
         <div className="mt-4 space-y-4">
-          {subscriptions.status === "error" ? (
-            <SubscriptionsError />
-          ) : activeSubs.length > 0 ? (
+          {activeSubs.length > 0 ? (
             <ActiveSubscriptions subs={activeSubs} />
           ) : (
             <EmptySubscriptions />
@@ -35,7 +37,17 @@ export function AccountPage() {
         </div>
       </div>
       {activeSubs.length > 0 && <ManageSubscriptionButton />}
-      {FEATURE_AI_GRAIN && <ApiKeyForm />}
+      {FEATURE_AI_GRAIN && (
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold">API Key</h2>
+            <p className="text-sm text-muted-foreground">
+              Your API key is stored locally and never sent to our servers.
+            </p>
+          </div>
+          <AiKeyForm hasAiSub={hasAiSub} />
+        </section>
+      )}
     </>
   );
 }

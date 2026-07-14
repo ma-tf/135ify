@@ -20,7 +20,7 @@ import { useAiProviderStore } from "@stores/ai-provider-store";
 
 beforeEach(() => {
   storeMap.clear();
-  useAiProviderStore.setState({ apiKey: "" });
+  useAiProviderStore.setState({ apiKey: "", preferPlatformKey: true });
 });
 
 afterEach(() => {
@@ -47,5 +47,20 @@ describe("useAiProviderStore", () => {
     useAiProviderStore.getState().setApiKey("sk-persisted");
     const stored = JSON.parse(storeMap.get("ai-provider-key") ?? "{}");
     expect(stored.state.apiKey).toBe("sk-persisted");
+  });
+
+  it("starts with preferPlatformKey as true", () => {
+    expect(useAiProviderStore.getState().preferPlatformKey).toBe(true);
+  });
+
+  it("setPreferPlatformKey updates the preference", () => {
+    useAiProviderStore.getState().setPreferPlatformKey(false);
+    expect(useAiProviderStore.getState().preferPlatformKey).toBe(false);
+  });
+
+  it("persists preferPlatformKey to localStorage", () => {
+    useAiProviderStore.getState().setPreferPlatformKey(false);
+    const stored = JSON.parse(storeMap.get("ai-provider-key") ?? "{}");
+    expect(stored.state.preferPlatformKey).toBe(false);
   });
 });
