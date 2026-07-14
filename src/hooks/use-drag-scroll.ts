@@ -17,7 +17,7 @@ export function useDragScroll() {
     ref.current?.removeAttribute("data-dragged");
     state.current.isDown = true;
     state.current.startX = e.clientX;
-    state.current.scrollLeft = ref.current?.scrollLeft ?? 0;
+    state.current.scrollLeft = ref.current!.scrollLeft;
     state.current.isDragging = false;
   }, []);
 

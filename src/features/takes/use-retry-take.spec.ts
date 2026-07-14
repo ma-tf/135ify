@@ -70,7 +70,7 @@ describe("useRetryTake", () => {
       await result.current.retry("job-1");
     });
 
-    expect(mockRetryJob).toHaveBeenCalledWith({ jobId: "job-1" });
+    expect(mockRetryJob).toHaveBeenCalledWith({ jobId: "job-1", apiKey: "sk-123" });
     expect(mockProcessJob).toHaveBeenCalledWith({ jobId: "job-1", apiKey: "sk-123" });
   });
 
@@ -132,6 +132,7 @@ describe("useRetryTake", () => {
       await result.current.retry("job-1", "sk-explicit");
     });
 
+    expect(mockRetryJob).toHaveBeenCalledWith({ jobId: "job-1", apiKey: "sk-explicit" });
     expect(mockProcessJob).toHaveBeenCalledWith({ jobId: "job-1", apiKey: "sk-explicit" });
   });
 

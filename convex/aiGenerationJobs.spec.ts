@@ -28,6 +28,7 @@ describe("aiGenerationJobs usage tracking", () => {
     const jobId = await authed.mutation(api.aiGenerationJobs.createJob, {
       sourceStorageId,
       fileName: "test.png",
+      apiKey: "sk-test",
     });
 
     await authed.mutation(api.aiGenerationJobs.setJobStatus, {
@@ -122,6 +123,7 @@ describe("aiGenerationJobs cost aggregation", () => {
     const job1 = await authed.mutation(api.aiGenerationJobs.createJob, {
       sourceStorageId,
       fileName: "a.png",
+      apiKey: "sk-test",
     });
     await authed.mutation(api.aiGenerationJobs.setJobStatus, {
       jobId: job1,
@@ -136,6 +138,7 @@ describe("aiGenerationJobs cost aggregation", () => {
     const job2 = await authed.mutation(api.aiGenerationJobs.createJob, {
       sourceStorageId,
       fileName: "b.png",
+      apiKey: "sk-test",
     });
     await authed.mutation(api.aiGenerationJobs.setJobStatus, {
       jobId: job2,
@@ -162,6 +165,7 @@ describe("aiGenerationJobs cost aggregation", () => {
     const jobId = await authed.mutation(api.aiGenerationJobs.createJob, {
       sourceStorageId,
       fileName: "test.png",
+      apiKey: "sk-test",
     });
     await authed.mutation(api.aiGenerationJobs.setJobStatus, {
       jobId,
@@ -201,5 +205,156 @@ describe("aiGenerationJobs cost aggregation", () => {
     const authed = await setup();
     const result = await authed.query(api.aiGenerationJobs.getAiUsage, {});
     expect(result).toBeNull();
+  });
+});
+
+describe("aiGenerationJobs subscription gating", () => {
+  async function setupWithSub(status = "active") {
+    const t = convexTest({ schema, modules });
+    const userId = await t.run(async (ctx) => {
+      return await ctx.db.insert("users", { email: null });
+    });
+    await t.run(async (ctx) => {
+      await ctx.db.insert("subscriptions", {
+        userId,
+        productKey: "ai_generation_platform",
+        stripeSubscriptionId: `sub_${Math.random()}`,
+        stripeCustomerId: `cus_${Math.random()}`,
+        status,
+      });
+    });
+    return t.withIdentity({ subject: `${userId}|session` });
+  }
+
+  test("createJob succeeds for subscribed user without apiKey", async () => {
+    const authed = await setupWithSub();
+
+    const sourceStorageId = await authed.run(async (ctx) => {
+      return await ctx.storage.store(new Blob(["fake-image"], { type: "image/png" }));
+    });
+
+    const jobId = await authed.mutation(api.aiGenerationJobs.createJob, {
+      sourceStorageId,
+      fileName: "test.png",
+    });
+
+    expect(jobId).toBeTruthy();
+  });
+
+  test("createJob succeeds for free user with apiKey", async () => {
+    const authed = await setup();
+
+    const sourceStorageId = await authed.run(async (ctx) => {
+      return await ctx.storage.store(new Blob(["fake-image"], { type: "image/png" }));
+    });
+
+    const jobId = await authed.mutation(api.aiGenerationJobs.createJob, {
+      sourceStorageId,
+      fileName: "test.png",
+      apiKey: "sk-test",
+    });
+
+    expect(jobId).toBeTruthy();
+  });
+
+  test("createJob throws for free user without apiKey", async () => {
+    const authed = await setup();
+
+    const sourceStorageId = await authed.run(async (ctx) => {
+      return await ctx.storage.store(new Blob(["fake-image"], { type: "image/png" }));
+    });
+
+    await expect(
+      authed.mutation(api.aiGenerationJobs.createJob, {
+        sourceStorageId,
+        fileName: "test.png",
+      }),
+    ).rejects.toThrow("No API key available");
+  });
+
+  test("createJob throws for user with canceled subscription without apiKey", async () => {
+    const authed = await setupWithSub("canceled");
+
+    const sourceStorageId = await authed.run(async (ctx) => {
+      return await ctx.storage.store(new Blob(["fake-image"], { type: "image/png" }));
+    });
+
+    await expect(
+      authed.mutation(api.aiGenerationJobs.createJob, {
+        sourceStorageId,
+        fileName: "test.png",
+      }),
+    ).rejects.toThrow("No API key available");
+  });
+
+  test("retryJob succeeds for subscribed user without apiKey", async () => {
+    const authed = await setupWithSub();
+
+    const sourceStorageId = await authed.run(async (ctx) => {
+      return await ctx.storage.store(new Blob(["fake-image"], { type: "image/png" }));
+    });
+
+    const jobId = await authed.mutation(api.aiGenerationJobs.createJob, {
+      sourceStorageId,
+      fileName: "test.png",
+    });
+    await authed.mutation(api.aiGenerationJobs.setJobStatus, {
+      jobId,
+      status: "failed",
+      failureReason: "test",
+    });
+
+    await authed.mutation(api.aiGenerationJobs.retryJob, { jobId });
+    const job = await authed.query(api.aiGenerationJobs.getJob, { jobId });
+    expect(job?.status).toBe("processing");
+  });
+
+  test("retryJob succeeds for free user with apiKey", async () => {
+    const authed = await setup();
+
+    const sourceStorageId = await authed.run(async (ctx) => {
+      return await ctx.storage.store(new Blob(["fake-image"], { type: "image/png" }));
+    });
+
+    const jobId = await authed.mutation(api.aiGenerationJobs.createJob, {
+      sourceStorageId,
+      fileName: "test.png",
+      apiKey: "sk-test",
+    });
+    await authed.mutation(api.aiGenerationJobs.setJobStatus, {
+      jobId,
+      status: "failed",
+      failureReason: "test",
+    });
+
+    await authed.mutation(api.aiGenerationJobs.retryJob, {
+      jobId,
+      apiKey: "sk-test",
+    });
+    const job = await authed.query(api.aiGenerationJobs.getJob, { jobId });
+    expect(job?.status).toBe("processing");
+  });
+
+  test("retryJob throws for free user without apiKey", async () => {
+    const authed = await setup();
+
+    const sourceStorageId = await authed.run(async (ctx) => {
+      return await ctx.storage.store(new Blob(["fake-image"], { type: "image/png" }));
+    });
+
+    const jobId = await authed.mutation(api.aiGenerationJobs.createJob, {
+      sourceStorageId,
+      fileName: "test.png",
+      apiKey: "sk-test",
+    });
+    await authed.mutation(api.aiGenerationJobs.setJobStatus, {
+      jobId,
+      status: "failed",
+      failureReason: "test",
+    });
+
+    await expect(authed.mutation(api.aiGenerationJobs.retryJob, { jobId })).rejects.toThrow(
+      "No API key available",
+    );
   });
 });

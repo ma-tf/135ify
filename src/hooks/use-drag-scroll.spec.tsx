@@ -127,6 +127,38 @@ describe("useDragScroll", () => {
     expect(el.scrollLeft).toBeGreaterThan(0);
   });
 
+  it("scrolls on multiple mousemoves after drag has started", () => {
+    render(<DragScrollTest />);
+    const el = container();
+
+    fireEvent.mouseDown(el, { clientX: 100 });
+    fireEvent.mouseMove(window, { clientX: 90 });
+    const mid = el.scrollLeft;
+
+    fireEvent.mouseMove(window, { clientX: 80 });
+    expect(el.scrollLeft).toBeGreaterThan(mid);
+  });
+
+  it("mouseup without prior drag keeps dragging false", () => {
+    render(<DragScrollTest />);
+    const el = container();
+
+    fireEvent.mouseDown(el, { clientX: 100 });
+    fireEvent.mouseUp(window);
+
+    expect(el.dataset.dragging).toBe("false");
+  });
+
+  it("mouseleave without prior drag keeps dragging false", () => {
+    render(<DragScrollTest />);
+    const el = container();
+
+    fireEvent.mouseDown(el, { clientX: 100 });
+    fireEvent.mouseLeave(el);
+
+    expect(el.dataset.dragging).toBe("false");
+  });
+
   it("cleans up event listeners on unmount", () => {
     const { unmount } = render(<DragScrollTest />);
     const el = container();
