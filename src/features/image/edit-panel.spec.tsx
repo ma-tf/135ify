@@ -1,4 +1,9 @@
-import { EditPanel } from "@features/image/edit-panel";
+import {
+  EditPanel,
+  GrainControls,
+  HalationControls,
+  VignetteControls,
+} from "@features/image/edit-panel";
 import { EditViewCloseProvider } from "@features/image/edit-view-close-context";
 import { EditViewProvider } from "@features/image/edit-view-context";
 import { FileProvider } from "@providers/file-context";
@@ -17,6 +22,7 @@ const {
   mockToast,
   mockParamSliderCalls,
   mockFilmSelectorProps,
+  mockUseFile,
 } = vi.hoisted(() => {
   const calls: Array<{ label: string; onValueChange: (v: number) => void }> = [];
   return {
@@ -29,6 +35,7 @@ const {
     mockFilmSelectorProps: {
       current: null as { value: string; onValueChange: (v: string) => void } | null,
     },
+    mockUseFile: vi.fn(),
   };
 });
 
@@ -94,7 +101,7 @@ vi.mock("@providers/storage-context", () => ({
 
 vi.mock("@providers/file-context", () => ({
   FileProvider: ({ children }: any) => <>{children}</>,
-  useFile: () => TEST_FILE_RECORD_PHOTO,
+  useFile: mockUseFile,
 }));
 
 vi.mock("@config", () => ({
@@ -178,6 +185,7 @@ describe("EditPanel", () => {
     vi.clearAllMocks();
     mockParamSliderCalls.length = 0;
     mockFilmSelectorProps.current = null;
+    mockUseFile.mockReturnValue(TEST_FILE_RECORD_PHOTO);
   });
 
   afterEach(() => {
@@ -333,6 +341,64 @@ describe("EditPanel", () => {
       renderEditPanel();
       mockFilmSelectorProps.current?.onValueChange("gold");
       expect(mockSetParam).toHaveBeenCalledWith({ selectedFilmId: "gold" });
+    });
+  });
+
+  describe("Early-return branches when params is null", () => {
+    it("HalationControls returns null when params is falsy", () => {
+      mockUseFile.mockReturnValue({ params: null } as any);
+      const { container } = render(<HalationControls setParam={vi.fn()} />);
+      expect(container.textContent).toBe("");
+    });
+
+    it("VignetteControls returns null when params is falsy", () => {
+      mockUseFile.mockReturnValue({ params: null } as any);
+      const { container } = render(<VignetteControls setParam={vi.fn()} />);
+      expect(container.textContent).toBe("");
+    });
+
+    it("GrainControls returns null when params is falsy", () => {
+      mockUseFile.mockReturnValue({ params: null } as any);
+      const { container } = render(
+        <EditViewProvider>
+          <GrainControls setParam={vi.fn()} />
+        </EditViewProvider>,
+      );
+      expect(container.textContent).toBe("");
+    });
+  });
+
+  describe("ToggleGroup ISO value", () => {
+    it("shows ISO 200 selected when grainIntensity is 50", () => {
+      mockUseFile.mockReturnValue({
+        ...TEST_FILE_RECORD_PHOTO,
+        params: { ...DEFAULT_PARAMS, grainIntensity: 50 },
+      });
+      renderEditPanel();
+      const btn = screen.getByText("200").closest("button")!;
+      expect(btn.dataset.state).toBe("on");
+    });
+
+    it("shows no selection when grainIntensity has no ISO mapping", () => {
+      mockUseFile.mockReturnValue({
+        ...TEST_FILE_RECORD_PHOTO,
+        params: { ...DEFAULT_PARAMS, grainIntensity: 13 },
+      });
+      renderEditPanel();
+      for (const iso of ["100", "200", "400", "800"]) {
+        const btn = screen.getByText(iso).closest("button")!;
+        expect(btn.dataset.state).not.toBe("on");
+      }
+    });
+
+    it("sets grainIntensity to 0 when ISO is deselected", () => {
+      mockUseFile.mockReturnValue({
+        ...TEST_FILE_RECORD_PHOTO,
+        params: { ...DEFAULT_PARAMS, grainIntensity: 75 },
+      });
+      renderEditPanel();
+      fireEvent.click(screen.getByText("400"));
+      expect(mockSetParam).toHaveBeenLastCalledWith({ grainIntensity: 0 });
     });
   });
 });

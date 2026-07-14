@@ -10,7 +10,11 @@ import { useFileProcessing } from "@features/image/use-file-processing";
 import { cn } from "@lib/utils";
 import { useFile } from "@providers/file-context";
 
-function HalationControls({ setParam }: { setParam: (partial: Partial<ProcessParams>) => void }) {
+export function HalationControls({
+  setParam,
+}: {
+  setParam: (partial: Partial<ProcessParams>) => void;
+}) {
   const { params } = useFile();
   if (!params) return null;
 
@@ -36,7 +40,11 @@ function HalationControls({ setParam }: { setParam: (partial: Partial<ProcessPar
   );
 }
 
-function VignetteControls({ setParam }: { setParam: (partial: Partial<ProcessParams>) => void }) {
+export function VignetteControls({
+  setParam,
+}: {
+  setParam: (partial: Partial<ProcessParams>) => void;
+}) {
   const { params } = useFile();
   if (!params) return null;
 
@@ -68,7 +76,11 @@ const INTENSITY_TO_ISO: Record<number, string> = Object.fromEntries(
   ISO_PRESETS.map((p) => [p.intensity, p.iso]),
 );
 
-function GrainControls({ setParam }: { setParam: (partial: Partial<ProcessParams>) => void }) {
+export function GrainControls({
+  setParam,
+}: {
+  setParam: (partial: Partial<ProcessParams>) => void;
+}) {
   const { params } = useFile();
   const { showOriginal } = useEditView();
   if (!params) return null;
