@@ -43,8 +43,8 @@ const products = [
     description: "More gallery space for your 135 scans.",
     features: [
       { name: "360 images (up from 36)" },
-      { name: "25 MB per file (up from 10 MB)" },
-      { name: "~9 GB total storage" },
+      { name: "15 MB per file (up from 5 MB)" },
+      { name: "~5.4 GB total storage" },
     ],
   },
   {

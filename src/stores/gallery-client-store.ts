@@ -20,11 +20,10 @@ interface GalleryClientState {
   ) => void;
   clear: () => void;
   imageCache: Record<string, ImageCacheEntry>;
-  getImageCacheEntry: (id: string) => ImageCacheEntry | undefined;
   setImageCacheEntry: (id: string, update: Partial<ImageCacheEntry>) => void;
 }
 
-export const useGalleryClientStore = create<GalleryClientState>((set, get) => ({
+export const useGalleryClientStore = create<GalleryClientState>((set) => ({
   localParams: null,
   localRenderUrl: null,
   localIsProcessing: false,
@@ -54,7 +53,6 @@ export const useGalleryClientStore = create<GalleryClientState>((set, get) => ({
       localRenderError: null,
     }),
   imageCache: {},
-  getImageCacheEntry: (id) => get().imageCache[id],
   setImageCacheEntry: (id, update) =>
     set((state) => ({
       imageCache: {
