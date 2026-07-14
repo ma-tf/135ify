@@ -34,6 +34,7 @@ jobs:
       VITE_CONVEX_URL: ${{ vars.CONVEX_URL }}
       VITE_FEATURE_AI_GRAIN: ${{ vars.VITE_FEATURE_AI_GRAIN }}
       VITE_FEATURE_SIGN_IN: ${{ vars.VITE_FEATURE_SIGN_IN }}
+      VITE_FEATURE_SUBSCRIPTIONS: ${{ vars.VITE_FEATURE_SUBSCRIPTIONS }}
       VITE_GALLERY_IMAGE_LIMIT: ${{ vars.VITE_GALLERY_IMAGE_LIMIT }}
     steps:
       - uses: actions/checkout@v6
@@ -60,6 +61,7 @@ jobs:
       VITE_GALLERY_IMAGE_LIMIT: ${{ vars.VITE_GALLERY_IMAGE_LIMIT }}
       VITE_FEATURE_AI_GRAIN: ${{ vars.VITE_FEATURE_AI_GRAIN }}
       VITE_FEATURE_SIGN_IN: ${{ vars.VITE_FEATURE_SIGN_IN }}
+      VITE_FEATURE_SUBSCRIPTIONS: ${{ vars.VITE_FEATURE_SUBSCRIPTIONS }}
     steps:
       - uses: actions/checkout@v6
       - uses: voidzero-dev/setup-vp@v1
