@@ -60,6 +60,10 @@ vi.mock("convex/react", () => ({
   },
 }));
 
+vi.mock("@components/ui/skeleton", () => ({
+  Skeleton: ({ className }: any) => <div data-testid="skeleton" className={className} />,
+}));
+
 vi.mock("@convex/_generated/api", () => ({
   api: {
     images: { getStorageUsage: "getStorageUsage" },
@@ -134,6 +138,16 @@ describe("Generate AI Film Grain button", () => {
 
     render(<GenerateAiGrainButton showOriginal={false} />);
 
+    expect(screen.queryByText("Generate AI Film Grain")).toBeNull();
+  });
+
+  it("shows skeleton while queries are pending", () => {
+    mockUseAuth.mockReturnValue({ isAuthenticated: true, isLoading: false });
+    mockAiSubscriptions = { status: "pending" };
+
+    render(<GenerateAiGrainButton showOriginal={false} />);
+
+    expect(screen.getByTestId("skeleton")).toBeDefined();
     expect(screen.queryByText("Generate AI Film Grain")).toBeNull();
   });
 

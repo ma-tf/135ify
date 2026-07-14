@@ -18,8 +18,15 @@ vi.mock("@features/image/edit-panel", () => ({
   EditPanel: () => <div data-testid="edit-panel" />,
 }));
 
+const { mockOnSheetClose } = vi.hoisted(() => ({
+  mockOnSheetClose: vi.fn(),
+}));
+
 vi.mock("@components/ui/sheet", () => ({
-  Sheet: ({ children }: any) => <>{children}</>,
+  Sheet: ({ children, onOpenChange }: any) => {
+    mockOnSheetClose.mockImplementation(() => onOpenChange(false));
+    return <>{children}</>;
+  },
   SheetContent: ({ children, overlayContent }: any) => (
     <div data-testid="sheet-content">
       {overlayContent}
@@ -30,29 +37,31 @@ vi.mock("@components/ui/sheet", () => ({
   SheetDescription: ({ children }: any) => <div data-testid="sheet-description">{children}</div>,
 }));
 
-const { mockUseFileReturn } = vi.hoisted(() => ({
-  mockUseFileReturn: {
-    value: {
-      id: "file-1",
-      fileName: "test.jpg",
-      sourceUrl: "blob:preview-url",
-      params: {
-        selectedFilmId: "none",
-        halationIntensity: 0,
-        halationSpread: 0,
-        halationThreshold: 0,
-        vignetteIntensity: 0,
-        vignetteFeather: 0,
-        grainIntensity: 0,
-      },
-      convexId: null,
-      createdAt: Date.now(),
-      renderUrl: "blob:render-url",
-      isProcessing: false,
-      renderError: null,
-    } as FileRecord,
-  },
-}));
+const { mockUseFileReturn, defaultFileRecord } = vi.hoisted(() => {
+  const file: FileRecord = {
+    id: "file-1",
+    fileName: "test.jpg",
+    sourceUrl: "blob:preview-url",
+    params: {
+      selectedFilmId: "none",
+      halationIntensity: 0,
+      halationSpread: 0,
+      halationThreshold: 0,
+      vignetteIntensity: 0,
+      vignetteFeather: 0,
+      grainIntensity: 0,
+    },
+    convexId: null,
+    createdAt: Date.now(),
+    renderUrl: "blob:render-url",
+    isProcessing: false,
+    renderError: null,
+  };
+  return {
+    mockUseFileReturn: { value: { ...file } },
+    defaultFileRecord: file,
+  };
+});
 
 vi.mock("@tanstack/react-router", () => ({
   useLocation: () => ({ pathname: "/" }),
@@ -95,6 +104,7 @@ function renderSheet() {
 describe("EditViewSheet", () => {
   beforeEach(() => {
     vi.mocked(useIsMobile).mockReturnValue(false);
+    mockUseFileReturn.value = { ...defaultFileRecord };
   });
 
   it("renders EditPanel inside the sheet", () => {
@@ -153,5 +163,23 @@ describe("EditViewSheet", () => {
 
     const spinners = screen.getAllByTestId("spinner");
     expect(spinners.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("closes sheet when onOpenChange fires with false", () => {
+    renderSheet();
+    mockOnSheetClose();
+    expect(mockOnClose).toHaveBeenCalledOnce();
+  });
+
+  it("stops propagation on pointer down on desktop image", () => {
+    vi.mocked(useIsMobile).mockReturnValue(false);
+    renderSheet();
+
+    const img = screen.getByAltText(TEST_FILE_RECORD_WITH_RENDER.fileName);
+    const stopPropagation = vi.fn();
+    const event = new MouseEvent("pointerdown", { bubbles: true });
+    event.stopPropagation = stopPropagation;
+    fireEvent(img, event);
+    expect(stopPropagation).toHaveBeenCalledOnce();
   });
 });

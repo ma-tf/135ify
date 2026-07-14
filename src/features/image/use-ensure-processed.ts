@@ -22,7 +22,6 @@ export function EnsureProcessedOrchestrator({
       initiated.current.add(file.id);
 
       const process = () => {
-        if (file.renderUrl) URL.revokeObjectURL(file.renderUrl);
         updateFile(file.id, { isProcessing: true, renderUrl: null, renderError: null });
 
         processToBlobUrl(file.sourceUrl, file.params)

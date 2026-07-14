@@ -6,12 +6,14 @@ vi.mock("@components/ui/slider", () => ({
   Slider({
     value,
     onValueChange,
+    onValueCommit,
     min,
     max,
     step,
   }: {
     value?: number[];
     onValueChange: (value: number[]) => void;
+    onValueCommit?: () => void;
     min?: number;
     max?: number;
     step?: number;
@@ -25,6 +27,7 @@ vi.mock("@components/ui/slider", () => ({
         max={max}
         step={step}
         onChange={(e) => onValueChange([Number(e.target.value)])}
+        onMouseUp={() => onValueCommit?.()}
       />
     );
   },
@@ -83,5 +86,21 @@ describe("ParameterSlider", () => {
     expect(slider.min).toBe("0");
     expect(slider.max).toBe("100");
     expect(slider.step).toBe("1");
+  });
+
+  it("resets to prop value on commit after dragging", () => {
+    const onValueChange = vi.fn();
+    const { container } = render(
+      <ParameterSlider label="Drag" value={50} onValueChange={onValueChange} />,
+    );
+
+    const slider = container.querySelector('input[type="range"]') as HTMLInputElement;
+    fireEvent.change(slider, { target: { value: "75" } });
+
+    expect(screen.getByText("75")).toBeDefined();
+
+    fireEvent.mouseUp(slider);
+
+    expect(screen.getByText("50")).toBeDefined();
   });
 });

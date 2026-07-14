@@ -82,9 +82,20 @@ vi.mock("lucide-react", () => ({
   RotateCcw: () => <span data-testid="rotate-ccw" />,
 }));
 
+let locationHref = "";
+
 describe("PricingPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    locationHref = "";
+    vi.stubGlobal("location", {
+      get href() {
+        return locationHref;
+      },
+      set href(v: string) {
+        locationHref = v;
+      },
+    });
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
     mockGetPlan.mockResolvedValue(mockPlans);
     mockCreateCheckoutSession.mockResolvedValue({
@@ -134,15 +145,18 @@ describe("PricingPage", () => {
   });
 
   it("renders PricingError when getPlan fails", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockGetPlan.mockRejectedValue(new Error("Network error"));
     render(<PricingPage />);
     await vi.waitFor(() => {
       expect(screen.getByText("Failed to load plans")).toBeDefined();
     });
     expect(screen.getByText("Retry")).toBeDefined();
+    errorSpy.mockRestore();
   });
 
   it("retry button re-fetches plans after error", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockGetPlan.mockRejectedValueOnce(new Error("Network error"));
     render(<PricingPage />);
     await vi.waitFor(() => {
@@ -155,22 +169,17 @@ describe("PricingPage", () => {
     await vi.waitFor(() => {
       expect(screen.getByText("Storage")).toBeDefined();
     });
+    errorSpy.mockRestore();
   });
 
   it("navigates to checkout URL on Subscribe click", async () => {
-    Object.defineProperty(window, "location", {
-      value: { href: "" },
-      configurable: true,
-      writable: true,
-    });
-
     render(<PricingPage />);
     await vi.waitFor(() => {
       expect(screen.getAllByText("Subscribe").length).toBeGreaterThanOrEqual(1);
     });
     fireEvent.click(screen.getAllByText("Subscribe")[0]);
     await vi.waitFor(() => {
-      expect(window.location.href).toBe("https://checkout.stripe.com/session_123");
+      expect(locationHref).toBe("https://checkout.stripe.com/session_123");
     });
   });
 
