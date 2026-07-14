@@ -1,13 +1,8 @@
 import type { TakeRowJob } from "@features/takes/take-row-thumbnail";
 
-import { AiKeyDialog } from "@components/ai-key-dialog";
-import { Button } from "@components/ui/button";
 import { Spinner } from "@components/ui/spinner";
 import { TakeRowThumbnail } from "@features/takes/take-row-thumbnail";
-import { useRetryTake } from "@features/takes/use-retry-take";
 import { formatTimestamp } from "@lib/utils";
-import { RotateCw } from "lucide-react";
-import { useState } from "react";
 
 function ProcessingBadge() {
   return (
@@ -18,36 +13,7 @@ function ProcessingBadge() {
   );
 }
 
-function FailedBadge({ failureReason }: { failureReason?: string | null }) {
-  return (
-    <span
-      className="inline-flex items-center rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-medium tracking-wider text-destructive uppercase"
-      title={failureReason ?? undefined}
-    >
-      Failed
-    </span>
-  );
-}
-
 export function PendingTakeRow({ job }: { job: TakeRowJob }) {
-  const { retry, status, canRetry } = useRetryTake();
-  const [keyDialogOpen, setKeyDialogOpen] = useState(false);
-
-  const isRetrying = status === "retrying";
-
-  const handleRetry = () => {
-    if (canRetry) {
-      void retry(job._id);
-    } else {
-      setKeyDialogOpen(true);
-    }
-  };
-
-  const handleSaveKey = (key: string) => {
-    setKeyDialogOpen(false);
-    void retry(job._id, key);
-  };
-
   return (
     <div className="flex items-center gap-4 rounded-lg border p-3 shadow-md">
       <TakeRowThumbnail
@@ -60,22 +26,9 @@ export function PendingTakeRow({ job }: { job: TakeRowJob }) {
         <span className="text-sm font-medium text-muted-foreground">{job.fileName}</span>
         <div className="flex items-center gap-2">
           <p className="text-xs text-muted-foreground">{formatTimestamp(job._creationTime)}</p>
-          {job.status === "processing" && <ProcessingBadge />}
-          {job.status === "failed" && <FailedBadge failureReason={job.failureReason} />}
+          <ProcessingBadge />
         </div>
       </div>
-      {job.status === "failed" && (
-        <Button
-          variant="ghost"
-          size="icon-lg"
-          className="ml-auto"
-          onClick={handleRetry}
-          disabled={isRetrying}
-        >
-          {isRetrying ? <Spinner /> : <RotateCw />}
-        </Button>
-      )}
-      {keyDialogOpen && <AiKeyDialog onOpenChange={setKeyDialogOpen} onSave={handleSaveKey} />}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import type { Doc } from "@convex/_generated/dataModel";
 import { api } from "@convex/_generated/api";
 import { UsageBar } from "@features/gallery/gallery-usage-bar";
 import { CompletedTakeRow } from "@features/takes/completed-take-row";
+import { FailedTakeRow } from "@features/takes/failed-take-row";
 import { OverQuotaTakeRow } from "@features/takes/over-quota-take-row";
 import { PendingTakeRow } from "@features/takes/pending-take-row";
 import { TakesSkeleton } from "@features/takes/takes-skeleton";
@@ -127,7 +128,10 @@ export function TakesPage() {
               if (take.status === "overQuota") {
                 return <OverQuotaTakeRow key={take._id} job={take} />;
               }
-              if (take.status !== "completed") {
+              if (take.status === "failed") {
+                return <FailedTakeRow key={take._id} job={take} />;
+              }
+              if (take.status === "processing") {
                 return <PendingTakeRow key={take._id} job={take} />;
               }
               return <CompletedTakeRow key={take._id} job={take} />;

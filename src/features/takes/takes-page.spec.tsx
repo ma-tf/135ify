@@ -46,6 +46,14 @@ vi.mock("@features/takes/over-quota-take-row", () => ({
   ),
 }));
 
+vi.mock("@features/takes/failed-take-row", () => ({
+  FailedTakeRow: ({ job }: any) => (
+    <div data-testid="failed-row" data-job-id={job._id}>
+      {job.fileName}
+    </div>
+  ),
+}));
+
 vi.mock("@features/takes/pending-take-row", () => ({
   PendingTakeRow: ({ job }: any) => (
     <div data-testid="pending-row" data-job-id={job._id}>
@@ -295,6 +303,13 @@ describe("TakesPage", () => {
     renderPage([job]);
 
     expect(screen.getByTestId("pending-row")).toBeDefined();
+  });
+
+  it("renders FailedTakeRow for failed jobs", () => {
+    const job = mockJob({ status: "failed" });
+    renderPage([job]);
+
+    expect(screen.getByTestId("failed-row")).toBeDefined();
   });
 
   it("shows Clear resolved takes button when resolved overQuota jobs exist", () => {
