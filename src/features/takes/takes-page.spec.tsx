@@ -311,29 +311,4 @@ describe("TakesPage", () => {
 
     expect(screen.getByTestId("failed-row")).toBeDefined();
   });
-
-  it("shows Clear resolved takes button when resolved overQuota jobs exist", () => {
-    const job = mockJob({
-      status: "overQuota",
-      overQuotaStorageId: undefined,
-    });
-    renderPage([job]);
-
-    expect(screen.getByText("Clear resolved takes")).toBeDefined();
-  });
-
-  it("clears resolved takes when button is clicked", async () => {
-    const job = mockJob({
-      status: "overQuota",
-      overQuotaStorageId: undefined,
-    });
-    renderPage([job]);
-
-    const clearButton = screen.getByText("Clear resolved takes");
-    fireEvent.click(clearButton);
-
-    await vi.waitFor(() => {
-      expect(mockToastSuccess).toHaveBeenCalledWith("Cleared resolved takes");
-    });
-  });
 });

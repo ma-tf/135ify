@@ -216,13 +216,11 @@ describe("ThemeProvider", () => {
 describe("useTheme", () => {
   it("returns the default theme value when used outside ThemeProvider", async () => {
     const { useTheme } = await import("./theme-provider");
-    let themeValue: string | undefined;
     function Reader() {
       const { theme } = useTheme();
-      themeValue = theme;
-      return null;
+      return <span data-testid="outside-theme">{theme}</span>;
     }
     render(<Reader />);
-    expect(themeValue).toBe("system");
+    expect(screen.getByTestId("outside-theme").textContent).toBe("system");
   });
 });

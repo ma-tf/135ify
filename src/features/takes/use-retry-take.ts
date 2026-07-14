@@ -8,7 +8,8 @@ import { useCallback, useMemo, useState } from "react";
 type RetryStatus = "idle" | "retrying" | "error";
 
 function useResolvedAiKey() {
-  const { apiKey, preferPlatformKey } = useAiProviderStore();
+  const apiKey = useAiProviderStore((s) => s.apiKey);
+  const preferPlatformKey = useAiProviderStore((s) => s.preferPlatformKey);
 
   const subscriptionsResult = useQuery({ query: api.subscriptions.byUser, args: {} });
 
@@ -43,15 +44,14 @@ export function useRetryTake() {
 
       setError(null);
       setStatus("retrying");
+
+      const args = {
+        jobId: jobId as Id<"aiGenerationJobs">,
+        ...(resolvedKey ? { apiKey: resolvedKey } : {}),
+      };
+
       try {
-        await retryJob({
-          jobId: jobId as Id<"aiGenerationJobs">,
-          ...(resolvedKey ? { apiKey: resolvedKey } : {}),
-        });
-        const args: { jobId: Id<"aiGenerationJobs">; apiKey?: string } = {
-          jobId: jobId as Id<"aiGenerationJobs">,
-        };
-        if (resolvedKey) args.apiKey = resolvedKey;
+        await retryJob(args);
         await processJob(args);
         setStatus("idle");
       } catch (e) {

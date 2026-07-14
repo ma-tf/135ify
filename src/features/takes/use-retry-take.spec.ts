@@ -1,10 +1,13 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
+const mockAiProviderState = vi.hoisted(() => ({ apiKey: "sk-test", preferPlatformKey: true }));
 const { mockUseMutation, mockUseAction, mockUseAiProviderStore, mockUseQuery } = vi.hoisted(() => ({
   mockUseMutation: vi.fn(),
   mockUseAction: vi.fn(),
-  mockUseAiProviderStore: vi.fn(() => ({ apiKey: "sk-test", preferPlatformKey: true })),
+  mockUseAiProviderStore: vi.fn((selector?: (state: typeof mockAiProviderState) => unknown) =>
+    selector ? selector(mockAiProviderState) : mockAiProviderState,
+  ),
   mockUseQuery: vi.fn(),
 }));
 
@@ -34,10 +37,13 @@ vi.mock("@convex/_generated/api", () => ({
 describe("useRetryTake", () => {
   afterEach(() => {
     vi.clearAllMocks();
+    mockAiProviderState.apiKey = "sk-test";
+    mockAiProviderState.preferPlatformKey = true;
   });
 
   it("canRetry is true when subscribed even without apiKey", async () => {
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "", preferPlatformKey: true });
+    mockAiProviderState.apiKey = "";
+    mockAiProviderState.preferPlatformKey = true;
     mockUseQuery.mockReturnValue({
       status: "success",
       data: [{ productKey: "ai_generation_platform", status: "active" }],
@@ -48,7 +54,8 @@ describe("useRetryTake", () => {
   });
 
   it("canRetry is false when no apiKey and no subscription", async () => {
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "", preferPlatformKey: true });
+    mockAiProviderState.apiKey = "";
+    mockAiProviderState.preferPlatformKey = true;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
     const { useRetryTake } = await import("./use-retry-take");
     const { result } = renderHook(() => useRetryTake());
@@ -60,7 +67,8 @@ describe("useRetryTake", () => {
     const mockProcessJob = vi.fn();
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-123", preferPlatformKey: true });
+    mockAiProviderState.apiKey = "sk-123";
+    mockAiProviderState.preferPlatformKey = true;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
     const { useRetryTake } = await import("./use-retry-take");
@@ -79,7 +87,8 @@ describe("useRetryTake", () => {
     const mockProcessJob = vi.fn();
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "", preferPlatformKey: true });
+    mockAiProviderState.apiKey = "";
+    mockAiProviderState.preferPlatformKey = true;
     mockUseQuery.mockReturnValue({
       status: "success",
       data: [{ productKey: "ai_generation_platform", status: "active" }],
@@ -97,10 +106,8 @@ describe("useRetryTake", () => {
   });
 
   it("canRetry is false when subscribed but platform key disabled and no apiKey", async () => {
-    mockUseAiProviderStore.mockReturnValue({
-      apiKey: "",
-      preferPlatformKey: false,
-    });
+    mockAiProviderState.apiKey = "";
+    mockAiProviderState.preferPlatformKey = false;
     mockUseQuery.mockReturnValue({
       status: "success",
       data: [{ productKey: "ai_generation_platform", status: "active" }],
@@ -115,10 +122,8 @@ describe("useRetryTake", () => {
     const mockProcessJob = vi.fn();
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
-    mockUseAiProviderStore.mockReturnValue({
-      apiKey: "sk-byo",
-      preferPlatformKey: false,
-    });
+    mockAiProviderState.apiKey = "sk-byo";
+    mockAiProviderState.preferPlatformKey = false;
     mockUseQuery.mockReturnValue({
       status: "success",
       data: [{ productKey: "ai_generation_platform", status: "active" }],
@@ -140,7 +145,8 @@ describe("useRetryTake", () => {
     const mockProcessJob = vi.fn();
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "", preferPlatformKey: true });
+    mockAiProviderState.apiKey = "";
+    mockAiProviderState.preferPlatformKey = true;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
     const { useRetryTake } = await import("./use-retry-take");
@@ -161,7 +167,8 @@ describe("useRetryTake", () => {
     const mockProcessJob = vi.fn();
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "", preferPlatformKey: true });
+    mockAiProviderState.apiKey = "";
+    mockAiProviderState.preferPlatformKey = true;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
     const { useRetryTake } = await import("./use-retry-take");
@@ -184,7 +191,8 @@ describe("useRetryTake", () => {
     const mockProcessJob = vi.fn().mockReturnValue(processPromise);
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-123", preferPlatformKey: true });
+    mockAiProviderState.apiKey = "sk-123";
+    mockAiProviderState.preferPlatformKey = true;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
     const { useRetryTake } = await import("./use-retry-take");
@@ -210,7 +218,8 @@ describe("useRetryTake", () => {
     const mockProcessJob = vi.fn().mockRejectedValue(new Error("fail"));
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
-    mockUseAiProviderStore.mockReturnValue({ apiKey: "sk-123", preferPlatformKey: true });
+    mockAiProviderState.apiKey = "sk-123";
+    mockAiProviderState.preferPlatformKey = true;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
     const { useRetryTake } = await import("./use-retry-take");

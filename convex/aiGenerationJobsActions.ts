@@ -7,7 +7,7 @@ import sharp from "sharp";
 import type { Id } from "./_generated/dataModel";
 
 import { api, internal } from "./_generated/api";
-import { action, ActionCtx } from "./_generated/server";
+import { action, type ActionCtx } from "./_generated/server";
 import { OPENAI_API_KEY, OPENAI_MONTHLY_SPEND_LIMIT_CENTS } from "./config";
 import { requireAuth } from "./lib";
 import { calculateCostCents } from "./modelPricing";
