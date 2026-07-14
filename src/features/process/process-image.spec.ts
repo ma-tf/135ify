@@ -105,4 +105,28 @@ describe("processToBlobUrl", () => {
     const result = await processToBlobUrl("http://example.com/photo.jpg", goldParams);
     expect(typeof result).toBe("string");
   });
+
+  it("constrains portrait images by height when maxDimension is provided", async () => {
+    const portraitBitmap = {
+      width: 80,
+      height: 100,
+      close: vi.fn(),
+    } as unknown as ImageBitmap;
+    vi.stubGlobal("createImageBitmap", vi.fn().mockResolvedValue(portraitBitmap));
+
+    const result = await processToBlobUrl("http://example.com/portrait.jpg", DEFAULT_PARAMS, 50);
+    expect(typeof result).toBe("string");
+  });
+
+  it("does not constrain dimensions when image is smaller than maxDimension", async () => {
+    const smallBitmap = {
+      width: 50,
+      height: 30,
+      close: vi.fn(),
+    } as unknown as ImageBitmap;
+    vi.stubGlobal("createImageBitmap", vi.fn().mockResolvedValue(smallBitmap));
+
+    const result = await processToBlobUrl("http://example.com/small.jpg", DEFAULT_PARAMS, 200);
+    expect(typeof result).toBe("string");
+  });
 });

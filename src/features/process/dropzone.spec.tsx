@@ -17,7 +17,10 @@ vi.mock("@features/process/use-file-upload", () => ({
 import { Dropzone } from "@features/process/dropzone";
 import { useFileUpload } from "@features/process/use-file-upload";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
 
 const mockAddFiles = vi.fn();
 const mockResetDragging = vi.fn();
@@ -119,5 +122,23 @@ describe("Dropzone", () => {
     render(<Dropzone maxSize={5 * 1024 * 1024} />);
 
     expect(screen.getByText(/5MB/)).toBeDefined();
+  });
+
+  it("applies dragging styles when isDragging is true", () => {
+    stubUseFileUpload({}, { isDragging: true });
+    render(<Dropzone />);
+
+    const dropzone = screen.getByRole("button");
+    expect(dropzone.className).toContain("border-primary");
+  });
+
+  it("does not call addFiles when no files are dropped", () => {
+    stubUseFileUpload();
+    render(<Dropzone />);
+
+    const dropTarget = screen.getByText("Choose a file or drag & drop here.").closest("div")!;
+    fireEvent.drop(dropTarget, { dataTransfer: { files: [] } });
+
+    expect(mockAddFiles).not.toHaveBeenCalled();
   });
 });

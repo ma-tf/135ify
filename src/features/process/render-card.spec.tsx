@@ -63,6 +63,18 @@ describe("RenderCard", () => {
     expect(mockCardClick).toHaveBeenCalledWith(TEST_FILE_RECORD_WITH_RENDER.id);
   });
 
+  it("does not trigger onCardClick when closest [data-dragged] returns truthy", () => {
+    vi.spyOn(Element.prototype, "closest").mockImplementation((sel) => {
+      if (sel === "[data-dragged]") return document.createElement("div");
+      return null;
+    });
+    renderCard(true);
+    const card = screen.getByRole("img").parentElement!;
+    fireEvent.click(card);
+    expect(mockCardClick).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
+  });
+
   it("applies custom className", () => {
     mockUseFileReturn.current = { ...TEST_FILE_RECORD_WITH_RENDER };
     render(
