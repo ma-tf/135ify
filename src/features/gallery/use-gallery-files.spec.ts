@@ -180,6 +180,15 @@ describe("useGalleryFiles", () => {
     expect(result.current.pendingFiles[0].id).toBe(doc._id);
   });
 
+  it("uses empty string fallback when sourceUrl is null", () => {
+    const doc = makeDoc({ sourceUrl: null });
+    mockUseQuery.mockReturnValue({ status: "success", data: doc });
+
+    const { result } = renderHook(() => useGalleryFiles("img-1"));
+
+    expect(result.current.files[0].sourceUrl).toBe("");
+  });
+
   it("calls clear on unmount", () => {
     useGalleryClientStore.setState({ localParams: { grainIntensity: 50 } });
     mockUseQuery.mockReturnValue({ status: "pending" });

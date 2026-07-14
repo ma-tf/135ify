@@ -148,6 +148,15 @@ describe("useGalleryData", () => {
     expect(sv.error).toBeNull();
   });
 
+  it("uses empty string fallback when sourceUrl is null", () => {
+    const doc = makeDoc({ sourceUrl: null });
+    mockUseQuery.mockReturnValue({ status: "success", data: [doc] });
+
+    const { result } = renderHook(() => useGalleryData());
+
+    expect(result.current.images[0].sourceUrl).toBe("");
+  });
+
   it("updateFile propagates to gallery client store", () => {
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 

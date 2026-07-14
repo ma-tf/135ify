@@ -83,14 +83,7 @@ describe("useGalleryUpdateParams", () => {
     useGalleryClientStore.setState({ localParams: { grainIntensity: 10 } });
     mockMutate.mockRejectedValue(new Error("fail"));
 
-    renderHook(() => useGalleryUpdateParams());
-
-    act(() => {
-      useGalleryClientStore.getState().setImageCacheEntry("img-1", {
-        renderUrl: "blob:old",
-        renderError: null,
-      });
-    });
+    const replaceSpy = vi.spyOn(useGalleryClientStore.getState(), "replaceParams");
 
     const { result } = renderHook(() => useGalleryUpdateParams());
 
@@ -99,8 +92,10 @@ describe("useGalleryUpdateParams", () => {
     });
 
     await vi.waitFor(() => {
-      expect(useGalleryClientStore.getState().localParams).toEqual({ grainIntensity: 10 });
+      expect(replaceSpy).toHaveBeenCalledWith({ grainIntensity: 10 });
     });
+
+    replaceSpy.mockRestore();
   });
 
   it("does not call replaceParams on mutation success", async () => {
@@ -118,6 +113,23 @@ describe("useGalleryUpdateParams", () => {
     });
 
     expect(replaceSpy).not.toHaveBeenCalled();
+    replaceSpy.mockRestore();
+  });
+
+  it("does not restore params on mutation failure when snapshot is null", async () => {
+    mockMutate.mockRejectedValue(new Error("fail"));
+    const replaceSpy = vi.spyOn(useGalleryClientStore.getState(), "replaceParams");
+
+    const { result } = renderHook(() => useGalleryUpdateParams());
+
+    act(() => {
+      result.current.updateParams("img-1", { grainIntensity: 50 });
+    });
+
+    await vi.waitFor(() => {
+      expect(replaceSpy).not.toHaveBeenCalled();
+    });
+
     replaceSpy.mockRestore();
   });
 });
