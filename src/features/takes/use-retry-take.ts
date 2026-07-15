@@ -21,11 +21,11 @@ function useResolvedAiKey() {
   const usePlatform = hasActiveAiSub && !preferUserKey;
   const canRetry = usePlatform || !!apiKey;
 
-  return { apiKey, usePlatform, canRetry };
+  return { apiKey, usePlatform, canRetry, hasActiveAiSub };
 }
 
 export function useRetryTake() {
-  const { apiKey, usePlatform, canRetry } = useResolvedAiKey();
+  const { apiKey, usePlatform, canRetry, hasActiveAiSub } = useResolvedAiKey();
   const retryJob = useMutation(api.aiGenerationJobs.retryJob);
   const processJob = useAction(api.aiGenerationJobsActions.processJob);
   const [status, setStatus] = useState<RetryStatus>("idle");
@@ -56,5 +56,5 @@ export function useRetryTake() {
     [apiKey, usePlatform, retryJob, processJob],
   );
 
-  return { retry, status, canRetry, error };
+  return { retry, status, canRetry, error, hasActiveAiSub };
 }

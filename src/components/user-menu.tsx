@@ -49,6 +49,12 @@ export function UserMenu() {
   const { setTheme } = useTheme();
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
 
+  const subscriptionsResult = useQuery({ query: api.subscriptions.byUser, args: {} });
+  const hasAiSub =
+    FEATURE_SUBSCRIPTIONS &&
+    subscriptionsResult.status === "success" &&
+    subscriptionsResult.data.some((s) => s.productKeys.includes("ai_generation_platform"));
+
   if (!isAuthenticated) {
     return null;
   }
@@ -108,7 +114,9 @@ export function UserMenu() {
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-      {FEATURE_AI_GRAIN && keyDialogOpen && <AiKeyDialog onOpenChange={setKeyDialogOpen} />}
+      {FEATURE_AI_GRAIN && keyDialogOpen && (
+        <AiKeyDialog onOpenChange={setKeyDialogOpen} hasAiSub={hasAiSub} />
+      )}
     </>
   );
 }

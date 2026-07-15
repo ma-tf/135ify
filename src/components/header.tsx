@@ -114,6 +114,12 @@ function MobileNav() {
   const location = useLocation();
   const user = useQuery({ query: api.users.current, args: {} });
 
+  const subscriptionsResult = useQuery({ query: api.subscriptions.byUser, args: {} });
+  const hasAiSub =
+    FEATURE_SUBSCRIPTIONS &&
+    subscriptionsResult.status === "success" &&
+    subscriptionsResult.data.some((s) => s.productKeys.includes("ai_generation_platform"));
+
   return (
     <>
       <Popover key={location.pathname} open={open} onOpenChange={setOpen}>
@@ -186,7 +192,9 @@ function MobileNav() {
           </div>
         </PopoverContent>
       </Popover>
-      {FEATURE_AI_GRAIN && keyDialogOpen && <AiKeyDialog onOpenChange={setKeyDialogOpen} />}
+      {FEATURE_AI_GRAIN && keyDialogOpen && (
+        <AiKeyDialog onOpenChange={setKeyDialogOpen} hasAiSub={hasAiSub} />
+      )}
     </>
   );
 }

@@ -57,7 +57,7 @@ async function callOpenAI(
 }> {
   const openai = new OpenAI({ apiKey });
   const genResponse = await openai.responses.create({
-    model: "gpt=5.4-mini",
+    model: "gpt-5.6",
     input: [
       {
         role: "user",
@@ -71,7 +71,15 @@ async function callOpenAI(
         ],
       },
     ],
-    tools: [{ type: "image_generation", size: outputSize, quality: "auto", action: "edit" }],
+    tools: [
+      {
+        type: "image_generation",
+        size: outputSize,
+        quality: "auto",
+        action: "edit",
+        output_format: "webp",
+      },
+    ],
   });
 
   const resultB64 = genResponse.output

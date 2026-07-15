@@ -21,7 +21,7 @@ function FailedBadge({ failureReason }: { failureReason?: string | null }) {
 }
 
 export function FailedTakeRow({ job }: { job: TakeRowJob }) {
-  const { retry, status, canRetry } = useRetryTake();
+  const { retry, status, canRetry, hasActiveAiSub } = useRetryTake();
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
 
   const isRetrying = status === "retrying";
@@ -63,7 +63,13 @@ export function FailedTakeRow({ job }: { job: TakeRowJob }) {
       >
         {isRetrying ? <Spinner /> : <RotateCw />}
       </Button>
-      {keyDialogOpen && <AiKeyDialog onOpenChange={setKeyDialogOpen} onSave={handleSaveKey} />}
+      {keyDialogOpen && (
+        <AiKeyDialog
+          onOpenChange={setKeyDialogOpen}
+          onSave={handleSaveKey}
+          hasAiSub={hasActiveAiSub}
+        />
+      )}
     </div>
   );
 }
