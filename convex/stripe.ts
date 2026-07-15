@@ -59,14 +59,10 @@ export const createCheckoutSession = action({
         (s.status === "active" || s.status === "trialing") &&
         s.productKeys.includes(args.productKey),
     );
-    if (hasExisting && user?.stripeCustomerId) {
-      const stripe = getStripe();
-      const portalSession = await stripe.billingPortal.sessions.create({
-        customer: user.stripeCustomerId,
-        return_url: `${SITE_URL}/account`,
-      });
-      return { url: portalSession.url };
+    if (hasExisting) {
+      throw new Error("You already have an active subscription for this plan.");
     }
+    const hasActiveSubs = existingSubs.length > 0;
 
     const stripe = getStripe();
     const prices = await stripe.prices.list({
@@ -77,7 +73,7 @@ export const createCheckoutSession = action({
     if (!price) throw new Error(`Unknown product: ${args.productKey}`);
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      customer: user?.stripeCustomerId ?? undefined,
+      customer: hasActiveSubs ? (user?.stripeCustomerId ?? undefined) : undefined,
       line_items: [{ price: price.id, quantity: 1 }],
       success_url: `${SITE_URL}/account?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${SITE_URL}/pricing`,
