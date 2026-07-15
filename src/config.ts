@@ -1,5 +1,4 @@
-export const BASE_PATH =
-  import.meta.env.VITE_BASE_PATH === "/" ? "" : (import.meta.env.VITE_BASE_PATH ?? "");
+export const BASE_PATH = import.meta.env.VITE_BASE_PATH ?? "/";
 export const FEATURE_AI_GRAIN = import.meta.env.VITE_FEATURE_AI_GRAIN === "true";
 export const FEATURE_SIGN_IN = import.meta.env.VITE_FEATURE_SIGN_IN === "true";
 export const FEATURE_SUBSCRIPTIONS = import.meta.env.VITE_FEATURE_SUBSCRIPTIONS === "true";

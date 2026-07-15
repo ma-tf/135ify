@@ -43,7 +43,7 @@ function GenerateAiGrainButtonSkeleton() {
 
 export function GenerateAiGrainButton({ showOriginal }: { showOriginal: boolean }) {
   const { isAuthenticated } = useAuth();
-  const { apiKey, preferPlatformKey } = useAiProviderStore();
+  const { apiKey, preferUserKey } = useAiProviderStore();
   const { trigger, isGenerating, errorState } = useAiGrainGeneration();
   const [keyDialogOpen, setKeyDialogOpen] = useState(false);
   const { atStorageLimit, hasAiSub, atAiLimit, capResetsAt, isPending } = useAiSubUsage();
@@ -52,7 +52,7 @@ export function GenerateAiGrainButton({ showOriginal }: { showOriginal: boolean 
   if (!isAuthenticated) return null;
   if (isPending) return <GenerateAiGrainButtonSkeleton />;
 
-  const usingPlatform = hasAiSub && preferPlatformKey;
+  const usingPlatform = hasAiSub && !preferUserKey;
 
   const handleClick = async () => {
     if (usingPlatform) {

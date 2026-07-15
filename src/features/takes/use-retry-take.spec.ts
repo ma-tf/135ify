@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
-const mockAiProviderState = vi.hoisted(() => ({ apiKey: "sk-test", preferPlatformKey: true }));
+const mockAiProviderState = vi.hoisted(() => ({ apiKey: "sk-test", preferUserKey: false }));
 const { mockUseMutation, mockUseAction, mockUseAiProviderStore, mockUseQuery } = vi.hoisted(() => ({
   mockUseMutation: vi.fn(),
   mockUseAction: vi.fn(),
@@ -38,12 +38,12 @@ describe("useRetryTake", () => {
   afterEach(() => {
     vi.clearAllMocks();
     mockAiProviderState.apiKey = "sk-test";
-    mockAiProviderState.preferPlatformKey = true;
+    mockAiProviderState.preferUserKey = false;
   });
 
   it("canRetry is true when subscribed even without apiKey", async () => {
     mockAiProviderState.apiKey = "";
-    mockAiProviderState.preferPlatformKey = true;
+    mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({
       status: "success",
       data: [{ productKeys: ["ai_generation_platform"] }],
@@ -55,7 +55,7 @@ describe("useRetryTake", () => {
 
   it("canRetry is false when no apiKey and no subscription", async () => {
     mockAiProviderState.apiKey = "";
-    mockAiProviderState.preferPlatformKey = true;
+    mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
     const { useRetryTake } = await import("./use-retry-take");
     const { result } = renderHook(() => useRetryTake());
@@ -68,7 +68,7 @@ describe("useRetryTake", () => {
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
     mockAiProviderState.apiKey = "sk-123";
-    mockAiProviderState.preferPlatformKey = true;
+    mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
     const { useRetryTake } = await import("./use-retry-take");
@@ -88,7 +88,7 @@ describe("useRetryTake", () => {
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
     mockAiProviderState.apiKey = "";
-    mockAiProviderState.preferPlatformKey = true;
+    mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({
       status: "success",
       data: [{ productKeys: ["ai_generation_platform"] }],
@@ -107,7 +107,7 @@ describe("useRetryTake", () => {
 
   it("canRetry is false when subscribed but platform key disabled and no apiKey", async () => {
     mockAiProviderState.apiKey = "";
-    mockAiProviderState.preferPlatformKey = false;
+    mockAiProviderState.preferUserKey = true;
     mockUseQuery.mockReturnValue({
       status: "success",
       data: [{ productKeys: ["ai_generation_platform"] }],
@@ -123,7 +123,7 @@ describe("useRetryTake", () => {
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
     mockAiProviderState.apiKey = "sk-byo";
-    mockAiProviderState.preferPlatformKey = false;
+    mockAiProviderState.preferUserKey = true;
     mockUseQuery.mockReturnValue({
       status: "success",
       data: [{ productKeys: ["ai_generation_platform"] }],
@@ -146,7 +146,7 @@ describe("useRetryTake", () => {
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
     mockAiProviderState.apiKey = "";
-    mockAiProviderState.preferPlatformKey = true;
+    mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
     const { useRetryTake } = await import("./use-retry-take");
@@ -168,7 +168,7 @@ describe("useRetryTake", () => {
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
     mockAiProviderState.apiKey = "";
-    mockAiProviderState.preferPlatformKey = true;
+    mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
     const { useRetryTake } = await import("./use-retry-take");
@@ -192,7 +192,7 @@ describe("useRetryTake", () => {
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
     mockAiProviderState.apiKey = "sk-123";
-    mockAiProviderState.preferPlatformKey = true;
+    mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
     const { useRetryTake } = await import("./use-retry-take");
@@ -219,7 +219,7 @@ describe("useRetryTake", () => {
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
     mockAiProviderState.apiKey = "sk-123";
-    mockAiProviderState.preferPlatformKey = true;
+    mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
     const { useRetryTake } = await import("./use-retry-take");
@@ -241,7 +241,7 @@ describe("useRetryTake", () => {
     mockUseMutation.mockReturnValue(mockRetryJob);
     mockUseAction.mockReturnValue(mockProcessJob);
     mockAiProviderState.apiKey = "sk-123";
-    mockAiProviderState.preferPlatformKey = true;
+    mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
     const { useRetryTake } = await import("./use-retry-take");
@@ -257,7 +257,7 @@ describe("useRetryTake", () => {
 
   it("canRetry is false when subscriptions are still loading", async () => {
     mockAiProviderState.apiKey = "";
-    mockAiProviderState.preferPlatformKey = true;
+    mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "pending" });
     const { useRetryTake } = await import("./use-retry-take");
     const { result } = renderHook(() => useRetryTake());

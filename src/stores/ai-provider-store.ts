@@ -3,20 +3,20 @@ import { persist } from "zustand/middleware";
 
 interface AiProviderState {
   apiKey: string;
-  preferPlatformKey: boolean;
+  preferUserKey: boolean;
   setApiKey: (key: string) => void;
   clearApiKey: () => void;
-  setPreferPlatformKey: (prefer: boolean) => void;
+  setPreferUserKey: (prefer: boolean) => void;
 }
 
 export const useAiProviderStore = create<AiProviderState>()(
   persist(
     (set) => ({
       apiKey: "",
-      preferPlatformKey: true,
+      preferUserKey: false,
       setApiKey: (key: string) => set({ apiKey: key }),
       clearApiKey: () => set({ apiKey: "" }),
-      setPreferPlatformKey: (prefer: boolean) => set({ preferPlatformKey: prefer }),
+      setPreferUserKey: (prefer: boolean) => set({ preferUserKey: prefer }),
     }),
     { name: "ai-provider-key" },
   ),

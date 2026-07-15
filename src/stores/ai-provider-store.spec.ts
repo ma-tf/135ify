@@ -20,7 +20,7 @@ import { useAiProviderStore } from "@stores/ai-provider-store";
 
 beforeEach(() => {
   storeMap.clear();
-  useAiProviderStore.setState({ apiKey: "", preferPlatformKey: true });
+  useAiProviderStore.setState({ apiKey: "", preferUserKey: false });
 });
 
 afterEach(() => {
@@ -49,18 +49,18 @@ describe("useAiProviderStore", () => {
     expect(stored.state.apiKey).toBe("sk-persisted");
   });
 
-  it("starts with preferPlatformKey as true", () => {
-    expect(useAiProviderStore.getState().preferPlatformKey).toBe(true);
+  it("starts with preferUserKey as false", () => {
+    expect(useAiProviderStore.getState().preferUserKey).toBe(false);
   });
 
-  it("setPreferPlatformKey updates the preference", () => {
-    useAiProviderStore.getState().setPreferPlatformKey(false);
-    expect(useAiProviderStore.getState().preferPlatformKey).toBe(false);
+  it("setPreferUserKey updates the preference", () => {
+    useAiProviderStore.getState().setPreferUserKey(true);
+    expect(useAiProviderStore.getState().preferUserKey).toBe(true);
   });
 
-  it("persists preferPlatformKey to localStorage", () => {
-    useAiProviderStore.getState().setPreferPlatformKey(false);
+  it("persists preferUserKey to localStorage", () => {
+    useAiProviderStore.getState().setPreferUserKey(true);
     const stored = JSON.parse(storeMap.get("ai-provider-key") ?? "{}");
-    expect(stored.state.preferPlatformKey).toBe(false);
+    expect(stored.state.preferUserKey).toBe(true);
   });
 });

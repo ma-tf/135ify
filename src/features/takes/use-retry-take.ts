@@ -9,7 +9,7 @@ type RetryStatus = "idle" | "retrying" | "error";
 
 function useResolvedAiKey() {
   const apiKey = useAiProviderStore((s) => s.apiKey);
-  const preferPlatformKey = useAiProviderStore((s) => s.preferPlatformKey);
+  const preferUserKey = useAiProviderStore((s) => s.preferUserKey);
 
   const subscriptionsResult = useQuery({ query: api.subscriptions.byUser, args: {} });
 
@@ -18,7 +18,7 @@ function useResolvedAiKey() {
     return subscriptionsResult.data.some((s) => s.productKeys.includes("ai_generation_platform"));
   }, [subscriptionsResult]);
 
-  const usePlatform = hasActiveAiSub && preferPlatformKey;
+  const usePlatform = hasActiveAiSub && !preferUserKey;
   const canRetry = usePlatform || !!apiKey;
 
   return { apiKey, usePlatform, canRetry };

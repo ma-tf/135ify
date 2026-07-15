@@ -131,10 +131,10 @@ describe("AccountPage", () => {
     });
     mockUseAiProviderStore.mockReturnValue({
       apiKey: "",
-      preferPlatformKey: true,
+      preferUserKey: false,
       setApiKey: vi.fn(),
       clearApiKey: vi.fn(),
-      setPreferPlatformKey: vi.fn(),
+      setPreferUserKey: vi.fn(),
     });
   });
 
@@ -295,10 +295,10 @@ describe("AccountPage", () => {
       const setApiKey = vi.fn();
       mockUseAiProviderStore.mockReturnValue({
         apiKey: "",
-        preferPlatformKey: true,
+        preferUserKey: false,
         setApiKey,
         clearApiKey: vi.fn(),
-        setPreferPlatformKey: vi.fn(),
+        setPreferUserKey: vi.fn(),
       });
       render(<AccountPage />);
       await vi.waitFor(() => {
@@ -315,10 +315,10 @@ describe("AccountPage", () => {
       const clearApiKey = vi.fn();
       mockUseAiProviderStore.mockReturnValue({
         apiKey: "sk-to-clear",
-        preferPlatformKey: true,
+        preferUserKey: false,
         setApiKey: vi.fn(),
         clearApiKey,
-        setPreferPlatformKey: vi.fn(),
+        setPreferUserKey: vi.fn(),
       });
       render(<AccountPage />);
       await vi.waitFor(() => {
@@ -337,10 +337,10 @@ describe("AccountPage", () => {
       });
       mockUseAiProviderStore.mockReturnValue({
         apiKey: "sk-test",
-        preferPlatformKey: true,
+        preferUserKey: false,
         setApiKey: vi.fn(),
         clearApiKey: vi.fn(),
-        setPreferPlatformKey: vi.fn(),
+        setPreferUserKey: vi.fn(),
       });
       render(<AccountPage />);
       await vi.waitFor(() => {
@@ -351,10 +351,10 @@ describe("AccountPage", () => {
     it("hides platform key toggle when no AI subscription", () => {
       mockUseAiProviderStore.mockReturnValue({
         apiKey: "sk-test",
-        preferPlatformKey: true,
+        preferUserKey: false,
         setApiKey: vi.fn(),
         clearApiKey: vi.fn(),
-        setPreferPlatformKey: vi.fn(),
+        setPreferUserKey: vi.fn(),
       });
       render(<AccountPage />);
       expect(screen.queryByText("Use my own API key")).toBeNull();
@@ -370,24 +370,24 @@ describe("AccountPage", () => {
     });
 
     it("toggles platform key preference on click", async () => {
-      const setPreferPlatformKey = vi.fn();
+      const setPreferUserKey = vi.fn();
       mockUseQuery.mockReturnValue({
         status: "success",
         data: [{ _id: "sub1", status: "active", productKeys: ["ai_generation_platform"] }],
       });
       mockUseAiProviderStore.mockReturnValue({
         apiKey: "sk-test",
-        preferPlatformKey: true,
+        preferUserKey: false,
         setApiKey: vi.fn(),
         clearApiKey: vi.fn(),
-        setPreferPlatformKey,
+        setPreferUserKey,
       });
       render(<AccountPage />);
       await vi.waitFor(() => {
         expect(screen.getByRole("switch")).toBeDefined();
       });
       fireEvent.click(screen.getByRole("switch"));
-      expect(setPreferPlatformKey).toHaveBeenCalledWith(false);
+      expect(setPreferUserKey).toHaveBeenCalledWith(true);
     });
   });
 });

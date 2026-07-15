@@ -17,13 +17,13 @@ export function AiKeyForm({
   onSaved?: (apiKey: string) => void;
   onCancel?: () => void;
 }) {
-  const { apiKey, preferPlatformKey, setApiKey, clearApiKey, setPreferPlatformKey } =
-    useAiProviderStore();
+  const { apiKey, preferUserKey, setApiKey, clearApiKey, setPreferUserKey } = useAiProviderStore();
   const [inputValue, setInputValue] = useState(apiKey);
   const [isVisible, setIsVisible] = useState(false);
 
   const handleSave = () => {
     setApiKey(inputValue);
+    setPreferUserKey(true);
     toast.success("API key saved");
     onSaved?.(inputValue);
   };
@@ -39,8 +39,8 @@ export function AiKeyForm({
         <Field orientation="horizontal">
           <Switch
             id="use-platform-key"
-            checked={!preferPlatformKey}
-            onCheckedChange={(checked) => setPreferPlatformKey(!checked)}
+            checked={preferUserKey}
+            onCheckedChange={(checked) => setPreferUserKey(checked)}
           />
           <FieldLabel htmlFor="use-platform-key">Use my own API key</FieldLabel>
         </Field>
