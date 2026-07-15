@@ -1,6 +1,7 @@
 import { Button } from "@components/ui/button";
 import { FEATURE_SUBSCRIPTIONS } from "@config";
 import { api } from "@convex/_generated/api";
+import { Link } from "@tanstack/react-router";
 import { useQuery_experimental as useQuery } from "convex/react";
 import { CrownIcon } from "lucide-react";
 
@@ -27,7 +28,7 @@ export function UpgradePrompt() {
           </div>
         </div>
         <Button size="sm" asChild>
-          <a href="/pricing">Upgrade</a>
+          <Link to="/pricing">Upgrade</Link>
         </Button>
       </div>
     </div>

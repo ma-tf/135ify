@@ -3,24 +3,14 @@ import { useSubscriptions } from "@features/account/use-subscriptions";
 import { PlanCard } from "@features/pricing/plan-card";
 import { CircleAlert, PackageOpen } from "lucide-react";
 
-function PlanGridSkeleton() {
+function PricingSkeleton() {
   return (
-    <div className="grid gap-6 md:grid-cols-2">
-      {[1, 2].map((i) => (
-        <div key={i} className="flex flex-col justify-between rounded-lg border p-6 shadow-md">
-          <div className="space-y-3">
-            <Skeleton className="h-6 w-24" />
-            <Skeleton className="h-4 w-48" />
-            <Skeleton className="h-8 w-20" />
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-56" />
-              <Skeleton className="h-4 w-56" />
-              <Skeleton className="h-4 w-40" />
-            </div>
-          </div>
-          <Skeleton className="mt-6 h-10 w-full" />
-        </div>
-      ))}
+    <div className="flex flex-col items-center justify-center space-y-4 rounded-lg border p-12">
+      <Skeleton className="size-12 rounded-full" />
+      <div className="space-y-1 text-center">
+        <Skeleton className="mx-auto h-5 w-36" />
+        <Skeleton className="mx-auto h-4 w-72" />
+      </div>
     </div>
   );
 }
@@ -39,7 +29,7 @@ function PricingError() {
   );
 }
 
-function PlansEmpty() {
+function PricingEmpty() {
   return (
     <div className="flex flex-col items-center justify-center space-y-4 rounded-lg border p-12">
       <PackageOpen className="size-12 text-muted-foreground" />
@@ -57,7 +47,7 @@ export function PricingPage() {
   const { status, activePlans, plans } = useSubscriptions();
 
   if (status === "pending") {
-    return <PlanGridSkeleton />;
+    return <PricingSkeleton />;
   }
 
   if (status === "error") {
@@ -65,7 +55,7 @@ export function PricingPage() {
   }
 
   if (plans.length === 0) {
-    return <PlansEmpty />;
+    return <PricingEmpty />;
   }
 
   return (

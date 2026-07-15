@@ -40,7 +40,7 @@ const PRODUCTS = [
       { name: "Managed monthly usage allowance" },
     ],
     currency: "usd",
-    unitAmount: 200,
+    unitAmount: 1000,
     interval: "month",
     priceNickname: "AI Generation",
   },

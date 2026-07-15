@@ -1,7 +1,7 @@
 import { FEATURE_SUBSCRIPTIONS } from "@config";
 import { PricingPage } from "@features/pricing/pricing-page";
 import { useAuth } from "@hooks/use-auth";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/pricing")({
   component: PricingRoute,
@@ -31,9 +31,9 @@ function PricingRoute() {
       <PricingPage />
       <p className="text-center text-sm text-muted-foreground">
         Manage your subscriptions and billing from your{" "}
-        <a href="/account" className="text-primary hover:underline">
+        <Link to="/account" className="text-primary hover:underline">
           account page
-        </a>
+        </Link>
         .
       </p>
     </div>

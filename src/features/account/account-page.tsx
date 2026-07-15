@@ -4,39 +4,18 @@ import { FEATURE_AI_GRAIN } from "@config";
 import { ActiveSubscriptions } from "@features/account/active-subscriptions";
 import { ManageSubscriptionButton } from "@features/account/manage-subscription-button";
 import { useSubscriptions } from "@features/account/use-subscriptions";
+import { Link } from "@tanstack/react-router";
 import { ShoppingBag } from "lucide-react";
 
 export function AccountPage() {
-  const { status, subscription, activePlans, plans } = useSubscriptions();
+  const subs = useSubscriptions();
 
-  if (status === "pending") {
-    return <SubscriptionsSkeleton />;
-  }
-
-  if (status === "error") {
-    return <SubscriptionsError />;
-  }
-
-  const hasAiSub = activePlans.some((p) => p.key === "ai_generation_platform");
+  const hasAiSub =
+    subs.status === "success" && subs.activePlans.some((p) => p.key === "ai_generation_platform");
 
   return (
     <>
-      <div>
-        <h2 className="text-lg font-semibold">Subscriptions</h2>
-        <p className="text-sm text-muted-foreground">Manage your plan subscriptions and billing.</p>
-        <div className="mt-4 space-y-4">
-          {subscription ? (
-            <ActiveSubscriptions
-              subscription={subscription}
-              activePlans={activePlans}
-              plans={plans}
-            />
-          ) : (
-            <EmptySubscriptions />
-          )}
-        </div>
-      </div>
-      {subscription && <ManageSubscriptionButton />}
+      <SubscriptionsSection subs={subs} />
       {FEATURE_AI_GRAIN && (
         <section className="space-y-4">
           <div>
@@ -52,16 +31,36 @@ export function AccountPage() {
   );
 }
 
+function SubscriptionsSection({ subs }: { subs: ReturnType<typeof useSubscriptions> }) {
+  return (
+    <div>
+      <h2 className="text-lg font-semibold">Subscriptions</h2>
+      <p className="text-sm text-muted-foreground">Manage your plan subscriptions and billing.</p>
+      <div className="mt-4 space-y-4">
+        {subs.status === "pending" && <SubscriptionsSkeleton />}
+        {subs.status === "error" && <SubscriptionsError />}
+        {subs.status === "success" && subs.subscription && (
+          <>
+            <ActiveSubscriptions
+              subscription={subs.subscription}
+              activePlans={subs.activePlans}
+              plans={subs.plans}
+            />
+            <ManageSubscriptionButton />
+          </>
+        )}
+        {subs.status === "success" && !subs.subscription && <EmptySubscriptions />}
+      </div>
+    </div>
+  );
+}
+
 function SubscriptionsSkeleton() {
   return (
-    <div className="space-y-8">
-      <Skeleton className="h-6 w-32" />
-      <Skeleton className="h-4 w-48" />
-      <div className="space-y-3">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-      </div>
-      <Skeleton className="h-10 w-full" />
+    <div className="py-6 text-center">
+      <Skeleton className="mx-auto mb-2 size-8 rounded-full" />
+      <Skeleton className="mx-auto h-4 w-40" />
+      <Skeleton className="mx-auto mt-2 h-4 w-16" />
     </div>
   );
 }
@@ -75,9 +74,9 @@ function EmptySubscriptions() {
     <div className="py-6 text-center">
       <ShoppingBag className="mx-auto mb-2 size-8 text-muted-foreground" />
       <p className="text-muted-foreground">No active subscriptions</p>
-      <a href="/pricing" className="mt-2 inline-block text-sm text-primary hover:underline">
+      <Link to="/pricing" className="mt-2 inline-block text-sm text-primary hover:underline">
         View plans
-      </a>
+      </Link>
     </div>
   );
 }

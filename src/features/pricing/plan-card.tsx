@@ -16,6 +16,7 @@ function usePlanAction(planKey: string, activePlans: Plan[]) {
   const [error, setError] = useState<string | null>(null);
   const createCheckoutSession = useAction(api.stripe.createCheckoutSession);
   const addToSubscription = useAction(api.stripe.addToSubscription);
+  console.log({ activePlans, planKey });
 
   const subscribe = useCallback(() => {
     setError(null);
