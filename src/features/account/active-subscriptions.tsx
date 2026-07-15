@@ -2,6 +2,7 @@ import type { Doc } from "@convex/_generated/dataModel";
 import type { FunctionReturnType } from "convex/server";
 
 import { api } from "@convex/_generated/api";
+import { formatDate } from "@lib/utils";
 import { ShoppingBag } from "lucide-react";
 
 type Plan = FunctionReturnType<typeof api.stripe.getPlan>[number];
@@ -27,9 +28,9 @@ function SubscriptionPlan({
       <div className="mt-3 flex items-center justify-between border-t pt-3">
         <p className="text-sm text-muted-foreground">
           {subscription.cancelAt
-            ? `Ends ${new Date(subscription.cancelAt * 1000).toLocaleDateString()}`
+            ? `Ends ${formatDate(subscription.cancelAt * 1000)}`
             : subscription.currentPeriodEnd
-              ? `Renews ${new Date(subscription.currentPeriodEnd * 1000).toLocaleDateString()}`
+              ? `Renews ${formatDate(subscription.currentPeriodEnd * 1000)}`
               : ""}
         </p>
         {subscription.cancelAt ? (

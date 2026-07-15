@@ -23,6 +23,7 @@ vi.mock("@convex/_generated/api", () => ({
   api: {
     aiGenerationJobs: { latestJobTimestamp: "latestJobTimestamp" },
     users: { current: "users.current" },
+    subscriptions: { byUser: "subscriptions.byUser" },
   },
 }));
 
@@ -99,7 +100,9 @@ describe("Header", () => {
     mockUseQuery.mockImplementation(({ query }) =>
       query === "users.current"
         ? { status: "success", data: { name: "Test", email: "test@test.com", image: "test.jpg" } }
-        : { status: "success", data: null },
+        : query === "subscriptions.byUser"
+          ? { status: "success", data: [] }
+          : { status: "success", data: null },
     );
   });
 
@@ -139,7 +142,9 @@ describe("Header", () => {
     mockUseQuery.mockImplementation(({ query }) =>
       query === "users.current"
         ? { status: "success", data: { name: "Test", email: "test@test.com", image: "test.jpg" } }
-        : { status: "success", data: { _creationTime: 200 } },
+        : query === "subscriptions.byUser"
+          ? { status: "success", data: [] }
+          : { status: "success", data: { _creationTime: 200 } },
     );
 
     render(<Header />);
@@ -153,7 +158,9 @@ describe("Header", () => {
     mockUseQuery.mockImplementation(({ query }) =>
       query === "users.current"
         ? { status: "success", data: { name: "Test", email: "test@test.com", image: "test.jpg" } }
-        : { status: "success", data: { _creationTime: 200 } },
+        : query === "subscriptions.byUser"
+          ? { status: "success", data: [] }
+          : { status: "success", data: { _creationTime: 200 } },
     );
 
     render(<Header />);
@@ -174,7 +181,9 @@ describe("Header", () => {
     mockUseQuery.mockImplementation(({ query }) =>
       query === "users.current"
         ? { status: "success", data: { name: "Test", email: "test@test.com", image: "test.jpg" } }
-        : { status: "success", data: { _creationTime: 200 } },
+        : query === "subscriptions.byUser"
+          ? { status: "success", data: [] }
+          : { status: "success", data: { _creationTime: 200 } },
     );
 
     render(<Header />);
@@ -209,7 +218,11 @@ describe("Header", () => {
 
   it("shows skeleton in MobileNav when user query is pending", () => {
     mockUseQuery.mockImplementation(({ query }) =>
-      query === "users.current" ? { status: "pending" } : { status: "success", data: null },
+      query === "users.current"
+        ? { status: "pending" }
+        : query === "subscriptions.byUser"
+          ? { status: "success", data: [] }
+          : { status: "success", data: null },
     );
 
     render(<Header />);

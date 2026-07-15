@@ -15,7 +15,7 @@ import { getInitials } from "@lib/utils";
 import { useTakesNotificationStore } from "@stores/takes-notification-store";
 import { Link, useLocation } from "@tanstack/react-router";
 import { useQuery_experimental as useQuery } from "convex/react";
-import { KeyIcon, LogOut, Menu } from "lucide-react";
+import { CreditCardIcon, KeyIcon, LogOut, Menu } from "lucide-react";
 import { useState } from "react";
 
 function FilmStripLink() {
@@ -106,9 +106,69 @@ function TakesLink() {
   );
 }
 
+function UserAvatar({
+  user,
+}: {
+  user:
+    | { status: "pending" }
+    | {
+        status: "success";
+        data: { name?: string | null; image?: string | null; email?: string | null } | null;
+      }
+    | { status: "error" };
+}) {
+  if (user.status === "pending") return <Skeleton className="size-8 rounded-full" />;
+  if (user.status !== "success") return null;
+  return (
+    <div className="flex items-center gap-3">
+      <Avatar size="sm">
+        <AvatarImage src={user.data?.image ?? undefined} alt={user.data?.name ?? undefined} />
+        <AvatarFallback>{getInitials(user.data?.name, user.data?.email)}</AvatarFallback>
+      </Avatar>
+      <span className="text-sm font-medium">{user.data?.name ?? user.data?.email ?? "?"}</span>
+    </div>
+  );
+}
+
+function KeyDialogSection({ hasAiSub }: { hasAiSub: boolean }) {
+  const [keyDialogOpen, setKeyDialogOpen] = useState(false);
+  if (!FEATURE_AI_GRAIN) return null;
+  return (
+    <>
+      <div className="mt-4">
+        <span className="text-xs font-medium text-muted-foreground">Personal</span>
+        <Button
+          variant="ghost"
+          className="mt-2 w-full justify-start pr-0 pl-0 text-muted-foreground"
+          onClick={() => setKeyDialogOpen(true)}
+        >
+          <KeyIcon className="size-4" />
+          API Key
+        </Button>
+      </div>
+      {keyDialogOpen && <AiKeyDialog onOpenChange={setKeyDialogOpen} hasAiSub={hasAiSub} />}
+      {FEATURE_SUBSCRIPTIONS && (
+        <Link to="/account">
+          {({ isActive }) => (
+            <span
+              className={
+                isActive
+                  ? "text-sm font-medium text-foreground"
+                  : "text-sm text-muted-foreground transition-colors hover:text-foreground"
+              }
+            >
+              <CreditCardIcon className="mr-1.5 inline size-4" />
+              Account
+            </span>
+          )}
+        </Link>
+      )}
+    </>
+  );
+}
+
 function MobileNav() {
   const [open, setOpen] = useState(false);
-  const [keyDialogOpen, setKeyDialogOpen] = useState(false);
   const { setTheme } = useTheme();
   const { signOut } = useAuthActions();
   const location = useLocation();
@@ -121,81 +181,65 @@ function MobileNav() {
     subscriptionsResult.data.some((s) => s.productKeys.includes("ai_generation_platform"));
 
   return (
-    <>
-      <Popover key={location.pathname} open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button variant="ghost" size="sm" className="md:hidden">
-            <Menu className="mr-2 size-4" />
-            Menu
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          side="bottom"
-          align="end"
-          sideOffset={4}
-          className="w-screen max-w-none rounded-none border-x-0 px-6 py-4"
-        >
-          {user.status === "pending" ? (
-            <Skeleton className="size-8 rounded-full" />
-          ) : user.status === "success" ? (
-            <div className="flex items-center gap-3">
-              <Avatar size="sm">
-                <AvatarImage src={user.data.image} alt={user.data.name} />
-                <AvatarFallback>{getInitials(user.data.name, user.data.email)}</AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-medium">
-                {user.data.name ?? user.data.email ?? "?"}
-              </span>
-            </div>
-          ) : null}
-          <nav className="mt-4 flex flex-col gap-3">
-            <FilmStripLink />
-            <GalleryLink />
-            {FEATURE_AI_GRAIN && <TakesLink />}
-            {FEATURE_SUBSCRIPTIONS && <PricingLink />}
-          </nav>
-          {FEATURE_AI_GRAIN && (
-            <div className="mt-4 border-t pt-4">
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => setKeyDialogOpen(true)}
-              >
-                <KeyIcon className="mr-2 size-4" />
-                API Key
-              </Button>
-            </div>
-          )}
-          <div className="mt-4 border-t pt-4">
-            <span className="text-xs font-medium text-muted-foreground">Theme</span>
-            <div className="mt-2 flex flex-col gap-1">
-              <Button variant="ghost" className="justify-start" onClick={() => setTheme("light")}>
-                Light
-              </Button>
-              <Button variant="ghost" className="justify-start" onClick={() => setTheme("dark")}>
-                Dark
-              </Button>
-              <Button variant="ghost" className="justify-start" onClick={() => setTheme("system")}>
-                System
-              </Button>
-            </div>
-          </div>
-          <div className="mt-4 border-t pt-4">
+    <Popover key={location.pathname} open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="sm" className="md:hidden">
+          <Menu className="mr-2 size-4" />
+          Menu
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        side="bottom"
+        align="end"
+        sideOffset={4}
+        className="w-screen max-w-none rounded-none border-x-0 px-6 py-4"
+      >
+        <UserAvatar user={user} />
+        <nav className="mt-4 flex flex-col gap-3">
+          <FilmStripLink />
+          <GalleryLink />
+          {FEATURE_AI_GRAIN && <TakesLink />}
+          {FEATURE_SUBSCRIPTIONS && <PricingLink />}
+        </nav>
+        <KeyDialogSection hasAiSub={hasAiSub} />
+        <div className="mt-4">
+          <span className="text-xs font-medium text-muted-foreground">Theme</span>
+          <div className="mt-2 flex flex-col gap-1">
             <Button
               variant="ghost"
-              className="w-full justify-start text-destructive"
-              onClick={() => void signOut()}
+              className="justify-start text-muted-foreground"
+              onClick={() => setTheme("light")}
             >
-              <LogOut className="mr-2 size-4" />
-              Sign out
+              Light
+            </Button>
+            <Button
+              variant="ghost"
+              className="justify-start text-muted-foreground"
+              onClick={() => setTheme("dark")}
+            >
+              Dark
+            </Button>
+            <Button
+              variant="ghost"
+              className="justify-start text-muted-foreground"
+              onClick={() => setTheme("system")}
+            >
+              System
             </Button>
           </div>
-        </PopoverContent>
-      </Popover>
-      {FEATURE_AI_GRAIN && keyDialogOpen && (
-        <AiKeyDialog onOpenChange={setKeyDialogOpen} hasAiSub={hasAiSub} />
-      )}
-    </>
+        </div>
+        <div className="mt-4">
+          <Button
+            variant="ghost"
+            className="w-full justify-start pr-0 pl-0 text-destructive"
+            onClick={() => void signOut()}
+          >
+            <LogOut className="mr-2 size-4" />
+            Sign out
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 

@@ -1,6 +1,7 @@
 import type { Doc } from "@convex/_generated/dataModel";
 
 import { GalleryPage } from "@features/gallery/gallery-page";
+import { formatTimestamp } from "@lib/utils";
 import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { setupTests } from "@test-utils/setup.spec";
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -92,15 +93,7 @@ describe("GalleryPage", () => {
     expect(screen.getByText(doc1.fileName)).toBeDefined();
     expect(screen.getByText(doc2.fileName)).toBeDefined();
 
-    const expectedDate =
-      new Date(doc1._creationTime).toLocaleString("en-GB", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZone: "UTC",
-      }) + " UTC";
+    const expectedDate = formatTimestamp(doc1._creationTime);
     expect(screen.getByText(expectedDate)).toBeDefined();
   });
 

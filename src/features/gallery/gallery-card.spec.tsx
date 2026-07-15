@@ -14,7 +14,7 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 vi.mock("@lib/utils", () => ({
-  formatTimestamp: () => "1 Jan 2024, 00:00 UTC",
+  formatTimestamp: () => "2024-01-01, 00:00 UTC",
   formatBytes: (bytes: number) => `${bytes} B`,
 }));
 
@@ -56,7 +56,7 @@ describe("GalleryCard", () => {
 
     render(<GalleryCard image={imageWithSize} />);
 
-    expect(screen.getByText((content) => content.includes("1 Jan 2024, 00:00 UTC"))).toBeDefined();
+    expect(screen.getByText((content) => content.includes("2024-01-01, 00:00 UTC"))).toBeDefined();
     expect(screen.getByText((content) => content.includes("1234 B"))).toBeDefined();
   });
 
@@ -65,7 +65,7 @@ describe("GalleryCard", () => {
 
     render(<GalleryCard image={imageNoSize} />);
 
-    expect(screen.getByText("1 Jan 2024, 00:00 UTC")).toBeDefined();
+    expect(screen.getByText("2024-01-01, 00:00 UTC")).toBeDefined();
   });
 
   it.each([

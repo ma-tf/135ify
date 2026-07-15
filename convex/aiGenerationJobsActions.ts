@@ -9,7 +9,7 @@ import type { Id } from "./_generated/dataModel";
 import { api, internal } from "./_generated/api";
 import { action, type ActionCtx } from "./_generated/server";
 import { OPENAI_API_KEY, OPENAI_MONTHLY_SPEND_LIMIT_CENTS } from "./config";
-import { requireAuth } from "./lib";
+import { formatDate, requireAuth } from "./lib";
 import { calculateCostCents } from "./modelPricing";
 
 const FILM_GRAIN_PROMPT = [
@@ -144,7 +144,7 @@ async function guardAiGeneration(
     });
     const limitCents = OPENAI_MONTHLY_SPEND_LIMIT_CENTS;
     if (usedCents >= limitCents) {
-      const capMsg = `Monthly AI generation cost cap ($${(limitCents / 100).toFixed(2)}) exceeded. Resets ${new Date(periodEnd).toLocaleDateString()}.`;
+      const capMsg = `Monthly AI generation cost cap ($${(limitCents / 100).toFixed(2)}) exceeded. Resets ${formatDate(periodEnd)}.`;
       await ctx.runMutation(api.aiGenerationJobs.setJobStatus, {
         jobId,
         status: "failed",

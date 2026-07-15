@@ -1,5 +1,6 @@
 import { Skeleton } from "@components/ui/skeleton";
 import { api } from "@convex/_generated/api";
+import { formatDate } from "@lib/utils";
 import { useQuery_experimental as useQuery } from "convex/react";
 
 export function AiUsageBarSkeleton() {
@@ -23,7 +24,7 @@ export function AiUsageBar() {
   const percent = Math.min((usedCents / limitCents) * 100, 100);
   const usedDollars = (usedCents / 100).toFixed(2);
   const limitDollars = (limitCents / 100).toFixed(2);
-  const resetsDate = new Date(resetsAt).toLocaleDateString();
+  const resetsDate = formatDate(resetsAt);
 
   return (
     <div className="w-full space-y-1 rounded-lg border p-4 shadow-md sm:w-xs">

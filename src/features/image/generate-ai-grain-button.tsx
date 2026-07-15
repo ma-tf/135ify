@@ -6,6 +6,7 @@ import { FEATURE_AI_GRAIN, FEATURE_SUBSCRIPTIONS } from "@config";
 import { api } from "@convex/_generated/api";
 import { useAuth } from "@hooks/use-auth";
 import { useAiGrainGeneration } from "@hooks/useAiGrainGeneration";
+import { formatDate } from "@lib/utils";
 import { useAiProviderStore } from "@stores/ai-provider-store";
 import { useQuery_experimental as useQuery } from "convex/react";
 import { SparklesIcon } from "lucide-react";
@@ -31,7 +32,7 @@ function useAiSubUsage() {
   const atAiLimit = aiUsageResult.status === "success" && aiUsageResult.data?.atLimit;
   const capResetsAt =
     aiUsageResult.status === "success" && aiUsageResult.data?.atLimit && aiUsageResult.data
-      ? new Date(aiUsageResult.data.resetsAt).toLocaleDateString()
+      ? formatDate(aiUsageResult.data.resetsAt)
       : null;
 
   return { atStorageLimit, hasAiSub, atAiLimit, capResetsAt, isPending };

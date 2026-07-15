@@ -9,17 +9,13 @@ export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
+export function formatDate(ms: number): string {
+  return new Date(ms).toISOString().split("T")[0];
+}
+
 export function formatTimestamp(creationTime: number): string {
-  return (
-    new Date(creationTime).toLocaleString("en-GB", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "UTC",
-    }) + " UTC"
-  );
+  const iso = new Date(creationTime).toISOString();
+  return `${iso.slice(0, 10)}, ${iso.slice(11, 16)} UTC`;
 }
 
 export function getInitials(name?: string | null, email?: string | null): string {
