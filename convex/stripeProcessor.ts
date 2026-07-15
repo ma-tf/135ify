@@ -40,9 +40,6 @@ export const processEvent = internalAction({
         case "customer.subscription.deleted":
           await handleSubscriptionDeleted(event, ctx);
           break;
-        case "entitlements.active_entitlement_summary.updated":
-          await handleEntitlementEvent(event, ctx);
-          break;
       }
 
       await ctx.runMutation(internal.stripeWebhooks.markEventProcessed, {
@@ -109,14 +106,4 @@ async function handleSubscriptionDeleted(event: Stripe.Event, ctx: ActionCtx) {
   await ctx.runMutation(internal.subscriptions.remove, {
     stripeSubscriptionId: sub.id,
   });
-}
-
-async function handleEntitlementEvent(event: Stripe.Event, ctx: ActionCtx) {
-  const summary = event.data.object as Stripe.Entitlements.ActiveEntitlementSummary;
-  const stripeCustomerId = summary.customer;
-  const lookupKeys = summary.entitlements.data.map(
-    (e: Stripe.Entitlements.ActiveEntitlement) => e.lookup_key,
-  );
-
-  await ctx.runMutation(internal.stripeSync.syncEntitlements, { stripeCustomerId, lookupKeys });
 }

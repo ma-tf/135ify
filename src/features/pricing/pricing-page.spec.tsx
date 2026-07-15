@@ -11,7 +11,6 @@ const { mockUseQuery, mockUseAction } = vi.hoisted(() => ({
 vi.mock("@convex/_generated/api", () => ({
   api: {
     subscriptions: { byUser: "subscriptions.byUser" },
-    entitlements: { byUser: "entitlements.byUser" },
     stripe: {
       getPlan: "stripe.getPlan",
       createCheckoutSession: "stripe.createCheckoutSession",
@@ -71,15 +70,17 @@ describe("PricingPage", () => {
     features: ["Feature B"],
   };
 
-  function mockResolved(plans: Plan[], lookupKeys: string[]) {
-    mockUseQuery.mockImplementation((args: any) => {
-      if (args.query === "subscriptions.byUser") {
-        return { status: "success" as const, data: [] };
-      }
-      if (args.query === "entitlements.byUser") {
-        return { status: "success" as const, data: { lookupKeys } };
-      }
-      return { status: "pending" as const };
+  function mockResolved(plans: Plan[], productKeys: string[]) {
+    mockUseQuery.mockReturnValue({
+      status: "success" as const,
+      data: productKeys.map((k) => ({
+        _id: `sub_${k}`,
+        status: "active" as const,
+        productKeys: [k],
+        stripeSubscriptionId: `sub_${k}`,
+        stripeCustomerId: "cus_test",
+        cancelAtPeriodEnd: false,
+      })),
     });
     mockUseAction.mockReturnValue(vi.fn().mockResolvedValue(plans));
   }
@@ -114,7 +115,7 @@ describe("PricingPage", () => {
     });
   });
 
-  it("handles empty entitlements array", async () => {
+  it("handles empty productKeys array", async () => {
     mockResolved([proPlan], []);
 
     render(<PricingPage />);
@@ -124,16 +125,8 @@ describe("PricingPage", () => {
     });
   });
 
-  it("uses empty Set when entitlement data is null", async () => {
-    mockUseQuery.mockImplementation((args: any) => {
-      if (args.query === "subscriptions.byUser") {
-        return { status: "success" as const, data: [] };
-      }
-      if (args.query === "entitlements.byUser") {
-        return { status: "success" as const, data: null };
-      }
-      return { status: "pending" as const };
-    });
+  it("uses empty Set when subscription data is empty", async () => {
+    mockUseQuery.mockReturnValue({ status: "success" as const, data: [] });
     mockUseAction.mockReturnValue(vi.fn().mockResolvedValue([proPlan]));
 
     render(<PricingPage />);

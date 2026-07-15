@@ -87,7 +87,6 @@ vi.mock("@convex/_generated/api", () => ({
       createPortalSession: "createPortalSession",
     },
     subscriptions: { byUser: "subscriptions.byUser" },
-    entitlements: { byUser: "entitlements.byUser" },
   },
 }));
 
@@ -163,28 +162,9 @@ describe("AccountPage", () => {
           status: "active",
           currentPeriodEnd: Math.floor(Date.now() / 1000) + 86400 * 30,
           cancelAtPeriodEnd: false,
+          productKeys: ["storage_paid"],
         },
       ],
-    });
-    mockUseQuery.mockImplementation(({ query }: any) => {
-      if (query === "subscriptions.byUser")
-        return {
-          status: "success",
-          data: [
-            {
-              _id: "sub1",
-              status: "active",
-              currentPeriodEnd: Math.floor(Date.now() / 1000) + 86400 * 30,
-              cancelAtPeriodEnd: false,
-            },
-          ],
-        };
-      if (query === "entitlements.byUser")
-        return {
-          status: "success",
-          data: { lookupKeys: ["storage_paid"] },
-        };
-      return { status: "success", data: null };
     });
     render(<AccountPage />);
     await vi.waitFor(() => {
@@ -352,13 +332,9 @@ describe("AccountPage", () => {
     });
 
     it("shows platform key toggle when user has AI subscription and api key", async () => {
-      mockUseQuery.mockImplementation(({ query }: any) => {
-        if (query === "subscriptions.byUser")
-          return {
-            status: "success",
-            data: [{ _id: "sub1", status: "active" }],
-          };
-        return { status: "success", data: { lookupKeys: ["ai_generation_platform"] } };
+      mockUseQuery.mockReturnValue({
+        status: "success",
+        data: [{ _id: "sub1", status: "active", productKeys: ["ai_generation_platform"] }],
       });
       mockUseAiProviderStore.mockReturnValue({
         apiKey: "sk-test",
@@ -386,13 +362,9 @@ describe("AccountPage", () => {
     });
 
     it("hides platform key toggle when no API key set", () => {
-      mockUseQuery.mockImplementation(({ query }: any) => {
-        if (query === "subscriptions.byUser")
-          return {
-            status: "success",
-            data: [{ _id: "sub1", status: "active" }],
-          };
-        return { status: "success", data: { lookupKeys: ["ai_generation_platform"] } };
+      mockUseQuery.mockReturnValue({
+        status: "success",
+        data: [{ _id: "sub1", status: "active", productKeys: ["ai_generation_platform"] }],
       });
       render(<AccountPage />);
       expect(screen.queryByText("Use my own API key")).toBeNull();
@@ -400,13 +372,9 @@ describe("AccountPage", () => {
 
     it("toggles platform key preference on click", async () => {
       const setPreferPlatformKey = vi.fn();
-      mockUseQuery.mockImplementation(({ query }: any) => {
-        if (query === "subscriptions.byUser")
-          return {
-            status: "success",
-            data: [{ _id: "sub1", status: "active" }],
-          };
-        return { status: "success", data: { lookupKeys: ["ai_generation_platform"] } };
+      mockUseQuery.mockReturnValue({
+        status: "success",
+        data: [{ _id: "sub1", status: "active", productKeys: ["ai_generation_platform"] }],
       });
       mockUseAiProviderStore.mockReturnValue({
         apiKey: "sk-test",

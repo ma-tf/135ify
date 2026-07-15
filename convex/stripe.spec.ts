@@ -3,7 +3,7 @@ import { convexTest } from "convex-test";
 import { afterEach, beforeEach, describe, expect, test } from "vite-plus/test";
 
 import schema from "./schema";
-import { handleSyncSubscription, handleSyncEntitlements } from "./stripeSync";
+import { handleSyncSubscription } from "./stripeSync";
 
 const modules = import.meta.glob("./**/*.ts");
 
@@ -141,67 +141,5 @@ describe("syncSubscription", () => {
     });
 
     expect(user!.subscriptionStatus).toBeUndefined();
-  });
-});
-
-describe("syncEntitlements", () => {
-  test("creates entitlement record with lookup keys", async () => {
-    const t = setup();
-
-    const userId = await t.run(async (ctx) => {
-      return await ctx.db.insert("users", {
-        email: null,
-        stripeCustomerId: "cus_entitled",
-      });
-    });
-
-    await t.run(async (ctx) => {
-      await handleSyncEntitlements(ctx, "cus_entitled", ["storage_paid", "ai_generation_platform"]);
-    });
-
-    const entitlements = await t.run(async (ctx) => {
-      return await ctx.db
-        .query("userEntitlements")
-        .withIndex("by_userId", (q) => q.eq("userId", userId))
-        .first();
-    });
-
-    expect(entitlements?.lookupKeys).toEqual(["storage_paid", "ai_generation_platform"]);
-  });
-
-  test("updates existing entitlement record", async () => {
-    const t = setup();
-
-    const userId = await t.run(async (ctx) => {
-      return await ctx.db.insert("users", {
-        email: null,
-        stripeCustomerId: "cus_update",
-      });
-    });
-
-    await t.run(async (ctx) => {
-      await handleSyncEntitlements(ctx, "cus_update", ["storage_paid"]);
-    });
-
-    await t.run(async (ctx) => {
-      await handleSyncEntitlements(ctx, "cus_update", []);
-    });
-
-    const entitlements = await t.run(async (ctx) => {
-      return await ctx.db
-        .query("userEntitlements")
-        .withIndex("by_userId", (q) => q.eq("userId", userId))
-        .first();
-    });
-
-    expect(entitlements?.lookupKeys).toEqual([]);
-  });
-
-  test("unknown stripeCustomerId is a no-op", async () => {
-    const t = setup();
-
-    await t.run(async (ctx) => {
-      await handleSyncEntitlements(ctx, "cus_nobody", ["storage_paid"]);
-    });
   });
 });

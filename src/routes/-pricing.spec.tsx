@@ -60,7 +60,6 @@ vi.mock("@convex/_generated/api", () => ({
       getPlan: "getPlan",
     },
     subscriptions: { byUser: "subscriptions.byUser" },
-    entitlements: { byUser: "entitlements.byUser" },
   },
 }));
 
@@ -96,10 +95,7 @@ describe("PricingPage", () => {
         locationHref = v;
       },
     });
-    mockUseQuery.mockImplementation(({ query }: any) => {
-      if (query === "subscriptions.byUser") return { status: "success", data: [] };
-      return { status: "success", data: { lookupKeys: [] } };
-    });
+    mockUseQuery.mockReturnValue({ status: "success", data: [] });
     mockGetPlan.mockResolvedValue(mockPlans);
     mockCreateCheckoutSession.mockResolvedValue({
       url: "https://checkout.stripe.com/session_123",
@@ -123,9 +119,9 @@ describe("PricingPage", () => {
   });
 
   it("shows Subscribed badge for active subscriptions", async () => {
-    mockUseQuery.mockImplementation(({ query }: any) => {
-      if (query === "subscriptions.byUser") return { status: "success", data: [] };
-      return { status: "success", data: { lookupKeys: ["storage_paid"] } };
+    mockUseQuery.mockReturnValue({
+      status: "success",
+      data: [{ status: "active", productKeys: ["storage_paid"] }],
     });
     render(<PricingPage />);
     await vi.waitFor(() => {

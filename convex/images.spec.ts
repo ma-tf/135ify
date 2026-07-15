@@ -30,10 +30,13 @@ async function setup(tier?: string) {
   const userId = await t.run(async (ctx) => {
     const userId = await ctx.db.insert("users", { email: null });
     if (tier === "paid") {
-      await ctx.db.insert("userEntitlements", {
+      await ctx.db.insert("subscriptions", {
         userId,
-        lookupKeys: ["storage_paid"],
-        updated: Date.now(),
+        stripeSubscriptionId: "sub_test",
+        stripeCustomerId: "cus_test",
+        status: "active",
+        cancelAtPeriodEnd: false,
+        productKeys: ["storage_paid"],
       });
     }
     return userId;
@@ -42,7 +45,7 @@ async function setup(tier?: string) {
 }
 
 describe("getStorageUsage", () => {
-  test("returns free tier limits for user with no entitlements", async () => {
+  test("returns free tier limits for user with no subscriptions", async () => {
     const authed = await setup();
 
     const result = await authed.query(api.images.getStorageUsage);

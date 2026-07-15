@@ -54,10 +54,13 @@ describe("aiGenerationJobs subscription gating", () => {
       return await ctx.db.insert("users", { email: null });
     });
     await t.run(async (ctx) => {
-      await ctx.db.insert("userEntitlements", {
+      await ctx.db.insert("subscriptions", {
         userId,
-        lookupKeys: ["ai_generation_platform"],
-        updated: Date.now(),
+        stripeSubscriptionId: "sub_test",
+        stripeCustomerId: "cus_test",
+        status: "active",
+        cancelAtPeriodEnd: false,
+        productKeys: ["ai_generation_platform"],
       });
     });
     return t.withIdentity({ subject: `${userId}|session` });

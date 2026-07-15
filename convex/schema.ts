@@ -17,11 +17,6 @@ export default defineSchema({
   })
     .index("email", ["email"])
     .index("by_stripeCustomerId", ["stripeCustomerId"]),
-  userEntitlements: defineTable({
-    userId: v.id("users"),
-    lookupKeys: v.array(v.string()),
-    updated: v.number(),
-  }).index("by_userId", ["userId"]),
   aiGenerationSuspension: defineTable({
     userId: v.id("users"),
     suspendedAt: v.number(),

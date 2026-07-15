@@ -54,35 +54,3 @@ export const syncSubscription = internalMutation({
     await handleSyncSubscription(ctx, args.stripeCustomerId, args.status, args.metadata);
   },
 });
-
-export async function handleSyncEntitlements(
-  ctx: MutationCtx,
-  stripeCustomerId: string,
-  lookupKeys: string[],
-) {
-  const user = await ctx.db
-    .query("users")
-    .withIndex("by_stripeCustomerId", (q) => q.eq("stripeCustomerId", stripeCustomerId))
-    .first();
-  if (!user) return;
-  const existing = await ctx.db
-    .query("userEntitlements")
-    .withIndex("by_userId", (q) => q.eq("userId", user._id))
-    .first();
-  if (existing) {
-    await ctx.db.patch(existing._id, { lookupKeys, updated: Date.now() });
-  } else {
-    await ctx.db.insert("userEntitlements", {
-      userId: user._id,
-      lookupKeys,
-      updated: Date.now(),
-    });
-  }
-}
-
-export const syncEntitlements = internalMutation({
-  args: { stripeCustomerId: v.string(), lookupKeys: v.array(v.string()) },
-  handler: async (ctx, args) => {
-    await handleSyncEntitlements(ctx, args.stripeCustomerId, args.lookupKeys);
-  },
-});

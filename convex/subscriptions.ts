@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 
-import { internalMutation, query } from "./_generated/server";
+import { internalMutation, internalQuery, query } from "./_generated/server";
 import { requireAuth } from "./lib";
 
 export const byUser = query({
@@ -10,6 +10,18 @@ export const byUser = query({
       .query("subscriptions")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
       .collect();
+  },
+});
+
+export const hasProductKey = internalQuery({
+  args: { productKey: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await requireAuth(ctx);
+    const subscriptions = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .collect();
+    return subscriptions.some((sub) => sub.productKeys.includes(args.productKey));
   },
 });
 

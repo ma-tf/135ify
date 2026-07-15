@@ -35,8 +35,8 @@ export const createJob = mutation({
     await rateLimiter.limit(ctx, "aiGenerationGlobal", { throws: true });
     await rateLimiter.limit(ctx, "aiGenerationPerUser", { key: userId, throws: true });
 
-    const hasAiGeneration: boolean = await ctx.runQuery(internal.entitlements.hasEntitlement, {
-      entitlement: "ai_generation_platform",
+    const hasAiGeneration: boolean = await ctx.runQuery(internal.subscriptions.hasProductKey, {
+      productKey: "ai_generation_platform",
     });
 
     if (!hasAiGeneration && !args.apiKey) {
@@ -131,8 +131,8 @@ export const retryJob = mutation({
     await rateLimiter.limit(ctx, "aiGenerationGlobal", { throws: true });
     await rateLimiter.limit(ctx, "aiGenerationPerUser", { key: userId, throws: true });
 
-    const hasAiGeneration: boolean = await ctx.runQuery(internal.entitlements.hasEntitlement, {
-      entitlement: "ai_generation_platform",
+    const hasAiGeneration: boolean = await ctx.runQuery(internal.subscriptions.hasProductKey, {
+      productKey: "ai_generation_platform",
     });
 
     if (!hasAiGeneration && !args.apiKey) {

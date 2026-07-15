@@ -73,8 +73,8 @@ export const getAiUsage = query({
     resetsAt: number;
   } | null> => {
     const userId = await requireAuth(ctx);
-    const hasAiGeneration = await ctx.runQuery(internal.entitlements.hasEntitlement, {
-      entitlement: "ai_generation_platform",
+    const hasAiGeneration = await ctx.runQuery(internal.subscriptions.hasProductKey, {
+      productKey: "ai_generation_platform",
     });
     if (!hasAiGeneration) return null;
 

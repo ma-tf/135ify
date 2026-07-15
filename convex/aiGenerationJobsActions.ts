@@ -100,8 +100,8 @@ async function guardAiGeneration(
   jobId: Id<"aiGenerationJobs">,
   providedKey: string | undefined,
 ): Promise<string | null> {
-  const hasAiGeneration = await ctx.runQuery(internal.entitlements.hasEntitlement, {
-    entitlement: "ai_generation_platform",
+  const hasAiGeneration = await ctx.runQuery(internal.subscriptions.hasProductKey, {
+    productKey: "ai_generation_platform",
   });
 
   const resolvedKey = hasAiGeneration ? OPENAI_API_KEY : providedKey;

@@ -11,7 +11,6 @@ type PlansResult = { status: "pending" | "error"; data: [] } | { status: "succes
 
 export function useSubscriptions() {
   const subscriptions = useQuery({ query: api.subscriptions.byUser, args: {} });
-  const entitlements = useQuery({ query: api.entitlements.byUser, args: {} });
 
   const [plansResult, setPlansResult] = useState<PlansResult>({
     status: "pending",
@@ -29,19 +28,13 @@ export function useSubscriptions() {
     onFetchPlans();
   }, []);
 
-  const anyPending =
-    subscriptions.status === "pending" ||
-    entitlements.status === "pending" ||
-    plansResult.status === "pending";
+  const anyPending = subscriptions.status === "pending" || plansResult.status === "pending";
 
   if (anyPending) {
     return { status: "pending" as const, subscription: null, activePlans: [], plans: [] };
   }
 
-  const anyError =
-    subscriptions.status === "error" ||
-    entitlements.status === "error" ||
-    plansResult.status === "error";
+  const anyError = subscriptions.status === "error" || plansResult.status === "error";
 
   if (anyError) {
     return { status: "error" as const, subscription: null, activePlans: [], plans: [] };
@@ -53,9 +46,7 @@ export function useSubscriptions() {
 
   const subscription = activeSubs[0] ?? null;
 
-  const lookupKeys = entitlements.data?.lookupKeys ?? [];
-  const subscriptionProductKeys = activeSubs.flatMap((s) => s.productKeys);
-  const allKeys = new Set([...lookupKeys, ...subscriptionProductKeys]);
+  const allKeys = new Set(activeSubs.flatMap((s) => s.productKeys));
   const activePlans = plansResult.data.filter((p) => allKeys.has(p.key));
   const hasSubscription = subscription !== null || activePlans.length > 0;
 

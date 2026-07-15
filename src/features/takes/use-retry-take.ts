@@ -11,12 +11,12 @@ function useResolvedAiKey() {
   const apiKey = useAiProviderStore((s) => s.apiKey);
   const preferPlatformKey = useAiProviderStore((s) => s.preferPlatformKey);
 
-  const entitlementsResult = useQuery({ query: api.entitlements.byUser, args: {} });
+  const subscriptionsResult = useQuery({ query: api.subscriptions.byUser, args: {} });
 
   const hasActiveAiSub = useMemo(() => {
-    if (entitlementsResult.status !== "success") return false;
-    return (entitlementsResult.data?.lookupKeys ?? []).includes("ai_generation_platform");
-  }, [entitlementsResult]);
+    if (subscriptionsResult.status !== "success") return false;
+    return subscriptionsResult.data.some((s) => s.productKeys.includes("ai_generation_platform"));
+  }, [subscriptionsResult]);
 
   const usePlatform = hasActiveAiSub && preferPlatformKey;
   const canRetry = usePlatform || !!apiKey;

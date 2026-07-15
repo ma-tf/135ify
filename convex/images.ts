@@ -48,8 +48,8 @@ export const getStorageUsage = query({
     tier: string;
   }> => {
     const userId = await requireAuth(ctx);
-    const hasStoragePaid: boolean = await ctx.runQuery(internal.entitlements.hasEntitlement, {
-      entitlement: "storage_paid",
+    const hasStoragePaid: boolean = await ctx.runQuery(internal.subscriptions.hasProductKey, {
+      productKey: "storage_paid",
     });
     const tier = hasStoragePaid ? "paid" : "free";
     const limits = getTierLimits(tier);
@@ -134,8 +134,8 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
-    const hasStoragePaid: boolean = await ctx.runQuery(internal.entitlements.hasEntitlement, {
-      entitlement: "storage_paid",
+    const hasStoragePaid: boolean = await ctx.runQuery(internal.subscriptions.hasProductKey, {
+      productKey: "storage_paid",
     });
     const tier = hasStoragePaid ? "paid" : "free";
     const limits = getTierLimits(tier);
