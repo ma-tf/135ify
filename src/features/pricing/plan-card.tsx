@@ -9,14 +9,13 @@ import { toast } from "sonner";
 
 export type Plan = FunctionReturnType<typeof api.stripe.getPlan>[number];
 
-function usePlanAction(planKey: string, activePlans: Plan[]) {
+function usePlanAction(planKey: string, activePlans: Plan[], hasSubscription: boolean) {
   const isSubscribed = activePlans.some((p) => p.key === planKey);
-  const hasExistingSubscription = activePlans.length > 0;
+  const hasExistingSubscription = hasSubscription;
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const createCheckoutSession = useAction(api.stripe.createCheckoutSession);
   const addToSubscription = useAction(api.stripe.addToSubscription);
-  console.log({ activePlans, planKey });
 
   const subscribe = useCallback(() => {
     setError(null);
@@ -56,8 +55,20 @@ function usePlanAction(planKey: string, activePlans: Plan[]) {
   return { action, label, isPending, error, isSubscribed };
 }
 
-export function PlanCard({ plan, activePlans }: { plan: Plan; activePlans: Plan[] }) {
-  const { action, label, isPending, error, isSubscribed } = usePlanAction(plan.key, activePlans);
+export function PlanCard({
+  plan,
+  activePlans,
+  hasSubscription,
+}: {
+  plan: Plan;
+  activePlans: Plan[];
+  hasSubscription: boolean;
+}) {
+  const { action, label, isPending, error, isSubscribed } = usePlanAction(
+    plan.key,
+    activePlans,
+    hasSubscription,
+  );
 
   return (
     <div

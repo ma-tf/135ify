@@ -76,6 +76,7 @@ export default defineSchema({
     status: v.string(),
     currentPeriodEnd: v.optional(v.number()),
     cancelAtPeriodEnd: v.boolean(),
+    productKeys: v.array(v.string()),
   })
     .index("by_userId", ["userId"])
     .index("by_stripeSubscriptionId", ["stripeSubscriptionId"])

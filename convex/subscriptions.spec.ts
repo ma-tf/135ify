@@ -26,6 +26,7 @@ describe("byUser", () => {
         stripeCustomerId: "cus_test",
         status: "active",
         cancelAtPeriodEnd: false,
+        productKeys: [],
       });
     });
 
@@ -52,6 +53,7 @@ describe("upsert", () => {
       stripeCustomerId: "cus_new",
       status: "active",
       cancelAtPeriodEnd: false,
+      productKeys: [],
     });
 
     const subs = await authed.run(async (ctx) => {
@@ -71,6 +73,7 @@ describe("upsert", () => {
         stripeCustomerId: "cus_existing",
         status: "active",
         cancelAtPeriodEnd: false,
+        productKeys: [],
       });
     });
 
@@ -81,6 +84,7 @@ describe("upsert", () => {
       status: "past_due",
       currentPeriodEnd: 2000,
       cancelAtPeriodEnd: true,
+      productKeys: [],
     });
 
     const subs = await authed.run(async (ctx) => {
@@ -104,6 +108,7 @@ describe("upsert", () => {
       stripeCustomerId: "cus_lookup",
       status: "active",
       cancelAtPeriodEnd: false,
+      productKeys: [],
     });
 
     const subs = await authed.run(async (ctx) => {
@@ -121,6 +126,7 @@ describe("upsert", () => {
       stripeCustomerId: "cus_nobody",
       status: "active",
       cancelAtPeriodEnd: false,
+      productKeys: [],
     });
 
     const subs = await authed.run(async (ctx) => {
@@ -141,6 +147,7 @@ describe("remove", () => {
         stripeCustomerId: "cus_delete",
         status: "active",
         cancelAtPeriodEnd: false,
+        productKeys: [],
       });
     });
 

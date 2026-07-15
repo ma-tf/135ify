@@ -44,7 +44,7 @@ function PricingEmpty() {
 }
 
 export function PricingPage() {
-  const { status, activePlans, plans } = useSubscriptions();
+  const { status, activePlans, plans, hasSubscription } = useSubscriptions();
 
   if (status === "pending") {
     return <PricingSkeleton />;
@@ -61,7 +61,12 @@ export function PricingPage() {
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {plans.map((plan) => (
-        <PlanCard key={plan.key} plan={plan} activePlans={activePlans} />
+        <PlanCard
+          key={plan.key}
+          plan={plan}
+          activePlans={activePlans}
+          hasSubscription={hasSubscription}
+        />
       ))}
     </div>
   );

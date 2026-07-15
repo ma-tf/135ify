@@ -58,6 +58,10 @@ export const processEvent = internalAction({
   },
 });
 
+function getProductKeys(sub: Stripe.Subscription): string[] {
+  return sub.items.data.map((item) => item.price.lookup_key).filter((k): k is string => !!k);
+}
+
 async function handleSubscriptionCreated(event: Stripe.Event, ctx: ActionCtx) {
   const sub = event.data.object as Stripe.Subscription;
   await ctx.runMutation(internal.stripeSync.syncSubscription, {
@@ -72,6 +76,7 @@ async function handleSubscriptionCreated(event: Stripe.Event, ctx: ActionCtx) {
     status: sub.status,
     currentPeriodEnd: sub.items.data[0]?.current_period_end,
     cancelAtPeriodEnd: sub.cancel_at_period_end,
+    productKeys: getProductKeys(sub),
   });
 }
 
@@ -89,6 +94,7 @@ async function handleSubscriptionUpdated(event: Stripe.Event, ctx: ActionCtx) {
     status: sub.status,
     currentPeriodEnd: sub.items.data[0]?.current_period_end,
     cancelAtPeriodEnd: sub.cancel_at_period_end,
+    productKeys: getProductKeys(sub),
   });
 }
 

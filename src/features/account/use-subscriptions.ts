@@ -53,7 +53,16 @@ export function useSubscriptions() {
     ) ?? null;
 
   const lookupKeys = entitlements.data?.lookupKeys ?? [];
-  const activePlans = plansResult.data.filter((p) => lookupKeys.includes(p.key));
+  const subscriptionProductKeys = subscription?.productKeys ?? [];
+  const allKeys = new Set([...lookupKeys, ...subscriptionProductKeys]);
+  const activePlans = plansResult.data.filter((p) => allKeys.has(p.key));
+  const hasSubscription = subscription !== null || activePlans.length > 0;
 
-  return { status: "success" as const, subscription, activePlans, plans: plansResult.data };
+  return {
+    status: "success" as const,
+    subscription,
+    activePlans,
+    plans: plansResult.data,
+    hasSubscription,
+  };
 }

@@ -21,6 +21,7 @@ export const upsert = internalMutation({
     status: v.string(),
     currentPeriodEnd: v.optional(v.number()),
     cancelAtPeriodEnd: v.boolean(),
+    productKeys: v.array(v.string()),
   },
   handler: async (ctx, args) => {
     let userId = args.userId;
@@ -45,6 +46,7 @@ export const upsert = internalMutation({
         status: args.status,
         currentPeriodEnd: args.currentPeriodEnd,
         cancelAtPeriodEnd: args.cancelAtPeriodEnd,
+        productKeys: args.productKeys,
       });
     } else {
       await ctx.db.insert("subscriptions", {
@@ -54,6 +56,7 @@ export const upsert = internalMutation({
         status: args.status,
         currentPeriodEnd: args.currentPeriodEnd,
         cancelAtPeriodEnd: args.cancelAtPeriodEnd,
+        productKeys: args.productKeys,
       });
     }
   },
