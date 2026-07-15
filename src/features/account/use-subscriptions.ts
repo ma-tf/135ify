@@ -47,13 +47,14 @@ export function useSubscriptions() {
     return { status: "error" as const, subscription: null, activePlans: [], plans: [] };
   }
 
-  const subscription =
-    (subscriptions.data as Doc<"subscriptions">[]).find(
-      (s) => s.status === "active" || s.status === "trialing",
-    ) ?? null;
+  const activeSubs = (subscriptions.data as Doc<"subscriptions">[]).filter(
+    (s) => s.status === "active" || s.status === "trialing",
+  );
+
+  const subscription = activeSubs[0] ?? null;
 
   const lookupKeys = entitlements.data?.lookupKeys ?? [];
-  const subscriptionProductKeys = subscription?.productKeys ?? [];
+  const subscriptionProductKeys = activeSubs.flatMap((s) => s.productKeys);
   const allKeys = new Set([...lookupKeys, ...subscriptionProductKeys]);
   const activePlans = plansResult.data.filter((p) => allKeys.has(p.key));
   const hasSubscription = subscription !== null || activePlans.length > 0;

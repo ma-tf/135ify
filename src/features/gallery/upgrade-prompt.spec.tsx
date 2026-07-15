@@ -26,6 +26,14 @@ vi.mock("@convex/_generated/api", () => ({
   },
 }));
 
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children, to, ...props }: any) => (
+    <a href={to} {...props}>
+      {children}
+    </a>
+  ),
+}));
+
 vi.mock("@components/ui/button", () => ({
   Button: ({ children, className }: any) => (
     <button className={className} type="button">

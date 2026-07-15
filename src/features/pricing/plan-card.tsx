@@ -15,9 +15,8 @@ function usePlanAction(planKey: string, activePlans: Plan[], hasSubscription: bo
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const createCheckoutSession = useAction(api.stripe.createCheckoutSession);
-  const addToSubscription = useAction(api.stripe.addToSubscription);
 
-  const subscribe = useCallback(() => {
+  const checkout = useCallback(() => {
     setError(null);
     setIsPending(true);
     void createCheckoutSession({ productKey: planKey })
@@ -31,25 +30,11 @@ function usePlanAction(planKey: string, activePlans: Plan[], hasSubscription: bo
       .finally(() => setIsPending(false));
   }, [createCheckoutSession, planKey]);
 
-  const addToPlan = useCallback(() => {
-    setError(null);
-    setIsPending(true);
-    void addToSubscription({ productKey: planKey })
-      .then((result) => {
-        if (result.url) window.location.href = result.url;
-      })
-      .catch((err: Error) => {
-        setError(err.message);
-        toast.error(err.message);
-      })
-      .finally(() => setIsPending(false));
-  }, [addToSubscription, planKey]);
-
-  const action = isSubscribed ? null : hasExistingSubscription ? addToPlan : subscribe;
+  const action = isSubscribed ? null : checkout;
   const label = isSubscribed
     ? "Subscribed"
     : hasExistingSubscription
-      ? "Add to My Plan"
+      ? "Add to my plan"
       : "Subscribe";
 
   return { action, label, isPending, error, isSubscribed };

@@ -72,6 +72,14 @@ vi.mock("convex/react", () => ({
   useQuery_experimental: mockUseQuery,
 }));
 
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children, to, ...props }: any) => (
+    <a href={to} {...props}>
+      {children}
+    </a>
+  ),
+}));
+
 vi.mock("@convex/_generated/api", () => ({
   api: {
     stripe: {
@@ -142,7 +150,7 @@ describe("AccountPage", () => {
   it("shows skeleton loading state while subscriptions are pending", () => {
     mockUseQuery.mockReturnValue({ status: "pending" });
     const { container } = render(<AccountPage />);
-    expect(container.querySelector(".h-6")).toBeTruthy();
+    expect(container.querySelector(".size-8")).toBeTruthy();
     expect(container.querySelector(".h-4")).toBeTruthy();
   });
 

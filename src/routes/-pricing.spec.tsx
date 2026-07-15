@@ -132,7 +132,7 @@ describe("PricingPage", () => {
       const subscribedElements = screen.getAllByText("Subscribed");
       expect(subscribedElements.length).toBeGreaterThanOrEqual(1);
     });
-    const addToPlanButtons = screen.getAllByText("Add to My Plan");
+    const addToPlanButtons = screen.getAllByText("Add to my plan");
     expect(addToPlanButtons).toHaveLength(1);
   });
 
