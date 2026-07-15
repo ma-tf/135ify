@@ -39,17 +39,16 @@ function SubscriptionsSection({ subs }: { subs: ReturnType<typeof useSubscriptio
       <div className="mt-4 space-y-4">
         {subs.status === "pending" && <SubscriptionsSkeleton />}
         {subs.status === "error" && <SubscriptionsError />}
-        {subs.status === "success" && subs.subscription && (
+        {subs.status === "success" && subs.subscriptions.length > 0 && (
           <>
             <ActiveSubscriptions
-              subscription={subs.subscription}
+              subscriptions={subs.subscriptions}
               activePlans={subs.activePlans}
-              plans={subs.plans}
             />
             <ManageSubscriptionButton />
           </>
         )}
-        {subs.status === "success" && !subs.subscription && <EmptySubscriptions />}
+        {subs.status === "success" && subs.subscriptions.length === 0 && <EmptySubscriptions />}
       </div>
     </div>
   );

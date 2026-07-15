@@ -33,7 +33,7 @@ export function useSubscriptions() {
   if (anyPending) {
     return {
       status: "pending" as const,
-      subscription: null,
+      subscriptions: [],
       activePlans: [],
       plans: [],
       cancelled: [],
@@ -45,7 +45,7 @@ export function useSubscriptions() {
   if (anyError) {
     return {
       status: "error" as const,
-      subscription: null,
+      subscriptions: [],
       activePlans: [],
       plans: [],
       cancelled: [],
@@ -61,15 +61,15 @@ export function useSubscriptions() {
     s.productKeys.map((k) => ({ productKey: k, cancelledAt: s.cancelAt! })),
   );
 
-  const subscription = activeSubs[0] ?? null;
+  const subscriptionsList = activeSubs;
 
   const allKeys = new Set(activeSubs.flatMap((s) => s.productKeys));
   const activePlans = plansResult.data.filter((p) => allKeys.has(p.key));
-  const hasSubscription = subscription !== null || activePlans.length > 0;
+  const hasSubscription = subscriptionsList.length > 0 || activePlans.length > 0;
 
   return {
     status: "success" as const,
-    subscription,
+    subscriptions: subscriptionsList,
     activePlans,
     plans: plansResult.data,
     hasSubscription,

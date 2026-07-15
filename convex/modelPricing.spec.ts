@@ -1,8 +1,12 @@
-import { describe, expect, it } from "vite-plus/test";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { calculateCostCents } from "./modelPricing";
 
 describe("calculateCostCents", () => {
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
   it("calculates cost for gpt-5.4 at $5/1M input, $15/1M output", () => {
     const result = calculateCostCents(1_000_000, 0, "gpt-5.4");
     expect(result).toBe(500);

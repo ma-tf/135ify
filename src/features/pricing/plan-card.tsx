@@ -95,7 +95,7 @@ export function PlanCard({
           )}
           {cancelled && cancelledAt && (
             <span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-medium text-destructive">
-              Cancels {new Date(cancelledAt * 1000).toLocaleDateString()}
+              Cancelled
             </span>
           )}
         </div>
