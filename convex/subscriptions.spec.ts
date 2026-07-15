@@ -25,7 +25,6 @@ describe("byUser", () => {
         stripeSubscriptionId: "sub_1",
         stripeCustomerId: "cus_test",
         status: "active",
-        cancelAtPeriodEnd: false,
         productKeys: [],
       });
     });
@@ -52,7 +51,6 @@ describe("upsert", () => {
       stripeSubscriptionId: "sub_new",
       stripeCustomerId: "cus_new",
       status: "active",
-      cancelAtPeriodEnd: false,
       productKeys: [],
     });
 
@@ -72,7 +70,6 @@ describe("upsert", () => {
         stripeSubscriptionId: "sub_existing",
         stripeCustomerId: "cus_existing",
         status: "active",
-        cancelAtPeriodEnd: false,
         productKeys: [],
       });
     });
@@ -83,7 +80,7 @@ describe("upsert", () => {
       stripeCustomerId: "cus_existing",
       status: "past_due",
       currentPeriodEnd: 2000,
-      cancelAtPeriodEnd: true,
+      cancelAt: 2000,
       productKeys: [],
     });
 
@@ -93,7 +90,7 @@ describe("upsert", () => {
     expect(subs).toHaveLength(1);
     expect(subs[0].status).toBe("past_due");
     expect(subs[0].currentPeriodEnd).toBe(2000);
-    expect(subs[0].cancelAtPeriodEnd).toBe(true);
+    expect(subs[0].cancelAt).toBe(2000);
   });
 
   test("finds user by stripeCustomerId when userId is not provided", async () => {
@@ -107,7 +104,6 @@ describe("upsert", () => {
       stripeSubscriptionId: "sub_lookup",
       stripeCustomerId: "cus_lookup",
       status: "active",
-      cancelAtPeriodEnd: false,
       productKeys: [],
     });
 
@@ -125,7 +121,6 @@ describe("upsert", () => {
       stripeSubscriptionId: "sub_no_user",
       stripeCustomerId: "cus_nobody",
       status: "active",
-      cancelAtPeriodEnd: false,
       productKeys: [],
     });
 
@@ -146,7 +141,6 @@ describe("remove", () => {
         stripeSubscriptionId: "sub_delete",
         stripeCustomerId: "cus_delete",
         status: "active",
-        cancelAtPeriodEnd: false,
         productKeys: [],
       });
     });

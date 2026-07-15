@@ -32,15 +32,15 @@ export function ActiveSubscriptions({
       </div>
       <div className="mt-3 flex items-center justify-between border-t pt-3">
         <p className="text-sm text-muted-foreground">
-          {subscription.cancelAtPeriodEnd && subscription.currentPeriodEnd
-            ? `Cancels ${new Date(subscription.currentPeriodEnd * 1000).toLocaleDateString()}`
+          {subscription.cancelAt
+            ? `Cancels ${new Date(subscription.cancelAt * 1000).toLocaleDateString()}`
             : subscription.currentPeriodEnd
               ? `Renews ${new Date(subscription.currentPeriodEnd * 1000).toLocaleDateString()}`
               : ""}
         </p>
-        {subscription.cancelAtPeriodEnd && subscription.currentPeriodEnd ? (
+        {subscription.cancelAt ? (
           <span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-medium text-destructive">
-            Cancels {new Date(subscription.currentPeriodEnd * 1000).toLocaleDateString()}
+            Cancels {new Date(subscription.cancelAt * 1000).toLocaleDateString()}
           </span>
         ) : (
           <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary capitalize">

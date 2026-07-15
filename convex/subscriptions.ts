@@ -32,7 +32,7 @@ export const upsert = internalMutation({
     stripeCustomerId: v.string(),
     status: v.string(),
     currentPeriodEnd: v.optional(v.number()),
-    cancelAtPeriodEnd: v.boolean(),
+    cancelAt: v.optional(v.number()),
     productKeys: v.array(v.string()),
   },
   handler: async (ctx, args) => {
@@ -57,7 +57,7 @@ export const upsert = internalMutation({
       await ctx.db.patch(existing._id, {
         status: args.status,
         currentPeriodEnd: args.currentPeriodEnd,
-        cancelAtPeriodEnd: args.cancelAtPeriodEnd,
+        cancelAt: args.cancelAt,
         productKeys: args.productKeys,
       });
     } else {
@@ -67,7 +67,7 @@ export const upsert = internalMutation({
         stripeCustomerId: args.stripeCustomerId,
         status: args.status,
         currentPeriodEnd: args.currentPeriodEnd,
-        cancelAtPeriodEnd: args.cancelAtPeriodEnd,
+        ...(args.cancelAt !== undefined ? { cancelAt: args.cancelAt } : {}),
         productKeys: args.productKeys,
       });
     }

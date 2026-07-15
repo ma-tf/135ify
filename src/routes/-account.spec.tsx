@@ -161,7 +161,6 @@ describe("AccountPage", () => {
           _id: "sub1",
           status: "active",
           currentPeriodEnd: Math.floor(Date.now() / 1000) + 86400 * 30,
-          cancelAtPeriodEnd: false,
           productKeys: ["storage_paid"],
         },
       ],

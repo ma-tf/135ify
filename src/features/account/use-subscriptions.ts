@@ -56,9 +56,9 @@ export function useSubscriptions() {
     (s) => s.status === "active" || s.status === "trialing",
   );
 
-  const cancelledSubs = activeSubs.filter((s) => s.cancelAtPeriodEnd && s.currentPeriodEnd != null);
+  const cancelledSubs = activeSubs.filter((s) => s.cancelAt != null);
   const cancelled = cancelledSubs.flatMap((s) =>
-    s.productKeys.map((k) => ({ productKey: k, cancelledAt: s.currentPeriodEnd! })),
+    s.productKeys.map((k) => ({ productKey: k, cancelledAt: s.cancelAt! })),
   );
 
   const subscription = activeSubs[0] ?? null;

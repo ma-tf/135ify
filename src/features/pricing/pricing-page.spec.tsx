@@ -83,7 +83,6 @@ describe("PricingPage", () => {
         productKeys: [k],
         stripeSubscriptionId: `sub_${k}`,
         stripeCustomerId: "cus_test",
-        cancelAtPeriodEnd: false,
       })),
     });
     mockUseAction.mockReturnValue(vi.fn().mockResolvedValue(plans));
@@ -98,8 +97,7 @@ describe("PricingPage", () => {
         productKeys: [k],
         stripeSubscriptionId: `sub_${k}`,
         stripeCustomerId: "cus_test",
-        cancelAtPeriodEnd: true,
-        currentPeriodEnd: cancelledAt,
+        cancelAt: cancelledAt,
       })),
     });
     mockUseAction.mockReturnValue(vi.fn().mockResolvedValue(plans));

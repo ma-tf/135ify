@@ -121,7 +121,6 @@ describe("getAiUsage", () => {
         stripeSubscriptionId: "sub_test",
         stripeCustomerId: "cus_test",
         status: "active",
-        cancelAtPeriodEnd: false,
         productKeys: ["ai_generation_platform"],
       });
     });

@@ -70,7 +70,7 @@ export default defineSchema({
     stripeCustomerId: v.string(),
     status: v.string(),
     currentPeriodEnd: v.optional(v.number()),
-    cancelAtPeriodEnd: v.boolean(),
+    cancelAt: v.optional(v.number()),
     productKeys: v.array(v.string()),
   })
     .index("by_userId", ["userId"])

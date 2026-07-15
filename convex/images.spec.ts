@@ -35,7 +35,6 @@ async function setup(tier?: string) {
         stripeSubscriptionId: "sub_test",
         stripeCustomerId: "cus_test",
         status: "active",
-        cancelAtPeriodEnd: false,
         productKeys: ["storage_paid"],
       });
     }

@@ -72,7 +72,7 @@ async function handleSubscriptionCreated(event: Stripe.Event, ctx: ActionCtx) {
     stripeCustomerId: sub.customer as string,
     status: sub.status,
     currentPeriodEnd: sub.items.data[0]?.current_period_end,
-    cancelAtPeriodEnd: sub.cancel_at_period_end,
+    cancelAt: sub.cancel_at ?? undefined,
     productKeys: getProductKeys(sub),
   });
 }
@@ -90,7 +90,7 @@ async function handleSubscriptionUpdated(event: Stripe.Event, ctx: ActionCtx) {
     stripeCustomerId: sub.customer as string,
     status: sub.status,
     currentPeriodEnd: sub.items.data[0]?.current_period_end,
-    cancelAtPeriodEnd: sub.cancel_at_period_end,
+    cancelAt: sub.cancel_at ?? undefined,
     productKeys: getProductKeys(sub),
   });
 }
