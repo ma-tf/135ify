@@ -88,6 +88,7 @@ export default defineSchema({
     createdAt: v.number(),
     billingPeriod: v.string(),
     rawResponse: v.string(),
+    keySource: v.union(v.literal("platform"), v.literal("user_key")),
   })
     .index("by_billingPeriod_userId", ["billingPeriod", "userId"])
     .index("by_jobId", ["jobId"]),

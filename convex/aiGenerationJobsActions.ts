@@ -117,7 +117,7 @@ async function guardAiGeneration(
   ctx: ActionCtx,
   jobId: Id<"aiGenerationJobs">,
   providedKey: string | undefined,
-): Promise<string | null> {
+): Promise<{ apiKey: string; keySource: "platform" | "user_key" } | null> {
   const hasAiGeneration = await ctx.runQuery(internal.subscriptions.hasProductKey, {
     productKey: "ai_generation_platform",
   });
@@ -154,7 +154,7 @@ async function guardAiGeneration(
     }
   }
 
-  return resolvedKey;
+  return { apiKey: resolvedKey, keySource: hasAiGeneration ? "platform" : "user_key" };
 }
 
 async function fetchAndPrepareSourceImage(
@@ -210,8 +210,9 @@ export const processJob = action({
   handler: async (ctx, args) => {
     await requireAuth(ctx);
 
-    const resolvedKey = await guardAiGeneration(ctx, args.jobId, args.apiKey);
-    if (!resolvedKey) return;
+    const guardResult = await guardAiGeneration(ctx, args.jobId, args.apiKey);
+    if (!guardResult) return;
+    const { apiKey, keySource } = guardResult;
 
     const job = await ctx.runQuery(api.aiGenerationJobs.getJob, {
       jobId: args.jobId,
@@ -235,7 +236,7 @@ export const processJob = action({
         job.sourceStorageId,
       );
       const { resultB64, usage: callUsage } = await callOpenAI(
-        resolvedKey,
+        apiKey,
         FILM_GRAIN_PROMPT,
         processedBuffer.toString("base64"),
         outputSize,
@@ -253,6 +254,7 @@ export const processJob = action({
         responseId: usage.responseId,
         createdAt: usage.createdAt,
         rawResponse: usage.rawResponse,
+        keySource,
       });
 
       const { storageId, isOverQuota, thumbnailBase64 } = await uploadResultToStorage(
@@ -294,6 +296,7 @@ export const processJob = action({
           responseId: usage.responseId,
           createdAt: usage.createdAt,
           rawResponse: usage.rawResponse,
+          keySource,
         });
       }
       await ctx.runMutation(api.aiGenerationJobs.setJobStatus, {

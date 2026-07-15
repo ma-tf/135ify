@@ -33,6 +33,7 @@ export const insertRawUsage = internalMutation({
     responseId: v.string(),
     createdAt: v.number(),
     rawResponse: v.string(),
+    keySource: v.union(v.literal("platform"), v.literal("user_key")),
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
@@ -57,7 +58,9 @@ export const getMonthlyCost = internalQuery({
           q.eq("billingPeriod", period).eq("userId", userId),
         )
         .collect();
-      total += rows.reduce((sum, r) => sum + r.costCents, 0);
+      total += rows
+        .filter((r) => r.keySource === "platform")
+        .reduce((sum, r) => sum + r.costCents, 0);
     }
     return total;
   },
@@ -93,7 +96,9 @@ export const getAiUsage = query({
           q.eq("billingPeriod", period).eq("userId", userId),
         )
         .collect();
-      usedCents += rows.reduce((sum, r) => sum + r.costCents, 0);
+      usedCents += rows
+        .filter((r) => r.keySource === "platform")
+        .reduce((sum, r) => sum + r.costCents, 0);
     }
     const limitCents = OPENAI_MONTHLY_SPEND_LIMIT_CENTS;
 

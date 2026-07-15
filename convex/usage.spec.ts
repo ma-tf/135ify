@@ -42,6 +42,7 @@ describe("insertRawUsage", () => {
       responseId: "resp_test",
       createdAt: Date.now(),
       rawResponse: "{}",
+      keySource: "platform",
     });
 
     const rows = await authed.run(async (ctx) => {
@@ -81,6 +82,7 @@ describe("getMonthlyCost", () => {
       responseId: "resp_1",
       createdAt: Date.now(),
       rawResponse: "{}",
+      keySource: "platform",
     });
     await authed.mutation(internal.usage.insertRawUsage, {
       jobId,
@@ -92,6 +94,7 @@ describe("getMonthlyCost", () => {
       responseId: "resp_2",
       createdAt: Date.now(),
       rawResponse: "{}",
+      keySource: "platform",
     });
 
     const total = await authed.query(internal.usage.getMonthlyCost, { sinceMs: -1 });
@@ -167,6 +170,7 @@ describe("getAiUsage", () => {
       responseId: "resp_1",
       createdAt: Date.now(),
       rawResponse: "{}",
+      keySource: "platform",
     });
     await authed.mutation(internal.usage.insertRawUsage, {
       jobId,
@@ -178,6 +182,7 @@ describe("getAiUsage", () => {
       responseId: "resp_2",
       createdAt: Date.now(),
       rawResponse: "{}",
+      keySource: "platform",
     });
 
     const result = await authed.query(api.usage.getAiUsage, {});
@@ -227,6 +232,7 @@ describe("getAiUsage", () => {
       responseId: "resp_limit",
       createdAt: Date.now(),
       rawResponse: "{}",
+      keySource: "platform",
     });
 
     const result = await authed.query(api.usage.getAiUsage, {});
