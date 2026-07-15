@@ -47,6 +47,7 @@ async function callOpenAI(
 ): Promise<{
   resultB64: string;
   usage: {
+    rawResponse: string;
     inputTokens: number;
     outputTokens: number;
     model: string;
@@ -56,7 +57,7 @@ async function callOpenAI(
 }> {
   const openai = new OpenAI({ apiKey });
   const genResponse = await openai.responses.create({
-    model: "gpt-5.4",
+    model: "gpt=5.4-mini",
     input: [
       {
         role: "user",
@@ -78,9 +79,18 @@ async function callOpenAI(
     .map((o) => o.result)[0];
 
   if (!resultB64) throw new Error("No image data in OpenAI response");
+
+  const rawResponse = JSON.stringify({
+    ...genResponse,
+    output: genResponse.output.map((o) =>
+      o.type === "image_generation_call" ? { ...o, result: "[base64 image data removed]" } : o,
+    ),
+  });
+
   return {
     resultB64,
     usage: {
+      rawResponse,
       inputTokens: genResponse.usage?.input_tokens ?? 0,
       outputTokens: genResponse.usage?.output_tokens ?? 0,
       model: genResponse.model,
@@ -91,7 +101,7 @@ async function callOpenAI(
 }
 
 async function generateThumbnail(buffer: Buffer): Promise<string> {
-  const thumbnailBuffer = await sharp(buffer).resize(128, 128, { fit: "cover" }).jpeg().toBuffer();
+  const thumbnailBuffer = await sharp(buffer).resize(128, 128, { fit: "cover" }).webp().toBuffer();
   return thumbnailBuffer.toString("base64");
 }
 
@@ -202,6 +212,7 @@ export const processJob = action({
 
     let usage:
       | {
+          rawResponse: string;
           inputTokens: number;
           outputTokens: number;
           model: string;
@@ -233,6 +244,7 @@ export const processJob = action({
         costCents,
         responseId: usage.responseId,
         createdAt: usage.createdAt,
+        rawResponse: usage.rawResponse,
       });
 
       const { storageId, isOverQuota, thumbnailBase64 } = await uploadResultToStorage(
@@ -273,6 +285,7 @@ export const processJob = action({
           costCents: calculateCostCents(usage.inputTokens, usage.outputTokens, usage.model),
           responseId: usage.responseId,
           createdAt: usage.createdAt,
+          rawResponse: usage.rawResponse,
         });
       }
       await ctx.runMutation(api.aiGenerationJobs.setJobStatus, {

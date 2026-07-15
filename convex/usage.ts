@@ -32,6 +32,7 @@ export const insertRawUsage = internalMutation({
     costCents: v.number(),
     responseId: v.string(),
     createdAt: v.number(),
+    rawResponse: v.string(),
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);

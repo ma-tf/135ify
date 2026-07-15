@@ -1,7 +1,7 @@
 // https://developers.openai.com/api/docs/guides/images-vision#calculating-costs
 // TODO: calculate in greater detail later; placeholder rates are sufficient for now
 const MODEL_PRICING: Record<string, { inputPerMillion: number; outputPerMillion: number }> = {
-  "gpt-5.4": { inputPerMillion: 500, outputPerMillion: 1500 },
+  "gpt-5.4-mini": { inputPerMillion: 500, outputPerMillion: 1500 },
 };
 
 const FALLBACK_PRICING = { inputPerMillion: 500, outputPerMillion: 1500 };

@@ -41,6 +41,7 @@ describe("insertRawUsage", () => {
       costCents: 4,
       responseId: "resp_test",
       createdAt: Date.now(),
+      rawResponse: "{}",
     });
 
     const rows = await authed.run(async (ctx) => {
@@ -79,6 +80,7 @@ describe("getMonthlyCost", () => {
       costCents: 10,
       responseId: "resp_1",
       createdAt: Date.now(),
+      rawResponse: "{}",
     });
     await authed.mutation(internal.usage.insertRawUsage, {
       jobId,
@@ -89,6 +91,7 @@ describe("getMonthlyCost", () => {
       costCents: 20,
       responseId: "resp_2",
       createdAt: Date.now(),
+      rawResponse: "{}",
     });
 
     const total = await authed.query(internal.usage.getMonthlyCost, { sinceMs: -1 });
@@ -163,6 +166,7 @@ describe("getAiUsage", () => {
       costCents: 10,
       responseId: "resp_1",
       createdAt: Date.now(),
+      rawResponse: "{}",
     });
     await authed.mutation(internal.usage.insertRawUsage, {
       jobId,
@@ -173,6 +177,7 @@ describe("getAiUsage", () => {
       costCents: 20,
       responseId: "resp_2",
       createdAt: Date.now(),
+      rawResponse: "{}",
     });
 
     const result = await authed.query(api.usage.getAiUsage, {});
@@ -221,6 +226,7 @@ describe("getAiUsage", () => {
       costCents: 500,
       responseId: "resp_limit",
       createdAt: Date.now(),
+      rawResponse: "{}",
     });
 
     const result = await authed.query(api.usage.getAiUsage, {});
