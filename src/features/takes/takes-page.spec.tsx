@@ -31,6 +31,11 @@ vi.mock("convex/react", () => ({
   useMutation: () => vi.fn(),
 }));
 
+vi.mock("@features/takes/ai-usage-bar", () => ({
+  AiUsageBar: () => null,
+  AiUsageBarSkeleton: () => null,
+}));
+
 vi.mock("@stores/takes-notification-store", () => ({
   useTakesNotificationStore: (selector: any) => {
     const state = { lastSeenAt: null, markSeen: mockMarkSeen };

@@ -117,6 +117,7 @@ vi.mock("@components/ui/switch", () => ({
 
 vi.mock("@lib/utils", () => ({
   cn: (...args: any[]) => args.filter(Boolean).join(" "),
+  formatDate: (ms: number) => new Date(ms).toISOString().split("T")[0],
 }));
 
 import { toast } from "sonner";

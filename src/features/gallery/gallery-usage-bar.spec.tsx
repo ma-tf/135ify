@@ -12,6 +12,11 @@ vi.mock("convex/react", () => ({
   useQuery_experimental: mockUseQuery,
 }));
 
+vi.mock("@features/takes/ai-usage-bar", () => ({
+  AiUsageBar: () => null,
+  AiUsageBarSkeleton: () => null,
+}));
+
 import { UsageBar, UsageBarSkeleton } from "@features/gallery/gallery-usage-bar";
 
 const fullData = {
