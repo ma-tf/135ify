@@ -31,17 +31,34 @@ export function useSubscriptions() {
   const anyPending = subscriptions.status === "pending" || plansResult.status === "pending";
 
   if (anyPending) {
-    return { status: "pending" as const, subscription: null, activePlans: [], plans: [] };
+    return {
+      status: "pending" as const,
+      subscription: null,
+      activePlans: [],
+      plans: [],
+      cancelled: [],
+    };
   }
 
   const anyError = subscriptions.status === "error" || plansResult.status === "error";
 
   if (anyError) {
-    return { status: "error" as const, subscription: null, activePlans: [], plans: [] };
+    return {
+      status: "error" as const,
+      subscription: null,
+      activePlans: [],
+      plans: [],
+      cancelled: [],
+    };
   }
 
   const activeSubs = (subscriptions.data as Doc<"subscriptions">[]).filter(
     (s) => s.status === "active" || s.status === "trialing",
+  );
+
+  const cancelledSubs = activeSubs.filter((s) => s.cancelAtPeriodEnd && s.currentPeriodEnd != null);
+  const cancelled = cancelledSubs.flatMap((s) =>
+    s.productKeys.map((k) => ({ productKey: k, cancelledAt: s.currentPeriodEnd! })),
   );
 
   const subscription = activeSubs[0] ?? null;
@@ -56,5 +73,6 @@ export function useSubscriptions() {
     activePlans,
     plans: plansResult.data,
     hasSubscription,
+    cancelled,
   };
 }

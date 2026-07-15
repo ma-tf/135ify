@@ -44,7 +44,7 @@ function PricingEmpty() {
 }
 
 export function PricingPage() {
-  const { status, activePlans, plans, hasSubscription } = useSubscriptions();
+  const { status, activePlans, plans, hasSubscription, cancelled } = useSubscriptions();
 
   if (status === "pending") {
     return <PricingSkeleton />;
@@ -66,6 +66,7 @@ export function PricingPage() {
           plan={plan}
           activePlans={activePlans}
           hasSubscription={hasSubscription}
+          cancellation={cancelled.find((c) => c.productKey === plan.key)}
         />
       ))}
     </div>

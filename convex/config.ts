@@ -2,10 +2,10 @@ import { env } from "./_generated/server";
 
 const freeImage = Number(env.FREE_TIER_IMAGE_LIMIT || "36");
 const freeFile = Number(env.FREE_TIER_FILE_SIZE_MB || "10");
-const freeStorage = Number(env.FREE_TIER_STORAGE_MB || "360");
+const freeStorage = Number(env.FREE_TIER_STORAGE_MB || "100");
 const paidImage = Number(env.PAID_TIER_IMAGE_LIMIT || "360");
 const paidFile = Number(env.PAID_TIER_FILE_SIZE_MB || "25");
-const paidStorage = Number(env.PAID_TIER_STORAGE_MB || "9216");
+const paidStorage = Number(env.PAID_TIER_STORAGE_MB || "5120");
 
 if ([freeImage, freeFile, freeStorage, paidImage, paidFile, paidStorage].some(isNaN)) {
   throw new Error(

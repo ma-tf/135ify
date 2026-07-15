@@ -9,12 +9,31 @@ import { toast } from "sonner";
 
 export type Plan = FunctionReturnType<typeof api.stripe.getPlan>[number];
 
-function usePlanAction(planKey: string, activePlans: Plan[], hasSubscription: boolean) {
+function usePlanAction(
+  planKey: string,
+  activePlans: Plan[],
+  hasSubscription: boolean,
+  cancelled: boolean,
+) {
   const isSubscribed = activePlans.some((p) => p.key === planKey);
-  const hasExistingSubscription = hasSubscription;
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const createCheckoutSession = useAction(api.stripe.createCheckoutSession);
+  const createPortalSession = useAction(api.stripe.createPortalSession);
+
+  const manage = useCallback(() => {
+    setError(null);
+    setIsPending(true);
+    void createPortalSession({})
+      .then((result) => {
+        if (result.url) window.location.href = result.url;
+      })
+      .catch((err: Error) => {
+        setError(err.message);
+        toast.error(err.message);
+      })
+      .finally(() => setIsPending(false));
+  }, [createPortalSession]);
 
   const checkout = useCallback(() => {
     setError(null);
@@ -30,29 +49,36 @@ function usePlanAction(planKey: string, activePlans: Plan[], hasSubscription: bo
       .finally(() => setIsPending(false));
   }, [createCheckoutSession, planKey]);
 
-  const action = isSubscribed ? null : checkout;
-  const label = isSubscribed
-    ? "Subscribed"
-    : hasExistingSubscription
-      ? "Add to my plan"
-      : "Subscribe";
+  if (cancelled || isSubscribed) {
+    const action = cancelled ? manage : null;
+    const label = cancelled ? "Manage" : "Subscribed";
+    return { action, label, isPending, error, isSubscribed: true };
+  }
 
-  return { action, label, isPending, error, isSubscribed };
+  const action = checkout;
+  const label = hasSubscription ? "Add to my plan" : "Subscribe";
+
+  return { action, label, isPending, error, isSubscribed: false };
 }
 
 export function PlanCard({
   plan,
   activePlans,
   hasSubscription,
+  cancellation,
 }: {
   plan: Plan;
   activePlans: Plan[];
   hasSubscription: boolean;
+  cancellation?: { productKey: string; cancelledAt: number };
 }) {
+  const cancelled = cancellation != null;
+  const cancelledAt = cancellation?.cancelledAt;
   const { action, label, isPending, error, isSubscribed } = usePlanAction(
     plan.key,
     activePlans,
     hasSubscription,
+    cancelled,
   );
 
   return (
@@ -62,9 +88,14 @@ export function PlanCard({
       <div>
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">{plan.name}</h2>
-          {isSubscribed && (
+          {isSubscribed && !cancelled && (
             <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
               Subscribed
+            </span>
+          )}
+          {cancelled && cancelledAt && (
+            <span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-medium text-destructive">
+              Cancels {new Date(cancelledAt * 1000).toLocaleDateString()}
             </span>
           )}
         </div>
@@ -81,8 +112,20 @@ export function PlanCard({
       </div>
       <div className="mt-6">
         {isSubscribed ? (
-          <Button variant="outline" className="w-full" disabled>
-            {label}
+          <Button
+            variant="outline"
+            className="w-full"
+            disabled={!cancelled || isPending}
+            onClick={action ?? undefined}
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Redirecting...
+              </>
+            ) : (
+              label
+            )}
           </Button>
         ) : (
           <>

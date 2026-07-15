@@ -38,9 +38,15 @@ export function ActiveSubscriptions({
               ? `Renews ${new Date(subscription.currentPeriodEnd * 1000).toLocaleDateString()}`
               : ""}
         </p>
-        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary capitalize">
-          {subscription.status}
-        </span>
+        {subscription.cancelAtPeriodEnd && subscription.currentPeriodEnd ? (
+          <span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-medium text-destructive">
+            Cancels {new Date(subscription.currentPeriodEnd * 1000).toLocaleDateString()}
+          </span>
+        ) : (
+          <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary capitalize">
+            {subscription.status}
+          </span>
+        )}
       </div>
     </div>
   );

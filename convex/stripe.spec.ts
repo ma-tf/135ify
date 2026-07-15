@@ -10,10 +10,10 @@ const modules = import.meta.glob("./**/*.ts");
 beforeEach(() => {
   process.env.FREE_TIER_IMAGE_LIMIT = "36";
   process.env.FREE_TIER_FILE_SIZE_MB = "10";
-  process.env.FREE_TIER_STORAGE_MB = "360";
+  process.env.FREE_TIER_STORAGE_MB = "100";
   process.env.PAID_TIER_IMAGE_LIMIT = "360";
   process.env.PAID_TIER_FILE_SIZE_MB = "25";
-  process.env.PAID_TIER_STORAGE_MB = "9216";
+  process.env.PAID_TIER_STORAGE_MB = "5120";
 });
 
 afterEach(() => {

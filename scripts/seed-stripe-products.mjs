@@ -23,7 +23,7 @@ const PRODUCTS = [
     features: [
       { name: "360 images (up from 36)" },
       { name: "15 MB per file (up from 5 MB)" },
-      { name: "~5.4 GB total storage" },
+      { name: "5 GB total storage" },
     ],
     currency: "usd",
     unitAmount: 200,

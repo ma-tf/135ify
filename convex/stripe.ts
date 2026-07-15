@@ -3,7 +3,7 @@
 import { v } from "convex/values";
 import Stripe from "stripe";
 
-import { internal } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 import { action } from "./_generated/server";
 import { SITE_URL, STRIPE_SECRET_KEY } from "./config";
 import { requireAuth } from "./lib";
@@ -52,6 +52,22 @@ export const createCheckoutSession = action({
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
     const user = await ctx.runQuery(internal.stripeSync.getUserStripeInfo, { userId });
+
+    const existingSubs = await ctx.runQuery(api.subscriptions.byUser, {});
+    const hasExisting = existingSubs.some(
+      (s) =>
+        (s.status === "active" || s.status === "trialing") &&
+        s.productKeys.includes(args.productKey),
+    );
+    if (hasExisting && user?.stripeCustomerId) {
+      const stripe = getStripe();
+      const portalSession = await stripe.billingPortal.sessions.create({
+        customer: user.stripeCustomerId,
+        return_url: `${SITE_URL}/account`,
+      });
+      return { url: portalSession.url };
+    }
+
     const stripe = getStripe();
     const prices = await stripe.prices.list({
       lookup_keys: [args.productKey],

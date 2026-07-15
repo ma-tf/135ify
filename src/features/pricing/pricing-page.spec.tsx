@@ -28,10 +28,14 @@ vi.mock("@components/ui/skeleton", () => ({
 }));
 
 vi.mock("@features/pricing/plan-card", () => ({
-  PlanCard: vi.fn(({ plan, activePlans }: any) => (
+  PlanCard: vi.fn(({ plan, activePlans, cancellation }: any) => (
     <div data-testid="plan-card">
       {plan.key}:{" "}
-      {activePlans.some((p: any) => p.key === plan.key) ? "subscribed" : "not-subscribed"}
+      {cancellation
+        ? "cancelled"
+        : activePlans.some((p: any) => p.key === plan.key)
+          ? "subscribed"
+          : "not-subscribed"}
     </div>
   )),
 }));
@@ -80,6 +84,22 @@ describe("PricingPage", () => {
         stripeSubscriptionId: `sub_${k}`,
         stripeCustomerId: "cus_test",
         cancelAtPeriodEnd: false,
+      })),
+    });
+    mockUseAction.mockReturnValue(vi.fn().mockResolvedValue(plans));
+  }
+
+  function mockCancelledSubscription(plans: Plan[], cancelledKeys: string[], cancelledAt: number) {
+    mockUseQuery.mockReturnValue({
+      status: "success" as const,
+      data: cancelledKeys.map((k) => ({
+        _id: `sub_${k}`,
+        status: "active" as const,
+        productKeys: [k],
+        stripeSubscriptionId: `sub_${k}`,
+        stripeCustomerId: "cus_test",
+        cancelAtPeriodEnd: true,
+        currentPeriodEnd: cancelledAt,
       })),
     });
     mockUseAction.mockReturnValue(vi.fn().mockResolvedValue(plans));
@@ -144,6 +164,16 @@ describe("PricingPage", () => {
     await waitFor(() => {
       expect(screen.getByText("pro: subscribed")).toBeDefined();
       expect(screen.getByText("basic: not-subscribed")).toBeDefined();
+    });
+  });
+
+  it("marks cancelled-but-active subscriptions as cancelled in PlanCard", async () => {
+    mockCancelledSubscription([proPlan], ["pro"], 1712345678);
+
+    render(<PricingPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("pro: cancelled")).toBeDefined();
     });
   });
 });
