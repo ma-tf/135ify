@@ -35,7 +35,7 @@ export default defineConfig({
       ],
       order: "asc",
     },
-    ignorePatterns: ["src/routeTree.gen.ts", "convex/_generated/", ".agents/"],
+    ignorePatterns: ["src/routeTree.gen.ts", "convex/_generated/", ".agents/", ".opencode/"],
     overrides: [
       {
         files: ["**/*.md"],
@@ -67,7 +67,7 @@ export default defineConfig({
       { files: ["src/main.tsx"], rules: { "no-restricted-imports": "off" } },
       { files: ["src/routeTree.gen.ts"], rules: { "no-restricted-imports": "off" } },
     ],
-    ignorePatterns: [".agents/"],
+    ignorePatterns: [".agents/", ".opencode/"],
     options: { typeAware: true, typeCheck: true },
   },
   test: {
