@@ -1,4 +1,5 @@
 import { AiKeyDialog } from "@components/ai-key-dialog";
+import { GitHubIcon } from "@components/github-icon";
 import { ModeToggle } from "@components/mode-toggle";
 import { SignInButtons } from "@components/sign-in-dialog";
 import { useTheme } from "@components/theme-provider";
@@ -273,13 +274,28 @@ export function Header() {
         </nav>
       )}
       <div className="flex items-center justify-end gap-2">
+        <a href="https://m4t.tf" className="opacity-70 transition-opacity hover:opacity-100">
+          <img src="/assets/logo64x64.webp" alt="135ify" className="size-5" />
+          <span className="sr-only">Home</span>
+        </a>
+        <a
+          href="https://github.com/ma-tf/135ify"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mr-2 opacity-70 transition-opacity hover:text-foreground hover:opacity-100"
+        >
+          <GitHubIcon className="size-5" />
+          <span className="sr-only">GitHub</span>
+        </a>
         {FEATURE_SIGN_IN && isAuthenticated && <MobileNav />}
         {FEATURE_SIGN_IN && (
           <>
             <SignInButtons />
-            <div className="hidden md:block">
-              <UserMenu />
-            </div>
+            {isAuthenticated && (
+              <div className="hidden items-center md:flex">
+                <UserMenu />
+              </div>
+            )}
           </>
         )}
         {FEATURE_SIGN_IN && isAuthenticated ? null : <ModeToggle />}

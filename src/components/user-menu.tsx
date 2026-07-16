@@ -34,7 +34,12 @@ function UserAvatar(props: ComponentProps<typeof Button>) {
   }
 
   return (
-    <Button variant="ghost" size="sm" className="relative size-8 rounded-full" {...props}>
+    <Button
+      variant="ghost"
+      size="sm"
+      className="relative size-8 cursor-pointer rounded-full"
+      {...props}
+    >
       <Avatar size="sm">
         <AvatarImage src={user.data.image} alt={user.data.name} />
         <AvatarFallback>{getInitials(user.data.name, user.data.email)}</AvatarFallback>

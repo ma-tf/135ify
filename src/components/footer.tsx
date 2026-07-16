@@ -1,4 +1,3 @@
-import { GitHubIcon } from "@components/github-icon";
 import { Button } from "@components/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@components/ui/hover-card";
 
@@ -20,15 +19,6 @@ export function Footer() {
           service.
         </HoverCardContent>
       </HoverCard>
-      <a
-        href="https://github.com/ma-tf/135ify"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="transition-colors hover:text-foreground"
-      >
-        <GitHubIcon className="size-5" />
-        <span className="sr-only">GitHub</span>
-      </a>
     </footer>
   );
 }
