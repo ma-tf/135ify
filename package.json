@@ -17,7 +17,8 @@
     "fallow:d": "vpx fallow dupes",
     "fallow:hc": "vpx fallow health --score --hotspots --targets",
     "fallow:a": "vpx fallow audit",
-    "fallow:p": "vp test && vpx fallow --production --coverage coverage/coverage-final.json"
+    "fallow:p": "vp test && vpx fallow --production --coverage coverage/coverage-final.json",
+    "doctor": "npx react-doctor@latest"
   },
   "dependencies": {
     "@auth/core": "0.41.1",
