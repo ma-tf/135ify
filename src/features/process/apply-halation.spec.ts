@@ -2,7 +2,7 @@ import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 describe("applyHalation", () => {
-  let applyHalation: typeof import("./apply-halation").applyHalation;
+  let applyHalation: typeof import("@features/process/apply-halation").applyHalation;
   let outerCtx: ReturnType<typeof makeCtxMock>;
   let innerCtx: ReturnType<typeof makeCtxMock>;
 
@@ -33,7 +33,7 @@ describe("applyHalation", () => {
       },
     );
 
-    ({ applyHalation } = await import("./apply-halation"));
+    ({ applyHalation } = await import("@features/process/apply-halation"));
     outerCtx = makeCtxMock();
   });
 

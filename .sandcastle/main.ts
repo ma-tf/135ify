@@ -33,6 +33,8 @@ const planSchema = z.object({
   issues: z.array(z.object({ id: z.string(), title: z.string(), branch: z.string() })),
 });
 
+type PlanIssue = z.infer<typeof planSchema>["issues"][number];
+
 // ---------------------------------------------------------------------------
 // Configuration
 // ---------------------------------------------------------------------------
@@ -84,7 +86,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     output: sandcastle.Output.object({ tag: "plan", schema: planSchema }),
   });
 
-  const issues = plan.output.issues;
+  const issues: PlanIssue[] = plan.output.issues;
 
   if (issues.length === 0) {
     // No unblocked work — either everything is done or everything is blocked.

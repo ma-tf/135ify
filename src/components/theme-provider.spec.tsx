@@ -7,14 +7,14 @@ describe("applyTheme", () => {
   });
 
   it("adds the light class for light theme", async () => {
-    const { applyTheme } = await import("./apply-theme");
+    const { applyTheme } = await import("@components/apply-theme");
     applyTheme("light");
     expect(document.documentElement.classList.contains("light")).toBe(true);
     expect(document.documentElement.classList.contains("dark")).toBe(false);
   });
 
   it("adds the dark class for dark theme", async () => {
-    const { applyTheme } = await import("./apply-theme");
+    const { applyTheme } = await import("@components/apply-theme");
     applyTheme("dark");
     expect(document.documentElement.classList.contains("dark")).toBe(true);
     expect(document.documentElement.classList.contains("light")).toBe(false);
@@ -34,7 +34,7 @@ describe("applyTheme", () => {
         dispatchEvent: vi.fn(),
       })),
     );
-    const { applyTheme } = await import("./apply-theme");
+    const { applyTheme } = await import("@components/apply-theme");
     applyTheme("system");
     expect(document.documentElement.classList.contains("dark")).toBe(true);
     expect(document.documentElement.classList.contains("light")).toBe(false);
@@ -55,7 +55,7 @@ describe("applyTheme", () => {
         dispatchEvent: vi.fn(),
       })),
     );
-    const { applyTheme } = await import("./apply-theme");
+    const { applyTheme } = await import("@components/apply-theme");
     applyTheme("system");
     expect(document.documentElement.classList.contains("light")).toBe(true);
     expect(document.documentElement.classList.contains("dark")).toBe(false);
@@ -63,7 +63,7 @@ describe("applyTheme", () => {
   });
 
   it("removes opposite class when switching themes", async () => {
-    const { applyTheme } = await import("./apply-theme");
+    const { applyTheme } = await import("@components/apply-theme");
     applyTheme("dark");
     expect(document.documentElement.classList.contains("dark")).toBe(true);
     applyTheme("light");
@@ -117,7 +117,7 @@ describe("ThemeProvider", () => {
 
   it("renders children", async () => {
     mockLocalStorage({});
-    const { ThemeProvider } = await import("./theme-provider");
+    const { ThemeProvider } = await import("@components/theme-provider");
     render(
       <ThemeProvider>
         <div>hello</div>
@@ -128,7 +128,7 @@ describe("ThemeProvider", () => {
 
   it("reads theme from localStorage", async () => {
     mockLocalStorage({ "vite-ui-theme": "dark" });
-    const { ThemeProvider } = await import("./theme-provider");
+    const { ThemeProvider } = await import("@components/theme-provider");
     render(
       <ThemeProvider>
         <div />
@@ -139,7 +139,7 @@ describe("ThemeProvider", () => {
 
   it("falls back to defaultTheme when localStorage is empty", async () => {
     mockLocalStorage({});
-    const { ThemeProvider } = await import("./theme-provider");
+    const { ThemeProvider } = await import("@components/theme-provider");
     render(
       <ThemeProvider defaultTheme="light">
         <div />
@@ -150,7 +150,7 @@ describe("ThemeProvider", () => {
 
   it("setTheme updates localStorage and classList", async () => {
     mockLocalStorage({});
-    const { ThemeProvider, useTheme } = await import("./theme-provider");
+    const { ThemeProvider, useTheme } = await import("@components/theme-provider");
 
     function TestConsumer() {
       const { theme, setTheme } = useTheme();
@@ -192,7 +192,7 @@ describe("ThemeProvider", () => {
       })),
     );
 
-    const { ThemeProvider, useTheme } = await import("./theme-provider");
+    const { ThemeProvider, useTheme } = await import("@components/theme-provider");
 
     function TestConsumer() {
       const { setTheme } = useTheme();
@@ -215,7 +215,7 @@ describe("ThemeProvider", () => {
 
 describe("useTheme", () => {
   it("returns the default theme value when used outside ThemeProvider", async () => {
-    const { useTheme } = await import("./theme-provider");
+    const { useTheme } = await import("@components/theme-provider");
     function Reader() {
       const { theme } = useTheme();
       return <span data-testid="outside-theme">{theme}</span>;
@@ -225,7 +225,7 @@ describe("useTheme", () => {
   });
 
   it("setTheme is a no-op when used outside ThemeProvider", async () => {
-    const { useTheme } = await import("./theme-provider");
+    const { useTheme } = await import("@components/theme-provider");
     function Caller() {
       const { setTheme } = useTheme();
       setTheme("dark");

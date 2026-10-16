@@ -274,8 +274,8 @@ The SDK automatically reads `OPENAI_API_KEY` from the environment.
 ### Image API — generate (text-to-image)
 
 ```typescript
-import OpenAI from "openai";
 import fs from "fs";
+import OpenAI from "openai";
 const openai = new OpenAI();
 
 const result = await openai.images.generate({

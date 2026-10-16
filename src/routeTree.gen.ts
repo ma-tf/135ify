@@ -9,28 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TakesRouteImport } from './routes/takes'
-import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as GalleryRouteImport } from './routes/gallery'
-import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TakesIndexRouteImport } from './routes/takes.index'
+import { Route as AccountRouteImport } from './routes/account'
+import { Route as GalleryRouteImport } from './routes/gallery'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as TakesRouteImport } from './routes/takes'
 import { Route as GalleryIndexRouteImport } from './routes/gallery.index'
 import { Route as GalleryImageIdRouteImport } from './routes/gallery.$imageId'
+import { Route as TakesIndexRouteImport } from './routes/takes.index'
 
-const TakesRoute = TakesRouteImport.update({
-  id: '/takes',
-  path: '/takes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PricingRoute = PricingRouteImport.update({
-  id: '/pricing',
-  path: '/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GalleryRoute = GalleryRouteImport.update({
-  id: '/gallery',
-  path: '/gallery',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountRoute = AccountRouteImport.update({
@@ -38,15 +28,20 @@ const AccountRoute = AccountRouteImport.update({
   path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const GalleryRoute = GalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TakesIndexRoute = TakesIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => TakesRoute,
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TakesRoute = TakesRouteImport.update({
+  id: '/takes',
+  path: '/takes',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const GalleryIndexRoute = GalleryIndexRouteImport.update({
   id: '/',
@@ -57,6 +52,11 @@ const GalleryImageIdRoute = GalleryImageIdRouteImport.update({
   id: '/$imageId',
   path: '/$imageId',
   getParentRoute: () => GalleryRoute,
+} as any)
+const TakesIndexRoute = TakesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TakesRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -124,25 +124,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/takes': {
-      id: '/takes'
-      path: '/takes'
-      fullPath: '/takes'
-      preLoaderRoute: typeof TakesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pricing': {
-      id: '/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/gallery': {
-      id: '/gallery'
-      path: '/gallery'
-      fullPath: '/gallery'
-      preLoaderRoute: typeof GalleryRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/account': {
@@ -152,19 +138,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/takes/': {
-      id: '/takes/'
-      path: '/'
-      fullPath: '/takes/'
-      preLoaderRoute: typeof TakesIndexRouteImport
-      parentRoute: typeof TakesRoute
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/takes': {
+      id: '/takes'
+      path: '/takes'
+      fullPath: '/takes'
+      preLoaderRoute: typeof TakesRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/gallery/': {
       id: '/gallery/'
@@ -179,6 +172,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/gallery/$imageId'
       preLoaderRoute: typeof GalleryImageIdRouteImport
       parentRoute: typeof GalleryRoute
+    }
+    '/takes/': {
+      id: '/takes/'
+      path: '/'
+      fullPath: '/takes/'
+      preLoaderRoute: typeof TakesIndexRouteImport
+      parentRoute: typeof TakesRoute
     }
   }
 }
