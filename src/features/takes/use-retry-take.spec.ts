@@ -48,7 +48,7 @@ describe("useRetryTake", () => {
       status: "success",
       data: [{ productKeys: ["ai_generation_platform"] }],
     });
-    const { useRetryTake } = await import("./use-retry-take");
+    const { useRetryTake } = await import("@features/takes/use-retry-take");
     const { result } = renderHook(() => useRetryTake());
     expect(result.current.canRetry).toBe(true);
   });
@@ -57,7 +57,7 @@ describe("useRetryTake", () => {
     mockAiProviderState.apiKey = "";
     mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
-    const { useRetryTake } = await import("./use-retry-take");
+    const { useRetryTake } = await import("@features/takes/use-retry-take");
     const { result } = renderHook(() => useRetryTake());
     expect(result.current.canRetry).toBe(false);
   });
@@ -71,7 +71,7 @@ describe("useRetryTake", () => {
     mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
-    const { useRetryTake } = await import("./use-retry-take");
+    const { useRetryTake } = await import("@features/takes/use-retry-take");
     const { result } = renderHook(() => useRetryTake());
 
     await act(async () => {
@@ -94,7 +94,7 @@ describe("useRetryTake", () => {
       data: [{ productKeys: ["ai_generation_platform"] }],
     });
 
-    const { useRetryTake } = await import("./use-retry-take");
+    const { useRetryTake } = await import("@features/takes/use-retry-take");
     const { result } = renderHook(() => useRetryTake());
 
     await act(async () => {
@@ -112,7 +112,7 @@ describe("useRetryTake", () => {
       status: "success",
       data: [{ productKeys: ["ai_generation_platform"] }],
     });
-    const { useRetryTake } = await import("./use-retry-take");
+    const { useRetryTake } = await import("@features/takes/use-retry-take");
     const { result } = renderHook(() => useRetryTake());
     expect(result.current.canRetry).toBe(false);
   });
@@ -129,7 +129,7 @@ describe("useRetryTake", () => {
       data: [{ productKeys: ["ai_generation_platform"] }],
     });
 
-    const { useRetryTake } = await import("./use-retry-take");
+    const { useRetryTake } = await import("@features/takes/use-retry-take");
     const { result } = renderHook(() => useRetryTake());
 
     await act(async () => {
@@ -149,7 +149,7 @@ describe("useRetryTake", () => {
     mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
-    const { useRetryTake } = await import("./use-retry-take");
+    const { useRetryTake } = await import("@features/takes/use-retry-take");
     const { result } = renderHook(() => useRetryTake());
 
     let returned: boolean | undefined;
@@ -171,7 +171,7 @@ describe("useRetryTake", () => {
     mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
-    const { useRetryTake } = await import("./use-retry-take");
+    const { useRetryTake } = await import("@features/takes/use-retry-take");
     const { result } = renderHook(() => useRetryTake());
 
     await act(async () => {
@@ -195,7 +195,7 @@ describe("useRetryTake", () => {
     mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
-    const { useRetryTake } = await import("./use-retry-take");
+    const { useRetryTake } = await import("@features/takes/use-retry-take");
     const { result } = renderHook(() => useRetryTake());
 
     let retryPromise: Promise<unknown>;
@@ -222,7 +222,7 @@ describe("useRetryTake", () => {
     mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
-    const { useRetryTake } = await import("./use-retry-take");
+    const { useRetryTake } = await import("@features/takes/use-retry-take");
     const { result } = renderHook(() => useRetryTake());
 
     let returned: boolean | undefined;
@@ -244,7 +244,7 @@ describe("useRetryTake", () => {
     mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "success", data: [] });
 
-    const { useRetryTake } = await import("./use-retry-take");
+    const { useRetryTake } = await import("@features/takes/use-retry-take");
     const { result } = renderHook(() => useRetryTake());
 
     await act(async () => {
@@ -259,7 +259,7 @@ describe("useRetryTake", () => {
     mockAiProviderState.apiKey = "";
     mockAiProviderState.preferUserKey = false;
     mockUseQuery.mockReturnValue({ status: "pending" });
-    const { useRetryTake } = await import("./use-retry-take");
+    const { useRetryTake } = await import("@features/takes/use-retry-take");
     const { result } = renderHook(() => useRetryTake());
     expect(result.current.canRetry).toBe(false);
   });

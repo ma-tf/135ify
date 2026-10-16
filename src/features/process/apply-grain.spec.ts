@@ -2,7 +2,7 @@ import { DEFAULT_PARAMS } from "@stores/file-store-types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 describe("applyGrain", () => {
-  let applyGrain: typeof import("./apply-grain").applyGrain;
+  let applyGrain: typeof import("@features/process/apply-grain").applyGrain;
   let outerCtx: ReturnType<typeof makeCtxMock>;
   let innerCtx: ReturnType<typeof makeCtxMock>;
 
@@ -30,7 +30,7 @@ describe("applyGrain", () => {
       },
     );
 
-    ({ applyGrain } = await import("./apply-grain"));
+    ({ applyGrain } = await import("@features/process/apply-grain"));
     outerCtx = makeCtxMock();
   });
 

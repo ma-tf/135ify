@@ -15,8 +15,8 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: voidzero-dev/setup-vp@v1
+      - uses: actions/checkout@v7
+      - uses: voidzero-dev/setup-vp@v1.21.2
         with:
           node-version-file: .node-version
       - run: vp i --frozen-lockfile
@@ -37,8 +37,8 @@ jobs:
       VITE_FEATURE_SUBSCRIPTIONS: ${{ vars.VITE_FEATURE_SUBSCRIPTIONS }}
       VITE_GALLERY_IMAGE_LIMIT: ${{ vars.VITE_GALLERY_IMAGE_LIMIT }}
     steps:
-      - uses: actions/checkout@v6
-      - uses: voidzero-dev/setup-vp@v1
+      - uses: actions/checkout@v7
+      - uses: voidzero-dev/setup-vp@v1.21.2
         with:
           node-version-file: .node-version
       - run: vp i --frozen-lockfile
@@ -63,8 +63,8 @@ jobs:
       VITE_FEATURE_SIGN_IN: ${{ vars.VITE_FEATURE_SIGN_IN }}
       VITE_FEATURE_SUBSCRIPTIONS: ${{ vars.VITE_FEATURE_SUBSCRIPTIONS }}
     steps:
-      - uses: actions/checkout@v6
-      - uses: voidzero-dev/setup-vp@v1
+      - uses: actions/checkout@v7
+      - uses: voidzero-dev/setup-vp@v1.21.2
         with:
           node-version-file: .node-version
       - run: vp i --frozen-lockfile
